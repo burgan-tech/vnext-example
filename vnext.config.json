@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "description": "core Domain Definition Configuration",
+  "domain": "core",
+  "runtimeVersion": "0.0.20",
+  "schemaVersion": "0.0.25",
+  "paths": {
+    "componentsRoot": "core",
+    "tasks": "Tasks",
+    "views": "Views",
+    "functions": "Functions",
+    "extensions": "Extensions",
+    "workflows": "Workflows",
+    "schemas": "Schemas"
+  },
+  "exports": {
+    "functions": [],
+    "workflows": [],
+    "tasks": [],
+    "views": [],
+    "schemas": [],
+    "extensions": [],
+    "visibility": "public",
+    "metadata": {
+      "description": "Exported components for core domain",
+      "maintainer": "vNext Team",
+      "license": "MIT",
+      "keywords": [
+        "core",
+        "vnext",
+        "workflow",
+        "domain"
+      ]
+    }
+  },
+  "dependencies": {
+    "domains": [],
+    "npm": []
+  },
+  "referenceResolution": {
+    "enabled": true,
+    "validateOnBuild": true,
+    "strictMode": true,
+    "validateReferenceConsistency": true,
+    "validateSchemas": true,
+    "allowedHosts": [
+      "registry.npmjs.org",
+      "npm.vnext.com",
+      "npm.pkg.github.com"
+    ],
+    "schemaValidationRules": {
+      "enforceKeyFormat": true,
+      "enforceVersionFormat": true,
+      "enforceFilenameConsistency": true,
+      "allowUnknownProperties": false
+    }
+  }
+}

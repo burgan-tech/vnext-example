@@ -1,0 +1,36 @@
+{
+  "nodePos": {
+    "account-type-selection": {
+      "x": 630,
+      "y": 564.5
+    },
+    "account-details-input": {
+      "x": 942,
+      "y": 475.5
+    },
+    "account-confirmation": {
+      "x": 1254,
+      "y": 475.5
+    },
+    "policy-validation": {
+      "x": 31.125874125874105,
+      "y": 223.04195804195803
+    },
+    "account-creation": {
+      "x": 606,
+      "y": 196
+    },
+    "account-opening-success": {
+      "x": 1082,
+      "y": 228
+    },
+    "cancelled": {
+      "x": 106.8527808069793,
+      "y": 2.3478735005452407
+    },
+    "__start__": {
+      "x": -57,
+      "y": 450.5
+    }
+  }
+}

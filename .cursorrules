@@ -1,0 +1,101 @@
+# core Domain Project Rules for Cursor AI
+
+## Project Structure Rules
+- Every folder represents a workflow (Schema, View, Task, Function, etc.)
+- Files inside folders are instances of that workflow
+
+## Schema Instance Pattern Rules
+
+### Platform Managed Properties (InstanceBase)
+- Schema instances MUST include: `key`, `version`, `domain`, `flow`, `flowVersion`
+- Schema instances MUST NOT include: `labels` (labels belong to business logic)
+- Optional fields: `id`, `eTag` (added by platform in production)
+
+### Business Process Properties
+- State, Transition, Workflow definitions inside attributes MUST include `labels`
+- View instances MAY include `labels` in attributes
+- Use label.1.0.0.json#/attributes reference for i18n support
+- Payload example {"label": "Example", "language": "en-US"}
+
+## Reference Pattern Rules
+
+### Foreign Key Pattern
+- References use: `domain` + `workflow` + (`id` OR `key`) + optional `version`
+- NO `type` property in references - `workflow` field serves as type
+- Examples:
+  - Schema → workflow: "Schema"
+  - View → workflow: "View"
+  - Task → workflow: "Task"
+
+### Reference Format
+- Always use local file references: `reference.json#/attributes`
+- Never use: `https://schemas.vnext.com/...`
+- Use `#/attributes` to reference the schema inside attributes
+
+## JSON Schema Standards
+
+### Enum Pattern
+Use oneOf + const + description instead of enum arrays:
+```json
+"oneOf": [
+  {"const": "value1", "description": "Description 1"},
+  {"const": "value2", "description": "Description 2"}
+]
+```
+
+### Required Properties
+- Always define required fields explicitly
+- State schema requires: `key`, `labels`, `transitions`, `views`, etc.
+- Transition schema requires: `key`, `labels`, `versionStrategy`, `onExecutionTask`, `type`
+
+## Workflow Lifecycle Pattern
+
+### Standard 3-State Pattern
+All lifecycle workflows must have:
+- `draft` (type: "start") - Initial state
+- `active` (type: "normal") - Active state
+- `passive` (type: "finish") - Final state
+
+### Standard Transitions
+- `create-*` → Entry to draft
+- `activate` → draft to active
+- `delete` → Delete in draft
+- `deactivate` → active to passive
+- `update` → Update in active
+- `reactivate` → passive to active
+- `archive` → Archive in passive
+
+## Task Array Pattern
+For onEntries, onExits:
+```json
+{
+  "order": 1,
+  "task": { "$ref": "reference.1.0.0.json#/attributes" },
+  "mapping": { "$ref": "mapping.1.0.0.json#/attributes" }
+}
+```
+
+## Common Mistakes to Avoid
+
+### ❌ DON'T
+- Add labels to schema instances
+- Add type property to references
+- Use https://schemas.vnext.com URLs
+- Create files without version numbers
+- Add non-existent properties (permissions, conditions, metadata to State)
+- Use simple object definitions instead of schema references
+
+### ✅ DO
+- Keep schema instances platform-managed only
+- Use workflow field as type indicator in references
+- Use local file references with #/attributes
+- Follow semantic versioning for all files
+- Reference code.json for mapping properties
+- Read original files before making changes
+
+## Development Guidelines
+- Schema-first approach
+- Semantic versioning for backward compatibility
+- JSON Schema Draft 2020-12 compliance
+- Cross-domain ready architecture
+- Instance wrapper pattern for schema definitions 

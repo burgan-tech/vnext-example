@@ -1,0 +1,53 @@
+{
+  "name": "@burgan-tech/vnext-example",
+  "version": "0.0.1",
+  "description": "vNext template package with domain-based workflow components and schema validation",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js",
+    "validate": "node validate.js",
+    "build": "echo 'Build completed - package is ready'",
+    "prepublishOnly": "npm run validate"
+  },
+  "keywords": [
+    "vnext",
+    "workflow",
+    "template",
+    "schema",
+    "domain-driven",
+    "burgan-tech",
+    "process-automation"
+  ],
+  "author": "Burgan Tech Team <dev@burgan-tech.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burgan-tech/vnext-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/burgan-tech/vnext-template/issues"
+  },
+  "homepage": "https://github.com/burgan-tech/vnext-template#readme",
+  "files": [
+    "index.js",
+    "core/",
+    "vnext.config.json",
+    "README.md",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "test.js",
+    "validate.js",
+    "test-domain-detection.sh",
+    ".cursorrules",
+    ".gitignore",
+    ".gitattributes"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1"
+  }
+}
