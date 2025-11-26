@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "f503af8a-0a1b-4849-9330-e972cca00a10",
+		"_postman_id": "982a3afc-4d91-4c46-949b-29175ab8cfd6",
 		"name": "vNext Example Runtime",
 		"description": "Complete collection for testing Workflow SubFlows, SubProcesses and Main Flow integrations based on examples/sub-flows HTTP files",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "316535"
+		"_exporter_id": "30789558"
 	},
 	"item": [
 		{
@@ -727,7 +727,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"3498749106090045454232333\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"session\": \"16\"\n    }\n}",
+									"raw": "{\n    \"key\": \"3498749106090045454232333\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"session\": \"16\",\n       \"oldInstanceId\": \"3498749106090045454232333\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -760,6 +760,62 @@
 										{
 											"key": "flow",
 											"value": "account-opening"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 1.5(optinal): Execute Sub Copy",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"accountType\": \"demand-deposit\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"transitions",
+										":transition"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "account-opening"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										},
+										{
+											"key": "transition",
+											"value": "execute-sub"
 										}
 									]
 								}
