@@ -122,7 +122,65 @@
               "loadData": false,
               "extensions": []
             },
-            "onExecutionTasks": []
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "get-data-from-workflow",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/TriggerGetInstanceTaskMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgU3lzdGVtLlRleHQuSnNvbjsKCnB1YmxpYyBjbGFzcyBUcmlnZ2VyR2V0SW5zdGFuY2VUYXNrTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZ2dlclRhc2sgPSAodGFzayBhcyBHZXRJbnN0YW5jZURhdGFUYXNrKSE7CiAgICAgICAKICAgICAgICB0cmlnZ2VyVGFzay5TZXRJbnN0YW5jZShjb250ZXh0Lkluc3RhbmNlLkRhdGEub2xkSW5zdGFuY2VJZCk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIG9sZEluc3RhbmNlPWNvbnRleHQuQm9keSwKICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlCiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQoKcHVibGljIGNsYXNzIFJlcXVlc3RNb2RlbAp7CiAgICBwdWJsaWMgc3RyaW5nIGtleSB7IGdldDsgc2V0OyB9CiAgICBwdWJsaWMgZHluYW1pYyAgYXR0cmlidXRlcyB7IGdldDsgc2V0OyB9Cn0="
+                }
+              }
+            ]
+          },
+          {
+            "key": "execute-sub",
+            "target": "account-type-selection",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Execute SubProcess"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Sub Process Çalıştır"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": {
+              "view": {
+                "key": "account-type-selection-confirmation-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": false,
+              "extensions": []
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "trigger-scheduled-payments",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/TriggerScheduledPaymentsMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgpwdWJsaWMgY2xhc3MgVHJpZ2dlclNjaGVkdWxlZFBheW1lbnRzTWFwcGluZyA6U2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzdWJQcm9jZXNzVGFzayA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2s7CgogICAgICAgIGlmIChzdWJQcm9jZXNzVGFzayA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgfQoKICAgICAgICAvLyBDb25maWd1cmUgc3VicHJvY2VzcwogICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldERvbWFpbigiY29yZSIpOwogICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldEtleSgic2NoZWR1bGVkLXBheW1lbnRzIik7CiAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0VmVyc2lvbigiMS4wLjAiKTsKCiAgICAgICAgLy8gUHJlcGFyZSBzdWJwcm9jZXNzIGluaXRpYWxpemF0aW9uIGRhdGEKICAgICAgICAvLyBQYXNzIHJlbGV2YW50IGRhdGEgZnJvbSBhY2NvdW50LW9wZW5pbmcgd29ya2Zsb3cgdG8gc2NoZWR1bGVkLXBheW1lbnRzCiAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0Qm9keShuZXcKICAgICAgICB7CiAgICAgICAgICAgIHVzZXJJZCA9IDEsCiAgICAgICAgICAgIGFtb3VudCA9IDEyMDAwLAogICAgICAgICAgICBjdXJyZW5jeSA9ICJUTCIsCiAgICAgICAgICAgIGZyZXF1ZW5jeSA9ICJtb250aGx5IiwKICAgICAgICAgICAgc3RhcnREYXRlID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICBlbmREYXRlID0gIjIwMjYtMTAtMDFUMDk6MDI6MzguMjAxWiIsCiAgICAgICAgICAgIHBheW1lbnRNZXRob2RJZCA9ICIxIiwKICAgICAgICAgICAgZGVzY3JpcHRpb24gPSAiWCDDtmRlbWUiLAogICAgICAgICAgICByZWNpcGllbnRJZCA9ICIzMjQzMjQiLAogICAgICAgICAgICBpc0F1dG9SZXRyeSA9IGZhbHNlLAogICAgICAgICAgICBtYXhSZXRyaWVzID0gMwogICAgICAgIH0pOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEKICAgICAgICB9KTsKICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHJlc3BvbnNlID0gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CgogICAgICAgIC8vIFN1YlByb2Nlc3MgaXMgZmlyZS1hbmQtZm9yZ2V0CiAgICAgICAgLy8gSnVzdCB0cmFjayB0aGF0IGl0IHdhcyBpbml0aWF0ZWQKICAgICAgCiAgICAgICAgICAgIHJlc3BvbnNlLkRhdGEgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgc2NoZWR1bGVkUGF5bWVudHNJbml0aWF0ZWQgPSB0cnVlLAogICAgICAgICAgICAgICAgaW5pdGlhdGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBzdGF0dXMgPSAiU0NIRURVTEVEX1BBWU1FTlRTX1NVQlBST0NFU1NfTEFVTkNIRUQiCiAgICAgICAgICAgIH07CgogICAgICAgIHJldHVybiByZXNwb25zZTsKICAgIH0KfQoK"
+                }
+              }
+            ]
           }
         ]
       },
