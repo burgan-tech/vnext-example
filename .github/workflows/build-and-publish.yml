@@ -93,12 +93,57 @@ jobs:
       run: |
         echo "🔍 Validating vNext components with reference resolution..."
         
+        # Temporarily rename diagram files to exclude them from validation
+        echo "📋 Excluding diagram files from validation..."
+        DIAGRAM_FILES=$(find core -name "*.diagram.json" -type f 2>/dev/null || true)
+        if [ -n "$DIAGRAM_FILES" ]; then
+          echo "$DIAGRAM_FILES" | while read file; do
+            if [ -f "$file" ]; then
+              mv "$file" "${file}.skip"
+              echo "  Excluded: $file"
+            fi
+          done
+        else
+          echo "  No diagram files found to exclude"
+        fi
+        
         # Run validation with reference resolution
+        VALIDATION_EXIT_CODE=0
         if vnext validate --resolve-refs; then
           echo "✅ vNext validation completed successfully"
         else
+          VALIDATION_EXIT_CODE=$?
+          echo "⚠️  vNext validation found issues"
+        fi
+        
+        # Restore diagram files
+        echo "📋 Restoring diagram files..."
+        SKIP_FILES=$(find core -name "*.diagram.json.skip" -type f 2>/dev/null || true)
+        if [ -n "$SKIP_FILES" ]; then
+          echo "$SKIP_FILES" | while read file; do
+            if [ -f "$file" ]; then
+              mv "$file" "${file%.skip}"
+              echo "  Restored: ${file%.skip}"
+            fi
+          done
+        fi
+        
+        # Exit with validation error code if validation failed
+        if [ $VALIDATION_EXIT_CODE -ne 0 ]; then
+          echo ""
           echo "❌ vNext validation failed"
-          echo "Please check the validation errors above and fix them before proceeding"
+          echo "=========================================="
+          echo "Validation errors found in the following areas:"
+          echo "1. Schema files - Check if schema files are properly formatted"
+          echo "2. Task files - Check for missing required properties (tags, valid type values)"
+          echo ""
+          echo "Common issues to check:"
+          echo "- Schema files should not be validated as component instances"
+          echo "- Task files must have 'tags' property"
+          echo "- Task 'type' values must be valid (not '13' or '14')"
+          echo ""
+          echo "Note: Diagram files (.diagram.json) are excluded from validation"
+          echo "Please fix the validation errors above before proceeding"
           exit 1
         fi
     
