@@ -1,0 +1,80 @@
+name: Create Release Branch on PR Merge
+
+on:
+  pull_request:
+    branches:
+      - 'master'
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  create-release-branch:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Get version from vnext.config.json
+      id: version
+      run: |
+        VERSION=$(node -p "require('./vnext.config.json').version")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version from vnext.config.json: $VERSION"
+    
+    - name: Create release branch
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        RELEASE_BRANCH="release-v${VERSION}"
+        MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
+        
+        echo "🚀 Creating release branch: $RELEASE_BRANCH"
+        echo "📌 From merge commit: $MERGE_SHA"
+        
+        # Fetch the merge commit
+        git fetch origin $MERGE_SHA
+        
+        # Check if release branch already exists
+        if git show-ref --verify --quiet refs/heads/$RELEASE_BRANCH || git ls-remote --heads origin $RELEASE_BRANCH | grep -q $RELEASE_BRANCH; then
+          echo "⚠️  Release branch $RELEASE_BRANCH already exists"
+          echo "Switching to existing release branch..."
+          git checkout $RELEASE_BRANCH
+          git pull origin $RELEASE_BRANCH
+        else
+          echo "✅ Creating new release branch: $RELEASE_BRANCH from merge commit"
+          git checkout -b $RELEASE_BRANCH $MERGE_SHA
+          git push origin $RELEASE_BRANCH
+        fi
+        
+        echo "RELEASE_BRANCH=$RELEASE_BRANCH" >> $GITHUB_ENV
+    
+    - name: Summary
+      run: |
+        echo "## 🎉 Release Branch Created Successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Release Information" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Release Branch**: ${{ env.RELEASE_BRANCH }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered by**: PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔄 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "The release branch will now trigger the build and publish workflow automatically." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 What Happens Next" >> $GITHUB_STEP_SUMMARY
+        echo "1. ✅ Release branch created: \`${{ env.RELEASE_BRANCH }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "2. 🔄 Build and publish workflow will start automatically" >> $GITHUB_STEP_SUMMARY
+        echo "3. 📦 Packages will be built with version: \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "4. 🚀 Packages will be published to NPM" >> $GITHUB_STEP_SUMMARY
+        echo "5. 🏷️ Git tag will be created: \`v${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "6. 📋 GitHub release will be created" >> $GITHUB_STEP_SUMMARY
