@@ -48,6 +48,7 @@
       {
         "key": "get-user-info",
         "stateType": 1,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -107,6 +108,7 @@
       {
         "key": "send-notifications",
         "stateType": 1,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -179,6 +181,7 @@
       {
         "key": "notification-complete",
         "stateType": 3,
+        "subType": 1,
         "versionStrategy": "Minor",
         "labels": [
           {

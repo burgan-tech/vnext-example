@@ -55,6 +55,7 @@
       {
         "key": "payment-configuration",
         "stateType": 1,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -138,6 +139,7 @@
       {
         "key": "payment-active",
         "stateType": 4,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -254,6 +256,7 @@
       {
         "key": "payment-deactive",
         "stateType": 2,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -352,6 +355,7 @@
       {
         "key": "payment-cycle-check",
         "stateType": 4,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -409,6 +413,7 @@
       {
         "key": "payment-finished",
         "stateType": 3,
+        "subType": 1,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -443,6 +448,7 @@
       {
         "key": "payment-terminated",
         "stateType": 3,
+        "subType": 3,
         "versionStrategy": "Minor",
         "labels": [
           {

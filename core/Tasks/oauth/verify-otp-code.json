@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://mockoon:3001/api/oauth2/otp/verify",
+      "url": "http://localhost:3001/api/oauth2/otp/verify",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

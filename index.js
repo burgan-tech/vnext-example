@@ -1,24 +1,38 @@
 const fs = require('fs');
 const path = require('path');
 
-// Find the domain directory dynamically
-function findDomainDirectory() {
-  const entries = fs.readdirSync('.', { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isDirectory() && 
-        !entry.name.startsWith('.') && 
-        entry.name !== 'node_modules' &&
-        entry.name !== 'dist') {
-      // Check if it contains typical vnext structure
-      const domainPath = entry.name;
-      if (fs.existsSync(path.join(domainPath, 'Schemas')) ||
-          fs.existsSync(path.join(domainPath, 'Workflows')) ||
-          fs.existsSync(path.join(domainPath, 'Tasks'))) {
-        return domainPath;
-      }
-    }
+// Load configuration from vnext.config.json
+function loadConfig() {
+  try {
+    return JSON.parse(fs.readFileSync('vnext.config.json', 'utf8'));
+  } catch (error) {
+    return null;
   }
-  return null;
+}
+
+// Get paths configuration with defaults
+function getPathsConfig() {
+  const config = loadConfig();
+  const defaults = {
+    componentsRoot: 'core',
+    schemas: 'Schemas',
+    workflows: 'Workflows',
+    tasks: 'Tasks',
+    views: 'Views',
+    functions: 'Functions',
+    extensions: 'Extensions'
+  };
+  
+  if (config && config.paths) {
+    return { ...defaults, ...config.paths };
+  }
+  return defaults;
+}
+
+// Find the domain directory from config
+function findDomainDirectory() {
+  const pathsConfig = getPathsConfig();
+  return pathsConfig.componentsRoot;
 }
 
 // Load JSON files from a directory
@@ -30,6 +44,11 @@ function loadJsonFiles(dirPath) {
   
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   for (const entry of entries) {
+    // Skip .meta directory
+    if (entry.name === '.meta') {
+      continue;
+    }
+    
     if (entry.isFile() && entry.name.endsWith('.json')) {
       try {
         const filePath = path.join(dirPath, entry.name);
@@ -48,62 +67,82 @@ function loadJsonFiles(dirPath) {
 module.exports = {
   // Get the domain configuration
   getDomainConfig: function() {
-    try {
-      return JSON.parse(fs.readFileSync('vnext.config.json', 'utf8'));
-    } catch (error) {
-      return null;
-    }
+    return getPathsConfig();
+  },
+  
+  // Get paths configuration
+  getPathsConfig: function() {
+    return getPathsConfig();
   },
   
   // Get all schemas
   getSchemas: function() {
     const domainDir = findDomainDirectory();
     if (!domainDir) return {};
-    return loadJsonFiles(path.join(domainDir, 'Schemas'));
+    const pathsConfig = getPathsConfig();
+    return loadJsonFiles(path.join(domainDir, pathsConfig.schemas));
   },
   
   // Get all workflows
   getWorkflows: function() {
     const domainDir = findDomainDirectory();
     if (!domainDir) return {};
-    return loadJsonFiles(path.join(domainDir, 'Workflows'));
+    const pathsConfig = getPathsConfig();
+    return loadJsonFiles(path.join(domainDir, pathsConfig.workflows));
   },
   
   // Get all tasks
   getTasks: function() {
     const domainDir = findDomainDirectory();
     if (!domainDir) return {};
-    return loadJsonFiles(path.join(domainDir, 'Tasks'));
+    const pathsConfig = getPathsConfig();
+    return loadJsonFiles(path.join(domainDir, pathsConfig.tasks));
   },
   
   // Get all views
   getViews: function() {
     const domainDir = findDomainDirectory();
     if (!domainDir) return {};
-    return loadJsonFiles(path.join(domainDir, 'Views'));
+    const pathsConfig = getPathsConfig();
+    return loadJsonFiles(path.join(domainDir, pathsConfig.views));
   },
   
   // Get all functions
   getFunctions: function() {
     const domainDir = findDomainDirectory();
     if (!domainDir) return {};
-    return loadJsonFiles(path.join(domainDir, 'Functions'));
+    const pathsConfig = getPathsConfig();
+    return loadJsonFiles(path.join(domainDir, pathsConfig.functions));
   },
   
   // Get all extensions
   getExtensions: function() {
     const domainDir = findDomainDirectory();
     if (!domainDir) return {};
-    return loadJsonFiles(path.join(domainDir, 'Extensions'));
+    const pathsConfig = getPathsConfig();
+    return loadJsonFiles(path.join(domainDir, pathsConfig.extensions));
   },
   
   // Get available component types
   getAvailableTypes: function() {
-    return ['schemas', 'workflows', 'tasks', 'views', 'functions', 'extensions'];
+    const pathsConfig = getPathsConfig();
+    return [pathsConfig.schemas, pathsConfig.workflows, pathsConfig.tasks, pathsConfig.views, pathsConfig.functions, pathsConfig.extensions];
   },
   
   // Get domain directory name
   getDomainName: function() {
     return findDomainDirectory();
+  },
+  
+  // Get component path for a specific type
+  getComponentPath: function(componentType) {
+    const domainDir = findDomainDirectory();
+    if (!domainDir) return null;
+    const pathsConfig = getPathsConfig();
+    const pathKey = componentType.toLowerCase();
+    if (pathsConfig[pathKey]) {
+      return path.join(domainDir, pathsConfig[pathKey]);
+    }
+    return null;
   }
 };

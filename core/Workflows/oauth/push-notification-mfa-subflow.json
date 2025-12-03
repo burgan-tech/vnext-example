@@ -56,6 +56,7 @@
       {
         "key": "send-push-notification",
         "stateType": 1,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -139,6 +140,7 @@
       {
         "key": "wait-for-approval",
         "stateType": 2,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -230,6 +232,7 @@
       {
         "key": "push-success",
         "stateType": 3,
+        "subType": 1,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -250,6 +253,7 @@
       {
         "key": "push-failed",
         "stateType": 3,
+        "subType": 2,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -270,6 +274,7 @@
       {
         "key": "push-expired",
         "stateType": 3,
+        "subType": 3,
         "versionStrategy": "Minor",
         "labels": [
           {

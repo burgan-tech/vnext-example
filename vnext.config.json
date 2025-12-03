@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "description": "core Domain Definition Configuration",
   "domain": "core",
-  "runtimeVersion": "0.0.20",
-  "schemaVersion": "0.0.25",
+  "runtimeVersion": "0.0.22",
+  "schemaVersion": "0.0.27",
   "paths": {
     "componentsRoot": "core",
     "tasks": "Tasks",

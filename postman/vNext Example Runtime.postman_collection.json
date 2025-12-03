@@ -966,7 +966,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://mockoon:4201/api/v1"
+			"value": "http://localhost:4201/api/v1"
 		},
 		{
 			"key": "requestId",

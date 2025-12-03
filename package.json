@@ -6,8 +6,18 @@
   "scripts": {
     "test": "node test.js",
     "validate": "node validate.js",
-    "build": "echo 'Build completed - package is ready'",
-    "prepublishOnly": "npm run validate"
+    "build": "node build.js",
+    "build:reference": "node build.js -t reference",
+    "build:runtime": "node build.js -t runtime",
+    "sync-schema": "node sync-schema-version.js",
+    "setup": "node setup.js",
+    "postinstall": "node setup.js && npm run sync-schema",
+    "prepublishOnly": "npm run sync-schema && npm run validate"
+  },
+  "bin": {
+    "@burgan-tech/vnext-template": "./init.js",
+    "vnext-template": "./init.js",
+    "vnext-setup": "./setup.js"
   },
   "keywords": [
     "vnext",
@@ -30,24 +40,26 @@
   "homepage": "https://github.com/burgan-tech/vnext-template#readme",
   "files": [
     "index.js",
+    "init.js",
+    "setup.js",
+    "build.js",
     "core/",
     "vnext.config.json",
     "README.md",
     "package.json",
-    "CHANGELOG.md",
     "LICENSE",
-    "test.js",
     "validate.js",
-    "test-domain-detection.sh",
-    ".cursorrules",
-    ".gitignore",
-    ".gitattributes"
+    "sync-schema-version.js"
   ],
   "engines": {
     "node": ">=16.0.0"
   },
   "devDependencies": {
+    "@burgan-tech/vnext-schema": "^0.0.27",
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1"
+  },
+  "dependencies": {
+    "@burgan-tech/vnext-schema": "^0.0.27"
   }
 }

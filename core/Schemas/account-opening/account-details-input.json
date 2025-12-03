@@ -11,11 +11,7 @@
     "demand-deposit"
   ],
   "attributes": {
-    "type": "object",
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://schemas.vnext.com/banking/account-details-input.json",
-    "title": "Account Details Input Schema",
-    "description": "Schema for account details input during account opening",
+    "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://schemas.vnext.com/banking/account-details-input.json",
