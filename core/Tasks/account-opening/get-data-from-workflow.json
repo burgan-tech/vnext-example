@@ -4,6 +4,12 @@
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
+  "tags": [
+    "account-opening",
+    "scheduled-payments",
+    "subprocess",
+    "trigger"
+  ],
   "attributes": {
     "type": "13",
     "config": {
