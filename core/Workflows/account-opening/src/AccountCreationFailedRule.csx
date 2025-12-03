@@ -73,8 +73,8 @@ public class AccountCreationFailedRule : IConditionMapping
                         "system_error",
                         "processing_error"
                     };
-                    
-                    failed = failed || failureCodes.Contains(errorCode.ToString());
+                    string code = Convert.ToString(errorCode);
+                    failed = failed || failureCodes.Contains(code, StringComparer.OrdinalIgnoreCase); 
                 }
                 
                 // Check failure category
@@ -88,8 +88,8 @@ public class AccountCreationFailedRule : IConditionMapping
                         "business_rule_violation",
                         "core_banking_failure"
                     };
-                    
-                    failed = failed || criticalCategories.Contains(failureCategory.ToString());
+                    string code = Convert.ToString(errorCode);
+                    failed = failed || criticalCategories.Contains(code, StringComparer.OrdinalIgnoreCase); 
                 }
             }
 

@@ -56,6 +56,7 @@
       {
         "key": "send-otp",
         "stateType": 1,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -139,6 +140,7 @@
       {
         "key": "submit-otp",
         "stateType": 2,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -195,6 +197,7 @@
       {
         "key": "verify-otp",
         "stateType": 2,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -288,6 +291,7 @@
       {
         "key": "otp-success",
         "stateType": 3,
+        "subType": 1,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -308,6 +312,7 @@
       {
         "key": "otp-failed",
         "stateType": 3,
+        "subType": 2,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -328,6 +333,7 @@
       {
         "key": "otp-expired",
         "stateType": 3,
+        "subType": 3,
         "versionStrategy": "Minor",
         "labels": [
           {

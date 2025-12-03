@@ -48,6 +48,7 @@
       {
         "key": "payment-pending",
         "stateType": 2,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -114,6 +115,7 @@
       {
         "key": "process-payment",
         "stateType": 1,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -197,6 +199,7 @@
       {
         "key": "payment-failed-state",
         "stateType": 2,
+        "subType": 2,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -311,6 +314,7 @@
       {
         "key": "payment-retry",
         "stateType": 2,
+        "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -370,6 +374,7 @@
       {
         "key": "payment-success-state",
         "stateType": 3,
+        "subType": 1,
         "versionStrategy": "Minor",
         "labels": [
           {
@@ -390,6 +395,7 @@
       {
         "key": "payment-cancelled",
         "stateType": 3,
+        "subType": 3,
         "versionStrategy": "Minor",
         "labels": [
           {
