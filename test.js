@@ -60,7 +60,7 @@ test('getAvailableTypes returns expected array', () => {
     throw new Error('getAvailableTypes should return an array');
   }
   
-  const expectedTypes = ['schemas', 'workflows', 'tasks', 'views', 'functions', 'extensions'];
+  const expectedTypes = ['Schemas', 'Workflows', 'Tasks', 'Views', 'Functions', 'Extensions'];
   for (const type of expectedTypes) {
     if (!types.includes(type)) {
       throw new Error(`Expected type '${type}' not found in available types`);

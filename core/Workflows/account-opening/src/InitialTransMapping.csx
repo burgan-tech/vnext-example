@@ -15,6 +15,7 @@ public class InitialTransMapping : ITransitionMapping
                 session = context.Body.session,
                 requestId = context.Headers?["x-request-id"] ?? Guid.NewGuid().ToString(),
             };
+        
 
             return output;
         }

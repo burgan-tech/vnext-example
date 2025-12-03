@@ -15,7 +15,7 @@
     "type": "6",
     "config": {
       "method": "POST",
-      "url": "http://mockoon:3001/api/payments/notify/push",
+      "url": "http://localhost:3001/api/payments/notify/push",
       "headers": {
         "Content-Type": "application/json"
       },

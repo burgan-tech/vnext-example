@@ -11,11 +11,7 @@
     "input-schema"
   ],
   "attributes": {
-    "type": "object",
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://schemas.vnext.com/banking/account-type-selection.json",
-    "title": "Account Type Selection Schema",
-    "description": "Schema for account type selection input",
+    "type": "workflow",
     "schema": {
       "$id": "https://schemas.vnext.com/banking/account-type-selection.json",
       "$schema": "https://json-schema.org/draft/2020-12/schema",

@@ -11,11 +11,7 @@
     "approval"
   ],
   "attributes": {
-    "type": "object",
-    "$id": "https://schemas.vnext.com/banking/account-type-selection.json",
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Account Type Selection Schema",
-    "description": "Schema for account type selection input",
+    "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://schemas.vnext.com/banking/account-confirmation.json",

@@ -56,7 +56,7 @@ public class PoliciesFailedRule : IConditionMapping
                 var errorCode = policyValidation.errorCode;
                 if (!string.IsNullOrEmpty(errorCode?.ToString()))
                 {
-                    var failureCodes = new[] 
+                    var failureCodes = new [] 
                     { 
                         "policy_violation", 
                         "compliance_violation", 
@@ -66,7 +66,8 @@ public class PoliciesFailedRule : IConditionMapping
                         "sanctions_check_failed"
                     };
                     
-                    failed = failed || failureCodes.Contains(errorCode.ToString());
+                    string code = Convert.ToString(errorCode);
+                    failed = failed || failureCodes.Contains(code, StringComparer.OrdinalIgnoreCase);                    
                 }
             }
 

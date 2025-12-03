@@ -82,16 +82,9 @@ jobs:
         fi
         echo "Dependencies installed successfully"
     
-    - name: Install vNext CLI
-      run: |
-        echo "Installing vNext CLI globally..."
-        npm install -g @burgan-tech/vnext-cli
-        echo "vNext CLI version:"
-        vnext --version
-    
     - name: Validate vNext components
       run: |
-        echo "🔍 Validating vNext components with reference resolution..."
+        echo "🔍 Validating vNext components..."
         
         # Temporarily rename diagram files to exclude them from validation
         echo "📋 Excluding diagram files from validation..."
@@ -107,9 +100,9 @@ jobs:
           echo "  No diagram files found to exclude"
         fi
         
-        # Run validation with reference resolution
+        # Run validation using local npm script
         VALIDATION_EXIT_CODE=0
-        if vnext validate --resolve-refs; then
+        if npm run validate; then
           echo "✅ vNext validation completed successfully"
         else
           VALIDATION_EXIT_CODE=$?
@@ -152,8 +145,8 @@ jobs:
       run: |
         echo "🏗️ Building Reference package..."
         
-        # Build reference package
-        if vnext build --type reference --output dist-reference; then
+        # Build reference package using local npm script (skip validation as it's already done)
+        if npm run build -- -t reference -o dist-reference --skip-validation; then
           echo "✅ Reference package built successfully"
           
           # List contents of reference build
@@ -168,8 +161,8 @@ jobs:
       run: |
         echo "🏗️ Building Runtime package..."
         
-        # Build runtime package
-        if vnext build --type runtime --output dist-runtime; then
+        # Build runtime package using local npm script (skip validation as it's already done)
+        if npm run build -- -t runtime -o dist-runtime --skip-validation; then
           echo "✅ Runtime package built successfully"
           
           # List contents of runtime build

@@ -13,7 +13,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://mockoon:3001/api/oauth2/client/validate",
+      "url": "http://localhost:3001/api/oauth2/client/validate",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"
