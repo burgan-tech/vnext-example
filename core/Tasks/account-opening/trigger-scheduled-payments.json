@@ -1,0 +1,22 @@
+{
+  "key": "trigger-scheduled-payments",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "account-opening",
+    "scheduled-payments",
+    "subprocess",
+    "trigger"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "core",
+      "key": "scheduled-payments",
+      "version": "1.0.0"
+    }
+  }
+}
+
