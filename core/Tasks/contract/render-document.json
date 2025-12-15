@@ -1,0 +1,27 @@
+{
+  "key": "render-document",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract",
+    "document",
+    "render",
+    "http"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/contract/render-document",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 30,
+      "validateSsl": true
+    }
+  }
+}
+

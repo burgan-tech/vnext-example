@@ -1,0 +1,16 @@
+{
+  "nodePos": {
+    "subflow-active": {
+      "x": 100,
+      "y": 100
+    },
+    "subflow-completed": {
+      "x": 526,
+      "y": 100
+    },
+    "__start__": {
+      "x": -296,
+      "y": 100
+    }
+  }
+}

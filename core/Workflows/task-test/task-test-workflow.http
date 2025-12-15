@@ -1,0 +1,149 @@
+###############################################################################
+# Task Test Workflow - HTTP Test File
+# 
+# This file tests the task-test-workflow which demonstrates all vNext task types:
+# - DaprPubSub (Type 4)
+# - HttpTask (Type 6)
+# - DaprServiceTask (Type 3)
+# - NotificationTask (Type 8)
+# - ScriptTask (Type 7)
+# - GetInstanceData (Type 13)
+# - DirectTransition (Type 12)
+# - Start (Type 11)
+# - SubProcess (Type 14)
+#
+# Prerequisites:
+# 1. vNext Runtime running on localhost:4201
+# 2. Mockoon running on localhost:3001
+# 3. Dapr sidecar running (for DaprPubSub and DaprServiceTask)
+###############################################################################
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = task-test-workflow
+@subflow = task-test-subflow
+@instanceKey = task-test-{{$timestamp}}
+
+###############################################################################
+# Step 1: Start Task Test Workflow
+# This initiates the main workflow that will test all task types
+###############################################################################
+
+### Start Main Workflow Instance
+# @name startWorkflow
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "{{instanceKey}}",
+  "tags": ["task-test", "all-task-types", "integration-test"],
+  "attributes": {
+    "testId": "test-{{$timestamp}}",
+    "testName": "All Task Types Test",
+    "testDescription": "Testing all vNext task types in a single workflow",
+    "startedBy": "http-test-file",
+    "environment": "development"
+  }
+}
+
+###############################################################################
+# Step 2: Check Workflow State (Long Polling)
+# The workflow should automatically progress through all states
+###############################################################################
+
+### Get Current State - Use Long Polling
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+Accept: application/json
+
+###############################################################################
+# Step 3: Get Instance Data
+# Retrieve all accumulated data from the workflow instance
+###############################################################################
+
+### Get Instance Data
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/data
+Accept: application/json
+
+###############################################################################
+# Subflow Operations - For Start, GetInstanceData, DirectTransition tests
+###############################################################################
+
+### Start Subflow Instance Manually (for testing Start task type)
+# @name startSubflow
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{subflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "subflow-{{$timestamp}}",
+  "tags": ["task-test", "subflow", "helper"],
+  "attributes": {
+    "parentTestId": "test-{{$timestamp}}",
+    "purpose": "Testing Start, GetInstanceData, DirectTransition tasks",
+    "createdAt": "{{$isoTimestamp}}"
+  }
+}
+
+### Get Subflow State
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{subflow}}/instances/subflow-{{$timestamp}}/functions/state
+Accept: application/json
+
+### Get Subflow Data
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{subflow}}/instances/subflow-{{$timestamp}}/functions/data
+Accept: application/json
+
+### Complete Subflow (DirectTransition test target)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{subflow}}/instances/subflow-{{$timestamp}}/transitions/complete-subflow
+Content-Type: application/json
+
+{
+  "completedBy": "http-test-file",
+  "completedAt": "{{$isoTimestamp}}",
+  "message": "Subflow completed via HTTP test"
+}
+
+###############################################################################
+# Mockoon Endpoint Tests - Verify Mock Server is Running
+###############################################################################
+
+### Test Mockoon Health Check
+GET http://localhost:3001/health
+Accept: application/json
+
+### Test Task Test HTTP Endpoint (Mockoon)
+POST http://localhost:3001/api/task-test/http-endpoint
+Content-Type: application/json
+
+{
+  "testId": "mockoon-test-{{$timestamp}}",
+  "action": "http-task-test",
+  "timestamp": "{{$isoTimestamp}}"
+}
+
+### Test Task Test HTTP Endpoint - Error Scenario
+POST http://localhost:3001/api/task-test/http-endpoint
+Content-Type: application/json
+
+{
+  "testId": "mockoon-error-test-{{$timestamp}}",
+  "simulateError": "true"
+}
+
+###############################################################################
+# Task Type Summary
+###############################################################################
+# 
+# | Task Type        | Type Code | Description                           |
+# |------------------|-----------|---------------------------------------|
+# | DaprServiceTask  | 3         | Dapr service-to-service invocation    |
+# | DaprPubSubTask   | 4         | Dapr publish/subscribe messaging      |
+# | HttpTask         | 6         | External HTTP API calls               |
+# | ScriptTask       | 7         | Custom business logic execution       |
+# | NotificationTask | 8         | Real-time client notifications        |
+# | StartTask        | 11        | Start new workflow instance           |
+# | DirectTriggerTask| 12        | Trigger transition on existing inst.  |
+# | GetInstanceData  | 13        | Fetch data from another workflow      |
+# | SubProcessTask   | 14        | Fire-and-forget subprocess launch     |
+#
+###############################################################################
+

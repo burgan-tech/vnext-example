@@ -1,0 +1,157 @@
+###############################################################################
+# Scheduled Payments Workflow - HTTP Test File
+#
+# This file tests the scheduled-payments workflow which handles:
+# - Payment schedule configuration
+# - Automatic payment execution based on schedule
+# - Manual payment trigger (pay now)
+# - Payment notifications (SMS, Push)
+# - Retry logic for failed payments
+#
+# Prerequisites:
+# 1. vNext Runtime running on localhost:4201
+# 2. Mockoon running on localhost:3001
+###############################################################################
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = scheduled-payments
+@instanceKey = payment-{{$timestamp}}
+
+###############################################################################
+# Step 1: Start Scheduled Payments Workflow
+# Creates a new scheduled payment with configuration
+###############################################################################
+
+### Start Scheduled Payment Instance
+# @name startPaymentWorkflow
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+Accept-Language: tr-TR
+X-Request-Id: {{$guid}}
+X-Device-Id: {{$guid}}
+X-Token-Id: {{$guid}}
+X-Device-Info: IOS 16
+X-Forwarded-For: 192.168.2.1
+
+{
+  "key": "{{instanceKey}}",
+  "tags": [
+    "test",
+    "payment",
+    "scheduled"
+  ],
+  "attributes": {
+    "userId": 1,
+    "amount": 12000,
+    "currency": "TL",
+    "frequency": "monthly",
+    "startDate": "2025-10-01T09:02:38.201Z",
+    "endDate": "2026-10-01T09:02:38.201Z",
+    "paymentMethodId": "1",
+    "description": "Monthly payment test",
+    "recipientId": "324324",
+    "isAutoRetry": false,
+    "maxRetries": 3
+  }
+}
+
+###############################################################################
+# Step 2: Get Instance Data
+# Retrieve current workflow instance data
+###############################################################################
+
+### Get Instance Data
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}
+Content-Type: application/json
+
+### Get Current State
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+Accept: application/json
+
+###############################################################################
+# Step 3: Manual Pay Now
+# Trigger immediate payment execution
+###############################################################################
+
+### Pay Now (Manual Trigger)
+# @name manualPayNow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/manual-pay-now?sync=false
+Content-Type: application/json
+
+###############################################################################
+# Step 4: Get Current State (Long Polling)
+# Check the current state of the workflow
+###############################################################################
+
+### Get Current State
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+Accept: application/json
+
+###############################################################################
+# Step 5: Get Instance Data (After Payment)
+# Retrieve all accumulated data including payment results
+###############################################################################
+
+### Get Instance Data After Payment
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/data
+Accept: application/json
+
+###############################################################################
+# Alternative Flows
+###############################################################################
+
+### Cancel Scheduled Payment
+# @name cancelPayment
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/cancel-payment?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "cancelReason": "User requested cancellation",
+    "cancelledBy": "user-1",
+    "cancelledAt": "{{$isoTimestamp}}"
+  }
+}
+
+### Pause Scheduled Payment
+# @name pausePayment
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/pause-payment?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "pauseReason": "Temporary pause requested",
+    "pausedBy": "user-1"
+  }
+}
+
+### Resume Scheduled Payment
+# @name resumePayment
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/resume-payment?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "resumedBy": "user-1"
+  }
+}
+
+###############################################################################
+# Scheduled Payments Flow Summary
+###############################################################################
+#
+# | Step | Transition       | Description                               |
+# |------|------------------|-------------------------------------------|
+# | 1    | start            | Create scheduled payment configuration    |
+# | 2    | (auto)           | Validate and save payment configuration   |
+# | 3a   | manual-pay-now   | Trigger immediate payment execution       |
+# | 3b   | (scheduled)      | Wait for scheduled payment time           |
+# | 4    | (auto)           | Process payment and send notifications    |
+# | 5a   | (success)        | Payment successful - archive or reschedule|
+# | 5b   | (retry)          | Payment failed - retry if configured      |
+# | 6    | cancel-payment   | Cancel the scheduled payment              |
+#
+###############################################################################
+

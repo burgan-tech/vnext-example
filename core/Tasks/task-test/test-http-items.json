@@ -1,0 +1,27 @@
+{
+  "key": "test-http-items",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "task-test",
+    "http",
+    "api",
+    "external-service"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/task-test/list-items",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 30,
+      "validateSsl": false
+    }
+  }
+}
+

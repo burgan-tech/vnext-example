@@ -1,0 +1,23 @@
+{
+  "key": "notify-document-ready",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract",
+    "notification",
+    "direct-trigger",
+    "document-ready"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "contract-approval-workflow",
+      "transitionName": "document-ready",
+      "body": {}
+    }
+  }
+}
+

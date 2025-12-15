@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "982a3afc-4d91-4c46-949b-29175ab8cfd6",
+		"_postman_id": "f503af8a-0a1b-4849-9330-e972cca00a10",
 		"name": "vNext Example Runtime",
 		"description": "Complete collection for testing Workflow SubFlows, SubProcesses and Main Flow integrations based on examples/sub-flows HTTP files",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30789558"
+		"_exporter_id": "316535"
 	},
 	"item": [
 		{
@@ -41,6 +41,55 @@
 										":flow",
 										"instances",
 										":instance"
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "oauth-authentication"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get State",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/functions/state",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"functions",
+										"state"
 									],
 									"variable": [
 										{
@@ -126,7 +175,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"349874919955\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"username\": \"34987491779\",\n        \"password\": \"112233\",\n        \"grant_type\": \"password\",\n        \"client_id\": \"acme\",\n        \"client_secret\": \"1q2w3e*\",\n        \"scope\": \"openid profile product-api\"\n    }\n}",
+									"raw": "{\n    \"key\": \"34987491990221\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"username\": \"34987491780\",\n        \"password\": \"112233\",\n        \"grant_type\": \"password\",\n        \"client_id\": \"acme\",\n        \"client_secret\": \"1q2w3e*\",\n        \"scope\": \"openid profile product-api\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -335,6 +384,55 @@
 							"response": []
 						},
 						{
+							"name": "Get State",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/functions/state",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"functions",
+										"state"
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "scheduled-payments"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Step 1: Start Instance",
 							"event": [
 								{
@@ -406,7 +504,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"349874994556\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"userId\": 1,\n        \"amount\": 12000,\n        \"currency\": \"TL\",\n        \"frequency\": \"monthly\",\n        \"startDate\": \"2025-10-01T09:02:38.201Z\",\n        \"endDate\": \"2026-10-01T09:02:38.201Z\",\n        \"paymentMethodId\": \"1\",\n        \"description\": \"Tayfun ödeme\",\n        \"recipientId\": \"324324\",\n        \"isAutoRetry\": false,\n        \"maxRetries\": 3\n    }\n}",
+									"raw": "{\n    \"key\": \"349874994573\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"userId\": 1,\n        \"amount\": 12000,\n        \"currency\": \"TL\",\n        \"frequency\": \"monthly\",\n        \"startDate\": \"2025-10-01T09:02:38.201Z\",\n        \"endDate\": \"2026-10-01T09:02:38.201Z\",\n        \"paymentMethodId\": \"1\",\n        \"description\": \"Tayfun ödeme\",\n        \"recipientId\": \"324324\",\n        \"isAutoRetry\": false,\n        \"maxRetries\": 3\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -529,29 +627,23 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance",
+									"raw": "{{baseUrl}}/core/workflows/account-opening/instances/019aa5b7-0e29-7d53-9d72-f42260c5d222/functions/data?extensions=extension-user-session",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
-										":domain",
+										"core",
 										"workflows",
-										":flow",
+										"account-opening",
 										"instances",
-										":instance"
+										"019aa5b7-0e29-7d53-9d72-f42260c5d222",
+										"functions",
+										"data"
 									],
-									"variable": [
+									"query": [
 										{
-											"key": "domain",
-											"value": "{{domain}}"
-										},
-										{
-											"key": "flow",
-											"value": "account-opening"
-										},
-										{
-											"key": "instance",
-											"value": "{{instanceId}}"
+											"key": "extensions",
+											"value": "extension-user-session"
 										}
 									]
 								}
@@ -657,6 +749,61 @@
 							"response": []
 						},
 						{
+							"name": "Get Schema",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/functions/schema?transitionKey=select-demand-deposit",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"functions",
+										"schema"
+									],
+									"query": [
+										{
+											"key": "transitionKey",
+											"value": "select-demand-deposit"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "account-opening"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Step 1: Start Instance",
 							"event": [
 								{
@@ -727,7 +874,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"3498749106090045454232333\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"session\": \"16\",\n       \"oldInstanceId\": \"3498749106090045454232333\"\n    }\n}",
+									"raw": "{\n    \"key\": \"349874924\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"session\": \"16\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -735,7 +882,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/start?sync=true",
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/start?sync=false",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -749,7 +896,7 @@
 									"query": [
 										{
 											"key": "sync",
-											"value": "true"
+											"value": "false"
 										}
 									],
 									"variable": [
@@ -760,62 +907,6 @@
 										{
 											"key": "flow",
 											"value": "account-opening"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Step 1.5(optinal): Execute Sub Copy",
-							"request": {
-								"method": "PATCH",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"accountType\": \"demand-deposit\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										":domain",
-										"workflows",
-										":flow",
-										"instances",
-										":instance",
-										"transitions",
-										":transition"
-									],
-									"query": [
-										{
-											"key": "sync",
-											"value": "true"
-										}
-									],
-									"variable": [
-										{
-											"key": "domain",
-											"value": "{{domain}}"
-										},
-										{
-											"key": "flow",
-											"value": "account-opening"
-										},
-										{
-											"key": "instance",
-											"value": "{{instanceId}}"
-										},
-										{
-											"key": "transition",
-											"value": "execute-sub"
 										}
 									]
 								}
@@ -829,7 +920,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"accountType\": \"demand-deposit\"\n}",
+									"raw": "{\n    \"key\": \"3498749106\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\",\n        \"key-test\"\n    ],\n    \"attributes\": {\n        \"accountType\": \"demand-deposit\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -837,7 +928,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=false",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -853,7 +944,7 @@
 									"query": [
 										{
 											"key": "sync",
-											"value": "true"
+											"value": "false"
 										}
 									],
 									"variable": [
@@ -885,7 +976,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"accountName\": \"demand-deposit\",\n    \"currency\": \"TRY\",\n    \"branchCode\": \"5436\",\n    \"initialDeposit\": 100,\n    \"accountPurpose\": \"personal-banking\",\n    \"notifications\": {\n        \"smsNotifications\": true,\n        \"emailNotifications\": true,\n        \"pushNotifications\": true\n    }\n}",
+									"raw": "{\n    \"attributes\": {\n        \"accountName\": \"demand-deposit\",\n        \"currency\": \"TRY\",\n        \"branchCode\": \"5436\",\n        \"initialDeposit\": 100,\n        \"accountPurpose\": \"personal-banking\",\n        \"notifications\": {\n            \"smsNotifications\": true,\n            \"emailNotifications\": true,\n            \"pushNotifications\": true\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -941,7 +1032,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"confirmed\": true,\n    \"termsAccepted\": true,\n    \"privacyPolicyAccepted\": true\n}",
+									"raw": "{\n    \"attributes\": {\n        \"confirmed\": true,\n        \"termsAccepted\": true,\n        \"privacyPolicyAccepted\": true\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -984,6 +1075,463 @@
 										{
 											"key": "transition",
 											"value": "confirm-account-opening"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cancel",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"transitions",
+										":transition"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "account-opening"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										},
+										{
+											"key": "transition",
+											"value": "cancel"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Test Flow",
+			"item": [
+				{
+					"name": "Instance Execute",
+					"item": [
+						{
+							"name": "Step 1: Start Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    var jsonData = pm.response.json();",
+											"    pm.collectionVariables.set('instanceId', jsonData.id);",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var uuid = require('uuid');",
+											"pm.collectionVariables.set(\"requestId\",uuid.v4());"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept-Language",
+										"value": "tr-TR",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "{{requestId}}",
+										"type": "text"
+									},
+									{
+										"key": "X-Device-Id",
+										"value": "{{requestId}}",
+										"type": "text"
+									},
+									{
+										"key": "X-Token-Id",
+										"value": "{{requestId}}",
+										"type": "text"
+									},
+									{
+										"key": "X-Device-Info",
+										"value": "IOS 16",
+										"type": "text"
+									},
+									{
+										"key": "X-Forwarded-For",
+										"value": "192.168.2.1",
+										"type": "text"
+									},
+									{
+										"key": "user_reference",
+										"value": "34987491018",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key\": \"34987492001\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"testId\": \"689bc680-162e-4cb5-aae7-859a108f0ae2\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/start?sync=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										"start"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "task-test-workflow"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Contract",
+			"item": [
+				{
+					"name": "Instance Execute",
+					"item": [
+						{
+							"name": "Get State",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/functions/state",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"functions",
+										"state"
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "contract-approval-workflow"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 1: Start Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    var jsonData = pm.response.json();",
+											"    pm.collectionVariables.set('instanceId', jsonData.id);",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var uuid = require('uuid');",
+											"pm.collectionVariables.set(\"requestId\",uuid.v4());"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept-Language",
+										"value": "tr-TR",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "{{requestId}}",
+										"type": "text"
+									},
+									{
+										"key": "X-Device-Id",
+										"value": "{{requestId}}",
+										"type": "text"
+									},
+									{
+										"key": "X-Token-Id",
+										"value": "{{requestId}}",
+										"type": "text"
+									},
+									{
+										"key": "X-Device-Info",
+										"value": "IOS 16",
+										"type": "text"
+									},
+									{
+										"key": "X-Forwarded-For",
+										"value": "192.168.2.1",
+										"type": "text"
+									},
+									{
+										"key": "user_reference",
+										"value": "34987491018",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key\": \"349874911086\",\n    \"tags\": [\n        \"contract\",\n        \"approval\",\n        \"test\"\n    ],\n    \"attributes\": {\n        \"groupCode\": \"KG-2024-001\",\n        \"userId\": \"user-123\",\n        \"sessionId\": \"session-456\",\n        \"requestedAt\": \"2025-12-08T12:31:14.889+00:00\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/start?sync=false",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										"start"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "false"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "contract-approval-workflow"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2: Approce Document",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"attributes\": {\n        \"approvedBy\": \"user-123\",\n        \"approvalNotes\": \"Döküman incelendi ve onaylandı\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=false",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"transitions",
+										":transition"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "false"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "contract-document-subflow"
+										},
+										{
+											"key": "instance",
+											"value": "80a9a994-8ef7-42b4-96d4-96409d42f7c5"
+										},
+										{
+											"key": "transition",
+											"value": "approve-document"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2.1: Reject Document",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"attributes\": {\n        \"rejectedBy\": \"user-123\",\n        \"reason\": \"Döküman içeriğinde eksiklik tespit edildi\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"transitions",
+										":transition"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "contract-document-subflow"
+										},
+										{
+											"key": "instance",
+											"value": "fabc273b-cc37-4449-82df-6172a30a48d2"
+										},
+										{
+											"key": "transition",
+											"value": "reject-document"
 										}
 									]
 								}

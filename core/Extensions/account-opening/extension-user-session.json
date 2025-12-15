@@ -1,8 +1,8 @@
 {
   "key": "extension-user-session",
-  "flow": "sys-extensions",
-  "domain": "core",
   "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-extensions",
   "flowVersion": "1.0.0",
   "tags": [
     "system",

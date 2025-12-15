@@ -1,0 +1,27 @@
+{
+  "key": "get-contract-documents",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract",
+    "documents",
+    "http",
+    "get-list"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/contract/get-documents",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 30,
+      "validateSsl": true
+    }
+  }
+}
+

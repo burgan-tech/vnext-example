@@ -1,21 +1,21 @@
 {
-  "key": "trigger-scheduled-payments",
+  "key": "start-document-subprocess",
   "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
   "tags": [
-    "account-opening",
-    "scheduled-payments",
+    "contract",
     "subprocess",
-    "trigger"
+    "start",
+    "document-process"
   ],
   "attributes": {
     "type": "14",
     "config": {
       "domain": "core",
-      "flow": "scheduled-payments",
-      "version": "1.0.0"
+      "flow": "contract-document-subflow",
+      "body": {}
     }
   }
 }
