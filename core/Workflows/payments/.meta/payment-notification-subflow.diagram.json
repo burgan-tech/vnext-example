@@ -1,0 +1,20 @@
+{
+  "nodePos": {
+    "get-user-info": {
+      "x": 100,
+      "y": 100
+    },
+    "send-notifications": {
+      "x": 412,
+      "y": 100
+    },
+    "notification-complete": {
+      "x": 724,
+      "y": 100
+    },
+    "__start__": {
+      "x": -212,
+      "y": 100
+    }
+  }
+}

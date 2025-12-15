@@ -107,7 +107,7 @@
       },
       {
         "key": "send-notifications",
-        "stateType": 1,
+        "stateType": 2,
         "subType": 0,
         "versionStrategy": "Minor",
         "labels": [

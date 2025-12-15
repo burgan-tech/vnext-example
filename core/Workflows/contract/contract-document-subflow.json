@@ -1,0 +1,455 @@
+{
+  "key": "contract-document-subflow",
+  "flow": "sys-flows",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "contract",
+    "document",
+    "subflow",
+    "render",
+    "approval"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Contract Document Subflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Kontrat Döküman Alt Akışı"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-document-process",
+      "target": "render-document",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Document Process"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Döküman İşlemini Başlat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/InitDocumentMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBJbml0aWFsaXplIERvY3VtZW50IFByb2Nlc3MgTWFwcGluZyAtIFByZXBhcmVzIGRvY3VtZW50IGRhdGEgZm9yIHN1YnByb2Nlc3MKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEluaXREb2N1bWVudE1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGlucHV0RGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJpbml0LWRvY3VtZW50LXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHBhcmVudEluc3RhbmNlSWQgPSBpbnB1dERhdGE/LnBhcmVudEluc3RhbmNlSWQsCiAgICAgICAgICAgICAgICAgICAgcGFyZW50SW5zdGFuY2VLZXkgPSBpbnB1dERhdGE/LnBhcmVudEluc3RhbmNlS2V5LAogICAgICAgICAgICAgICAgICAgIHBhcmVudFdvcmtmbG93S2V5ID0gaW5wdXREYXRhPy5wYXJlbnRXb3JrZmxvd0tleSwKICAgICAgICAgICAgICAgICAgICBkb2N1bWVudCA9IGlucHV0RGF0YT8uZG9jdW1lbnQsCiAgICAgICAgICAgICAgICAgICAgZG9jdW1lbnRJbmRleCA9IGlucHV0RGF0YT8uZG9jdW1lbnRJbmRleCwKICAgICAgICAgICAgICAgICAgICBncm91cENvZGUgPSBpbnB1dERhdGE/Lmdyb3VwQ29kZSwKICAgICAgICAgICAgICAgICAgICBwcm9jZXNzU3RhcnRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgIHJlbmRlclN0YXR1cyA9ICJwZW5kaW5nIiwKICAgICAgICAgICAgICAgICAgICBhcHByb3ZhbFN0YXR1cyA9ICJwZW5kaW5nIgogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJjb250cmFjdCIsICJkb2N1bWVudCIsICJpbml0aWFsaXplZCIgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiaW5pdC1kb2N1bWVudC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "render-document",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Render Document"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Dökümanı Hazırla"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "render-document",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RenderDocumentMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSZW5kZXIgRG9jdW1lbnQgTWFwcGluZyAtIFJlbmRlcnMgZG9jdW1lbnQgdmlhIEhUVFAgQVBJCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBSZW5kZXJEb2N1bWVudE1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgICAgICBpZiAoaHR0cFRhc2sgPT0gbnVsbCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhbiBIdHRwVGFzayIpOwogICAgICAgICAgICB9CgogICAgICAgICAgICB2YXIgZG9jdW1lbnQgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudDsKICAgICAgICAgICAgdmFyIGdyb3VwQ29kZSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/Lmdyb3VwQ29kZT8uVG9TdHJpbmcoKSA/PyAiIjsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIE1vY2tvb24gQVBJIGNvbnRyYWN0IHN0cnVjdHVyZTogY29udHJhY3RJZCwgY29udHJhY3RUeXBlLCBjb250cmFjdE5hbWUsIHRlbXBsYXRlSWQsIGNvbnRyYWN0RGF0YQogICAgICAgICAgICB2YXIgcmVxdWVzdEJvZHkgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZ3JvdXBDb2RlID0gZ3JvdXBDb2RlLAogICAgICAgICAgICAgICAgY29udHJhY3RJZCA9IGRvY3VtZW50Py5jb250cmFjdElkLAogICAgICAgICAgICAgICAgY29udHJhY3RUeXBlID0gZG9jdW1lbnQ/LmNvbnRyYWN0VHlwZSwKICAgICAgICAgICAgICAgIGNvbnRyYWN0TmFtZSA9IGRvY3VtZW50Py5jb250cmFjdE5hbWUsCiAgICAgICAgICAgICAgICB0ZW1wbGF0ZUlkID0gZG9jdW1lbnQ/LnRlbXBsYXRlSWQsCiAgICAgICAgICAgICAgICBjb250cmFjdERhdGEgPSBkb2N1bWVudD8uY29udHJhY3REYXRhID8/IG5ldyB7IH0sCiAgICAgICAgICAgICAgICByZXF1ZXN0SWQgPSBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgdGltZXN0YW1wID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgIH07CgogICAgICAgICAgICBodHRwVGFzay5TZXRCb2R5KHJlcXVlc3RCb2R5KTsKCiAgICAgICAgICAgIHZhciBoZWFkZXJzID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PgogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBbIkNvbnRlbnQtVHlwZSJdID0gImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAgICAgICAgICAgWyJYLVJlcXVlc3QtSWQiXSA9IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICBbIlgtQ29udHJhY3QtSWQiXSA9IGRvY3VtZW50Py5jb250cmFjdElkPy5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgWyJYLUNvcnJlbGF0aW9uLUlkIl0gPSBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkKICAgICAgICAgICAgfTsKICAgICAgICAgICAgaHR0cFRhc2suU2V0SGVhZGVycyhoZWFkZXJzKTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInJlbmRlci1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciByZXNwb25zZSA9IGNvbnRleHQuQm9keTsKICAgICAgICAgICAgdmFyIHN0YXR1c0NvZGUgPSByZXNwb25zZT8uc3RhdHVzQ29kZSA/PyA1MDA7CgogICAgICAgICAgICBpZiAoc3RhdHVzQ29kZSA+PSAyMDAgJiYgc3RhdHVzQ29kZSA8IDMwMCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgLy8gTW9ja29vbiBBUEkgcmV0dXJuczogZG9jdW1lbnRJZCwgZG9jdW1lbnRVcmwsIGRvY3VtZW50U2l6ZSwgcGFnZUNvdW50LCBjaGVja3N1bSwgZXhwaXJlc0F0LCByZW5kZXJlZEF0LCBmb3JtYXQsIHRlbXBsYXRlVmVyc2lvbgogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJyZW5kZXItc3VjY2VzcyIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgcmVuZGVyU3RhdHVzID0gInN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgICAgICAgICBkb2N1bWVudElkID0gcmVzcG9uc2U/LmRhdGE/LmRhdGE/LmRvY3VtZW50SWQsCiAgICAgICAgICAgICAgICAgICAgICAgIGRvY3VtZW50VXJsID0gcmVzcG9uc2U/LmRhdGE/LmRhdGE/LmRvY3VtZW50VXJsLAogICAgICAgICAgICAgICAgICAgICAgICBkb2N1bWVudFNpemUgPSByZXNwb25zZT8uZGF0YT8uZGF0YT8uZG9jdW1lbnRTaXplLAogICAgICAgICAgICAgICAgICAgICAgICBwYWdlQ291bnQgPSByZXNwb25zZT8uZGF0YT8uZGF0YT8ucGFnZUNvdW50LAogICAgICAgICAgICAgICAgICAgICAgICBjaGVja3N1bSA9IHJlc3BvbnNlPy5kYXRhPy5kYXRhPy5jaGVja3N1bSwKICAgICAgICAgICAgICAgICAgICAgICAgZXhwaXJlc0F0ID0gcmVzcG9uc2U/LmRhdGE/LmRhdGE/LmV4cGlyZXNBdCwKICAgICAgICAgICAgICAgICAgICAgICAgZm9ybWF0ID0gcmVzcG9uc2U/LmRhdGE/LmRhdGE/LmZvcm1hdCwKICAgICAgICAgICAgICAgICAgICAgICAgdGVtcGxhdGVWZXJzaW9uID0gcmVzcG9uc2U/LmRhdGE/LmRhdGE/LnRlbXBsYXRlVmVyc2lvbiwKICAgICAgICAgICAgICAgICAgICAgICAgcmVuZGVyZWRBdCA9IHJlc3BvbnNlPy5kYXRhPy5kYXRhPy5yZW5kZXJlZEF0ID8/IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpCiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29udHJhY3QiLCAiZG9jdW1lbnQiLCAicmVuZGVyZWQiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInJlbmRlci1mYWlsZWQiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHJlbmRlclN0YXR1cyA9ICJmYWlsZWQiLAogICAgICAgICAgICAgICAgICAgIGVycm9yID0gcmVzcG9uc2U/LmRhdGE/LmVycm9yPy5tZXNzYWdlID8/IHJlc3BvbnNlPy5lcnJvciA/PyAiRmFpbGVkIHRvIHJlbmRlciBkb2N1bWVudCIsCiAgICAgICAgICAgICAgICAgICAgZXJyb3JDb2RlID0gcmVzcG9uc2U/LmRhdGE/LmVycm9yPy5jb2RlLAogICAgICAgICAgICAgICAgICAgIHN0YXR1c0NvZGUgPSBzdGF0dXNDb2RlLAogICAgICAgICAgICAgICAgICAgIGZhaWxlZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJyZW5kZXItZXhjZXB0aW9uIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICByZW5kZXJTdGF0dXMgPSAiZmFpbGVkIiwKICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGV4Lk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgZmFpbGVkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "render-success",
+            "target": "notify-parent-ready",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Render Success"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Hazırlama Başarılı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/RenderSuccessRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlbmRlciBTdWNjZXNzIFJ1bGUgLSBDaGVja3MgaWYgZG9jdW1lbnQgcmVuZGVyIHdhcyBzdWNjZXNzZnVsCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBSZW5kZXJTdWNjZXNzUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHJlbmRlclN0YXR1cyA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnJlbmRlclN0YXR1cz8uVG9TdHJpbmcoKTsKICAgICAgICAgICAgcmV0dXJuIHJlbmRlclN0YXR1cyA9PSAic3VjY2VzcyI7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgICAgfQogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "render-failed",
+            "target": "document-failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Render Failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Hazırlama Başarısız"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/RenderFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlbmRlciBGYWlsZWQgUnVsZSAtIENoZWNrcyBpZiBkb2N1bWVudCByZW5kZXIgZmFpbGVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBSZW5kZXJGYWlsZWRSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVuZGVyU3RhdHVzID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucmVuZGVyU3RhdHVzPy5Ub1N0cmluZygpOwogICAgICAgICAgICByZXR1cm4gcmVuZGVyU3RhdHVzID09ICJmYWlsZWQiOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uKQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "notify-parent-ready",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Notify Parent - Document Ready"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Üst Akışa Bildir - Döküman Hazır"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notify-document-ready",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/NotifyDocumentReadyMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBOb3RpZnkgRG9jdW1lbnQgUmVhZHkgTWFwcGluZyAtIE5vdGlmaWVzIHBhcmVudCB3b3JrZmxvdyB0aGF0IGRvY3VtZW50IGlzIHJlYWR5Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBOb3RpZnlEb2N1bWVudFJlYWR5TWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBkaXJlY3RUcmlnZ2VyVGFzayA9IHRhc2sgYXMgRGlyZWN0VHJpZ2dlclRhc2s7CiAgICAgICAgICAgIGlmIChkaXJlY3RUcmlnZ2VyVGFzayA9PSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgRGlyZWN0VHJpZ2dlclRhc2siKTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gQ29uZmlndXJlIHRhcmdldCB3b3JrZmxvdwogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXREb21haW4oImNvcmUiKTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0RmxvdygiY29udHJhY3QtYXBwcm92YWwtd29ya2Zsb3ciKTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0VHJhbnNpdGlvbk5hbWUoImRvY3VtZW50LXJlYWR5Iik7CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldFN5bmModHJ1ZSk7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBTZXQgcGFyZW50IGluc3RhbmNlCiAgICAgICAgICAgIHZhciBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VJZD8uVG9TdHJpbmcoKTsKICAgICAgICAgICAgdmFyIHBhcmVudEluc3RhbmNlS2V5ID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VLZXk/LlRvU3RyaW5nKCk7CiAgICAgICAgICAgIAogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHBhcmVudEluc3RhbmNlSWQpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRJbnN0YW5jZShwYXJlbnRJbnN0YW5jZUlkKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHBhcmVudEluc3RhbmNlS2V5KSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0S2V5KHBhcmVudEluc3RhbmNlS2V5KTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gUHJlcGFyZSB0cmFuc2l0aW9uIGJvZHkgLSB1c2luZyBNb2Nrb29uIGNvbnRyYWN0IHN0cnVjdHVyZSAoY29udHJhY3RJZCwgY29udHJhY3ROYW1lLCBjb250cmFjdFR5cGUpCiAgICAgICAgICAgIHZhciB0cmFuc2l0aW9uQm9keSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBjb250cmFjdElkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnQ/LmNvbnRyYWN0SWQsCiAgICAgICAgICAgICAgICBjb250cmFjdE5hbWUgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudD8uY29udHJhY3ROYW1lLAogICAgICAgICAgICAgICAgY29udHJhY3RUeXBlID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnQ/LmNvbnRyYWN0VHlwZSwKICAgICAgICAgICAgICAgIGRvY3VtZW50SW5kZXggPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudEluZGV4LAogICAgICAgICAgICAgICAgc3VicHJvY2Vzc0luc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgIHN1YnByb2Nlc3NJbnN0YW5jZUtleSA9IGNvbnRleHQuSW5zdGFuY2U/LktleSwKICAgICAgICAgICAgICAgIGRvY3VtZW50VXJsID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnRVcmwsCiAgICAgICAgICAgICAgICBkb2N1bWVudElkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnRJZCwKICAgICAgICAgICAgICAgIHBhZ2VDb3VudCA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnBhZ2VDb3VudCwKICAgICAgICAgICAgICAgIHJlYWR5QXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBzdGF0dXMgPSAicmVhZHkiCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldEJvZHkodHJhbnNpdGlvbkJvZHkpOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAibm90aWZ5LXJlYWR5LWlucHV0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHJlc3BvbnNlID0gY29udGV4dC5Cb2R5OwoKICAgICAgICAgICAgaWYgKHJlc3BvbnNlPy5pc1N1Y2Nlc3MgPT0gdHJ1ZSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJub3RpZnktcmVhZHktc3VjY2VzcyIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgcGFyZW50Tm90aWZpZWQgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBub3RpZmllZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29udHJhY3QiLCAiZG9jdW1lbnQtcmVhZHkiLCAibm90aWZpZWQiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gIm5vdGlmeS1yZWFkeS1mYWlsZWQiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHBhcmVudE5vdGlmaWVkID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJGYWlsZWQgdG8gbm90aWZ5IHBhcmVudCIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gIm5vdGlmeS1yZWFkeS1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "notify-ready-completed",
+            "target": "waiting-for-approval",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Notification Sent"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Bildirim Gönderildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "waiting-for-approval",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting for Approval"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Onay Bekliyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "approve-document",
+            "target": "notify-parent-approved",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve Document"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dökümanı Onayla"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "reject-document",
+            "target": "notify-parent-rejected",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Reject Document"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dökümanı Reddet"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "notify-parent-approved",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Notify Parent - Approved"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Üst Akışa Bildir - Onaylandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notify-document-approved",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/NotifyDocumentApprovedMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBOb3RpZnkgRG9jdW1lbnQgQXBwcm92ZWQgTWFwcGluZyAtIE5vdGlmaWVzIHBhcmVudCB3b3JrZmxvdyB0aGF0IGRvY3VtZW50IGlzIGFwcHJvdmVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBOb3RpZnlEb2N1bWVudEFwcHJvdmVkTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBkaXJlY3RUcmlnZ2VyVGFzayA9IHRhc2sgYXMgRGlyZWN0VHJpZ2dlclRhc2s7CiAgICAgICAgICAgIGlmIChkaXJlY3RUcmlnZ2VyVGFzayA9PSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgRGlyZWN0VHJpZ2dlclRhc2siKTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gQ29uZmlndXJlIHRhcmdldCB3b3JrZmxvdwogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXREb21haW4oImNvcmUiKTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0RmxvdygiY29udHJhY3QtYXBwcm92YWwtd29ya2Zsb3ciKTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0VHJhbnNpdGlvbk5hbWUoImRvY3VtZW50LWFwcHJvdmVkIik7CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldFN5bmModHJ1ZSk7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBTZXQgcGFyZW50IGluc3RhbmNlCiAgICAgICAgICAgIHZhciBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VJZD8uVG9TdHJpbmcoKTsKICAgICAgICAgICAgdmFyIHBhcmVudEluc3RhbmNlS2V5ID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VLZXk/LlRvU3RyaW5nKCk7CiAgICAgICAgICAgIAogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHBhcmVudEluc3RhbmNlSWQpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRJbnN0YW5jZShwYXJlbnRJbnN0YW5jZUlkKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHBhcmVudEluc3RhbmNlS2V5KSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0S2V5KHBhcmVudEluc3RhbmNlS2V5KTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gUHJlcGFyZSB0cmFuc2l0aW9uIGJvZHkgLSB1c2luZyBNb2Nrb29uIGNvbnRyYWN0IHN0cnVjdHVyZSAoY29udHJhY3RJZCwgY29udHJhY3ROYW1lLCBjb250cmFjdFR5cGUpCiAgICAgICAgICAgIHZhciB0cmFuc2l0aW9uQm9keSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBjb250cmFjdElkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnQ/LmNvbnRyYWN0SWQsCiAgICAgICAgICAgICAgICBjb250cmFjdE5hbWUgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudD8uY29udHJhY3ROYW1lLAogICAgICAgICAgICAgICAgY29udHJhY3RUeXBlID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnQ/LmNvbnRyYWN0VHlwZSwKICAgICAgICAgICAgICAgIGRvY3VtZW50SW5kZXggPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudEluZGV4LAogICAgICAgICAgICAgICAgc3VicHJvY2Vzc0luc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgIHN1YnByb2Nlc3NJbnN0YW5jZUtleSA9IGNvbnRleHQuSW5zdGFuY2U/LktleSwKICAgICAgICAgICAgICAgIGFwcHJvdmVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBhcHByb3ZlZEJ5ID0gY29udGV4dC5Cb2R5Py5hcHByb3ZlZEJ5ID8/ICJ1c2VyIiwKICAgICAgICAgICAgICAgIHN0YXR1cyA9ICJhcHByb3ZlZCIKICAgICAgICAgICAgfTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0Qm9keSh0cmFuc2l0aW9uQm9keSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJub3RpZnktYXBwcm92ZWQtaW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVzcG9uc2UgPSBjb250ZXh0LkJvZHk7CgogICAgICAgICAgICBpZiAocmVzcG9uc2U/LmlzU3VjY2VzcyA9PSB0cnVlKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgS2V5ID0gIm5vdGlmeS1hcHByb3ZlZC1zdWNjZXNzIiwKICAgICAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBwYXJlbnROb3RpZmllZCA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIGFwcHJvdmFsU3RhdHVzID0gImFwcHJvdmVkIiwKICAgICAgICAgICAgICAgICAgICAgICAgbm90aWZpZWRBdCA9IERhdGVUaW1lLlV0Y05vdwogICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImNvbnRyYWN0IiwgImRvY3VtZW50LWFwcHJvdmVkIiwgIm5vdGlmaWVkIiB9CiAgICAgICAgICAgICAgICB9OwogICAgICAgICAgICB9CgogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJub3RpZnktYXBwcm92ZWQtZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBwYXJlbnROb3RpZmllZCA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgIGVycm9yID0gcmVzcG9uc2U/LmVycm9yTWVzc2FnZSA/PyAiRmFpbGVkIHRvIG5vdGlmeSBwYXJlbnQiCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJub3RpZnktYXBwcm92ZWQtZXhjZXB0aW9uIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQoK"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "approval-notified",
+            "target": "document-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approval Notified"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Onay Bildirildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "notify-parent-rejected",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Notify Parent - Rejected"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Üst Akışa Bildir - Reddedildi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notify-document-approved",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/NotifyDocumentRejectedMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBOb3RpZnkgRG9jdW1lbnQgUmVqZWN0ZWQgTWFwcGluZyAtIE5vdGlmaWVzIHBhcmVudCB3b3JrZmxvdyB0aGF0IGRvY3VtZW50IGlzIHJlamVjdGVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBOb3RpZnlEb2N1bWVudFJlamVjdGVkTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBkaXJlY3RUcmlnZ2VyVGFzayA9IHRhc2sgYXMgRGlyZWN0VHJpZ2dlclRhc2s7CiAgICAgICAgICAgIGlmIChkaXJlY3RUcmlnZ2VyVGFzayA9PSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgRGlyZWN0VHJpZ2dlclRhc2siKTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gQ29uZmlndXJlIHRhcmdldCB3b3JrZmxvdwogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXREb21haW4oImNvcmUiKTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0RmxvdygiY29udHJhY3QtYXBwcm92YWwtd29ya2Zsb3ciKTsKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0VHJhbnNpdGlvbk5hbWUoImRvY3VtZW50LXJlamVjdGVkIik7CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldFN5bmModHJ1ZSk7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBTZXQgcGFyZW50IGluc3RhbmNlCiAgICAgICAgICAgIHZhciBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VJZD8uVG9TdHJpbmcoKTsKICAgICAgICAgICAgdmFyIHBhcmVudEluc3RhbmNlS2V5ID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VLZXk/LlRvU3RyaW5nKCk7CiAgICAgICAgICAgIAogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHBhcmVudEluc3RhbmNlSWQpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRJbnN0YW5jZShwYXJlbnRJbnN0YW5jZUlkKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHBhcmVudEluc3RhbmNlS2V5KSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0S2V5KHBhcmVudEluc3RhbmNlS2V5KTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gUHJlcGFyZSB0cmFuc2l0aW9uIGJvZHkgLSB1c2luZyBNb2Nrb29uIGNvbnRyYWN0IHN0cnVjdHVyZSAoY29udHJhY3RJZCwgY29udHJhY3ROYW1lLCBjb250cmFjdFR5cGUpCiAgICAgICAgICAgIHZhciB0cmFuc2l0aW9uQm9keSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBjb250cmFjdElkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnQ/LmNvbnRyYWN0SWQsCiAgICAgICAgICAgICAgICBjb250cmFjdE5hbWUgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudD8uY29udHJhY3ROYW1lLAogICAgICAgICAgICAgICAgY29udHJhY3RUeXBlID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uZG9jdW1lbnQ/LmNvbnRyYWN0VHlwZSwKICAgICAgICAgICAgICAgIGRvY3VtZW50SW5kZXggPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5kb2N1bWVudEluZGV4LAogICAgICAgICAgICAgICAgc3VicHJvY2Vzc0luc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgIHN1YnByb2Nlc3NJbnN0YW5jZUtleSA9IGNvbnRleHQuSW5zdGFuY2U/LktleSwKICAgICAgICAgICAgICAgIHJlamVjdGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICByZWplY3RlZEJ5ID0gY29udGV4dC5Cb2R5Py5yZWplY3RlZEJ5ID8/ICJ1c2VyIiwKICAgICAgICAgICAgICAgIHJlamVjdGlvblJlYXNvbiA9IGNvbnRleHQuQm9keT8ucmVhc29uID8/ICJObyByZWFzb24gcHJvdmlkZWQiLAogICAgICAgICAgICAgICAgc3RhdHVzID0gInJlamVjdGVkIgogICAgICAgICAgICB9OwogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRCb2R5KHRyYW5zaXRpb25Cb2R5KTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gIm5vdGlmeS1yZWplY3RlZC1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciByZXNwb25zZSA9IGNvbnRleHQuQm9keTsKCiAgICAgICAgICAgIGlmIChyZXNwb25zZT8uaXNTdWNjZXNzID09IHRydWUpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBLZXkgPSAibm90aWZ5LXJlamVjdGVkLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHBhcmVudE5vdGlmaWVkID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgYXBwcm92YWxTdGF0dXMgPSAicmVqZWN0ZWQiLAogICAgICAgICAgICAgICAgICAgICAgICBub3RpZmllZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29udHJhY3QiLCAiZG9jdW1lbnQtcmVqZWN0ZWQiLCAibm90aWZpZWQiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gIm5vdGlmeS1yZWplY3RlZC1mYWlsZWQiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHBhcmVudE5vdGlmaWVkID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJGYWlsZWQgdG8gbm90aWZ5IHBhcmVudCIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gIm5vdGlmeS1yZWplY3RlZC1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "rejection-notified",
+            "target": "document-rejected",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Rejection Notified"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Red Bildirildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "document-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Document Approved"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Döküman Onaylandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "document-rejected",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Document Rejected"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Döküman Reddedildi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "document-failed",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Document Failed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Döküman Başarısız"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

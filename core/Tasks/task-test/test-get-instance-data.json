@@ -1,20 +1,22 @@
 {
-  "key": "get-data-from-workflow",
+  "key": "test-get-instance-data",
   "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
   "tags": [
-    "account-opening",
-    "scheduled-payments",
-    "subprocess",
-    "trigger"
+    "task-test",
+    "instance-data",
+    "workflow-communication",
+    "data-fetch"
   ],
   "attributes": {
     "type": "13",
     "config": {
       "domain": "core",
-      "flow": "account-opening"
+      "flow": "task-test-subflow",
+      "extensions": []
     }
   }
 }
+

@@ -1,0 +1,828 @@
+{
+  "key": "task-test-workflow",
+  "flow": "sys-flows",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "task-test",
+    "all-task-types",
+    "integration-test",
+    "get-secret-async",
+    "get-config-value",
+    "task-response",
+    "dapr-pubsub",
+    "http-task",
+    "dapr-service",
+    "notification",
+    "script",
+    "get-instance-data",
+    "direct-transition",
+    "start",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Task Type Test Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Task Tipi Test İş Akışı"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-task-test",
+      "target": "test-get-secret-state",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Task Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Task Testini Başlat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/InitialTransitionMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBJbml0aWFsIFRyYW5zaXRpb24gTWFwcGluZyAtIEluaXRpYWxpemVzIHdvcmtmbG93IHdpdGggdGVzdCBkYXRhCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJbml0aWFsVHJhbnNpdGlvbk1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGlucHV0RGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJpbml0aWFsLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHRlc3RJZCA9IGlucHV0RGF0YT8udGVzdElkID8/IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICAgICAgd29ya2Zsb3dTdGFydGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgdGVzdENvbmZpZ3VyYXRpb24gPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RHZXRTZWNyZXRBc3luYyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RHZXRDb25maWdWYWx1ZSA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RUYXNrUmVzcG9uc2UgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICB0ZXN0RGFwclB1YlN1YiA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RIdHRwVGFzayA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3REYXByU2VydmljZVRhc2sgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICB0ZXN0Tm90aWZpY2F0aW9uVGFzayA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RTY3JpcHRUYXNrID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGVzdEdldEluc3RhbmNlRGF0YSA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3REaXJlY3RUcmFuc2l0aW9uID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGVzdFN0YXJ0V29ya2Zsb3cgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICB0ZXN0U3ViUHJvY2VzcyA9IHRydWUKICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAgIHRhc2tUZXN0UmVzdWx0cyA9IG5ldyB7IH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImluaXRpYWxpemVkIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJpbml0aWFsLWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQoK"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "test-get-secret-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test GetSecretAsync"
+          },
+          {
+            "language": "tr-TR",
+            "label": "GetSecretAsync Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GetSecretAsyncMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gR2V0U2VjcmV0QXN5bmMgVGVzdCBNYXBwaW5nIC0gRGVtb25zdHJhdGVzIHNlY3JldCByZXRyaWV2YWwgZnJvbSBEYXByIHNlY3JldCBzdG9yZQovLy8gVGVzdCBjYXNlOiBWZXJpZnkgR2V0U2VjcmV0QXN5bmMgZnVuY3Rpb25hbGl0eSBhbmQgbG9nZ2luZwovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgR2V0U2VjcmV0QXN5bmNNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkdldFNlY3JldEFzeW5jIFRlc3QgLSBTdGFydGluZyBzZWNyZXQgcmV0cmlldmFsIHRlc3QiKTsKCiAgICAgICAgICAgIC8vIFJldHJpZXZlIEFQSSBzZWNyZXQgZnJvbSBEYXByIHNlY3JldCBzdG9yZSB1c2luZyBHZXRTZWNyZXRBc3luYwogICAgICAgICAgICB2YXIgYXBpU2VjcmV0ID0gYXdhaXQgR2V0U2VjcmV0QXN5bmMoInZuZXh0LXNlY3JldCIsICJ3b3JrZmxvdy1zZWNyZXQiLCAiQXBpU2VjcmV0Iik7CiAgICAgICAgICAgIAogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiR2V0U2VjcmV0QXN5bmMgVGVzdCAtIFN1Y2Nlc3NmdWxseSByZXRyaWV2ZWQgQXBpU2VjcmV0Iik7CiAgICAgICAgICAgIExvZ0RlYnVnKCJHZXRTZWNyZXRBc3luYyBUZXN0IC0gU2VjcmV0IHZhbHVlIGxlbmd0aDogezB9IiwgCiAgICAgICAgICAgICAgICBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgYXBpU2VjcmV0Py5MZW5ndGggPz8gMCB9KTsKCiAgICAgICAgICAgIC8vIFN0b3JlIHRoZSByZXN1bHQgZm9yIG91dHB1dCBoYW5kbGVyCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHNlY3JldFJldHJpZXZlZCA9ICFzdHJpbmcuSXNOdWxsT3JFbXB0eShhcGlTZWNyZXQpLAogICAgICAgICAgICAgICAgICAgIHNlY3JldEtleU5hbWUgPSAiQXBpU2VjcmV0IiwKICAgICAgICAgICAgICAgICAgICByZXRyaWV2ZWRBdCA9IERhdGVUaW1lLlV0Y05vdwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkdldFNlY3JldEFzeW5jIFRlc3QgLSBGYWlsZWQgdG8gcmV0cmlldmUgc2VjcmV0OiB7MH0iLCAKICAgICAgICAgICAgICAgIGFyZ3M6IG5ldyBvYmplY3Q/W10geyBleC5NZXNzYWdlIH0pOwogICAgICAgICAgICAKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ2V0LXNlY3JldC1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkdldFNlY3JldEFzeW5jIFRlc3QgLSBQcm9jZXNzaW5nIG91dHB1dCIpOwoKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ2V0LXNlY3JldC1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBnZXRTZWNyZXRSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICB0ZXN0TmFtZSA9ICJHZXRTZWNyZXRBc3luYyIsCiAgICAgICAgICAgICAgICAgICAgICAgIGRlc2NyaXB0aW9uID0gIlJldHJpZXZlZCBBcGlTZWNyZXQgZnJvbSBEYXByIHNlY3JldCBzdG9yZSIsCiAgICAgICAgICAgICAgICAgICAgICAgIGNvbXBsZXRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJTY3JpcHRUYXNrIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImdldC1zZWNyZXQtYXN5bmMiLCAic3VjY2VzcyIgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkdldFNlY3JldEFzeW5jIFRlc3QgLSBPdXRwdXQgaGFuZGxlciBleGNlcHRpb246IHswfSIsIAogICAgICAgICAgICAgICAgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJnZXQtc2VjcmV0LWV4Y2VwdGlvbiIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZ2V0U2VjcmV0UmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiU2NyaXB0VGFzayIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "get-secret-completed",
+            "target": "test-get-config-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "GetSecretAsync Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "GetSecretAsync Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-get-config-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test GetConfigValue"
+          },
+          {
+            "language": "tr-TR",
+            "label": "GetConfigValue Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GetConfigValueMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gR2V0Q29uZmlnVmFsdWUgVGVzdCBNYXBwaW5nIC0gRGVtb25zdHJhdGVzIGNvbmZpZ3VyYXRpb24gdmFsdWUgcmV0cmlldmFsCi8vLyBUZXN0IGNhc2U6IFZlcmlmeSBHZXRDb25maWdWYWx1ZSBmdW5jdGlvbmFsaXR5IGFuZCBsb2dnaW5nCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBHZXRDb25maWdWYWx1ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiR2V0Q29uZmlnVmFsdWUgVGVzdCAtIFN0YXJ0aW5nIGNvbmZpZ3VyYXRpb24gcmV0cmlldmFsIHRlc3QiKTsKCiAgICAgICAgICAgIC8vIFJldHJpZXZlIEFQSSBiYXNlIFVSTCBmcm9tIGNvbmZpZ3VyYXRpb24gdXNpbmcgR2V0Q29uZmlnVmFsdWUKICAgICAgICAgICAgdmFyIGFwaUJhc2VVcmwgPSBHZXRDb25maWdWYWx1ZSgiRXhhbXBsZTpBcGlCYXNlVXJsIik7CiAgICAgICAgICAgIAogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiR2V0Q29uZmlnVmFsdWUgVGVzdCAtIFN1Y2Nlc3NmdWxseSByZXRyaWV2ZWQgQXBpQmFzZVVybDogezB9IiwgCiAgICAgICAgICAgICAgICBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgYXBpQmFzZVVybCA/PyAibnVsbCIgfSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgY29uZmlnUmV0cmlldmVkID0gIXN0cmluZy5Jc051bGxPckVtcHR5KGFwaUJhc2VVcmwpLAogICAgICAgICAgICAgICAgICAgIGNvbmZpZ0tleU5hbWUgPSAiQXBpQmFzZVVybCIsCiAgICAgICAgICAgICAgICAgICAgY29uZmlnVmFsdWUgPSBhcGlCYXNlVXJsLAogICAgICAgICAgICAgICAgICAgIHJldHJpZXZlZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkdldENvbmZpZ1ZhbHVlIFRlc3QgLSBGYWlsZWQgdG8gcmV0cmlldmUgY29uZmlnOiB7MH0iLCAKICAgICAgICAgICAgICAgIGFyZ3M6IG5ldyBvYmplY3Q/W10geyBleC5NZXNzYWdlIH0pOwogICAgICAgICAgICAKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImdldC1jb25maWctaW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiR2V0Q29uZmlnVmFsdWUgVGVzdCAtIFByb2Nlc3Npbmcgb3V0cHV0Iik7CgogICAgICAgICAgICB2YXIgaW5wdXREYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJnZXQtY29uZmlnLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGdldENvbmZpZ1Jlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3ROYW1lID0gIkdldENvbmZpZ1ZhbHVlIiwKICAgICAgICAgICAgICAgICAgICAgICAgZGVzY3JpcHRpb24gPSAiUmV0cmlldmVkIEFwaUJhc2VVcmwgZnJvbSBjb25maWd1cmF0aW9uIiwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiU2NyaXB0VGFzayIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJnZXQtY29uZmlnLXZhbHVlIiwgInN1Y2Nlc3MiIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiR2V0Q29uZmlnVmFsdWUgVGVzdCAtIE91dHB1dCBoYW5kbGVyIGV4Y2VwdGlvbjogezB9IiwgCiAgICAgICAgICAgICAgICBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJnZXQtY29uZmlnLWV4Y2VwdGlvbiIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZ2V0Q29uZmlnUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiU2NyaXB0VGFzayIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KfQoK"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "get-config-completed",
+            "target": "test-dapr-pubsub-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "GetConfigValue Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "GetConfigValue Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-dapr-pubsub-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test DaprPubSub"
+          },
+          {
+            "language": "tr-TR",
+            "label": "DaprPubSub Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-dapr-pubsub",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/DaprPubSubMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEYXByUHViU3ViIFRhc2sgTWFwcGluZyAtIFB1Ymxpc2hlcyBldmVudHMgdG8gbWVzc2FnZSBidXMKLy8vIFRlc3QgY2FzZTogVmVyaWZ5IGV2ZW50IHB1Ymxpc2hpbmcgdG8gRGFwciBQdWJTdWIgY29tcG9uZW50Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBEYXByUHViU3ViTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBwdWJzdWJUYXNrID0gdGFzayBhcyBEYXByUHViU3ViVGFzazsKICAgICAgICAgICAgaWYgKHB1YnN1YlRhc2sgPT0gbnVsbCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIERhcHJQdWJTdWJUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSBQdWJTdWIgY29tcG9uZW50CiAgICAgICAgICAgIHB1YnN1YlRhc2suU2V0UHViU3ViTmFtZSgidm5leHQtZXhlY3V0aW9uLXB1YnN1YiIpOwogICAgICAgICAgICBwdWJzdWJUYXNrLlNldFRvcGljKCJ2bmV4dC50ZXN0LmV2ZW50cyIpOwoKICAgICAgICAgICAgLy8gQ3JlYXRlIENsb3VkIEV2ZW50cyBmb3JtYXQgZGF0YQogICAgICAgICAgICB2YXIgZXZlbnREYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHNwZWN2ZXJzaW9uID0gIjEuMCIsCiAgICAgICAgICAgICAgICB0eXBlID0gImNvbS52bmV4dC50YXNrLXRlc3QuVGVzdEV2ZW50IiwKICAgICAgICAgICAgICAgIHNvdXJjZSA9ICJ0YXNrLXRlc3Qtd29ya2Zsb3ciLAogICAgICAgICAgICAgICAgaWQgPSBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgdGltZSA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygiTyIpLAogICAgICAgICAgICAgICAgZGF0YWNvbnRlbnR0eXBlID0gImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAgICAgICAgICAgZGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHRlc3RJZCA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnRlc3RJZCA/PyBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgICAgIHdvcmtmbG93SWQgPSBjb250ZXh0LldvcmtmbG93LktleSwKICAgICAgICAgICAgICAgICAgICBpbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICAgICAgdGltZXN0YW1wID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgIG1lc3NhZ2UgPSAiRGFwclB1YlN1YiB0ZXN0IGV2ZW50IHB1Ymxpc2hlZCIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfTsKCiAgICAgICAgICAgIHB1YnN1YlRhc2suU2V0RGF0YShldmVudERhdGEpOwoKICAgICAgICAgICAgLy8gU2V0IG1ldGFkYXRhCiAgICAgICAgICAgIHZhciBtZXRhZGF0YSA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPz4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJwcmlvcml0eSJdID0gIm5vcm1hbCIsCiAgICAgICAgICAgICAgICBbImNvcnJlbGF0aW9uSWQiXSA9IGNvbnRleHQuSW5zdGFuY2UuSWQuVG9TdHJpbmcoKSwKICAgICAgICAgICAgICAgIFsic291cmNlIl0gPSAidGFzay10ZXN0LXdvcmtmbG93IgogICAgICAgICAgICB9OwogICAgICAgICAgICBwdWJzdWJUYXNrLlNldE1ldGFkYXRhKG1ldGFkYXRhKTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImRhcHItcHVic3ViLWlucHV0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHJlc3BvbnNlID0gY29udGV4dC5Cb2R5OwoKICAgICAgICAgICAgaWYgKHJlc3BvbnNlPy5pc1N1Y2Nlc3MgPT0gdHJ1ZSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJkYXByLXB1YnN1Yi1zdWNjZXNzIiwKICAgICAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBkYXByUHViU3ViUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgcHVibGlzaGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJEYXByUHViU3ViIgogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImRhcHItcHVic3ViIiwgInN1Y2Nlc3MiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImRhcHItcHVic3ViLWZhaWxlZCIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZGFwclB1YlN1YlJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBlcnJvciA9IHJlc3BvbnNlPy5lcnJvck1lc3NhZ2UgPz8gIlVua25vd24gZXJyb3IiLAogICAgICAgICAgICAgICAgICAgICAgICBmYWlsZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiRGFwclB1YlN1YiIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJkYXByLXB1YnN1YiIsICJmYWlsZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImRhcHItcHVic3ViLWV4Y2VwdGlvbiIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZGFwclB1YlN1YlJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGV4Lk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkRhcHJQdWJTdWIiCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQoK"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "dapr-pubsub-completed",
+            "target": "test-http-items-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "DaprPubSub Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "DaprPubSub Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-http-items-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test Items HttpTask"
+          },
+          {
+            "language": "tr-TR",
+            "label": "HttpTask Items Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-http-items",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/HttpTaskItemsMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBIVFRQIFRhc2sgTWFwcGluZyAtIE1ha2VzIGV4dGVybmFsIEFQSSBjYWxscwovLy8gVGVzdCBjYXNlOiBWZXJpZnkgSFRUUCByZXF1ZXN0cyB0byBleHRlcm5hbCBzZXJ2aWNlcyB2aWEgTW9ja29vbgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSHR0cFRhc2tJdGVtc01hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgICAgICBpZiAoaHR0cFRhc2sgPT0gbnVsbCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhbiBIdHRwVGFzayIpOwogICAgICAgICAgICB9CgogICAgICAgICAgICAvLyBQcmVwYXJlIHJlcXVlc3QgYm9keQogICAgICAgICAgICB2YXIgcmVxdWVzdEJvZHkgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGVzdElkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8udGVzdElkID8/IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICB3b3JrZmxvd0lkID0gY29udGV4dC5Xb3JrZmxvdy5LZXksCiAgICAgICAgICAgICAgICBpbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICB0aW1lc3RhbXAgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBhY3Rpb24gPSAiaHR0cC10YXNrLXRlc3QiCiAgICAgICAgICAgIH07CgogICAgICAgICAgICBodHRwVGFzay5TZXRCb2R5KHJlcXVlc3RCb2R5KTsKCiAgICAgICAgICAgIC8vIFNldCBoZWFkZXJzCiAgICAgICAgICAgIHZhciBoZWFkZXJzID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PgogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBbIkNvbnRlbnQtVHlwZSJdID0gImFwcGxpY2F0aW9uL2pzb24iLAogICAgICAgICAgICAgICAgWyJYLVRlc3QtSWQiXSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnRlc3RJZD8uVG9TdHJpbmcoKSwKICAgICAgICAgICAgICAgIFsiWC1SZXF1ZXN0LUlkIl0gPSBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgWyJYLUNvcnJlbGF0aW9uLUlkIl0gPSBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkKICAgICAgICAgICAgfTsKICAgICAgICAgICAgaHR0cFRhc2suU2V0SGVhZGVycyhoZWFkZXJzKTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImh0dHAtdGFzay1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciByZXNwb25zZSA9IGNvbnRleHQuQm9keTsKICAgICAgICAgICAgdmFyIHN0YXR1c0NvZGUgPSByZXNwb25zZT8uc3RhdHVzQ29kZSA/PyA1MDA7CgogICAgICAgICAgICBpZiAoc3RhdHVzQ29kZSA+PSAyMDAgJiYgc3RhdHVzQ29kZSA8IDMwMCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJodHRwLXRhc2stc3VjY2VzcyIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgaHR0cFRhc2tJdGVtc1Jlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0YXR1c0NvZGUgPSBzdGF0dXNDb2RlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgZGF0YSA9IHJlc3BvbnNlPy5kYXRhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgZXhlY3V0aW9uVGltZSA9IHJlc3BvbnNlPy5leGVjdXRpb25EdXJhdGlvbk1zLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJvY2Vzc2VkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJIdHRwVGFzayIKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJodHRwLXRhc2siLCAic3VjY2VzcyIgfQogICAgICAgICAgICAgICAgfTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiaHR0cC10YXNrLWZhaWxlZCIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgaHR0cFRhc2tJdGVtc1Jlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBzdGF0dXNDb2RlID0gc3RhdHVzQ29kZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJIVFRQIHJlcXVlc3QgZmFpbGVkIiwKICAgICAgICAgICAgICAgICAgICAgICAgZmFpbGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkh0dHBUYXNrIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImh0dHAtdGFzayIsICJmYWlsZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImh0dHAtdGFzay1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGh0dHBUYXNrSXRlbXNSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSBmYWxzZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSBleC5NZXNzYWdlLAogICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJIdHRwVGFzayIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "http-task-completed",
+            "target": "test-http-task-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "HttpTask Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "HttpTask Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-http-task-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test HttpTask"
+          },
+          {
+            "language": "tr-TR",
+            "label": "HttpTask Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-http-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/HttpTaskMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBIVFRQIFRhc2sgTWFwcGluZyAtIE1ha2VzIGV4dGVybmFsIEFQSSBjYWxscwovLy8gVGVzdCBjYXNlOiBWZXJpZnkgSFRUUCByZXF1ZXN0cyB0byBleHRlcm5hbCBzZXJ2aWNlcyB2aWEgTW9ja29vbgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSHR0cFRhc2tNYXBwaW5nIDogSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGh0dHBUYXNrID0gdGFzayBhcyBIdHRwVGFzazsKICAgICAgICAgICAgaWYgKGh0dHBUYXNrID09IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYW4gSHR0cFRhc2siKTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gUHJlcGFyZSByZXF1ZXN0IGJvZHkKICAgICAgICAgICAgdmFyIHJlcXVlc3RCb2R5ID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRlc3RJZCA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnRlc3RJZCA/PyBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgd29ya2Zsb3dJZCA9IGNvbnRleHQuV29ya2Zsb3cuS2V5LAogICAgICAgICAgICAgICAgaW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLAogICAgICAgICAgICAgICAgdGltZXN0YW1wID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgYWN0aW9uID0gImh0dHAtdGFzay10ZXN0IgogICAgICAgICAgICB9OwoKICAgICAgICAgICAgaHR0cFRhc2suU2V0Qm9keShyZXF1ZXN0Qm9keSk7CgogICAgICAgICAgICAvLyBTZXQgaGVhZGVycwogICAgICAgICAgICB2YXIgaGVhZGVycyA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPz4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJDb250ZW50LVR5cGUiXSA9ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgICAgICAgICAgIFsiWC1UZXN0LUlkIl0gPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy50ZXN0SWQ/LlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICBbIlgtUmVxdWVzdC1JZCJdID0gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKSwKICAgICAgICAgICAgICAgIFsiWC1Db3JyZWxhdGlvbi1JZCJdID0gY29udGV4dC5JbnN0YW5jZS5JZC5Ub1N0cmluZygpCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIGh0dHBUYXNrLlNldEhlYWRlcnMoaGVhZGVycyk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJodHRwLXRhc2staW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVzcG9uc2UgPSBjb250ZXh0LkJvZHk7CiAgICAgICAgICAgIHZhciBzdGF0dXNDb2RlID0gcmVzcG9uc2U/LnN0YXR1c0NvZGUgPz8gNTAwOwoKICAgICAgICAgICAgaWYgKHN0YXR1c0NvZGUgPj0gMjAwICYmIHN0YXR1c0NvZGUgPCAzMDApCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBLZXkgPSAiaHR0cC10YXNrLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIGh0dHBUYXNrUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RhdHVzQ29kZSA9IHN0YXR1c0NvZGUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBkYXRhID0gcmVzcG9uc2U/LmRhdGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBleGVjdXRpb25UaW1lID0gcmVzcG9uc2U/LmV4ZWN1dGlvbkR1cmF0aW9uTXMsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcm9jZXNzZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkh0dHBUYXNrIgogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImh0dHAtdGFzayIsICJzdWNjZXNzIiB9CiAgICAgICAgICAgICAgICB9OwogICAgICAgICAgICB9CgogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJodHRwLXRhc2stZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBodHRwVGFza1Jlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBzdGF0dXNDb2RlID0gc3RhdHVzQ29kZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJIVFRQIHJlcXVlc3QgZmFpbGVkIiwKICAgICAgICAgICAgICAgICAgICAgICAgZmFpbGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkh0dHBUYXNrIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImh0dHAtdGFzayIsICJmYWlsZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImh0dHAtdGFzay1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGh0dHBUYXNrUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiSHR0cFRhc2siCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQoK"
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/TaskResponseUsageMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGFza1Jlc3BvbnNlIFVzYWdlIFRlc3QgTWFwcGluZyAtIERlbW9uc3RyYXRlcyBhY2Nlc3NpbmcgcHJldmlvdXMgdGFzayByZXNwb25zZXMKLy8vIFRlc3QgY2FzZTogVmVyaWZ5IFRhc2tSZXNwb25zZSBkaWN0aW9uYXJ5IHVzYWdlIGluIFNjcmlwdENvbnRleHQgYWZ0ZXIgSFRUUCB0YXNrcwovLy8gTm90ZTogVGFza1Jlc3BvbnNlIGtleXMgYXJlIHRoZSB0YXNrJ3MgImtleSIgdmFsdWUgY29udmVydGVkIHRvIGNhbWVsQ2FzZQovLy8gRXhhbXBsZTogInRlc3QtaHR0cC10YXNrIiBiZWNvbWVzICJ0ZXN0SHR0cFRhc2siCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBUYXNrUmVzcG9uc2VVc2FnZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiVGFza1Jlc3BvbnNlIFVzYWdlIFRlc3QgLSBTdGFydGluZyBUYXNrUmVzcG9uc2UgYWNjZXNzIHRlc3QiKTsKCiAgICAgICAgICAgIC8vIEFjY2VzcyBUYXNrUmVzcG9uc2UgZGljdGlvbmFyeSBmcm9tIFNjcmlwdENvbnRleHQKICAgICAgICAgICAgLy8gVGhpcyBjb250YWlucyByZXN1bHRzIGZyb20gcHJldmlvdXNseSBjb21wbGV0ZWQgdGFza3MgaW4gdGhlIHdvcmtmbG93CiAgICAgICAgICAgIHZhciB0YXNrUmVzcG9uc2VEaWN0ID0gY29udGV4dC5UYXNrUmVzcG9uc2U7CgogICAgICAgICAgICBpZiAodGFza1Jlc3BvbnNlRGljdCAhPSBudWxsICYmIHRhc2tSZXNwb25zZURpY3QuQ291bnQgPiAwKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiVGFza1Jlc3BvbnNlIFVzYWdlIFRlc3QgLSBGb3VuZCB7MH0gdGFzayByZXNwb25zZShzKSBpbiBjb250ZXh0IiwgCiAgICAgICAgICAgICAgICAgICAgYXJnczogbmV3IG9iamVjdD9bXSB7IHRhc2tSZXNwb25zZURpY3QuQ291bnQgfSk7CgogICAgICAgICAgICAgICAgLy8gTG9nIGFsbCBhdmFpbGFibGUgdGFzayByZXNwb25zZSBrZXlzCiAgICAgICAgICAgICAgICBmb3JlYWNoICh2YXIga2V5IGluIHRhc2tSZXNwb25zZURpY3QuS2V5cykKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBMb2dEZWJ1ZygiVGFza1Jlc3BvbnNlIFVzYWdlIFRlc3QgLSBBdmFpbGFibGUgdGFzayByZXNwb25zZSBrZXk6IHswfSIsIAogICAgICAgICAgICAgICAgICAgICAgICBhcmdzOiBuZXcgb2JqZWN0P1tdIHsga2V5IH0pOwogICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgIC8vIEV4YW1wbGU6IEFjY2VzcyBzcGVjaWZpYyB0YXNrIHJlc3BvbnNlIGlmIGl0IGV4aXN0cwogICAgICAgICAgICAgICAgLy8gVGFza1Jlc3BvbnNlIGtleSBpcyB0aGUgdGFzaydzICJrZXkiIHZhbHVlIGNvbnZlcnRlZCB0byBjYW1lbENhc2UKICAgICAgICAgICAgICAgIC8vIGUuZy4sICJ0ZXN0LWh0dHAtdGFzayIgYmVjb21lcyAidGVzdEh0dHBUYXNrIgogICAgICAgICAgICAgICAgaWYgKHRhc2tSZXNwb25zZURpY3QuQ29udGFpbnNLZXkoInRlc3RIdHRwVGFzayIpKQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHZhciBodHRwVGFza1Jlc3VsdCA9IHRhc2tSZXNwb25zZURpY3RbInRlc3RIdHRwVGFzayJdOwogICAgICAgICAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJUYXNrUmVzcG9uc2UgVXNhZ2UgVGVzdCAtIEhUVFAgdGFzayByZXNwb25zZSBmb3VuZDogaXNTdWNjZXNzPXswfSwgc3RhdHVzQ29kZT17MX0iLCAKICAgICAgICAgICAgICAgICAgICAgICAgYXJnczogbmV3IG9iamVjdD9bXSB7IGh0dHBUYXNrUmVzdWx0Py5pc1N1Y2Nlc3MsIGh0dHBUYXNrUmVzdWx0Py5zdGF0dXNDb2RlIH0pOwogICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgIC8vIEFjY2VzcyByZXNwb25zZSBkYXRhCiAgICAgICAgICAgICAgICAgICAgdmFyIHJlc3BvbnNlRGF0YSA9IGh0dHBUYXNrUmVzdWx0Py5kYXRhOwogICAgICAgICAgICAgICAgICAgIGlmIChyZXNwb25zZURhdGEgIT0gbnVsbCkKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIExvZ0RlYnVnKCJUYXNrUmVzcG9uc2UgVXNhZ2UgVGVzdCAtIEhUVFAgcmVzcG9uc2UgZGF0YSBhdmFpbGFibGUiKTsKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxzZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBMb2dXYXJuaW5nKCJUYXNrUmVzcG9uc2UgVXNhZ2UgVGVzdCAtIE5vIHByZXZpb3VzIHRhc2sgcmVzcG9uc2VzIGZvdW5kIGluIGNvbnRleHQiKTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHRhc2tSZXNwb25zZUNvdW50ID0gdGFza1Jlc3BvbnNlRGljdD8uQ291bnQgPz8gMCwKICAgICAgICAgICAgICAgICAgICB0YXNrUmVzcG9uc2VLZXlzID0gdGFza1Jlc3BvbnNlRGljdCAhPSBudWxsIAogICAgICAgICAgICAgICAgICAgICAgICA/IHN0cmluZy5Kb2luKCIsICIsIHRhc2tSZXNwb25zZURpY3QuS2V5cykgCiAgICAgICAgICAgICAgICAgICAgICAgIDogIm5vbmUiLAogICAgICAgICAgICAgICAgICAgIHRlc3RlZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIlRhc2tSZXNwb25zZSBVc2FnZSBUZXN0IC0gRmFpbGVkIHRvIGFjY2VzcyBUYXNrUmVzcG9uc2U6IHswfSIsIAogICAgICAgICAgICAgICAgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAidGFzay1yZXNwb25zZS1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJUYXNrUmVzcG9uc2UgVXNhZ2UgVGVzdCAtIFByb2Nlc3Npbmcgb3V0cHV0Iik7CgogICAgICAgICAgICAvLyBEZW1vbnN0cmF0ZSBhY2Nlc3NpbmcgVGFza1Jlc3BvbnNlIGluIE91dHB1dEhhbmRsZXIgYXMgd2VsbAogICAgICAgICAgICB2YXIgdGFza1Jlc3BvbnNlRGljdCA9IGNvbnRleHQuVGFza1Jlc3BvbnNlOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gQnVpbGQgYSBzdW1tYXJ5IG9mIGF2YWlsYWJsZSB0YXNrIHJlc3BvbnNlcwogICAgICAgICAgICB2YXIgdGFza1Jlc3BvbnNlU3VtbWFyeSA9IG5ldyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5MaXN0PG9iamVjdD4oKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIGlmICh0YXNrUmVzcG9uc2VEaWN0ICE9IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdnAgaW4gdGFza1Jlc3BvbnNlRGljdCkKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICB0YXNrUmVzcG9uc2VTdW1tYXJ5LkFkZChuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tLZXkgPSBrdnAuS2V5LAogICAgICAgICAgICAgICAgICAgICAgICBoYXNEYXRhID0ga3ZwLlZhbHVlICE9IG51bGwsCiAgICAgICAgICAgICAgICAgICAgICAgIGlzU3VjY2VzcyA9IGt2cC5WYWx1ZT8uaXNTdWNjZXNzLAogICAgICAgICAgICAgICAgICAgICAgICBzdGF0dXNDb2RlID0ga3ZwLlZhbHVlPy5zdGF0dXNDb2RlLAogICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9IGt2cC5WYWx1ZT8udGFza1R5cGUKICAgICAgICAgICAgICAgICAgICB9KTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQoKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIlRhc2tSZXNwb25zZSBVc2FnZSBUZXN0IC0gUHJvY2Vzc2VkIHswfSB0YXNrIHJlc3BvbnNlKHMpIiwgCiAgICAgICAgICAgICAgICBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgdGFza1Jlc3BvbnNlU3VtbWFyeS5Db3VudCB9KTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJ0YXNrLXJlc3BvbnNlLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHRhc2tSZXNwb25zZVJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3ROYW1lID0gIlRhc2tSZXNwb25zZSBVc2FnZSIsCiAgICAgICAgICAgICAgICAgICAgICAgIGRlc2NyaXB0aW9uID0gIkRlbW9uc3RyYXRlZCBjb250ZXh0LlRhc2tSZXNwb25zZSBkaWN0aW9uYXJ5IGFjY2VzcyIsCiAgICAgICAgICAgICAgICAgICAgICAgIHRvdGFsVGFza1Jlc3BvbnNlcyA9IHRhc2tSZXNwb25zZURpY3Q/LkNvdW50ID8/IDAsCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tSZXNwb25zZVN1bW1hcnkgPSB0YXNrUmVzcG9uc2VTdW1tYXJ5LAogICAgICAgICAgICAgICAgICAgICAgICBjb21wbGV0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiU2NyaXB0VGFzayIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJ0YXNrLXJlc3BvbnNlIiwgImNvbnRleHQtYWNjZXNzIiwgInN1Y2Nlc3MiIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiVGFza1Jlc3BvbnNlIFVzYWdlIFRlc3QgLSBPdXRwdXQgaGFuZGxlciBleGNlcHRpb246IHswfSIsIAogICAgICAgICAgICAgICAgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAidGFzay1yZXNwb25zZS1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHRhc2tSZXNwb25zZVJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGV4Lk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIlNjcmlwdFRhc2siCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "http-task-completed",
+            "target": "test-dapr-service-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "HttpTask Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "HttpTask Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-dapr-service-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test DaprServiceTask"
+          },
+          {
+            "language": "tr-TR",
+            "label": "DaprServiceTask Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-dapr-service-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/DaprServiceTaskMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEYXByU2VydmljZSBUYXNrIE1hcHBpbmcgLSBJbnZva2VzIERhcHIgc2VydmljZXMKLy8vIFRlc3QgY2FzZTogVmVyaWZ5IHNlcnZpY2UtdG8tc2VydmljZSBpbnZvY2F0aW9uIHZpYSBEYXByCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBEYXByU2VydmljZVRhc2tNYXBwaW5nIDogSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHNlcnZpY2VUYXNrID0gdGFzayBhcyBEYXByU2VydmljZVRhc2s7CiAgICAgICAgICAgIGlmIChzZXJ2aWNlVGFzayA9PSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgRGFwclNlcnZpY2VUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSB0YXJnZXQgc2VydmljZQogICAgICAgICAgICBzZXJ2aWNlVGFzay5TZXRBcHBJZCgibW9ja29vbiIpOwogICAgICAgICAgICBzZXJ2aWNlVGFzay5TZXRNZXRob2ROYW1lKCIvYXBpL3Rhc2stdGVzdC9kYXByLWVuZHBvaW50Iik7CgogICAgICAgICAgICAvLyBQcmVwYXJlIHJlcXVlc3QgYm9keQogICAgICAgICAgICB2YXIgcmVxdWVzdEJvZHkgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGVzdElkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8udGVzdElkID8/IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICB3b3JrZmxvd0lkID0gY29udGV4dC5Xb3JrZmxvdy5LZXksCiAgICAgICAgICAgICAgICBpbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICB0aW1lc3RhbXAgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBhY3Rpb24gPSAiZGFwci1zZXJ2aWNlLXRlc3QiCiAgICAgICAgICAgIH07CgogICAgICAgICAgICBzZXJ2aWNlVGFzay5TZXRCb2R5KHJlcXVlc3RCb2R5KTsKCiAgICAgICAgICAgIC8vIFNldCBoZWFkZXJzCiAgICAgICAgICAgIHZhciBoZWFkZXJzID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PgogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBbIlgtVGVzdC1JZCJdID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8udGVzdElkPy5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgWyJYLVJlcXVlc3QtSWQiXSA9IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICBbIlgtQ29ycmVsYXRpb24tSWQiXSA9IGNvbnRleHQuSW5zdGFuY2UuSWQuVG9TdHJpbmcoKQogICAgICAgICAgICB9OwogICAgICAgICAgICBzZXJ2aWNlVGFzay5TZXRIZWFkZXJzKGhlYWRlcnMpOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZGFwci1zZXJ2aWNlLWlucHV0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHJlc3BvbnNlID0gY29udGV4dC5Cb2R5OwoKICAgICAgICAgICAgaWYgKHJlc3BvbnNlPy5pc1N1Y2Nlc3MgPT0gdHJ1ZSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJkYXByLXNlcnZpY2Utc3VjY2VzcyIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgZGFwclNlcnZpY2VSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBkYXRhID0gcmVzcG9uc2U/LmRhdGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBleGVjdXRpb25UaW1lID0gcmVzcG9uc2U/LmV4ZWN1dGlvbkR1cmF0aW9uTXMsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcm9jZXNzZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkRhcHJTZXJ2aWNlVGFzayIKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJkYXByLXNlcnZpY2UiLCAic3VjY2VzcyIgfQogICAgICAgICAgICAgICAgfTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZGFwci1zZXJ2aWNlLWZhaWxlZCIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZGFwclNlcnZpY2VSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSBmYWxzZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJEYXByIHNlcnZpY2UgaW52b2NhdGlvbiBmYWlsZWQiLAogICAgICAgICAgICAgICAgICAgICAgICBmYWlsZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiRGFwclNlcnZpY2VUYXNrIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgImRhcHItc2VydmljZSIsICJmYWlsZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImRhcHItc2VydmljZS1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGRhcHJTZXJ2aWNlUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiRGFwclNlcnZpY2VUYXNrIgogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "dapr-service-completed",
+            "target": "test-notification-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "DaprServiceTask Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "DaprServiceTask Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-notification-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test NotificationTask"
+          },
+          {
+            "language": "tr-TR",
+            "label": "NotificationTask Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notification-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "type": "G"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "notification-completed",
+            "target": "test-script-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "NotificationTask Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "NotificationTask Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-script-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test ScriptTask"
+          },
+          {
+            "language": "tr-TR",
+            "label": "ScriptTask Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ScriptTaskMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTY3JpcHQgVGFzayBNYXBwaW5nIC0gRXhlY3V0ZXMgY3VzdG9tIGJ1c2luZXNzIGxvZ2ljCi8vLyBUZXN0IGNhc2U6IFZlcmlmeSBzY3JpcHQgZXhlY3V0aW9uIGFuZCBkYXRhIHRyYW5zZm9ybWF0aW9uCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTY3JpcHRUYXNrTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIC8vIFNjcmlwdCB0YXNrcyBkb24ndCByZXF1aXJlIHNwZWNpZmljIHRhc2sgY29uZmlndXJhdGlvbgogICAgICAgICAgICAvLyBUaGV5IGFyZSB1c2VkIGZvciBkYXRhIHRyYW5zZm9ybWF0aW9uIGFuZCBidXNpbmVzcyBsb2dpYwogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzY3JpcHQtdGFzay1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIC8vIFBlcmZvcm0gZGF0YSB0cmFuc2Zvcm1hdGlvbgogICAgICAgICAgICB2YXIgaW5wdXREYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIENhbGN1bGF0ZSBzb21lIHZhbHVlcwogICAgICAgICAgICB2YXIgY2FsY3VsYXRlZFZhbHVlcyA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBvcmlnaW5hbFRlc3RJZCA9IGlucHV0RGF0YT8udGVzdElkLAogICAgICAgICAgICAgICAgcHJvY2Vzc2VkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBjYWxjdWxhdGVkVmFsdWUgPSBuZXcgUmFuZG9tKCkuTmV4dCgxMDAwLCA5OTk5KSwKICAgICAgICAgICAgICAgIGlzUHJvY2Vzc2VkID0gdHJ1ZSwKICAgICAgICAgICAgICAgIHByb2Nlc3NpbmdEdXJhdGlvbiA9IERhdGVUaW1lLlV0Y05vdy5TdWJ0cmFjdChEYXRlVGltZS5VdGNOb3cuQWRkTWlsbGlzZWNvbmRzKC0xMDApKS5Ub3RhbE1pbGxpc2Vjb25kcwogICAgICAgICAgICB9OwoKICAgICAgICAgICAgLy8gVHJhbnNmb3JtIGFuZCBhZ2dyZWdhdGUgZGF0YQogICAgICAgICAgICB2YXIgdHJhbnNmb3JtZWREYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHNjcmlwdFRhc2tSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICBvcmlnaW5hbERhdGEgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RJZCA9IGlucHV0RGF0YT8udGVzdElkLAogICAgICAgICAgICAgICAgICAgICAgICB3b3JrZmxvd0lkID0gY29udGV4dC5Xb3JrZmxvdy5LZXksCiAgICAgICAgICAgICAgICAgICAgICAgIGluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZAogICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgdHJhbnNmb3JtZWQgPSBjYWxjdWxhdGVkVmFsdWVzLAogICAgICAgICAgICAgICAgICAgIG1ldGFkYXRhID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJTY3JpcHRUYXNrIiwKICAgICAgICAgICAgICAgICAgICAgICAgZXhlY3V0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgc2NyaXB0VmVyc2lvbiA9ICIxLjAuMCIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CgogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzY3JpcHQtdGFzay1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSB0cmFuc2Zvcm1lZERhdGEsCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgInNjcmlwdC10YXNrIiwgInN1Y2Nlc3MiLCAiZGF0YS10cmFuc2Zvcm1hdGlvbiIgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAic2NyaXB0LXRhc2stZXhjZXB0aW9uIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzY3JpcHRUYXNrUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiU2NyaXB0VGFzayIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "script-completed",
+            "target": "test-start-workflow-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ScriptTask Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "ScriptTask Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-start-workflow-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test Start (New Workflow)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Start Testi (Yeni İş Akışı)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-start-workflow",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StartWorkflowMapping.csx",
+              "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Definitions;\nusing BBT.Workflow.Scripting;\n\n/// <summary>\n/// Start Workflow Task Mapping - Starts a new workflow instance\n/// Test case: Verify starting new workflow instances\n/// </summary>\npublic class StartWorkflowMapping : IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        try\n        {\n            var startTask = task as StartTask;\n            if (startTask == null)\n            {\n                throw new InvalidOperationException(\"Task must be a StartTask\");\n            }\n\n            // Configure target workflow\n            startTask.SetDomain(\"core\");\n            startTask.SetFlow(\"task-test-subflow\");\n            startTask.SetSync(true);\n            startTask.SetVersion(\"1.0.0\");\n            startTask.SetKey(Guid.NewGuid().ToString());\n            startTask.SetTags(new[] { \"task-test\", \"start-workflow\", \"success\" });\n            \n            // Prepare initialization body\n            var initBody = new\n            {\n                parentInstanceId = context.Instance?.Id,\n                parentWorkflowId = context.Workflow?.Key,\n                testId = context.Instance?.Data?.testId ?? Guid.NewGuid().ToString(),\n                startedAt = DateTime.UtcNow,\n                startedBy = \"task-test-workflow\",\n                message = \"StartTask test - new instance created\"\n            };\n            startTask.SetBody(initBody);\n\n            return Task.FromResult(new ScriptResponse());\n        }\n        catch (Exception ex)\n        {\n            return Task.FromResult(new ScriptResponse\n            {\n                Key = \"start-workflow-input-error\",\n                Data = new { error = ex.Message }\n            });\n        }\n    }\n\n    public async Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        try\n        {\n            var response = context.Body;\n\n            if (response?.isSuccess == true)\n            {\n                return new ScriptResponse\n                {\n                    Key = \"start-workflow-success\",\n                    Data = new\n                    {\n                        startWorkflowResult = new\n                        {\n                            success = true,\n                            newInstanceId = response?.data?.id,\n                            status = response?.data?.status,\n                            startedAt = DateTime.UtcNow,\n                            taskType = \"Start\"\n                        },\n                        // Store instance ID for later use\n                        subflowInstanceId = response?.data?.id\n                    },\n                    Tags = new[] { \"task-test\", \"start-workflow\", \"success\" }\n                };\n            }\n\n            return new ScriptResponse\n            {\n                Key = \"start-workflow-failed\",\n                Data = new\n                {\n                    startWorkflowResult = new\n                    {\n                        success = false,\n                        error = response?.errorMessage ?? \"Failed to start workflow\",\n                        failedAt = DateTime.UtcNow,\n                        taskType = \"Start\"\n                    }\n                },\n                Tags = new[] { \"task-test\", \"start-workflow\", \"failed\" }\n            };\n        }\n        catch (Exception ex)\n        {\n            return new ScriptResponse\n            {\n                Key = \"start-workflow-exception\",\n                Data = new\n                {\n                    startWorkflowResult = new\n                    {\n                        success = false,\n                        error = ex.Message,\n                        taskType = \"Start\"\n                    }\n                }\n            };\n        }\n    }\n}",
+              "encoding": "NAT"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "start-workflow-completed",
+            "target": "test-get-instance-data-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Start Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Start Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-get-instance-data-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test GetInstanceData"
+          },
+          {
+            "language": "tr-TR",
+            "label": "GetInstanceData Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-get-instance-data",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GetInstanceDataMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBHZXRJbnN0YW5jZURhdGEgVGFzayBNYXBwaW5nIC0gUmV0cmlldmVzIGRhdGEgZnJvbSBhbm90aGVyIHdvcmtmbG93IGluc3RhbmNlCi8vLyBUZXN0IGNhc2U6IFZlcmlmeSBjcm9zcy13b3JrZmxvdyBkYXRhIHJldHJpZXZhbAovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgR2V0SW5zdGFuY2VEYXRhTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBnZXREYXRhVGFzayA9IHRhc2sgYXMgR2V0SW5zdGFuY2VEYXRhVGFzazsKICAgICAgICAgICAgaWYgKGdldERhdGFUYXNrID09IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBHZXRJbnN0YW5jZURhdGFUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSB0YXJnZXQgd29ya2Zsb3cKICAgICAgICAgICAgZ2V0RGF0YVRhc2suU2V0RG9tYWluKCJjb3JlIik7CiAgICAgICAgICAgIGdldERhdGFUYXNrLlNldEZsb3coInRhc2stdGVzdC1zdWJmbG93Iik7CiAgICAgICAgICAgIAogICAgICAgICAgICAvLyBHZXQgaW5zdGFuY2UgSUQgZnJvbSB3b3JrZmxvdyBkYXRhCiAgICAgICAgICAgIHZhciB0YXJnZXRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uc3ViZmxvd0luc3RhbmNlSWQ/LlRvU3RyaW5nKCk7CiAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yRW1wdHkodGFyZ2V0SW5zdGFuY2VJZCkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGdldERhdGFUYXNrLlNldEluc3RhbmNlKHRhcmdldEluc3RhbmNlSWQpOwogICAgICAgICAgICB9CgogICAgICAgICAgICAvLyBSZXF1ZXN0IHNwZWNpZmljIGV4dGVuc2lvbnMKICAgICAgICAgICAgZ2V0RGF0YVRhc2suU2V0RXh0ZW5zaW9ucyhuZXdbXSB7ICJhbGwiIH0pOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ2V0LWluc3RhbmNlLWRhdGEtaW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVzcG9uc2UgPSBjb250ZXh0LkJvZHk7CgogICAgICAgICAgICBpZiAocmVzcG9uc2U/LmlzU3VjY2VzcyA9PSB0cnVlKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgS2V5ID0gImdldC1pbnN0YW5jZS1kYXRhLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIGdldEluc3RhbmNlRGF0YVJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHJpZXZlZERhdGEgPSByZXNwb25zZT8uZGF0YSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1ldGFkYXRhID0gcmVzcG9uc2U/Lm1ldGFkYXRhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgcmV0cmlldmVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJHZXRJbnN0YW5jZURhdGEiCiAgICAgICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJ0YXNrLXRlc3QiLCAiZ2V0LWluc3RhbmNlLWRhdGEiLCAic3VjY2VzcyIgfQogICAgICAgICAgICAgICAgfTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ2V0LWluc3RhbmNlLWRhdGEtZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBnZXRJbnN0YW5jZURhdGFSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSBmYWxzZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJGYWlsZWQgdG8gcmV0cmlldmUgaW5zdGFuY2UgZGF0YSIsCiAgICAgICAgICAgICAgICAgICAgICAgIGZhaWxlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJHZXRJbnN0YW5jZURhdGEiCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJ0YXNrLXRlc3QiLCAiZ2V0LWluc3RhbmNlLWRhdGEiLCAiZmFpbGVkIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJnZXQtaW5zdGFuY2UtZGF0YS1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGdldEluc3RhbmNlRGF0YVJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGV4Lk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkdldEluc3RhbmNlRGF0YSIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "get-instance-data-completed",
+            "target": "test-direct-transition-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "GetInstanceData Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "GetInstanceData Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-direct-transition-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test DirectTransition"
+          },
+          {
+            "language": "tr-TR",
+            "label": "DirectTransition Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-direct-transition",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/DirectTransitionMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEaXJlY3RUcmFuc2l0aW9uIFRhc2sgTWFwcGluZyAtIFRyaWdnZXJzIHRyYW5zaXRpb24gb24gZXhpc3Rpbmcgd29ya2Zsb3cgaW5zdGFuY2UKLy8vIFRlc3QgY2FzZTogVmVyaWZ5IHdvcmtmbG93LXRvLXdvcmtmbG93IHRyYW5zaXRpb24gdHJpZ2dlcmluZwovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRGlyZWN0VHJhbnNpdGlvbk1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgZGlyZWN0VHJpZ2dlclRhc2sgPSB0YXNrIGFzIERpcmVjdFRyaWdnZXJUYXNrOwogICAgICAgICAgICBpZiAoZGlyZWN0VHJpZ2dlclRhc2sgPT0gbnVsbCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIERpcmVjdFRyaWdnZXJUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSB0YXJnZXQgd29ya2Zsb3cKICAgICAgICAgICAgZGlyZWN0VHJpZ2dlclRhc2suU2V0RG9tYWluKCJjb3JlIik7CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldEZsb3coInRhc2stdGVzdC1zdWJmbG93Iik7CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldFRyYW5zaXRpb25OYW1lKCJjb21wbGV0ZS1zdWJmbG93Iik7CiAgICAgICAgICAgIGRpcmVjdFRyaWdnZXJUYXNrLlNldFRhZ3MobmV3W10geyAidGFzay10ZXN0IiwgImRpcmVjdC10cmFuc2l0aW9uIiwgInN1Y2Nlc3MiIH0pOwogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRTeW5jKHRydWUpOwoKICAgICAgICAgICAgLy8gR2V0IGluc3RhbmNlIElEIGZyb20gd29ya2Zsb3cgZGF0YQogICAgICAgICAgICB2YXIgdGFyZ2V0SW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnN1YmZsb3dJbnN0YW5jZUlkPy5Ub1N0cmluZygpOwogICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPckVtcHR5KHRhcmdldEluc3RhbmNlSWQpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRJbnN0YW5jZSh0YXJnZXRJbnN0YW5jZUlkKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRLZXkoY29udGV4dC5JbnN0YW5jZT8uS2V5ID8/IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCkpOwoKICAgICAgICAgICAgLy8gUHJlcGFyZSB0cmFuc2l0aW9uIGJvZHkKICAgICAgICAgICAgdmFyIHRyYW5zaXRpb25Cb2R5ID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGNvbXBsZXRlZEJ5ID0gInRhc2stdGVzdC13b3JrZmxvdyIsCiAgICAgICAgICAgICAgICBjb21wbGV0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgIHBhcmVudEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgIG1lc3NhZ2UgPSAiRGlyZWN0VHJhbnNpdGlvbiB0ZXN0IGV4ZWN1dGVkIgogICAgICAgICAgICB9OwogICAgICAgICAgICBkaXJlY3RUcmlnZ2VyVGFzay5TZXRCb2R5KHRyYW5zaXRpb25Cb2R5KTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImRpcmVjdC10cmFuc2l0aW9uLWlucHV0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHJlc3BvbnNlID0gY29udGV4dC5Cb2R5OwoKICAgICAgICAgICAgaWYgKHJlc3BvbnNlPy5pc1N1Y2Nlc3MgPT0gdHJ1ZSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJkaXJlY3QtdHJhbnNpdGlvbi1zdWNjZXNzIiwKICAgICAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBkaXJlY3RUcmFuc2l0aW9uUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgaW5zdGFuY2VJZCA9IHJlc3BvbnNlPy5kYXRhPy5pZCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0YXR1cyA9IHJlc3BvbnNlPy5kYXRhPy5zdGF0dXMsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBleGVjdXRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiRGlyZWN0VHJhbnNpdGlvbiIKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJkaXJlY3QtdHJhbnNpdGlvbiIsICJzdWNjZXNzIiB9CiAgICAgICAgICAgICAgICB9OwogICAgICAgICAgICB9CgogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJkaXJlY3QtdHJhbnNpdGlvbi1mYWlsZWQiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGRpcmVjdFRyYW5zaXRpb25SZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSBmYWxzZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSByZXNwb25zZT8uZXJyb3JNZXNzYWdlID8/ICJEaXJlY3QgdHJhbnNpdGlvbiBmYWlsZWQiLAogICAgICAgICAgICAgICAgICAgICAgICBmYWlsZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiRGlyZWN0VHJhbnNpdGlvbiIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInRhc2stdGVzdCIsICJkaXJlY3QtdHJhbnNpdGlvbiIsICJmYWlsZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImRpcmVjdC10cmFuc2l0aW9uLWV4Y2VwdGlvbiIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZGlyZWN0VHJhbnNpdGlvblJlc3VsdCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGV4Lk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIkRpcmVjdFRyYW5zaXRpb24iCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQoK"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "direct-transition-completed",
+            "target": "test-subprocess-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "DirectTransition Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "DirectTransition Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-subprocess-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test SubProcess"
+          },
+          {
+            "language": "tr-TR",
+            "label": "SubProcess Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "test-subprocess",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/SubProcessMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdWJQcm9jZXNzIFRhc2sgTWFwcGluZyAtIFN0YXJ0cyBhIGZpcmUtYW5kLWZvcmdldCBzdWJwcm9jZXNzCi8vLyBUZXN0IGNhc2U6IFZlcmlmeSBzdWJwcm9jZXNzIGxhdW5jaGluZyAobm9uLWJsb2NraW5nKQovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU3ViUHJvY2Vzc01hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgc3ViUHJvY2Vzc1Rhc2sgPSB0YXNrIGFzIFN1YlByb2Nlc3NUYXNrOwogICAgICAgICAgICBpZiAoc3ViUHJvY2Vzc1Rhc2sgPT0gbnVsbCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSBzdWJwcm9jZXNzCiAgICAgICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldERvbWFpbigiY29yZSIpOwogICAgICAgICAgICBzdWJQcm9jZXNzVGFzay5TZXRGbG93KCJ0YXNrLXRlc3Qtc3ViZmxvdyIpOwogICAgICAgICAgICBzdWJQcm9jZXNzVGFzay5TZXRLZXkoY29udGV4dC5JbnN0YW5jZT8uS2V5ID8/IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCkpOwogICAgICAgICAgICBzdWJQcm9jZXNzVGFzay5TZXRUYWdzKG5ld1tdIHsgInRhc2stdGVzdCIsICJzdWJwcm9jZXNzIiwgInN1Y2Nlc3MiIH0pOwoKICAgICAgICAgICAgLy8gUHJlcGFyZSBzdWJwcm9jZXNzIGRhdGEKICAgICAgICAgICAgdmFyIHN1YlByb2Nlc3NCb2R5ID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHBhcmVudEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgIHBhcmVudFdvcmtmbG93SWQgPSBjb250ZXh0LldvcmtmbG93LktleSwKICAgICAgICAgICAgICAgIHRlc3RJZCA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnRlc3RJZCA/PyBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpLAogICAgICAgICAgICAgICAgbGF1bmNoZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgIGxhdW5jaGVkQnkgPSAidGFzay10ZXN0LXdvcmtmbG93IiwKICAgICAgICAgICAgICAgIGlzRmlyZUFuZEZvcmdldCA9IHRydWUsCiAgICAgICAgICAgICAgICBtZXNzYWdlID0gIlN1YlByb2Nlc3MgdGVzdCAtIGZpcmUtYW5kLWZvcmdldCBpbnN0YW5jZSIKICAgICAgICAgICAgfTsKICAgICAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0Qm9keShzdWJQcm9jZXNzQm9keSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzdWJwcm9jZXNzLWlucHV0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHJlc3BvbnNlID0gY29udGV4dC5Cb2R5OwoKICAgICAgICAgICAgaWYgKHJlc3BvbnNlPy5pc1N1Y2Nlc3MgPT0gdHJ1ZSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJzdWJwcm9jZXNzLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1YlByb2Nlc3NSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdWJQcm9jZXNzSW5zdGFuY2VJZCA9IHJlc3BvbnNlPy5kYXRhPy5pZCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxhdW5jaGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJTdWJQcm9jZXNzIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5vdGUgPSAiRmlyZS1hbmQtZm9yZ2V0OiBQYXJlbnQgd29ya2Zsb3cgZG9lcyBub3Qgd2FpdCBmb3Igc3VicHJvY2VzcyBjb21wbGV0aW9uIgogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAidGFzay10ZXN0IiwgInN1YnByb2Nlc3MiLCAic3VjY2VzcyIsICJmaXJlLWFuZC1mb3JnZXQiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInN1YnByb2Nlc3MtZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzdWJQcm9jZXNzUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gcmVzcG9uc2U/LmVycm9yTWVzc2FnZSA/PyAiRmFpbGVkIHRvIGxhdW5jaCBzdWJwcm9jZXNzIiwKICAgICAgICAgICAgICAgICAgICAgICAgZmFpbGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgICAgIHRhc2tUeXBlID0gIlN1YlByb2Nlc3MiCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJ0YXNrLXRlc3QiLCAic3VicHJvY2VzcyIsICJmYWlsZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInN1YnByb2Nlc3MtZXhjZXB0aW9uIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzdWJQcm9jZXNzUmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgICAgIGVycm9yID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICAgICAgdGFza1R5cGUgPSAiU3ViUHJvY2VzcyIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "subprocess-completed",
+            "target": "all-tests-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "SubProcess Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "SubProcess Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "all-tests-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "All Tests Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tüm Testler Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

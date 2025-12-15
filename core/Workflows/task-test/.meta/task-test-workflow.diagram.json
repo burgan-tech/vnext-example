@@ -1,0 +1,60 @@
+{
+  "nodePos": {
+    "test-get-secret-state": {
+      "x": 100,
+      "y": 100
+    },
+    "test-get-config-state": {
+      "x": 567,
+      "y": 100
+    },
+    "test-dapr-pubsub-state": {
+      "x": 1034,
+      "y": 100
+    },
+    "test-http-items-state": {
+      "x": 1484,
+      "y": 100
+    },
+    "test-http-task-state": {
+      "x": 1951,
+      "y": 100
+    },
+    "test-dapr-service-state": {
+      "x": 2387,
+      "y": 100
+    },
+    "test-notification-state": {
+      "x": 2863,
+      "y": 100
+    },
+    "test-script-state": {
+      "x": 3348,
+      "y": 100
+    },
+    "test-start-workflow-state": {
+      "x": 3779,
+      "y": 100
+    },
+    "test-get-instance-data-state": {
+      "x": 4300,
+      "y": 100
+    },
+    "test-direct-transition-state": {
+      "x": 4792,
+      "y": 100
+    },
+    "test-subprocess-state": {
+      "x": 5284,
+      "y": 100
+    },
+    "all-tests-completed": {
+      "x": 5727,
+      "y": 100
+    },
+    "__start__": {
+      "x": -296,
+      "y": 100
+    }
+  }
+}

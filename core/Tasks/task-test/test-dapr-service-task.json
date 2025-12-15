@@ -1,0 +1,24 @@
+{
+  "key": "test-dapr-service-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "task-test",
+    "dapr",
+    "service-invocation",
+    "microservice"
+  ],
+  "attributes": {
+    "type": "3",
+    "config": {
+      "appId": "mockoon",
+      "methodName": "/api/api/task-test/dapr-endpoint",
+      "httpVerb": "POST",
+      "queryString": "",
+      "timeoutSeconds": 30
+    }
+  }
+}
+

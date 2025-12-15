@@ -122,6 +122,16 @@
           "uuid": "0fe9d51a-a402-45ec-955c-dca673b35b3b"
         }
       ]
+    },
+    {
+      "uuid": "23f855b3-1df8-4eff-922c-3da82ed371f1",
+      "name": "task-test",
+      "children": [
+        {
+          "type": "route",
+          "uuid": "30ce347c-8b04-44e4-8d50-da46d7ab04c7"
+        }
+      ]
     }
   ],
   "routes": [
@@ -1369,7 +1379,7 @@
       "type": "http",
       "documentation": "",
       "method": "post",
-      "endpoint": "api/contract/group/query",
+      "endpoint": "api/contract/get-documents",
       "responses": [
         {
           "uuid": "12a6bb9b-5e3f-4393-8fce-f66b76f6c370",
@@ -1429,7 +1439,7 @@
       "type": "http",
       "documentation": "",
       "method": "post",
-      "endpoint": "api/contract/document/render",
+      "endpoint": "api/contract/render-document",
       "responses": [
         {
           "uuid": "d7ee8c1b-f0a0-49df-86a9-5b4421305c80",
@@ -1483,6 +1493,78 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "30ce347c-8b04-44e4-8d50-da46d7ab04c7",
+      "type": "http",
+      "documentation": "Task Test HTTP Endpoint - Test for HttpTask type",
+      "method": "post",
+      "endpoint": "api/task-test/http-endpoint",
+      "responses": [
+        {
+          "uuid": "e9361ff0-f4c6-46a1-94de-1960c8e55cb3",
+          "body": "{\n  \"statusCode\": 200,\n  \"success\": true,\n  \"data\": {\n    \"taskType\": \"HttpTask\",\n    \"message\": \"HTTP task test successful\",\n    \"receivedData\": {{body}},\n    \"processedAt\": \"{{now}}\",\n    \"requestId\": \"{{faker 'string.uuid'}}\"\n  },\n  \"metadata\": {\n    \"endpoint\": \"api/task-test/http-endpoint\",\n    \"method\": \"POST\",\n    \"responseTime\": {{faker 'number.int' min=50 max=200}}\n  }\n}",
+          "latency": 500,
+          "statusCode": 200,
+          "label": "Success Response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "X-Task-Type",
+              "value": "HttpTask"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "6ad55341-fb41-466e-ab2b-2c87b19f4364",
+          "body": "{\n  \"statusCode\": 500,\n  \"success\": false,\n  \"error\": {\n    \"code\": \"INTERNAL_ERROR\",\n    \"message\": \"Task test HTTP endpoint error\",\n    \"timestamp\": \"{{now}}\"\n  }\n}",
+          "latency": 200,
+          "statusCode": 500,
+          "label": "Error Response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "simulateError",
+              "value": "true",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -1505,6 +1587,10 @@
     {
       "type": "folder",
       "uuid": "0c0c687a-810a-434f-affc-a23e45a90dfc"
+    },
+    {
+      "type": "folder",
+      "uuid": "23f855b3-1df8-4eff-922c-3da82ed371f1"
     }
   ],
   "proxyMode": false,

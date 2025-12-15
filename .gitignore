@@ -269,3 +269,6 @@ profile-*
 .npmrc.local
 auth.json
 secrets.json 
+
+# AI folders
+ai-docs/
