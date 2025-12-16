@@ -13,7 +13,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/contract/render-document",
+      "url": "http://mockoon:3001/api/contract/render-document",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

@@ -10,7 +10,7 @@
 #
 # Prerequisites:
 # 1. vNext Runtime running on localhost:4201
-# 2. Mockoon running on localhost:3001
+# 2. Mockoon running on mockoon:3001
 ###############################################################################
 
 @baseUrl = http://localhost:4201
@@ -163,11 +163,11 @@ Accept: application/json
 ###############################################################################
 
 ### Test Get Contract Documents (Mockoon)
-GET http://localhost:3001/api/contract/documents?groupCode=KG-2024-001
+GET http://mockoon:3001/api/contract/documents?groupCode=KG-2024-001
 Accept: application/json
 
 ### Test Render Document (Mockoon)
-POST http://localhost:3001/api/contract/documents/render
+POST http://mockoon:3001/api/contract/documents/render
 Content-Type: application/json
 
 {
@@ -177,7 +177,7 @@ Content-Type: application/json
 }
 
 ### Test Notify Document Approved (Mockoon)
-POST http://localhost:3001/api/contract/documents/notify-approved
+POST http://mockoon:3001/api/contract/documents/notify-approved
 Content-Type: application/json
 
 {

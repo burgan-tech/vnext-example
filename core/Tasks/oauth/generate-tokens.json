@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/oauth2/tokens/generate",
+      "url": "http://mockoon:3001/api/oauth2/tokens/generate",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

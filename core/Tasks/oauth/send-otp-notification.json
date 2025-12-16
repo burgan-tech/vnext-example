@@ -15,7 +15,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/oauth2/otp/send",
+      "url": "http://mockoon:3001/api/oauth2/otp/send",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"
