@@ -13,7 +13,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/payments/process",
+      "url": "http://mockoon:3001/api/payments/process",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

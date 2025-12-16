@@ -10,7 +10,7 @@
 #
 # Prerequisites:
 # 1. vNext Runtime running on localhost:4201
-# 2. Mockoon running on localhost:3001
+# 2. Mockoon running on mockoon:3001
 ###############################################################################
 
 @baseUrl = http://localhost:4201

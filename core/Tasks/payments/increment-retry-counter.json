@@ -13,7 +13,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/payments/schedules/{scheduleId}/retry",
+      "url": "http://mockoon:3001/api/payments/schedules/{scheduleId}/retry",
       "method": "PATCH",
       "headers": {
         "Content-Type": "application/json"
