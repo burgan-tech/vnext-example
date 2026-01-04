@@ -1,0 +1,29 @@
+{
+  "key": "child-workflow-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "subflow-test",
+    "child-workflow",
+    "view",
+    "longpolling-test"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Child Workflow View"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Alt Akış Görünümü"
+      }
+    ],
+    "display": "full-page",
+    "content": "{\"type\":\"form\",\"title\":{\"en-US\":\"Child Workflow - Active\",\"tr-TR\":\"Alt Akış - Aktif\"},\"description\":{\"en-US\":\"This is the child (subflow) workflow view. Complete this workflow to continue the parent.\",\"tr-TR\":\"Bu alt akış görünümüdür. Ana akışın devam etmesi için bu akışı tamamlayın.\"},\"fields\":[{\"key\":\"childStatus\",\"type\":\"text\",\"label\":{\"en-US\":\"Child Status\",\"tr-TR\":\"Alt Akış Durumu\"},\"readonly\":true,\"defaultValue\":\"active\"},{\"key\":\"childInfo\",\"type\":\"info\",\"label\":{\"en-US\":\"Child Info\",\"tr-TR\":\"Alt Akış Bilgisi\"},\"content\":{\"en-US\":\"This view includes child extension data for longpolling test.\",\"tr-TR\":\"Bu görünüm longpolling testi için alt akış extension verisini içerir.\"}}],\"buttons\":[{\"key\":\"complete\",\"label\":{\"en-US\":\"Complete Child Workflow\",\"tr-TR\":\"Alt Akışı Tamamla\"},\"style\":\"success\",\"action\":\"submit\",\"transition\":\"complete-child\"}]}"
+  }
+}
+

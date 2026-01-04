@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
-using BBT.Workflow.Scripting;
+using BBT.Workflow.Scripting;using BBT.Workflow.Scripting.Functions;
 
 /// <summary>
 /// Initial Transition Mapping - Initializes workflow with test data
 /// </summary>
-public class InitialTransitionMapping : IMapping
+public class InitialTransitionMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -17,6 +17,7 @@ public class InitialTransitionMapping : IMapping
     {
         try
         {
+            LogInformation("InitialTransitionMapping output handler starting...");
             var inputData = context.Instance?.Data;
             
             return new ScriptResponse
@@ -56,4 +57,3 @@ public class InitialTransitionMapping : IMapping
         }
     }
 }
-

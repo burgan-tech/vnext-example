@@ -1,0 +1,186 @@
+### ==============================================================
+### ErrorBoundary Test Workflow - HTTP Test File
+### ==============================================================
+### Bu dosya ErrorBoundary feature'ının tüm senaryolarını test eder.
+### Test Senaryoları:
+### 1. Task-Level ErrorBoundary (Retry, Abort)
+### 2. State-Level ErrorBoundary (Ignore, Rollback)
+### 3. SubFlow ErrorBoundary (Error Propagation)
+### 4. Retry Policies (Fixed, Exponential Backoff)
+### 5. Timeout Policy
+### 6. Notify Action
+### 7. Global ErrorBoundary
+### ==============================================================
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = error-boundary-test-workflow
+@instanceKey = error-boundary-test-{{$timestamp}}
+
+### ==============================================================
+### STEP 1: Start the ErrorBoundary Test Workflow
+### ==============================================================
+### Bu adım workflow'u başlatır ve test-task-boundary state'ine geçer.
+### Global ErrorBoundary aktiftir ve tüm beklenmeyen hatalar için 
+### Notify ve Log action'ları tanımlıdır.
+
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "{{instanceKey}}",
+  "tags": ["error-boundary-test", "test"],
+  "attributes": {
+    "testId": "eb-test-{{$timestamp}}",
+    "testStartedAt": "{{$datetime rfc1123}}",
+    "testScenarios": [
+      "task-boundary-retry",
+      "task-boundary-abort",
+      "state-boundary-ignore",
+      "state-boundary-rollback",
+      "subflow-error-propagation",
+      "retry-policies",
+      "timeout-policy",
+      "notify-action"
+    ]
+  }
+}
+
+### ==============================================================
+### STEP 2: Get Current State (Long Polling)
+### ==============================================================
+### Workflow'un mevcut durumunu kontrol eder.
+
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+
+### ==============================================================
+### STEP 3: Get Instance Data
+### ==============================================================
+### Workflow instance verisini alır.
+
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/data
+
+### ==============================================================
+### SCENARIO: Test Task-Level Retry (503 Error with Exponential Backoff)
+### ==============================================================
+### test-task-boundary state'inde 503 hatası simüle edilir.
+### Task-level ErrorBoundary ile retry policy devreye girer:
+### - maxRetries: 3
+### - initialDelay: 1s
+### - backoffType: Exponential
+### - backoffMultiplier: 2.0
+
+### Not: Bu senaryo otomatik olarak çalışır, kullanıcı müdahalesi gerekmez.
+### Retry sonuçlarını instance data'da görebilirsiniz.
+
+### ==============================================================
+### SCENARIO: Test State-Level Ignore (400 Error)
+### ==============================================================
+### test-state-boundary state'inde 400 hatası oluşur.
+### State-level ErrorBoundary tanımına göre:
+### - action: Ignore (3)
+### - errorCodes: [400, 404, 422]
+### Hata ignore edilir ve workflow devam eder.
+
+### ==============================================================
+### SCENARIO: Test SubFlow Error Propagation
+### ==============================================================
+### test-subflow-boundary state'inde SubFlow çağrılır.
+### SubFlow içinde hata oluştuğunda:
+### - SubFlowErrorPolicy.propagateToParent: true
+### - SubFlowErrorPolicy.includeChildErrorDetails: true
+### - SubFlowErrorPolicy.parentTransition: "subflow-error-recovery"
+### Hata parent workflow'a iletilir.
+
+### ==============================================================
+### SCENARIO: Test Timeout Policy
+### ==============================================================
+### test-timeout-policy state'inde timeout simüle edilir.
+### State-level ErrorBoundary.onTimeout ayarı:
+### - action: Abort
+### - transition: "timeout-state"
+### - defaultRetryPolicy ile önce retry denenir
+
+### ==============================================================
+### ALTERNATIVE FLOW: Manual Review Transition (Review Approved)
+### ==============================================================
+### Eğer workflow manual-review state'ine geçtiyse:
+
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/review-approved
+Content-Type: application/json
+
+{
+  "reviewedBy": "admin",
+  "reviewedAt": "{{$datetime rfc1123}}",
+  "decision": "approved",
+  "notes": "Error reviewed and approved for continuation"
+}
+
+### ==============================================================
+### ALTERNATIVE FLOW: Manual Review Transition (Review Rejected)
+### ==============================================================
+### Eğer workflow manual-review state'ine geçtiyse ve red kararı:
+
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/review-rejected
+Content-Type: application/json
+
+{
+  "reviewedBy": "admin",
+  "reviewedAt": "{{$datetime rfc1123}}",
+  "decision": "rejected",
+  "notes": "Error reviewed and rejected"
+}
+
+### ==============================================================
+### MONITORING: Check Final State
+### ==============================================================
+### Workflow tamamlandığında final state'i kontrol edin:
+### - success: Tüm testler başarılı
+### - failed: Rollback veya timeout sonrası
+
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+
+### ==============================================================
+### MONITORING: Get Full Instance Data with Test Results
+### ==============================================================
+### Tüm test sonuçlarını içeren instance data:
+
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/data
+
+### ==============================================================
+### ERROR BOUNDARY TEST SCENARIOS SUMMARY
+### ==============================================================
+### 
+### | Level    | ErrorAction | Scenario                              |
+### |----------|-------------|---------------------------------------|
+### | Task     | Retry (1)   | HTTP 503 - exponential backoff retry |
+### | Task     | Abort (0)   | HTTP 500 - abort and transition      |
+### | State    | Ignore (3)  | HTTP 400 - ignore and continue       |
+### | State    | Rollback(2) | HTTP 500 - rollback to prev state    |
+### | SubFlow  | Propagate   | Child error propagates to parent     |
+### | Global   | Notify (4)  | All unexpected errors notify         |
+### | Global   | Log (5)     | All errors are logged                |
+### | Timeout  | Abort+Trans | Timeout leads to specific state      |
+###
+### ErrorAction Enum Values:
+### - 0: Abort
+### - 1: Retry
+### - 2: Rollback
+### - 3: Ignore
+### - 4: Notify
+### - 5: Log
+###
+### BackoffType Enum Values:
+### - 0: Fixed
+### - 1: Exponential
+###
+### ==============================================================
+
+### ==============================================================
+### CLEANUP: Delete Test Instance (Optional)
+### ==============================================================
+### Test sonrası instance'ı silmek için:
+
+# DELETE {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}
+

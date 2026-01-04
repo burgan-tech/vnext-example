@@ -19,19 +19,19 @@ public class GetInstanceDataMapping : IMapping
                 throw new InvalidOperationException("Task must be a GetInstanceDataTask");
             }
 
-            // Configure target workflow
+            // Configure target workflow - get data from current workflow instance to test extensions
             getDataTask.SetDomain("core");
-            getDataTask.SetFlow("task-test-subflow");
+            getDataTask.SetFlow("task-test-workflow");
             
-            // Get instance ID from workflow data
-            var targetInstanceId = context.Instance?.Data?.subflowInstanceId?.ToString();
-            if (!string.IsNullOrEmpty(targetInstanceId))
+            // Get data from current instance to verify extension data
+            var currentInstanceId = context.Instance?.Id?.ToString();
+            if (!string.IsNullOrEmpty(currentInstanceId))
             {
-                getDataTask.SetInstance(targetInstanceId);
+                getDataTask.SetInstance(currentInstanceId);
             }
 
-            // Request specific extensions
-            getDataTask.SetExtensions(new[] { "all" });
+            // Request specific extensions - this will trigger the test-http-data-extension
+            getDataTask.SetExtensions(new[] { "test-http-data-extension" });
 
             return Task.FromResult(new ScriptResponse());
         }
@@ -63,11 +63,14 @@ public class GetInstanceDataMapping : IMapping
                             success = true,
                             retrievedData = response?.data,
                             metadata = response?.metadata,
+                            // Extension data will be here - test-http-data-extension response
+                            extensionData = response?.extensions,
                             retrievedAt = DateTime.UtcNow,
-                            taskType = "GetInstanceData"
+                            taskType = "GetInstanceData",
+                            note = "Check extensionData field for test-http-data-extension results"
                         }
                     },
-                    Tags = new[] { "task-test", "get-instance-data", "success" }
+                    Tags = new[] { "task-test", "get-instance-data", "success", "extension-test" }
                 };
             }
 
