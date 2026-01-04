@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "description": "core Domain Definition Configuration",
   "domain": "core",
-  "runtimeVersion": "0.0.23",
+  "runtimeVersion": "0.0.28",
   "schemaVersion": "0.0.28",
   "paths": {
     "componentsRoot": "core",

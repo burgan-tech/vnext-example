@@ -1,0 +1,160 @@
+{
+  "key": "subflow-view-test-child",
+  "flow": "sys-flows",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "subflow-test",
+    "child-workflow",
+    "view-test",
+    "extension-test",
+    "longpolling-test"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow View Test - Child Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Alt Akış Görünüm Testi - Alt Akış"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [
+      {
+        "key": "child-data-extension",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-extensions"
+      }
+    ],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-child",
+      "target": "child-active",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Child Workflow"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Alt Akışı Başlat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/ChildStartMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gQ2hpbGQgU3RhcnQgTWFwcGluZyAtIEluaXRpYWxpemVzIHRoZSBjaGlsZCB3b3JrZmxvdyB3aXRoIGRhdGEgZnJvbSBwYXJlbnQKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENoaWxkU3RhcnRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJDaGlsZFN0YXJ0TWFwcGluZyAtIEluaXRpYWxpemluZyBjaGlsZCB3b3JrZmxvdyIpOwogICAgICAgICAgICAKICAgICAgICAgICAgdmFyIGlucHV0RGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJjaGlsZC1zdGFydC1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBjaGlsZFdvcmtmbG93SWQgPSBjb250ZXh0LldvcmtmbG93Py5LZXksCiAgICAgICAgICAgICAgICAgICAgY2hpbGRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICAgICAgcGFyZW50SW5zdGFuY2VJZCA9IGlucHV0RGF0YT8ucGFyZW50SW5zdGFuY2VJZCwKICAgICAgICAgICAgICAgICAgICBwYXJlbnRXb3JrZmxvd0lkID0gaW5wdXREYXRhPy5wYXJlbnRXb3JrZmxvd0lkLAogICAgICAgICAgICAgICAgICAgIHN0YXJ0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICBzdGF0dXMgPSAiYWN0aXZlIiwKICAgICAgICAgICAgICAgICAgICBtZXNzYWdlID0gIkNoaWxkIHdvcmtmbG93IHN0YXJ0ZWQgc3VjY2Vzc2Z1bGx5IiwKICAgICAgICAgICAgICAgICAgICBjaGlsZENvbnRleHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIGlzU3ViZmxvdyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIGJsb2Nrc1BhcmVudCA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHZpZXdUZXN0RW5hYmxlZCA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIGV4dGVuc2lvblRlc3RFbmFibGVkID0gdHJ1ZQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAic3ViZmxvdy10ZXN0IiwgImNoaWxkLXdvcmtmbG93IiwgInN0YXJ0ZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJDaGlsZFN0YXJ0TWFwcGluZyAtIEVycm9yOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiY2hpbGQtc3RhcnQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-active",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Workflow Active"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Alt Akış Aktif"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "child-workflow-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": [
+            "child-data-extension"
+          ]
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-child",
+            "target": "child-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Child Workflow"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Alt Akışı Tamamla"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/ChildCompleteMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gQ2hpbGQgQ29tcGxldGUgTWFwcGluZyAtIE1hcmtzIHRoZSBjaGlsZCB3b3JrZmxvdyBhcyBjb21wbGV0ZWQKLy8vIFRoaXMgZGF0YSB3aWxsIGJlIHJldHVybmVkIHRvIHRoZSBwYXJlbnQgd29ya2Zsb3cKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENoaWxkQ29tcGxldGVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJDaGlsZENvbXBsZXRlTWFwcGluZyAtIENvbXBsZXRpbmcgY2hpbGQgd29ya2Zsb3ciKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIHZhciBpbnB1dERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhOwogICAgICAgICAgICAKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiY2hpbGQtY29tcGxldGUtc3VjY2VzcyIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgY29tcGxldGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgc3RhdHVzID0gImNvbXBsZXRlZCIsCiAgICAgICAgICAgICAgICAgICAgcmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBjaGlsZFdvcmtmbG93SWQgPSBjb250ZXh0LldvcmtmbG93Py5LZXksCiAgICAgICAgICAgICAgICAgICAgICAgIGNoaWxkSW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLAogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgbWVzc2FnZSA9ICJDaGlsZCB3b3JrZmxvdyBjb21wbGV0ZWQgc3VjY2Vzc2Z1bGx5IiwKICAgICAgICAgICAgICAgICAgICAgICAgZGF0YUZvclBhcmVudCA9IG5ldwogICAgICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBjaGlsZFJlc3VsdCA9ICJwcm9jZXNzZWQiLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJvY2Vzc2luZ1RpbWUgPSAxMDAsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB2aWV3VGVzdFBhc3NlZCA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBleHRlbnNpb25UZXN0UGFzc2VkID0gdHJ1ZQogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJzdWJmbG93LXRlc3QiLCAiY2hpbGQtd29ya2Zsb3ciLCAiY29tcGxldGVkIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiQ2hpbGRDb21wbGV0ZU1hcHBpbmcgLSBFcnJvcjogezB9IiwgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImNoaWxkLWNvbXBsZXRlLWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQoK"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "child-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Workflow Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Alt Akış Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

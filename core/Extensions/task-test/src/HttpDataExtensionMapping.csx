@@ -4,10 +4,10 @@ using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
 
 /// <summary>
-/// HTTP Task Mapping - Makes external API calls
-/// Test case: Verify HTTP requests to external services via Mockoon
+/// HTTP Data Extension Mapping - Calls HTTP task and extracts response data
+/// Test case: Verify extension data in GetInstanceData
 /// </summary>
-public class HttpTaskMapping : IMapping
+public class HttpDataExtensionMapping : IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -18,15 +18,16 @@ public class HttpTaskMapping : IMapping
             {
                 throw new InvalidOperationException("Task must be an HttpTask");
             }
- 
-            // Prepare request body
+
+            // Prepare request body for HTTP task
             var requestBody = new
             {
-                testId = context.Instance?.Data?.testId ?? Guid.NewGuid().ToString(),
+                source = "extension",
+                extensionName = "test-http-data-extension",
                 workflowId = context.Workflow.Key,
                 instanceId = context.Instance?.Id,
                 timestamp = DateTime.UtcNow,
-                action = "http-task-test"
+                requestType = "extension-data-fetch"
             };
 
             httpTask.SetBody(requestBody);
@@ -35,7 +36,7 @@ public class HttpTaskMapping : IMapping
             var headers = new Dictionary<string, string?>
             {
                 ["Content-Type"] = "application/json",
-                ["X-Test-Id"] = context.Instance?.Data?.testId?.ToString(),
+                ["X-Extension-Name"] = "test-http-data-extension",
                 ["X-Request-Id"] = Guid.NewGuid().ToString(),
                 ["X-Correlation-Id"] = context.Instance.Id.ToString()
             };
@@ -47,12 +48,16 @@ public class HttpTaskMapping : IMapping
         {
             return Task.FromResult(new ScriptResponse
             {
-                Key = "http-task-input-error",
+                Key = "http-extension-input-error",
                 Data = new { error = ex.Message }
             });
         }
     }
 
+    /// <summary>
+    /// Extract and return the "data" field from HTTP response
+    /// This data will be available in GetInstanceData under "extensions"
+    /// </summary>
     public async Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
         try
@@ -60,56 +65,61 @@ public class HttpTaskMapping : IMapping
             var response = context.Body;
             var statusCode = response?.statusCode ?? 500;
 
+            // Check if HTTP request was successful
             if (statusCode >= 200 && statusCode < 300)
             {
+                // Extract the "data" field from response
+                var httpResponseData = response?.data;
+
                 return new ScriptResponse
                 {
-                    Key = "http-task-success",
+                    Key = "test-http-data-extension-success",
                     Data = new
                     {
-                        httpTaskResult = new
+                        // This is the data that will be available in extensions
+                        httpData = httpResponseData,
+                        extensionMetadata = new
                         {
-                            success = true,
+                            extensionName = "test-http-data-extension",
+                            executedAt = DateTime.UtcNow,
                             statusCode = statusCode,
-                            data = response?.data,
-                            executionTime = response?.executionDurationMs,
-                            processedAt = DateTime.UtcNow,
-                            taskType = "HttpTask"
+                            success = true
                         }
-                    },
-                    Tags = new[] { "task-test", "http-task", "success" }
+                    }
                 };
             }
 
+            // HTTP request failed
             return new ScriptResponse
             {
-                Key = "http-task-failed",
+                Key = "test-http-data-extension-failed",
                 Data = new
                 {
-                    httpTaskResult = new
+                    error = "HTTP request failed",
+                    statusCode = statusCode,
+                    errorMessage = response?.errorMessage ?? "Unknown error",
+                    extensionMetadata = new
                     {
-                        success = false,
-                        statusCode = statusCode,
-                        error = response?.errorMessage ?? "HTTP request failed",
-                        failedAt = DateTime.UtcNow,
-                        taskType = "HttpTask"
+                        extensionName = "test-http-data-extension",
+                        executedAt = DateTime.UtcNow,
+                        success = false
                     }
-                },
-                Tags = new[] { "task-test", "http-task", "failed" }
+                }
             };
         }
         catch (Exception ex)
         {
             return new ScriptResponse
             {
-                Key = "http-task-exception",
+                Key = "test-http-data-extension-exception",
                 Data = new
                 {
-                    httpTaskResult = new
+                    error = ex.Message,
+                    extensionMetadata = new
                     {
-                        success = false,
-                        error = ex.Message,
-                        taskType = "HttpTask"
+                        extensionName = "test-http-data-extension",
+                        executedAt = DateTime.UtcNow,
+                        success = false
                     }
                 }
             };

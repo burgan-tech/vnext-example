@@ -1,0 +1,208 @@
+### SubFlow View & Extension Test
+### This file tests the longpolling view endpoint with subflow, views and extensions
+### Test Goal: Verify that views and extensions work correctly for both parent and child workflows
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@parentWorkflow = subflow-view-test-parent
+@childWorkflow = subflow-view-test-child
+@instanceKey = subflow-test-{{$timestamp}}
+
+### ============================================
+### STEP 1: Start Parent Workflow
+### This starts the parent workflow in initial state
+### ============================================
+
+# @name startParent
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "{{instanceKey}}",
+  "tags": ["subflow-test", "view-test", "extension-test", "longpolling-test"],
+  "attributes": {
+    "testId": "subflow-view-extension-test-001",
+    "testDescription": "Testing view and extension with subflow",
+    "createdAt": "{{$datetime iso8601}}"
+  }
+}
+
+### ============================================
+### STEP 2: Get Parent Workflow State (Long Polling)
+### Check current state of parent workflow
+### ============================================
+
+# @name getParentState
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/e71660b4-5ba6-4644-a9f9-13eb4acacc2a/functions/state
+Accept: application/json
+
+### ============================================
+### STEP 3: Get Parent View with Extensions
+### THIS IS THE KEY LONGPOLLING TEST FOR PARENT
+### Expected: parent-workflow-view with parent-data-extension data
+### ============================================
+
+# @name getParentView
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/view
+Accept: application/json
+
+### ============================================
+### STEP 4: Get Parent Data to verify extensions loaded
+### ============================================
+
+# @name getParentData
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/data
+Accept: application/json
+
+### ============================================
+### STEP 5: Execute Transition to Start SubFlow
+### This triggers the subflow state - parent will wait for child
+### ============================================
+
+# @name startSubflow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/transitions/start-subflow
+Content-Type: application/json
+
+{
+  "message": "Starting subflow for view and extension test"
+}
+
+### ============================================
+### STEP 6: Get Parent State After SubFlow Started
+### The parent should be in "waiting-for-subflow" state now
+### ============================================
+
+# @name getParentStateAfterSubflow
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/state
+Accept: application/json
+
+### ============================================
+### STEP 7: Get Child Workflow Instance
+### Find the child workflow instance that was started
+### Note: You may need to replace {{childInstanceKey}} with actual child instance key
+### ============================================
+
+### -- Check parent data to find child instance ID --
+
+# @name getParentDataForChildId
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/data
+Accept: application/json
+
+### ============================================
+### STEP 8: Get Child View with Extensions
+### THIS IS THE KEY LONGPOLLING TEST FOR CHILD
+### Expected: child-workflow-view with child-data-extension data
+### Note: Replace {{childInstanceId}} with actual child instance ID from previous step
+### ============================================
+
+@childInstanceId = REPLACE_WITH_CHILD_INSTANCE_ID
+
+# @name getChildView
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflow}}/instances/{{childInstanceId}}/functions/view
+Accept: application/json
+
+### ============================================
+### STEP 9: Get Child State
+### ============================================
+
+# @name getChildState
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflow}}/instances/{{childInstanceId}}/functions/state
+Accept: application/json
+
+### ============================================
+### STEP 10: Get Child Data
+### ============================================
+
+# @name getChildData
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflow}}/instances/{{childInstanceId}}/functions/data
+Accept: application/json
+
+### ============================================
+### STEP 11: Complete Child Workflow
+### This will trigger the subflow completion and unblock parent
+### ============================================
+
+# @name completeChild
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflow}}/instances/{{childInstanceId}}/transitions/complete-child
+Content-Type: application/json
+
+{
+  "completionMessage": "Child workflow completed for test"
+}
+
+### ============================================
+### STEP 12: Check Parent State After Child Completed
+### Parent should now be in "parent-after-subflow" state
+### ============================================
+
+# @name getParentStateAfterChildComplete
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/state
+Accept: application/json
+
+### ============================================
+### STEP 13: Get Parent View After SubFlow (should show again)
+### Verify view and extensions still work after subflow completes
+### ============================================
+
+# @name getParentViewAfterSubflow
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/view
+Accept: application/json
+
+### ============================================
+### STEP 14: Complete Parent Workflow
+### Final transition to complete the parent workflow
+### ============================================
+
+# @name completeParent
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/transitions/proceed-after-subflow
+Content-Type: application/json
+
+{
+  "finalMessage": "Parent workflow completed successfully"
+}
+
+### ============================================
+### STEP 15: Verify Final State
+### Both parent should be completed
+### ============================================
+
+# @name getFinalParentState
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/state
+Accept: application/json
+
+### ============================================
+### STEP 16: Get Final Data
+### Check all test results in the data
+### ============================================
+
+# @name getFinalData
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/functions/data
+Accept: application/json
+
+### ============================================
+### TEST SUMMARY
+### ============================================
+###
+### Test Objectives:
+### 1. ✅ Parent workflow starts with own view and extensions
+### 2. ✅ Parent view returns with parent-data-extension data
+### 3. ✅ Parent transitions to subflow state (blocking)
+### 4. ✅ Child workflow has its own view and extensions
+### 5. ✅ Child view returns with child-data-extension data
+### 6. ✅ Child workflow completes via manual transition
+### 7. ✅ Parent unblocks and continues after child completes
+### 8. ✅ Parent view still works after subflow
+### 9. ✅ Parent completes via manual transition
+###
+### Key Endpoints Tested:
+### - /functions/view - Long polling for view with extensions
+### - /functions/state - Long polling for state
+### - /functions/data - Instance data retrieval
+### - /transitions/{key} - Manual transition execution
+###
+### Expected Extension Data in View Response:
+### - Parent: parentExtension.data.parentConfig, parentExtension.data.parentMetadata
+### - Child: childExtension.data.childConfig, childExtension.data.childMetadata
+###
+

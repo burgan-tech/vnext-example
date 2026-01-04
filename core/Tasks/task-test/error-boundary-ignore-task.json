@@ -1,0 +1,28 @@
+{
+  "key": "error-boundary-ignore-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "error-boundary",
+    "ignore",
+    "http",
+    "test",
+    "400"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://mockoon:3001/api/error-boundary/simulate-400",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 10,
+      "validateSsl": false
+    }
+  }
+}
+
