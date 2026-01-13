@@ -14,7 +14,7 @@
     "type": "6",
     "config": {
       "method": "GET",
-      "url": "http://mockoon:3001/api/payments/users/{userId}",
+      "url": "http://localhost:3001/api/payments/users/{userId}",
       "headers": {
         "Content-Type": "application/json"
       },

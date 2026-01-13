@@ -175,7 +175,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"34987491990272\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"username\": \"34987491780\",\n        \"password\": \"112233\",\n        \"grant_type\": \"password\",\n        \"client_id\": \"acme\",\n        \"client_secret\": \"1q2w3e*\",\n        \"scope\": \"openid profile product-api\"\n    }\n}",
+									"raw": "{\n    \"key\": \"34987491990273\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"username\": \"34987491780\",\n        \"password\": \"112233\",\n        \"grant_type\": \"password\",\n        \"client_id\": \"acme\",\n        \"client_secret\": \"1q2w3e*\",\n        \"scope\": \"openid profile product-api\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -904,7 +904,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"349874937\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"session\": \"16\"\n    }\n}",
+									"raw": "{\n    \"key\": \"349874940\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"session\": \"16\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -950,7 +950,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"349874929\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\",\n        \"key-test\"\n    ],\n    \"attributes\": {\n        \"accountType\": \"demand-deposit\"\n    }\n}",
+									"raw": "{\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\",\n        \"key-test\"\n    ],\n    \"attributes\": {\n        \"accountType\": \"demand-deposit\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1166,6 +1166,70 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Get Instances Copy",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user_reference",
+										"value": "11122233344",
+										"type": "text"
+									},
+									{
+										"key": "x-device-id",
+										"value": "8207e846-f45b-41c9-8200-52eb430f4c03",
+										"type": "text"
+									},
+									{
+										"key": "X-Forwarded-For",
+										"value": "192.168.1.10",
+										"type": "text"
+									},
+									{
+										"key": "If-None-Match",
+										"value": "\"01kDSRFRH0DT2QEXXEEZX8YWQV\"",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/functions/schema",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"functions",
+										"schema"
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "core"
+										},
+										{
+											"key": "flow",
+											"value": "task-test-workflow"
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
@@ -1252,7 +1316,8 @@
 									{
 										"key": "If-None-Match",
 										"value": "\"01kDSRFRH0DT2QEXXEEZX8YWQV\"",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
@@ -1300,6 +1365,70 @@
 										{
 											"key": "instance",
 											"value": "{{instanceId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Instances",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "user_reference",
+										"value": "11122233344",
+										"type": "text"
+									},
+									{
+										"key": "x-device-id",
+										"value": "8207e846-f45b-41c9-8200-52eb430f4c03",
+										"type": "text"
+									},
+									{
+										"key": "X-Forwarded-For",
+										"value": "192.168.1.10",
+										"type": "text"
+									},
+									{
+										"key": "If-None-Match",
+										"value": "\"01kDSRFRH0DT2QEXXEEZX8YWQV\"",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/functions/data",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"functions",
+										"data"
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "core"
+										},
+										{
+											"key": "flow",
+											"value": "task-test-workflow"
 										}
 									]
 								}
@@ -1377,7 +1506,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"3498749200159\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"testId\": \"689bc680-162e-4cb5-aae7-859a108f0ae2\"\n    }\n}",
+									"raw": "{\n    \"key\": \"34987492001666\",\n    \"tags\": [\n        \"test\",\n        \"banking\",\n        \"account-openning\"\n    ],\n    \"attributes\": {\n        \"testId\": \"689bc680-162e-4cb5-aae7-859a108f0ae2\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1846,7 +1975,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"349874911000036\",\n    \"tags\": [\n        \"contract\",\n        \"approval\",\n        \"test\"\n    ],\n    \"attributes\": {\n        \"groupCode\": \"KG-2024-001\",\n        \"userId\": \"user-123\",\n        \"sessionId\": \"session-456\",\n        \"requestedAt\": \"2025-12-08T12:31:14.889+00:00\"\n    }\n}",
+									"raw": "{\n    \"key\": \"349874911000040\",\n    \"tags\": [\n        \"contract\",\n        \"approval\",\n        \"test\"\n    ],\n    \"attributes\": {\n        \"groupCode\": \"KG-2024-001\",\n        \"userId\": \"user-123\",\n        \"sessionId\": \"session-456\",\n        \"requestedAt\": \"2025-12-08T12:31:14.889+00:00\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1930,7 +2059,7 @@
 										},
 										{
 											"key": "instance",
-											"value": "afce4307-1ccc-4cda-a3da-da96d9b89bee"
+											"value": "dd2c18bc-f49d-466a-a96b-282b1c061da5"
 										},
 										{
 											"key": "transition",
@@ -2203,7 +2332,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"key\": \"34987491823\",\n  \"tags\": [\"subflow-test\", \"view-test\", \"extension-test\", \"longpolling-test\"],\n  \"attributes\": {\n    \"testId\": \"subflow-view-extension-test-001\",\n    \"testDescription\": \"Testing view and extension with subflow\",\n    \"createdAt\": \"2026-01-01\"\n  }\n}",
+									"raw": "{\n    \"key\": \"34987491848\",\n    \"tags\": [\n        \"subflow-test\",\n        \"view-test\",\n        \"extension-test\",\n        \"longpolling-test\"\n    ],\n    \"attributes\": {\n        \"testId\": \"subflow-view-extension-test-001\",\n        \"testDescription\": \"Testing view and extension with subflow\",\n        \"createdAt\": \"2026-01-01\",\n        \"items\": [\n            {\n                \"id\": 1,\n                \"name\": \"test - 1\"\n            },\n            {\n                \"id\": 2,\n                \"name\": \"test - 2\"\n            }\n        ]\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2244,6 +2373,62 @@
 						},
 						{
 							"name": "Step 2: Start Sub Flow",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"attributes\": {\n        \"message\": \"Starting subflow for view and extension test\",\n        \"items\": [\n            {\n                \"id\": 1,\n                \"name\": \"test - 1\"\n            }\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"transitions",
+										":transition"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "subflow-view-test-parent"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										},
+										{
+											"key": "transition",
+											"value": "start-subflow"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 3: Complete Sub Flow",
 							"request": {
 								"method": "PATCH",
 								"header": [],
@@ -2291,7 +2476,63 @@
 										},
 										{
 											"key": "transition",
-											"value": "start-subflow"
+											"value": "complete-child"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 4: Proceed After Subflow",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"attributes\": {\n        \"message\": \"Starting subflow for view and extension test\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:domain/workflows/:flow/instances/:instance/transitions/:transition?sync=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":domain",
+										"workflows",
+										":flow",
+										"instances",
+										":instance",
+										"transitions",
+										":transition"
+									],
+									"query": [
+										{
+											"key": "sync",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "domain",
+											"value": "{{domain}}"
+										},
+										{
+											"key": "flow",
+											"value": "subflow-view-test-parent"
+										},
+										{
+											"key": "instance",
+											"value": "{{instanceId}}"
+										},
+										{
+											"key": "transition",
+											"value": "proceed-after-subflow"
 										}
 									]
 								}

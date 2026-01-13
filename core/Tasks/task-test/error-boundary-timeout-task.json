@@ -13,7 +13,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://mockoon:3001/api/error-boundary/simulate-timeout",
+      "url": "http://localhost:3001/api/error-boundary/simulate-timeout",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

@@ -38,6 +38,7 @@ public class InitialTransitionMapping : ScriptBase, IMapping
                         testNotificationTask = true,
                         testScriptTask = true,
                         testGetInstanceData = true,
+                        testGetInstances = true,
                         testDirectTransition = true,
                         testStartWorkflow = true,
                         testSubProcess = true

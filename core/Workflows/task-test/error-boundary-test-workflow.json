@@ -37,16 +37,7 @@
           "action": 4,
           "priority": 999,
           "logOnly": false,
-          "notificationConfig": {
-            "channel": "email",
-            "recipients": [
-              "admin@example.com",
-              "ops-team@example.com"
-            ],
-            "templateKey": "error-notification-template",
-            "includeErrorDetails": true,
-            "priority": "high"
-          }
+          "transition": "recovery-to-rollback"
         },
         {
           "action": 5,
@@ -228,7 +219,7 @@
                 "502",
                 "503"
               ],
-              "transition": "rollback-state",
+              "transition": "recovery-to-rollback",
               "priority": 50
             }
           ]
@@ -529,16 +520,7 @@
             {
               "action": 4,
               "priority": 100,
-              "notificationConfig": {
-                "channel": "sms",
-                "recipients": [
-                  "+905551234567"
-                ],
-                "templateKey": "critical-error-sms",
-                "includeErrorDetails": false,
-                "priority": "critical"
-              },
-              "transition": "manual-review"
+              "transition": "review-approved"
             }
           ]
         },
