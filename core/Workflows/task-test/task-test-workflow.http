@@ -14,7 +14,7 @@
 #
 # Prerequisites:
 # 1. vNext Runtime running on localhost:4201
-# 2. Mockoon running on mockoon:3001
+# 2. Mockoon running on localhost:3001
 # 3. Dapr sidecar running (for DaprPubSub and DaprServiceTask)
 ###############################################################################
 
@@ -107,11 +107,11 @@ Content-Type: application/json
 ###############################################################################
 
 ### Test Mockoon Health Check
-GET http://mockoon:3001/health
+GET http://localhost:3001/health
 Accept: application/json
 
 ### Test Task Test HTTP Endpoint (Mockoon)
-POST http://mockoon:3001/api/task-test/http-endpoint
+POST http://localhost:3001/api/task-test/http-endpoint
 Content-Type: application/json
 
 {
@@ -121,7 +121,7 @@ Content-Type: application/json
 }
 
 ### Test Task Test HTTP Endpoint - Error Scenario
-POST http://mockoon:3001/api/task-test/http-endpoint
+POST http://localhost:3001/api/task-test/http-endpoint
 Content-Type: application/json
 
 {

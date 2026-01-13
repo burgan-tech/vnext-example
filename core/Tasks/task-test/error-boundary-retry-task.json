@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://mockoon:3001/api/error-boundary/simulate-503",
+      "url": "http://localhost:3001/api/error-boundary/simulate-503",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

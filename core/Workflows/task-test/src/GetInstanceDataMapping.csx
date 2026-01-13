@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
+using System.Text.Json;
 
 /// <summary>
 /// GetInstanceData Task Mapping - Retrieves data from another workflow instance
@@ -24,7 +25,7 @@ public class GetInstanceDataMapping : IMapping
             getDataTask.SetFlow("task-test-workflow");
             
             // Get data from current instance to verify extension data
-            var currentInstanceId = context.Instance?.Id?.ToString();
+            var currentInstanceId = context.Instance?.Id.ToString();
             if (!string.IsNullOrEmpty(currentInstanceId))
             {
                 getDataTask.SetInstance(currentInstanceId);
@@ -61,10 +62,9 @@ public class GetInstanceDataMapping : IMapping
                         getInstanceDataResult = new
                         {
                             success = true,
-                            retrievedData = response?.data,
-                            metadata = response?.metadata,
+                            retrievedData = response?.data?.data,
                             // Extension data will be here - test-http-data-extension response
-                            extensionData = response?.extensions,
+                            extensionData = response?.data?.extensions,
                             retrievedAt = DateTime.UtcNow,
                             taskType = "GetInstanceData",
                             note = "Check extensionData field for test-http-data-extension results"
