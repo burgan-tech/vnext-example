@@ -137,10 +137,10 @@
                   "priority": 100,
                   "retryPolicy": {
                     "maxRetries": 3,
-                    "initialDelay": "0.00:00:02",
+                    "initialDelay": "PT2S",
                     "backoffType": 1,
                     "backoffMultiplier": 2,
-                    "maxDelay": "0.00:00:06"
+                    "maxDelay": "PT6S"
                   }
                 },
                 {
@@ -149,7 +149,7 @@
                     "500"
                   ],
                   "priority": 50,
-                  "transition": "error-recovery"
+                  "transition": "recovery-to-rollback"
                 }
               ]
             }
@@ -386,10 +386,10 @@
                   "priority": 100,
                   "retryPolicy": {
                     "maxRetries": 5,
-                    "initialDelay": "0.00:00:5",
+                    "initialDelay": "PT5S",
                     "backoffType": 0,
                     "backoffMultiplier": 1,
-                    "maxDelay": "0.00:00:25"
+                    "maxDelay": "PT25S"
                   }
                 }
               ]
@@ -448,10 +448,10 @@
             "transition": "timeout-state",
             "defaultRetryPolicy": {
               "maxRetries": 2,
-              "initialDelay": "0.00:00:05",
+              "initialDelay": "PT5S",
               "backoffType": 1,
               "backoffMultiplier": 1.5,
-              "maxDelay": "0.00:00:10"
+              "maxDelay": "PT10S"
             }
           }
         },

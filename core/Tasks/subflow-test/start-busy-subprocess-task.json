@@ -1,0 +1,22 @@
+{
+  "key": "start-busy-subprocess-task",
+  "flow": "sys-tasks",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "subflow-test",
+    "subprocess",
+    "busy-state",
+    "trigger-task"
+  ],
+  "attributes": {
+    "type": "11",
+    "config": {
+      "domain": "core",
+      "flow": "sys-flows",
+      "key": "busy-subprocess-workflow",
+      "version": "1.0.0"
+    }
+  }
+}

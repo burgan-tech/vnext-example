@@ -1,0 +1,22 @@
+{
+  "key": "trigger-busy-completion-task",
+  "flow": "sys-tasks",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "subflow-test",
+    "direct-trigger",
+    "busy-state",
+    "trigger-task"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "sys-flows",
+      "transitionName": "complete-busy-state",
+      "body": {}
+    }
+  }
+}
