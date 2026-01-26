@@ -1,0 +1,262 @@
+{
+  "key": "subflow-view-test-grandchild",
+  "flow": "sys-flows",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "subflow-test",
+    "grandchild-workflow",
+    "view-test",
+    "extension-test",
+    "longpolling-test",
+    "deep-nested-test",
+    "busy-state-test"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow View Test - Grandchild Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Alt Akış Görünüm Testi - Torun Akış"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [
+      {
+        "key": "grandchild-data-extension",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-extensions"
+      }
+    ],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-grandchild",
+      "target": "grandchild-active",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Grandchild Workflow"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Torun Akışı Başlat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/GrandchildStartMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gR3JhbmRjaGlsZCBTdGFydCBNYXBwaW5nIC0gSW5pdGlhbGl6ZXMgdGhlIGdyYW5kY2hpbGQgd29ya2Zsb3cgd2l0aCBkYXRhIGZyb20gY2hpbGQKLy8vIFRoaXMgaXMgdGhlIGRlZXBlc3QgbGV2ZWwgKGxldmVsIDMpIGluIHRoZSBzdWJmbG93IGhpZXJhcmNoeS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEdyYW5kY2hpbGRTdGFydE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkdyYW5kY2hpbGRTdGFydE1hcHBpbmcgLSBJbml0aWFsaXppbmcgZ3JhbmRjaGlsZCB3b3JrZmxvdyAoTGV2ZWwgMykiKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIHZhciBpbnB1dERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhOwogICAgICAgICAgICAKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ3JhbmRjaGlsZC1zdGFydC1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBncmFuZGNoaWxkV29ya2Zsb3dJZCA9IGNvbnRleHQuV29ya2Zsb3c/LktleSwKICAgICAgICAgICAgICAgICAgICBncmFuZGNoaWxkSW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLAogICAgICAgICAgICAgICAgICAgIGNoaWxkSW5zdGFuY2VJZCA9IGlucHV0RGF0YT8uY2hpbGRJbnN0YW5jZUlkLAogICAgICAgICAgICAgICAgICAgIGNoaWxkV29ya2Zsb3dJZCA9IGlucHV0RGF0YT8uY2hpbGRXb3JrZmxvd0lkLAogICAgICAgICAgICAgICAgICAgIHBhcmVudEluc3RhbmNlSWQgPSBpbnB1dERhdGE/LnBhcmVudEluc3RhbmNlSWQsCiAgICAgICAgICAgICAgICAgICAgcGFyZW50V29ya2Zsb3dJZCA9IGlucHV0RGF0YT8ucGFyZW50V29ya2Zsb3dJZCwKICAgICAgICAgICAgICAgICAgICBuZXN0aW5nTGV2ZWwgPSAzLAogICAgICAgICAgICAgICAgICAgIHN0YXJ0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgICAgICBzdGF0dXMgPSAiYWN0aXZlIiwKICAgICAgICAgICAgICAgICAgICBtZXNzYWdlID0gIkdyYW5kY2hpbGQgd29ya2Zsb3cgc3RhcnRlZCBzdWNjZXNzZnVsbHkgKExldmVsIDMpIiwKICAgICAgICAgICAgICAgICAgICBncmFuZGNoaWxkQ29udGV4dCA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgaXNTdWJmbG93ID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgaXNEZWVwTmVzdGVkID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgYmxvY2tzUGFyZW50ID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgdmlld1Rlc3RFbmFibGVkID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgZXh0ZW5zaW9uVGVzdEVuYWJsZWQgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBoaWVyYXJjaHlQYXRoID0gIlBhcmVudCA+IENoaWxkID4gR3JhbmRjaGlsZCIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInN1YmZsb3ctdGVzdCIsICJncmFuZGNoaWxkLXdvcmtmbG93IiwgInN0YXJ0ZWQiLCAibGV2ZWwtMyIgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkdyYW5kY2hpbGRTdGFydE1hcHBpbmcgLSBFcnJvcjogezB9IiwgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImdyYW5kY2hpbGQtc3RhcnQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cg=="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "grandchild-active",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild Workflow Active"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Akış Aktif"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "grandchild-workflow-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": [
+            "grandchild-data-extension"
+          ]
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "enter-busy-state",
+            "target": "grandchild-busy",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter Busy State"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Meşgul Durumuna Geç"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "grandchild-busy",
+        "stateType": 2,
+        "subType": 5,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild Busy - Processing"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Meşgul - İşleniyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "start-busy-subprocess-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StartBusySubprocessMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhcnQgQnVzeSBTdWJQcm9jZXNzIE1hcHBpbmcgLSBTdGFydHMgdGhlIHN1YnByb2Nlc3Mgd2hlbiBncmFuZGNoaWxkIGVudGVycyBidXN5IHN0YXRlCi8vLyBUaGlzIG1hcHBpbmcgY29uZmlndXJlcyB0aGUgU3ViUHJvY2Vzc1Rhc2sgdG8gbGF1bmNoIGFuIGluZGVwZW5kZW50IHN1YnByb2Nlc3MKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YXJ0QnVzeVN1YnByb2Nlc3NNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHN1YlByb2Nlc3NUYXNrID0gdGFzayBhcyBTdWJQcm9jZXNzVGFzazsKICAgICAgICAgICAgCiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJTdGFydEJ1c3lTdWJwcm9jZXNzTWFwcGluZyAtIFByZXBhcmluZyB0byBzdGFydCBidXN5IHN1YnByb2Nlc3MiKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSBzdWJwcm9jZXNzCiAgICAgICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldERvbWFpbigiY29yZSIpOwogICAgICAgICAgICBzdWJQcm9jZXNzVGFzay5TZXRGbG93KCJzeXMtZmxvd3MiKTsKICAgICAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0S2V5KCJidXN5LXN1YnByb2Nlc3Mtd29ya2Zsb3ciKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIFByZXBhcmUgc3VicHJvY2VzcyBkYXRhIC0gaW5jbHVkZSBwYXJlbnQgaW5zdGFuY2UgSUQgc28gc3VicHJvY2VzcyBjYW4gdHJpZ2dlciBiYWNrCiAgICAgICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldEJvZHkobmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGdyYW5kY2hpbGRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICBncmFuZGNoaWxkV29ya2Zsb3dJZCA9IGNvbnRleHQuV29ya2Zsb3c/LktleSwKICAgICAgICAgICAgICAgIHBhcmVudEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5jaGlsZEluc3RhbmNlSWQsCiAgICAgICAgICAgICAgICBzdGFydGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICB0YXNrVHlwZSA9ICJidXN5LXN0YXRlLXByb2Nlc3NpbmciLAogICAgICAgICAgICAgICAgY29udGV4dCA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIG5lc3RpbmdMZXZlbCA9IDMsCiAgICAgICAgICAgICAgICAgICAgdGVzdFR5cGUgPSAiYnVzeS1zdGF0ZS10ZXN0IiwKICAgICAgICAgICAgICAgICAgICBleHBlY3RlZEJlaGF2aW9yID0gInN1YnByb2Nlc3Mtd2lsbC10cmlnZ2VyLXBhcmVudCIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIAogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiU3RhcnRCdXN5U3VicHJvY2Vzc01hcHBpbmcgLSBTdWJwcm9jZXNzIGNvbmZpZ3VyZWQgYW5kIHJlYWR5IHRvIGxhdW5jaCIpOwogICAgICAgICAgICAKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEKICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiU3RhcnRCdXN5U3VicHJvY2Vzc01hcHBpbmcgLSBFcnJvcjogezB9IiwgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzdWJwcm9jZXNzLXN0YXJ0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIlN0YXJ0QnVzeVN1YnByb2Nlc3NNYXBwaW5nIC0gU3VicHJvY2VzcyBsYXVuY2hlZCBzdWNjZXNzZnVsbHkiKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIFN1YlByb2Nlc3MgaXMgZmlyZS1hbmQtZm9yZ2V0LCBqdXN0IHRyYWNrIHRoYXQgaXQgd2FzIGluaXRpYXRlZAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzdWJwcm9jZXNzTGF1bmNoZWQgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgIHN1YnByb2Nlc3NJbnN0YW5jZUlkID0gY29udGV4dC5Cb2R5Py5kYXRhPy5pbnN0YW5jZUlkLAogICAgICAgICAgICAgICAgICAgIGxhdW5jaGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgc3RhdHVzID0gIkJVU1kiLAogICAgICAgICAgICAgICAgICAgIG1lc3NhZ2UgPSAiU3VicHJvY2VzcyBsYXVuY2hlZCAtIGdyYW5kY2hpbGQgbm93IGluIGJ1c3kgc3RhdGUgd2FpdGluZyBmb3Igc3VicHJvY2VzcyB0byBjb21wbGV0ZSIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJTdGFydEJ1c3lTdWJwcm9jZXNzTWFwcGluZyAtIE91dHB1dCBoYW5kbGVyIGVycm9yOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAib3V0cHV0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-busy-state",
+            "target": "grandchild-after-busy",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Busy State (Triggered by SubProcess)"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Meşgul Durumu Tamamla (Alt İşlem Tarafından Tetiklenir)"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "grandchild-after-busy",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild After Busy State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Meşgul Sonrası"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-grandchild",
+            "target": "grandchild-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Grandchild Workflow"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Torun Akışı Tamamla"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/GrandchildCompleteMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gR3JhbmRjaGlsZCBDb21wbGV0ZSBNYXBwaW5nIC0gTWFya3MgdGhlIGdyYW5kY2hpbGQgd29ya2Zsb3cgYXMgY29tcGxldGVkCi8vLyBUaGlzIGRhdGEgd2lsbCBiZSByZXR1cm5lZCB0byB0aGUgY2hpbGQgd29ya2Zsb3cgKExldmVsIDIpCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBHcmFuZGNoaWxkQ29tcGxldGVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJHcmFuZGNoaWxkQ29tcGxldGVNYXBwaW5nIC0gQ29tcGxldGluZyBncmFuZGNoaWxkIHdvcmtmbG93IChMZXZlbCAzKSIpOwogICAgICAgICAgICAKICAgICAgICAgICAgdmFyIGlucHV0RGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE7CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJncmFuZGNoaWxkLWNvbXBsZXRlLXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGNvbXBsZXRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgIHN0YXR1cyA9ICJjb21wbGV0ZWQiLAogICAgICAgICAgICAgICAgICAgIG5lc3RpbmdMZXZlbCA9IDMsCiAgICAgICAgICAgICAgICAgICAgcmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBncmFuZGNoaWxkV29ya2Zsb3dJZCA9IGNvbnRleHQuV29ya2Zsb3c/LktleSwKICAgICAgICAgICAgICAgICAgICAgICAgZ3JhbmRjaGlsZEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIG1lc3NhZ2UgPSAiR3JhbmRjaGlsZCB3b3JrZmxvdyBjb21wbGV0ZWQgc3VjY2Vzc2Z1bGx5IChMZXZlbCAzKSIsCiAgICAgICAgICAgICAgICAgICAgICAgIGRhdGFGb3JDaGlsZCA9IG5ldwogICAgICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBncmFuZGNoaWxkUmVzdWx0ID0gInByb2Nlc3NlZCIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcm9jZXNzaW5nVGltZSA9IDEwMCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZpZXdUZXN0UGFzc2VkID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGV4dGVuc2lvblRlc3RQYXNzZWQgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgZGVlcE5lc3RlZFRlc3RQYXNzZWQgPSB0cnVlCiAgICAgICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInN1YmZsb3ctdGVzdCIsICJncmFuZGNoaWxkLXdvcmtmbG93IiwgImNvbXBsZXRlZCIsICJsZXZlbC0zIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiR3JhbmRjaGlsZENvbXBsZXRlTWFwcGluZyAtIEVycm9yOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ3JhbmRjaGlsZC1jb21wbGV0ZS1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICB9Cn0K"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "grandchild-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild Workflow Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Akış Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

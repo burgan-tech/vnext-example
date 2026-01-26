@@ -1,0 +1,20 @@
+{
+  "nodePos": {
+    "grandchild-active": {
+      "x": 100,
+      "y": 100
+    },
+    "grandchild-completed": {
+      "x": 670,
+      "y": 36
+    },
+    "__start__": {
+      "x": -296,
+      "y": 100
+    },
+    "grandchild-after-busy": {
+      "x": 126,
+      "y": -162
+    }
+  }
+}

@@ -8,7 +8,8 @@
     "child-workflow",
     "view-test",
     "extension-test",
-    "longpolling-test"
+    "longpolling-test",
+    "nested-subflow"
   ],
   "attributes": {
     "type": "S",
@@ -36,7 +37,7 @@
     "sharedTransitions": [],
     "startTransition": {
       "key": "start-child",
-      "target": "child-active",
+      "target": "child-initial",
       "triggerType": 0,
       "versionStrategy": "Minor",
       "labels": [
@@ -67,18 +68,130 @@
     },
     "states": [
       {
-        "key": "child-active",
+        "key": "child-initial",
         "stateType": 1,
         "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
             "language": "en-US",
-            "label": "Child Workflow Active"
+            "label": "Child Initial State"
           },
           {
             "language": "tr-TR",
-            "label": "Alt Akış Aktif"
+            "label": "Alt Akış Başlangıç Durumu"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "child-workflow-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": [
+            "child-data-extension"
+          ]
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "start-grandchild-subflow",
+            "target": "waiting-for-grandchild",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Start Grandchild SubFlow"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Torun Alt Akışı Başlat"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "waiting-for-grandchild",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting for Grandchild SubFlow"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Alt Akış Bekleniyor"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "subflow-view-test-grandchild",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/ChildToGrandchildSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLy8gPHN1bW1hcnk+Ci8vLyBDaGlsZCB0byBHcmFuZGNoaWxkIFN1YkZsb3cgTWFwcGluZyAtIEhhbmRsZXMgaW5wdXQvb3V0cHV0IGZvciBncmFuZGNoaWxkIHN1YmZsb3cgc3RhdGUKLy8vIFRoaXMgbWFwcGluZyBwcmVwYXJlcyBkYXRhIGZvciBncmFuZGNoaWxkIHN1YmZsb3cgYW5kIHByb2Nlc3NlcyBpdHMgcmVzdWx0LgovLy8gTWFuYWdlcyB0aGUgTGV2ZWwgMiB0byBMZXZlbCAzIHRyYW5zaXRpb24gaW4gdGhlIHN1YmZsb3cgaGllcmFyY2h5LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQ2hpbGRUb0dyYW5kY2hpbGRTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICAvLy8gPHN1bW1hcnk+CiAgICAvLy8gUHJlcGFyZXMgaW5wdXQgZGF0YSBmb3IgdGhlIGdyYW5kY2hpbGQgc3ViZmxvdwogICAgLy8vIDwvc3VtbWFyeT4KICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmcgLSBQcmVwYXJpbmcgZ3JhbmRjaGlsZCBzdWJmbG93IGlucHV0IGRhdGEiKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIFByZXBhcmUgZGF0YSB0byBwYXNzIHRvIGdyYW5kY2hpbGQgd29ya2Zsb3cgdXNpbmcgRGljdGlvbmFyeQogICAgICAgICAgICB2YXIgdGVzdENvbnRleHQgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJ0ZXN0VHlwZSJdID0gImRlZXAtbmVzdGVkLXZpZXctZXh0ZW5zaW9uLWxvbmdwb2xsaW5nIiwKICAgICAgICAgICAgICAgIFsiZXhwZWN0Vmlld0RhdGEiXSA9IHRydWUsCiAgICAgICAgICAgICAgICBbImV4cGVjdEV4dGVuc2lvbkRhdGEiXSA9IHRydWUsCiAgICAgICAgICAgICAgICBbIm5lc3RpbmdMZXZlbCJdID0gMwogICAgICAgICAgICB9OwogICAgICAgICAgICAKICAgICAgICAgICAgdmFyIGlucHV0RGF0YSA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PgogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBbImNoaWxkSW5zdGFuY2VJZCJdID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICBbImNoaWxkV29ya2Zsb3dJZCJdID0gY29udGV4dC5Xb3JrZmxvdz8uS2V5ID8/IHN0cmluZy5FbXB0eSwKICAgICAgICAgICAgICAgIFsicGFyZW50SW5zdGFuY2VJZCJdID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50SW5zdGFuY2VJZCwKICAgICAgICAgICAgICAgIFsicGFyZW50V29ya2Zsb3dJZCJdID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFyZW50V29ya2Zsb3dJZCwKICAgICAgICAgICAgICAgIFsiaW5pdGlhdGVkQXQiXSA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgIFsiaW5pdGlhdGVkQnkiXSA9ICJjaGlsZC13b3JrZmxvdyIsCiAgICAgICAgICAgICAgICBbIm5lc3RpbmdMZXZlbCJdID0gMywKICAgICAgICAgICAgICAgIFsidGVzdENvbnRleHQiXSA9IHRlc3RDb250ZXh0CiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9IGNvbnRleHQuSW5zdGFuY2U/LktleSwKICAgICAgICAgICAgICAgIERhdGEgPSBpbnB1dERhdGEsCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAic3ViZmxvdy10ZXN0IiwgImdyYW5kY2hpbGQtc3ViZmxvdy1pbnB1dCIsICJsZXZlbC0zIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiQ2hpbGRUb0dyYW5kY2hpbGRTdWJGbG93TWFwcGluZyBJbnB1dEhhbmRsZXIgLSBFcnJvcjogezB9IiwgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImdyYW5kY2hpbGQtc3ViZmxvdy1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IHsgWyJlcnJvciJdID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQoKICAgIC8vLyA8c3VtbWFyeT4KICAgIC8vLyBQcm9jZXNzZXMgdGhlIHJlc3VsdCBmcm9tIHRoZSBjb21wbGV0ZWQgZ3JhbmRjaGlsZCBzdWJmbG93CiAgICAvLy8gPC9zdW1tYXJ5PgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmcgLSBQcm9jZXNzaW5nIGdyYW5kY2hpbGQgc3ViZmxvdyBvdXRwdXQgZGF0YSIpOwogICAgICAgICAgICAKICAgICAgICAgICAgLy8gR2V0IGdyYW5kY2hpbGQgc3ViZmxvdyByZXN1bHQgZGF0YQogICAgICAgICAgICB2YXIgZ3JhbmRjaGlsZFJlc3VsdCA9IGNvbnRleHQuQm9keTsKICAgICAgICAgICAgCiAgICAgICAgICAgIHZhciBncmFuZGNoaWxkUmVzdWx0RGF0YSA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PgogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBbImdyYW5kY2hpbGRJbnN0YW5jZURhdGEiXSA9IGdyYW5kY2hpbGRSZXN1bHQsCiAgICAgICAgICAgICAgICBbInByb2Nlc3NlZCJdID0gdHJ1ZSwKICAgICAgICAgICAgICAgIFsidmlld1Rlc3RSZXN1bHQiXSA9ICJzdWNjZXNzIiwKICAgICAgICAgICAgICAgIFsiZXh0ZW5zaW9uVGVzdFJlc3VsdCJdID0gInN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgWyJkZWVwTmVzdGVkVGVzdFJlc3VsdCJdID0gInN1Y2Nlc3MiCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICB2YXIgY2hpbGRDb250aW51YXRpb24gPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJjYW5Qcm9jZWVkIl0gPSB0cnVlLAogICAgICAgICAgICAgICAgWyJuZXh0U3RhdGUiXSA9ICJjaGlsZC1hZnRlci1ncmFuZGNoaWxkIgogICAgICAgICAgICB9OwogICAgICAgICAgICAKICAgICAgICAgICAgdmFyIG91dHB1dERhdGEgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJncmFuZGNoaWxkU3ViZmxvd0NvbXBsZXRlZCJdID0gdHJ1ZSwKICAgICAgICAgICAgICAgIFsiY29tcGxldGVkQXQiXSA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgIFsiZ3JhbmRjaGlsZFJlc3VsdCJdID0gZ3JhbmRjaGlsZFJlc3VsdERhdGEsCiAgICAgICAgICAgICAgICBbImNoaWxkQ29udGludWF0aW9uIl0gPSBjaGlsZENvbnRpbnVhdGlvbiwKICAgICAgICAgICAgICAgIFsibmVzdGluZ0xldmVsIl0gPSAzCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJncmFuZGNoaWxkLXN1YmZsb3ctb3V0cHV0LXByb2Nlc3NlZCIsCiAgICAgICAgICAgICAgICBEYXRhID0gb3V0cHV0RGF0YSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJzdWJmbG93LXRlc3QiLCAiZ3JhbmRjaGlsZC1zdWJmbG93LW91dHB1dCIsICJjb21wbGV0ZWQiLCAibGV2ZWwtMyIgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmcgT3V0cHV0SGFuZGxlciAtIEVycm9yOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ3JhbmRjaGlsZC1zdWJmbG93LW91dHB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IHsgWyJlcnJvciJdID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "grandchild-subflow-completed",
+            "target": "child-after-grandchild",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Grandchild SubFlow Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Torun Alt Akış Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-after-grandchild",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "After Grandchild SubFlow State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Alt Akış Sonrası Durumu"
           }
         ],
         "view": {
