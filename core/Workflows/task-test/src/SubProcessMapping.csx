@@ -20,8 +20,8 @@ public class SubProcessMapping : IMapping
             }
 
             // Configure subprocess
-            subProcessTask.SetDomain("core");
-            subProcessTask.SetFlow("task-test-subflow");
+            //subProcessTask.SetDomain("core");
+            //subProcessTask.SetFlow("task-test-subflow");
             subProcessTask.SetKey(context.Instance?.Key ?? Guid.NewGuid().ToString());
             subProcessTask.SetTags(new[] { "task-test", "subprocess", "success" });
 

@@ -13,7 +13,7 @@
   "attributes": {
     "type": "13",
     "config": {
-      "domain": "core",
+      "domain": "onboarding",
       "flow": "task-test-subflow",
       "extensions": []
     }

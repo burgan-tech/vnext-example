@@ -13,10 +13,11 @@
   "attributes": {
     "type": "14",
     "config": {
-      "domain": "core",
+      "domain": "contract",
       "flow": "task-test-subflow",
       "version": "1.0.0",
-      "body": {}
+      "body": {},
+      "validateSsl": false
     }
   }
 }
