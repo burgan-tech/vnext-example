@@ -1,6 +1,7 @@
 {
   "key": "subflow-view-test-parent",
   "flow": "sys-flows",
+  "flowVersion": "1.0.0",
   "domain": "core",
   "version": "1.0.0",
   "tags": [
@@ -23,6 +24,20 @@
         "label": "Alt Akış Görünüm Testi - Ana Akış"
       }
     ],
+    "cancel": {
+      "key": "cancel",
+      "target": "cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Parent Workflow"
+        }
+      ],
+      "onExecutionTasks": [],
+      "availableIn": []
+    },
     "functions": [],
     "features": [],
     "extensions": [
@@ -33,7 +48,46 @@
         "flow": "sys-extensions"
       }
     ],
-    "sharedTransitions": [],
+    "sharedTransitions": [
+      {
+        "key": "parent-shared-update",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "availableIn": [
+          "waiting-for-subflow"
+        ],
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Parent Shared Update (issue #425)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Üst Akış Paylaşımlı Güncelleme (#425)"
+          }
+        ],
+        "schema": null,
+        "rule": null,
+        "timer": null,
+        "view": null,
+        "onExecutionTasks": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ParentSharedUpdateMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gUGFyZW50IFNoYXJlZCBVcGRhdGUgTWFwcGluZyAtIFByb2Nlc3NlcyBkYXRhIHNlbnQgdmlhIHBhcmVudCdzIHNoYXJlZCB0cmFuc2l0aW9uICh0YXJnZXQgJHNlbGYpLgovLy8gVXNlZCB0byB2ZXJpZnkgaXNzdWUgIzQyNTogcGFyZW50IGZsb3cgY2FuIGhhbmRsZSBzaGFyZWQgdHJhbnNpdGlvbnMgd2hpbGUgaW5zdGFuY2UgaXMgaW4gc3ViZmxvdy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFBhcmVudFNoYXJlZFVwZGF0ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIlBhcmVudFNoYXJlZFVwZGF0ZU1hcHBpbmcgLSBQcm9jZXNzaW5nIHNoYXJlZCB0cmFuc2l0aW9uIGRhdGEgb24gcGFyZW50ICh0YXJnZXQgJHNlbGYpIik7CgogICAgICAgICAgICAvLyBUcmFuc2l0aW9uIGJvZHkgaXMgdGhlIFBBVENIIHJlcXVlc3QgYm9keSAoZS5nLiB7ICJtZXNzYWdlIjogIi4uLiIsICJ2YWx1ZSI6IC4uLiB9KQogICAgICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5JRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgICAgIG9iamVjdCBtLCB2OwogICAgICAgICAgICB2YXIgbWVzc2FnZSA9IGJvZHkgIT0gbnVsbCAmJiBib2R5LlRyeUdldFZhbHVlKCJtZXNzYWdlIiwgb3V0IG0pID8gbT8uVG9TdHJpbmcoKSA6IG51bGw7CiAgICAgICAgICAgIHZhciB2YWx1ZSA9IGJvZHkgIT0gbnVsbCAmJiBib2R5LlRyeUdldFZhbHVlKCJ2YWx1ZSIsIG91dCB2KSA/IHYgOiBudWxsOwoKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAicGFyZW50LXNoYXJlZC11cGRhdGUtcHJvY2Vzc2VkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzaGFyZWRVcGRhdGVGcm9tUGFyZW50ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICByZWNlaXZlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgICAgICAgICBtZXNzYWdlID0gbWVzc2FnZSA/PyAibm8gbWVzc2FnZSIsCiAgICAgICAgICAgICAgICAgICAgICAgIHZhbHVlID0gdmFsdWUsCiAgICAgICAgICAgICAgICAgICAgICAgIHdvcmtmbG93S2V5ID0gY29udGV4dC5Xb3JrZmxvdz8uS2V5LAogICAgICAgICAgICAgICAgICAgICAgICBpbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICAgICAgICAgIG5vdGUgPSAiUGFyZW50IGZsb3cgcHJvY2Vzc2VkIHRoaXMgd2hpbGUgaW4gc3ViZmxvdyAoaXNzdWUgIzQyNSB0ZXN0KSIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInN1YmZsb3ctdGVzdCIsICJzaGFyZWQtdHJhbnNpdGlvbiIsICJwYXJlbnQiLCAiaXNzdWUtNDI1IiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiUGFyZW50U2hhcmVkVXBkYXRlTWFwcGluZyAtIEVycm9yOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0P1tdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAicGFyZW50LXNoYXJlZC11cGRhdGUtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cg=="
+            }
+          }
+        ]
+      }
+    ],
     "startTransition": {
       "key": "start-parent",
       "target": "parent-initial",
@@ -96,6 +150,16 @@
         "subFlow": null,
         "onEntries": [],
         "onExits": [],
+        "queryRoles": [
+          {
+            "role": "morph-idm.maker",
+            "grant": "allow"
+          },
+          {
+            "role": "morph-idm.viewer",
+            "grant": "allow"
+          }
+        ],
         "transitions": [
           {
             "key": "start-subflow",
@@ -147,6 +211,57 @@
           "mapping": {
             "location": "./src/SubFlowMapping.csx",
             "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdWJGbG93IE1hcHBpbmcgLSBIYW5kbGVzIGlucHV0L291dHB1dCBmb3Igc3ViZmxvdyBzdGF0ZQovLy8gVGhpcyBtYXBwaW5nIHByZXBhcmVzIGRhdGEgZm9yIHN1YmZsb3cgYW5kIHByb2Nlc3NlcyBpdHMgcmVzdWx0Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICAvLy8gPHN1bW1hcnk+CiAgICAvLy8gUHJlcGFyZXMgaW5wdXQgZGF0YSBmb3IgdGhlIHN1YmZsb3cKICAgIC8vLyA8L3N1bW1hcnk+CiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJTdWJGbG93TWFwcGluZyAtIFByZXBhcmluZyBzdWJmbG93IGlucHV0IGRhdGEiKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIFByZXBhcmUgZGF0YSB0byBwYXNzIHRvIGNoaWxkIHdvcmtmbG93IHVzaW5nIERpY3Rpb25hcnkKICAgICAgICAgICAgdmFyIHRlc3RDb250ZXh0ID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIFsidGVzdFR5cGUiXSA9ICJ2aWV3LWV4dGVuc2lvbi1sb25ncG9sbGluZyIsCiAgICAgICAgICAgICAgICBbImV4cGVjdFZpZXdEYXRhIl0gPSB0cnVlLAogICAgICAgICAgICAgICAgWyJleHBlY3RFeHRlbnNpb25EYXRhIl0gPSB0cnVlCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICB2YXIgaW5wdXREYXRhID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIFsicGFyZW50SW5zdGFuY2VJZCJdID0gY29udGV4dC5JbnN0YW5jZT8uSWQsCiAgICAgICAgICAgICAgICBbInBhcmVudFdvcmtmbG93SWQiXSA9IGNvbnRleHQuV29ya2Zsb3c/LktleSA/PyBzdHJpbmcuRW1wdHksCiAgICAgICAgICAgICAgICBbImluaXRpYXRlZEF0Il0gPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBbImluaXRpYXRlZEJ5Il0gPSAicGFyZW50LXdvcmtmbG93IiwKICAgICAgICAgICAgICAgIFsidGVzdENvbnRleHQiXSA9IHRlc3RDb250ZXh0CiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9IGNvbnRleHQuSW5zdGFuY2U/LktleSwKICAgICAgICAgICAgICAgIERhdGEgPSBpbnB1dERhdGEsCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAic3ViZmxvdy10ZXN0IiwgInN1YmZsb3ctaW5wdXQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJTdWJGbG93TWFwcGluZyBJbnB1dEhhbmRsZXIgLSBFcnJvcjogezB9IiwgYXJnczogbmV3IG9iamVjdD9bXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInN1YmZsb3ctaW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiB7IFsiZXJyb3IiXSA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9OwogICAgICAgIH0KICAgIH0KCiAgICAvLy8gPHN1bW1hcnk+CiAgICAvLy8gUHJvY2Vzc2VzIHRoZSByZXN1bHQgZnJvbSB0aGUgY29tcGxldGVkIHN1YmZsb3cKICAgIC8vLyA8L3N1bW1hcnk+CiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiU3ViRmxvd01hcHBpbmcgLSBQcm9jZXNzaW5nIHN1YmZsb3cgb3V0cHV0IGRhdGEiKTsKICAgICAgICAgICAgCiAgICAgICAgICAgIC8vIEdldCBzdWJmbG93IHJlc3VsdCBkYXRhCiAgICAgICAgICAgIHZhciBzdWJmbG93UmVzdWx0ID0gY29udGV4dC5Cb2R5OwogICAgICAgICAgICAKICAgICAgICAgICAgdmFyIHN1YmZsb3dSZXN1bHREYXRhID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIFsiY2hpbGRJbnN0YW5jZURhdGEiXSA9IHN1YmZsb3dSZXN1bHQsCiAgICAgICAgICAgICAgICBbInByb2Nlc3NlZCJdID0gdHJ1ZSwKICAgICAgICAgICAgICAgIFsidmlld1Rlc3RSZXN1bHQiXSA9ICJzdWNjZXNzIiwKICAgICAgICAgICAgICAgIFsiZXh0ZW5zaW9uVGVzdFJlc3VsdCJdID0gInN1Y2Nlc3MiCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICB2YXIgcGFyZW50Q29udGludWF0aW9uID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIFsiY2FuUHJvY2VlZCJdID0gdHJ1ZSwKICAgICAgICAgICAgICAgIFsibmV4dFN0YXRlIl0gPSAicGFyZW50LWFmdGVyLXN1YmZsb3ciCiAgICAgICAgICAgIH07CiAgICAgICAgICAgIAogICAgICAgICAgICB2YXIgb3V0cHV0RGF0YSA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PgogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBbInN1YmZsb3dDb21wbGV0ZWQiXSA9IHRydWUsCiAgICAgICAgICAgICAgICBbImNvbXBsZXRlZEF0Il0gPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBbInN1YmZsb3dSZXN1bHQiXSA9IHN1YmZsb3dSZXN1bHREYXRhLAogICAgICAgICAgICAgICAgWyJwYXJlbnRDb250aW51YXRpb24iXSA9IHBhcmVudENvbnRpbnVhdGlvbgogICAgICAgICAgICB9OwogICAgICAgICAgICAKICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAic3ViZmxvdy1vdXRwdXQtcHJvY2Vzc2VkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBvdXRwdXREYXRhLAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInN1YmZsb3ctdGVzdCIsICJzdWJmbG93LW91dHB1dCIsICJjb21wbGV0ZWQiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJTdWJGbG93TWFwcGluZyBPdXRwdXRIYW5kbGVyIC0gRXJyb3I6IHswfSIsIGFyZ3M6IG5ldyBvYmplY3Q/W10geyBleC5NZXNzYWdlIH0pOwogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzdWJmbG93LW91dHB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IHsgWyJlcnJvciJdID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+          },
+          "overrides": {
+            "timeout": {
+              "key": "push-timeout",
+              "target": "cancelled",
+              "versionStrategy": "Minor",
+              "timer": {
+                "reset": "OnEntry",
+                "duration": "PT25M"
+              }
+            },
+            "transitions": {
+              "start-grandchild-subflow": {
+                "roles": [
+                  {
+                    "role": "morph-idm.maker",
+                    "grant": "allow"
+                  },
+                  {
+                    "role": "morph-idm.viewer",
+                    "grant": "deny"
+                  }
+                ]
+              }
+            },
+            "states": {
+              "child-initial": {
+                "queryRoles": [
+                  {
+                    "role": "morph-idm.maker",
+                    "grant": "allow"
+                  },
+                  {
+                    "role": "morph-idm.viewer",
+                    "grant": "deny"
+                  }
+                ]
+              },
+              "waiting-for-grandchild": {
+                "queryRoles": [
+                  {
+                    "role": "morph-idm.maker",
+                    "grant": "deny"
+                  },
+                  {
+                    "role": "morph-idm.viewer",
+                    "grant": "deny"
+                  }
+                ]
+              }
+            }
           }
         },
         "onEntries": [],
@@ -259,6 +374,27 @@
           {
             "language": "tr-TR",
             "label": "Ana Akış Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "cancelled",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Parent Workflow Cancelled"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Ana Akış İptal Edildi"
           }
         ],
         "view": null,

@@ -8,7 +8,8 @@ public class TriggerGetInstanceTaskMapping : IMapping
     {
         var triggerTask = (task as GetInstanceDataTask)!;
        
-        triggerTask.SetInstance(context.Instance.Data.oldInstanceIds);
+        triggerTask.SetInstance(context.Instance.Key);
+        
         return Task.FromResult(new ScriptResponse());
     }
 

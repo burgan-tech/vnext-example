@@ -81,8 +81,23 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/inst
 Accept: application/json
 
 ### ============================================
+### STEP 6b: [Issue #425] Parent shared transition (target $self) while in subflow
+### Call parent's shared transition on PARENT instance while it is in "waiting-for-subflow".
+### Expected: Parent flow handles the transition (shared-transition policy); data merged into parent.
+### ============================================
+
+# @name parentSharedUpdate
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{parentWorkflow}}/instances/{{instanceKey}}/transitions/parent-shared-update
+Content-Type: application/json
+
+{
+  "message": "Update from client while parent is in subflow (issue #425)",
+  "value": 42
+}
+
+### ============================================
 ### STEP 7: Get Parent Data to Find Child Instance ID
-### Check parent data to find child instance ID
+### Check parent data to find child instance ID (and sharedUpdateFromParent from step 6b)
 ### ============================================
 
 # @name getParentDataForChildId
@@ -142,8 +157,23 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflow}}/insta
 Accept: application/json
 
 ### ============================================
+### STEP 12b: [Issue #425] Child shared transition (target $self) while in grandchild subflow
+### Call child's shared transition on CHILD instance while it is in "waiting-for-grandchild".
+### Expected: Child flow handles the transition; data merged into child.
+### ============================================
+
+# @name childSharedUpdate
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflow}}/instances/{{childInstanceId}}/transitions/child-shared-update
+Content-Type: application/json
+
+{
+  "message": "Update from client while child is in grandchild subflow (issue #425)",
+  "value": 100
+}
+
+### ============================================
 ### STEP 13: Get Child Data to Find Grandchild Instance ID
-### Check child data to find grandchild instance ID
+### Check child data to find grandchild instance ID (and sharedUpdateFromChild from step 12b)
 ### ============================================
 
 # @name getChildDataForGrandchildId

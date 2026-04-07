@@ -1,6 +1,7 @@
 {
   "key": "subflow-view-test-grandchild",
   "flow": "sys-flows",
+  "flowVersion": "1.0.0",
   "domain": "core",
   "version": "1.0.0",
   "tags": [
@@ -95,6 +96,16 @@
             "grandchild-data-extension"
           ]
         },
+        "queryRoles": [
+          {
+            "role": "morph-idm.maker",
+            "grant": "deny"
+          },
+          {
+            "role": "morph-idm.viewer",
+            "grant": "allow"
+          }
+        ],
         "subFlow": null,
         "onEntries": [],
         "onExits": [],
@@ -112,6 +123,20 @@
               {
                 "language": "tr-TR",
                 "label": "Meşgul Durumuna Geç"
+              }
+            ],
+            "roles": [
+              {
+                "role": "morph-idm.maker",
+                "grant": "allow"
+              },
+              {
+                "role": "morph-idm.viewer",
+                "grant": "deny"
+              },
+              {
+                "role": "morph-idm.full",
+                "grant": "allow"
               }
             ],
             "schema": null,

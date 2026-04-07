@@ -34,30 +34,11 @@
     "errorBoundary": {
       "onError": [
         {
-          "action": 4,
-          "priority": 999,
-          "logOnly": false,
-          "transition": "recovery-to-rollback"
-        },
-        {
           "action": 5,
           "priority": 1000,
           "logOnly": true
         }
-      ],
-      "onTimeout": {
-        "action": 0,
-        "transition": "timeout-state",
-        "notificationConfig": {
-          "channel": "slack",
-          "recipients": [
-            "#ops-alerts"
-          ],
-          "templateKey": "timeout-notification-template",
-          "includeErrorDetails": true,
-          "priority": "critical"
-        }
-      }
+      ]
     },
     "startTransition": {
       "key": "start-error-boundary-test",
@@ -112,27 +93,22 @@
           {
             "order": 1,
             "task": {
-              "key": "error-boundary-retry-task",
+              "key": "error-boundary-ignore-task",
               "domain": "core",
               "version": "1.0.0",
               "flow": "sys-tasks"
             },
             "mapping": {
               "location": "./src/ErrorBoundaryRetryMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBFcnJvckJvdW5kYXJ5IFJldHJ5IE1hcHBpbmcgLSBUZXN0cyBUYXNrLWxldmVsIHJldHJ5IHdpdGggZXhwb25lbnRpYWwgYmFja29mZgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRXJyb3JCb3VuZGFyeVJldHJ5TWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgIGlmIChodHRwVGFzayA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhbiBIdHRwVGFzayIpOwogICAgICAgIH0KCiAgICAgICAgdmFyIHJlcXVlc3RCb2R5ID0gbmV3CiAgICAgICAgewogICAgICAgICAgICB0ZXN0SWQgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy50ZXN0SWQgPz8gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKSwKICAgICAgICAgICAgdGVzdFR5cGUgPSAidGFzay1ib3VuZGFyeS1yZXRyeSIsCiAgICAgICAgICAgIHRpbWVzdGFtcCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgbWVzc2FnZSA9ICJUZXN0aW5nIFRhc2stbGV2ZWwgRXJyb3JCb3VuZGFyeSB3aXRoIFJldHJ5IGFjdGlvbiIKICAgICAgICB9OwoKICAgICAgICBodHRwVGFzay5TZXRCb2R5KHJlcXVlc3RCb2R5KTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciByZXNwb25zZSA9IGNvbnRleHQuQm9keTsKCiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgS2V5ID0gInJldHJ5LXN1Y2Nlc3MiLAogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRhc2tCb3VuZGFyeVJldHJ5UmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgc3VjY2VzcyA9IHJlc3BvbnNlPy5pc1N1Y2Nlc3MgPz8gZmFsc2UsCiAgICAgICAgICAgICAgICAgICAgc3RhdHVzQ29kZSA9IHJlc3BvbnNlPy5zdGF0dXNDb2RlLAogICAgICAgICAgICAgICAgICAgIHRlc3RUeXBlID0gIlRhc2stTGV2ZWwgRXJyb3JCb3VuZGFyeSBSZXRyeSIsCiAgICAgICAgICAgICAgICAgICAgY29tcGxldGVkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSwKICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImVycm9yLWJvdW5kYXJ5LXRlc3QiLCAidGFzay1ib3VuZGFyeSIsICJyZXRyeSIgfQogICAgICAgIH07CiAgICB9Cn0KCg=="
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBFcnJvckJvdW5kYXJ5IFJldHJ5IE1hcHBpbmcgLSBUZXN0cyBUYXNrLWxldmVsIHJldHJ5IHdpdGggZXhwb25lbnRpYWwgYmFja29mZgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRXJyb3JCb3VuZGFyeVJldHJ5TWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgIGlmIChodHRwVGFzayA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhbiBIdHRwVGFzayIpOwogICAgICAgIH0KCiAgICAgICAgdmFyIHJlcXVlc3RCb2R5ID0gbmV3CiAgICAgICAgewogICAgICAgICAgICB0ZXN0SWQgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy50ZXN0SWQgPz8gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKSwKICAgICAgICAgICAgdGVzdFR5cGUgPSAidGFzay1ib3VuZGFyeS1yZXRyeSIsCiAgICAgICAgICAgIHRpbWVzdGFtcCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgbWVzc2FnZSA9ICJUZXN0aW5nIFRhc2stbGV2ZWwgRXJyb3JCb3VuZGFyeSB3aXRoIFJldHJ5IGFjdGlvbiIKICAgICAgICB9OwoKICAgICAgICBodHRwVGFzay5TZXRCb2R5KHJlcXVlc3RCb2R5KQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHJlc3BvbnNlID0gY29udGV4dC5Cb2R5OwoKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBLZXkgPSAicmV0cnktc3VjY2VzcyIsCiAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGFza0JvdW5kYXJ5UmV0cnlSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gcmVzcG9uc2U/LmlzU3VjY2VzcyA/PyBmYWxzZSwKICAgICAgICAgICAgICAgICAgICBzdGF0dXNDb2RlID0gcmVzcG9uc2U/LnN0YXR1c0NvZGUsCiAgICAgICAgICAgICAgICAgICAgdGVzdFR5cGUgPSAiVGFzay1MZXZlbCBFcnJvckJvdW5kYXJ5IFJldHJ5IiwKICAgICAgICAgICAgICAgICAgICBjb21wbGV0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9LAogICAgICAgICAgICBUYWdzID0gbmV3W10geyAiZXJyb3ItYm91bmRhcnktdGVzdCIsICJ0YXNrLWJvdW5kYXJ5IiwgInJldHJ5IiB9CiAgICAgICAgfTsKICAgIH0KfQoK"
             },
             "errorBoundary": {
               "onError": [
                 {
                   "action": 1,
-                  "errorTypes": [
-                    "HttpRequestException",
-                    "TaskCanceledException"
-                  ],
+                  "errorTypes": [],
                   "errorCodes": [
-                    "503",
-                    "502",
-                    "504"
+                    "400"
                   ],
                   "priority": 100,
                   "retryPolicy": {
@@ -144,12 +120,12 @@
                   }
                 },
                 {
-                  "action": 0,
+                  "action": 5,
+                  "errorTypes": [],
                   "errorCodes": [
-                    "500"
+                    "Task:400002"
                   ],
-                  "priority": 50,
-                  "transition": "recovery-to-rollback"
+                  "priority": 99
                 }
               ]
             }
@@ -203,7 +179,7 @@
         "errorBoundary": {
           "onError": [
             {
-              "action": 3,
+              "action": 0,
               "errorCodes": [
                 "400",
                 "404",
@@ -445,7 +421,6 @@
           "onError": [],
           "onTimeout": {
             "action": 0,
-            "transition": "timeout-state",
             "defaultRetryPolicy": {
               "maxRetries": 2,
               "initialDelay": "PT5S",

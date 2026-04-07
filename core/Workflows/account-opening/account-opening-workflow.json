@@ -1,6 +1,7 @@
 {
   "key": "account-opening",
   "flow": "sys-flows",
+  "flowVersion": "1.0.0",
   "domain": "core",
   "version": "1.0.0",
   "tags": [
@@ -23,9 +24,28 @@
         "label": "Dijital Bankacılık Hesap Açılışı İş Akışı"
       }
     ],
-    "functions": [],
+    "functions": [
+      {
+        "key": "multi-task-function-test",
+        "domain": "core",
+        "flow": "sys-functions",
+        "version": "1.0.0"
+      }
+    ],
     "features": [],
     "extensions": [],
+    "schema": {
+      "key": "account-opening-master",
+      "version": "1.0.0",
+      "domain": "core",
+      "flow": "sys-schemas"
+    },
+    "queryRoles": [
+      {
+        "role": "morph-idm.viewer",
+        "grant": "allow"
+      }
+    ],
     "cancel": {
       "key": "cancel-account-opening",
       "target": "cancelled",
@@ -73,7 +93,7 @@
       ],
       "mapping": {
         "location": "./src/InitialTransMapping.csx",
-        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEluaXRpYWxUcmFuc01hcHBpbmcgOiBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBvdXRwdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgb3V0cHV0LmluaXRpYWwgPSBuZXcgewogICAgICAgICAgICAgICAgc2Vzc2lvbiA9IGNvbnRleHQuQm9keS5zZXNzaW9uLAogICAgICAgICAgICAgICAgcmVxdWVzdElkID0gY29udGV4dC5IZWFkZXJzP1sieC1yZXF1ZXN0LWlkIl0gPz8gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKSwKICAgICAgICAgICAgfTsKICAgICAgICAKCiAgICAgICAgICAgIHJldHVybiBvdXRwdXQ7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gb3V0cHV0OwogICAgICAgIH0KICAgIH0KfQo="
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEluaXRpYWxUcmFuc01hcHBpbmcgOiBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBvdXRwdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgb3V0cHV0LmluaXRpYWwgPSBuZXcgewogICAgICAgICAgICAgICAgc2Vzc2lvbiA9IGNvbnRleHQuQm9keS5zZXNzaW9uLAogICAgICAgICAgICAgICAgcmVxdWVzdElkID0gY29udGV4dC5IZWFkZXJzP1sieC1yZXF1ZXN0LWlkIl0gPz8gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKSwKICAgICAgICAgICAgICAgIGN1c3RvbWVyID0gY29udGV4dC5Cb2R5LmN1c3RvbWVyCiAgICAgICAgICAgIH07CiAgICAgICAgCgogICAgICAgICAgICByZXR1cm4gb3V0cHV0OwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIG91dHB1dDsKICAgICAgICB9CiAgICB9Cn0K"
       }
     },
     "states": [
@@ -113,6 +133,16 @@
             "target": "account-details-input",
             "triggerType": 0,
             "versionStrategy": "Minor",
+            "roles": [
+              {
+                "role": "morph-idm.initiator",
+                "grant": "allow"
+              },
+              {
+                "role": "$userBehalfOf.$.context.Instance.Data.initial.customer.ownerUserId",
+                "grant": "allow"
+              }
+            ],
             "labels": [
               {
                 "language": "en-US",
@@ -152,7 +182,7 @@
                 },
                 "mapping": {
                   "location": "./src/TriggerGetInstanceTaskMapping.csx",
-                  "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgU3lzdGVtLlRleHQuSnNvbjsKCnB1YmxpYyBjbGFzcyBUcmlnZ2VyR2V0SW5zdGFuY2VUYXNrTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZ2dlclRhc2sgPSAodGFzayBhcyBHZXRJbnN0YW5jZURhdGFUYXNrKSE7CiAgICAgICAKICAgICAgICB0cmlnZ2VyVGFzay5TZXRJbnN0YW5jZShjb250ZXh0Lkluc3RhbmNlLkRhdGEub2xkSW5zdGFuY2VJZHMpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKQogICAgICAgIHsKICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBvbGRJbnN0YW5jZT1jb250ZXh0LkJvZHksCiAgICAgICAgICAgICAgICBzdWNjZXNzID0gdHJ1ZQogICAgICAgICAgICB9CiAgICAgICAgfSk7CiAgICB9Cn0KCnB1YmxpYyBjbGFzcyBSZXF1ZXN0TW9kZWwKewogICAgcHVibGljIHN0cmluZyBrZXkgeyBnZXQ7IHNldDsgfQogICAgcHVibGljIGR5bmFtaWMgIGF0dHJpYnV0ZXMgeyBnZXQ7IHNldDsgfQp9"
+                  "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgU3lzdGVtLlRleHQuSnNvbjsKCnB1YmxpYyBjbGFzcyBUcmlnZ2VyR2V0SW5zdGFuY2VUYXNrTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZ2dlclRhc2sgPSAodGFzayBhcyBHZXRJbnN0YW5jZURhdGFUYXNrKSE7CiAgICAgICAKICAgICAgICB0cmlnZ2VyVGFzay5TZXRJbnN0YW5jZShjb250ZXh0Lkluc3RhbmNlLktleSk7CiAgICAgICAgCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIG9sZEluc3RhbmNlPWNvbnRleHQuQm9keSwKICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlCiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQoKcHVibGljIGNsYXNzIFJlcXVlc3RNb2RlbAp7CiAgICBwdWJsaWMgc3RyaW5nIGtleSB7IGdldDsgc2V0OyB9CiAgICBwdWJsaWMgZHluYW1pYyAgYXR0cmlidXRlcyB7IGdldDsgc2V0OyB9Cn0="
                 }
               }
             ]
@@ -229,6 +259,16 @@
           "extensions": []
         },
         "subFlow": null,
+        "queryRoles": [
+          {
+            "role": "morph-idm.maker",
+            "grant": "allow"
+          },
+          {
+            "role": "morph-idm.viewer",
+            "grant": "deny"
+          }
+        ],
         "onEntries": [],
         "onExits": [],
         "transitions": [
@@ -237,6 +277,16 @@
             "target": "account-confirmation",
             "triggerType": 0,
             "versionStrategy": "Minor",
+            "roles": [
+              {
+                "role": "$PreviousUser",
+                "grant": "deny"
+              },
+              {
+                "role": "morph-idm.initiator",
+                "grant": "allow"
+              }
+            ],
             "labels": [
               {
                 "language": "en-US",
@@ -284,6 +334,16 @@
             "label": "Hesap Onayı"
           }
         ],
+        "queryRoles": [
+          {
+            "role": "$InstanceStarter",
+            "grant": "allow"
+          },
+          {
+            "role": "$PreviousUser",
+            "grant": "deny"
+          }
+        ],
         "view": {
           "view": {
             "key": "account-confirmation-view",
@@ -303,6 +363,16 @@
             "target": "policy-validation",
             "triggerType": 0,
             "versionStrategy": "Minor",
+            "roles": [
+              {
+                "role": "morph-idm.maker",
+                "grant": "allow"
+              },
+              {
+                "role": "morph-idm.initiator",
+                "grant": "allow"
+              }
+            ],
             "labels": [
               {
                 "language": "en-US",

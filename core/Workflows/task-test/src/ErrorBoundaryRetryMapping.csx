@@ -24,7 +24,7 @@ public class ErrorBoundaryRetryMapping : IMapping
             message = "Testing Task-level ErrorBoundary with Retry action"
         };
 
-        httpTask.SetBody(requestBody);
+        httpTask.SetBody(requestBody)
 
         return Task.FromResult(new ScriptResponse());
     }

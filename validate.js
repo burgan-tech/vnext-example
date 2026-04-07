@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const Ajv = require('ajv');
+const Ajv7 = require('ajv');
+const Ajv2019 = require('ajv/dist/2019');
 const addFormats = require('ajv-formats');
 
 // ANSI color codes for terminal output
@@ -652,13 +653,18 @@ validate('JSON files schema validation using @burgan-tech/vnext-schema', () => {
     return true;
   }
 
-  // Initialize AJV with formats support
-  const ajv = new Ajv({
-    strict: false, // Allow unknown keywords like enumDescriptions
-    allErrors: true, // Collect all errors
-    verbose: true // Include schema path in errors
-  });
-  addFormats(ajv);
+  // Initialize AJV instances for draft-07 and draft 2019-09
+  const ajv7 = new Ajv7({ strict: false, allErrors: true, verbose: true });
+  addFormats(ajv7);
+
+  const ajv2019 = new Ajv2019({ strict: false, allErrors: true, verbose: true });
+  addFormats(ajv2019);
+
+  // Pick the correct AJV instance based on the schema's $schema field
+  function getAjvInstance(schema) {
+    const draft = schema?.$schema || '';
+    return draft.includes('2019-09') ? ajv2019 : ajv7;
+  }
 
   // Map directory names to schema types dynamically from paths config
   const directoryToSchemaType = {
@@ -681,7 +687,7 @@ validate('JSON files schema validation using @burgan-tech/vnext-schema', () => {
         const schema = vnextSchema.getSchema ? vnextSchema.getSchema(schemaType) : null;
         if (schema) {
           validators[dirName] = {
-            validator: ajv.compile(schema),
+            validator: getAjvInstance(schema).compile(schema),
             type: schemaType
           };
         }
