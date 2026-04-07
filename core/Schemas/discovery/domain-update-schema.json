@@ -1,0 +1,50 @@
+{
+  "key": "domain-update",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+    "flowVersion": "1.0.0",
+  "tags": [
+    "domain",
+    "workflow",
+    "instance",
+    "lookup",
+    "registration"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$id": "https://schemas.vnext.com/banking/domain-update.json",
+      "title": "Domain update transition Schema",
+      "description": "Domain update transition Schema",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [
+        "domainName"
+      ],
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "Domain name identifier"
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "Base URL of the domain service"
+        },
+        "healthUrl": {
+          "type": "string",
+          "description": "Health check URL of the domain service"
+        },
+        "appId": {
+          "type": "string",
+          "description": "Application identifier"
+        },
+        "eTag": {
+          "type": "string",
+          "description": "Entity tag for optimistic concurrency control"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "key": "get-domain-health-url",
+  "flow": "sys-tasks",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "domain",
+    "redis",
+    "health-check",
+    "lookup"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "{{discoveryDaprUrl}}/v1.0/state/vnext-execution-state/domain:{domainName}",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}
+

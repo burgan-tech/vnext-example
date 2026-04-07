@@ -1,0 +1,32 @@
+{
+  "nodePos": {
+    "idle": {
+      "x": 420,
+      "y": 340
+    },
+    "conflict-handled": {
+      "x": 1200,
+      "y": 40
+    },
+    "not-found-handled": {
+      "x": 1220,
+      "y": 280
+    },
+    "validation-handled": {
+      "x": 1200,
+      "y": 460
+    },
+    "failure-handled": {
+      "x": 1180,
+      "y": 640
+    },
+    "error-sink": {
+      "x": 100,
+      "y": 100
+    },
+    "__start__": {
+      "x": 100,
+      "y": 340
+    }
+  }
+}

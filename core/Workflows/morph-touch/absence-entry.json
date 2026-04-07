@@ -1,0 +1,146 @@
+{
+  "key": "absence-entry",
+  "flow": "sys-flows",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "new"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "label": "Absence Entry",
+        "language": "en-US"
+      },
+      {
+        "label": "Yokluk Kaydı",
+        "language": "tr-TR"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "cancel": {
+      "key": "cancel",
+      "target": "cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "label": "Cancel",
+          "language": "en-US"
+        },
+        {
+          "label": "İptal Et",
+          "language": "tr-TR"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "complete",
+      "versionStrategy": "Major",
+      "triggerType": 0,
+      "labels": [
+        {
+          "label": "Start",
+          "language": "en-US"
+        },
+        {
+          "label": "Başla",
+          "language": "tr-TR"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "complete",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Complete",
+            "language": "en-US"
+          },
+          {
+            "label": "Tamamlandı",
+            "language": "tr-TR"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "update",
+            "target": "complete",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Update",
+                "language": "en-US"
+              },
+              {
+                "label": "Güncelle",
+                "language": "tr-TR"
+              }
+            ]
+          },
+          {
+            "key": "start-transfer",
+            "target": "complete",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Start Transfer",
+                "language": "en-US"
+              },
+              {
+                "label": "Transferi Başlat",
+                "language": "tr-TR"
+              }
+            ],
+            "rule": {
+              "location": "./src/CanStartTransferMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIENvbmRpdGlvbiBmb3IgY2hlY2stdGltZTogc3RhdGU9YWN0aXZlIC0+IGNyZWF0ZS1yb29tLWFuZC10cmlnZ2VyLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQ2FuU3RhcnRUcmFuc2Zlck1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYWJzZW5jZVR5cGUgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5hYnNlbmNlVHlwZT8uVG9TdHJpbmcoKT8uVHJpbSgpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoYWJzZW5jZVR5cGUgPT0gInBlcnNvbmVsLWxlYXZlIik7CiAgICB9Cn0="
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "key": "start-transfer-from-absence-entry",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "location": "./src/StartTransferFromAbsenceEntryMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLy8gPHN1bW1hcnk+Ci8vLyBNYXBwaW5nIGZvciBzdGFydC10cmFuc2Zlci1mcm9tLWFic2VuY2UtZW50cnkgU3RhcnRUYXNrIChUeXBlIDExKS4KLy8vIENvbmRpdGlvbmFsbHkgc3RhcnRzIGEgcmV6ZXJ2YXRpb24tdHJhbnNmZXIgc3ViZmxvdyB3aGVuIGFic2VuY2VUeXBlIGlzIHBlcnNvbmFsLWxlYXZlLgovLy8gRGV0ZXJtaW5lcyB0cmFuc2ZlciB0eXBlOiBhbm51YWwtbGVhdmUgKGVuZERhdGVUaW1lIHByZXNlbnQpIG9yIHRlcm1pbmF0aW9uIChlbmREYXRlVGltZSBudWxsKS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YXJ0VHJhbnNmZXJGcm9tQWJzZW5jZUVudHJ5TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc3RhcnRUYXNrID0gdGFzayBhcyBTdGFydFRhc2s7CiAgICAgICAgaWYgKHN0YXJ0VGFzayA9PSBudWxsKQogICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgU3RhcnRUYXNrIik7CgogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YTsKICAgICAgICBpZiAoZGF0YSA9PSBudWxsKQogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBuZXcgeyBza2lwcGVkID0gdHJ1ZSwgcmVhc29uID0gIm5vLWluc3RhbmNlLWRhdGEiIH0gfSk7CgogICAgICAgIHZhciBhYnNlbmNlVHlwZSA9IEdldFN0cmluZyhkYXRhLCAiYWJzZW5jZVR5cGUiKTsKICAgICAgICBpZiAoYWJzZW5jZVR5cGUgIT0gInBlcnNvbmFsLWxlYXZlIikKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbmV3IHsgc2tpcHBlZCA9IHRydWUsIHJlYXNvbiA9ICJub3QtcGVyc29uYWwtbGVhdmUiIH0gfSk7CgogICAgICAgIHZhciBhZHZpc29yID0gR2V0U3RyaW5nKGRhdGEsICJhZHZpc29yIik7CiAgICAgICAgaWYgKHN0cmluZy5Jc051bGxPckVtcHR5KGFkdmlzb3IpKQogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBuZXcgeyBza2lwcGVkID0gdHJ1ZSwgcmVhc29uID0gIm5vLWFkdmlzb3IiIH0gfSk7CgogICAgICAgIHZhciBzdGFydERhdGVUaW1lID0gR2V0U3RyaW5nKGRhdGEsICJzdGFydERhdGVUaW1lIik7CiAgICAgICAgaWYgKHN0cmluZy5Jc051bGxPckVtcHR5KHN0YXJ0RGF0ZVRpbWUpKQogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBuZXcgeyBza2lwcGVkID0gdHJ1ZSwgcmVhc29uID0gIm5vLXN0YXJ0RGF0ZVRpbWUiIH0gfSk7CgogICAgICAgIHZhciBlbmREYXRlVGltZSA9IEdldFN0cmluZyhkYXRhLCAiZW5kRGF0ZVRpbWUiKTsKCiAgICAgICAgdmFyIGFkdmlzb3JUeXBlID0gRXh0cmFjdEFkdmlzb3JUeXBlKGFkdmlzb3IpOwogICAgICAgIHZhciB0cmFuc2ZlclR5cGUgPSBzdHJpbmcuSXNOdWxsT3JFbXB0eShlbmREYXRlVGltZSkgPyAidGVybWluYXRpb24iIDogImFubnVhbC1sZWF2ZSI7CgogICAgICAgIHZhciBzYWZlU3RhcnQgPSBzdGFydERhdGVUaW1lLlJlcGxhY2UoIjoiLCAiLSIpOwogICAgICAgIHZhciB0cmFuc2ZlcktleSA9ICQidHJhbnNmZXItbGVhdmUte2Fkdmlzb3J9LXtzYWZlU3RhcnR9IjsKCiAgICAgICAgc3RhcnRUYXNrLlNldERvbWFpbigidG91Y2giKTsKICAgICAgICBzdGFydFRhc2suU2V0RmxvdygicmV6ZXJ2YXRpb24tdHJhbnNmZXIiKTsKICAgICAgICBzdGFydFRhc2suU2V0S2V5KHRyYW5zZmVyS2V5KTsKCiAgICAgICAgdmFyIGJvZHkgPSBuZXcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWMuRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICB7CiAgICAgICAgICAgIFsic291cmNlQWR2aXNvcklkIl0gPSBhZHZpc29yLAogICAgICAgICAgICBbImFkdmlzb3JUeXBlIl0gPSBhZHZpc29yVHlwZSwKICAgICAgICAgICAgWyJzdGFydERhdGUiXSA9IHN0YXJ0RGF0ZVRpbWUKICAgICAgICB9OwogICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yRW1wdHkoZW5kRGF0ZVRpbWUpKQogICAgICAgICAgICBib2R5WyJlbmREYXRlIl0gPSBlbmREYXRlVGltZTsKCiAgICAgICAgc3RhcnRUYXNrLlNldEJvZHkoYm9keSk7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3IHsgc2tpcHBlZCA9IGZhbHNlLCB0cmFuc2ZlclR5cGUsIHRyYW5zZmVyS2V5IH0KICAgICAgICB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdHJpbmcgRXh0cmFjdEFkdmlzb3JUeXBlKHN0cmluZyBhZHZpc29yKQogICAgewogICAgICAgIGlmIChzdHJpbmcuSXNOdWxsT3JFbXB0eShhZHZpc29yKSkgcmV0dXJuIG51bGw7CiAgICAgICAgdmFyIHBhcnRzID0gYWR2aXNvci5TcGxpdCgnLicpOwogICAgICAgIGlmIChwYXJ0cy5MZW5ndGggPj0gMykKICAgICAgICAgICAgcmV0dXJuIHBhcnRzWzFdOwogICAgICAgIGlmIChwYXJ0cy5MZW5ndGggPT0gMikKICAgICAgICAgICAgcmV0dXJuIHBhcnRzWzBdOwogICAgICAgIHJldHVybiBhZHZpc29yOwogICAgfQoKICAgIHByaXZhdGUgc3RyaW5nIEdldFN0cmluZyhkeW5hbWljIG9iaiwgc3RyaW5nIG5hbWUpCiAgICB7CiAgICAgICAgaWYgKG9iaiA9PSBudWxsKSByZXR1cm4gbnVsbDsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIGlmIChIYXNQcm9wZXJ0eShvYmosIG5hbWUpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB2YXIgdiA9IEdldFByb3BlcnR5VmFsdWUob2JqLCBuYW1lKTsKICAgICAgICAgICAgICAgIHJldHVybiB2Py5Ub1N0cmluZygpOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIGNhdGNoIHsgfQogICAgICAgIHJldHVybiBudWxsOwogICAgfQp9"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "cancelled",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Cancelled",
+            "language": "en-US"
+          },
+          {
+            "label": "İptal Edildi",
+            "language": "tr-TR"
+          }
+        ]
+      }
+    ],
+    "subFlowType": "S",
+    "timeout": null
+  }
+}

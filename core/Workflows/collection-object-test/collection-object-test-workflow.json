@@ -1,0 +1,521 @@
+{
+  "key": "collection-object-test-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "collection-object-test",
+    "dynamic-collection",
+    "dynamic-object",
+    "script-base",
+    "integration-test",
+    "create-object",
+    "create-list",
+    "set-property",
+    "get-list",
+    "as-list",
+    "list-filter",
+    "list-count",
+    "list-any",
+    "list-first",
+    "list-last",
+    "list-select",
+    "list-add",
+    "list-remove",
+    "remove-property",
+    "to-dictionary"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Dynamic Collection & Object Test Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Dinamik Koleksiyon ve Nesne Test İş Akışı"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-collection-test",
+      "target": "test-create-and-set-state",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Collection & Object Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Koleksiyon ve Nesne Testini Başlat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/InitCollectionTestMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gSW5pdGlhbCB0cmFuc2l0aW9uIG1hcHBpbmcgLSBJbml0aWFsaXplcyB0aGUgY29sbGVjdGlvbi9vYmplY3QgdGVzdCB3b3JrZmxvdwovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSW5pdENvbGxlY3Rpb25UZXN0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNvbGxlY3Rpb25PYmplY3RUZXN0IC0gV29ya2Zsb3cgaW5pdGlhbGl6ZWQiKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIEtleSA9ICJpbml0LXN1Y2Nlc3MiLAogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRlc3RJZCA9IEd1aWQuTmV3R3VpZCgpLlRvU3RyaW5nKCksCiAgICAgICAgICAgICAgICBzdGFydGVkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgfSwKICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImNvbGxlY3Rpb24tb2JqZWN0LXRlc3QiLCAiaW5pdGlhbGl6ZWQiIH0KICAgICAgICB9KTsKICAgIH0KfQo="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "test-create-and-set-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test CreateObject, CreateList, SetProperty, ListAdd"
+          },
+          {
+            "language": "tr-TR",
+            "label": "CreateObject, CreateList, SetProperty, ListAdd Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/CreateAndSetMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IENyZWF0ZU9iamVjdCgpLCBDcmVhdGVMaXN0KCksIFNldFByb3BlcnR5KCksIExpc3RBZGQoKQovLy8gQ3JlYXRlcyBhIGxpc3Qgb2YgMyBkeW5hbWljIHBlcnNvbiBvYmplY3RzIGFuZCBzdG9yZXMgdGhlbSBpbiBJbnN0YW5jZS5EYXRhLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQ3JlYXRlQW5kU2V0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiQ3JlYXRlQW5kU2V0IFRlc3QgLSBTdGFydGluZyIpOwoKICAgICAgICAgICAgLy8gVGVzdCBDcmVhdGVPYmplY3QoKSArIFNldFByb3BlcnR5KCkKICAgICAgICAgICAgZHluYW1pYyBpdGVtMSA9IENyZWF0ZU9iamVjdCgpOwogICAgICAgICAgICBTZXRQcm9wZXJ0eShpdGVtMSwgImlkIiwgIml0ZW0tMDAxIik7CiAgICAgICAgICAgIFNldFByb3BlcnR5KGl0ZW0xLCAibmFtZSIsICJBbGljZSIpOwogICAgICAgICAgICBTZXRQcm9wZXJ0eShpdGVtMSwgImFnZSIsIDMwKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkoaXRlbTEsICJzdGF0dXMiLCAiYWN0aXZlIik7CgogICAgICAgICAgICBkeW5hbWljIGl0ZW0yID0gQ3JlYXRlT2JqZWN0KCk7CiAgICAgICAgICAgIFNldFByb3BlcnR5KGl0ZW0yLCAiaWQiLCAiaXRlbS0wMDIiKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkoaXRlbTIsICJuYW1lIiwgIkJvYiIpOwogICAgICAgICAgICBTZXRQcm9wZXJ0eShpdGVtMiwgImFnZSIsIDI1KTsKICAgICAgICAgICAgU2V0UHJvcGVydHkoaXRlbTIsICJzdGF0dXMiLCAiaW5hY3RpdmUiKTsKCiAgICAgICAgICAgIGR5bmFtaWMgaXRlbTMgPSBDcmVhdGVPYmplY3QoKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkoaXRlbTMsICJpZCIsICJpdGVtLTAwMyIpOwogICAgICAgICAgICBTZXRQcm9wZXJ0eShpdGVtMywgIm5hbWUiLCAiQ2hhcmxpZSIpOwogICAgICAgICAgICBTZXRQcm9wZXJ0eShpdGVtMywgImFnZSIsIDM1KTsKICAgICAgICAgICAgU2V0UHJvcGVydHkoaXRlbTMsICJzdGF0dXMiLCAiYWN0aXZlIik7CgogICAgICAgICAgICAvLyBUZXN0IENyZWF0ZUxpc3QoKSArIExpc3RBZGQoKQogICAgICAgICAgICB2YXIgaXRlbXMgPSBDcmVhdGVMaXN0KCk7CiAgICAgICAgICAgIExpc3RBZGQoaXRlbXMsIGl0ZW0xKTsKICAgICAgICAgICAgTGlzdEFkZChpdGVtcywgaXRlbTIpOwogICAgICAgICAgICBMaXN0QWRkKGl0ZW1zLCBpdGVtMyk7CgogICAgICAgICAgICAvLyBOZXN0ZWQgZHluYW1pYyBvYmplY3QgZm9yIG1ldGFkYXRhCiAgICAgICAgICAgIGR5bmFtaWMgbWV0YWRhdGEgPSBDcmVhdGVPYmplY3QoKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkobWV0YWRhdGEsICJjcmVhdGVkQXQiLCBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIk8iKSk7CiAgICAgICAgICAgIFNldFByb3BlcnR5KG1ldGFkYXRhLCAic291cmNlIiwgImNvbGxlY3Rpb24tb2JqZWN0LXRlc3QiKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkobWV0YWRhdGEsICJpdGVtQ291bnQiLCBpdGVtcy5Db3VudCk7CgogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiQ3JlYXRlQW5kU2V0IFRlc3QgLSBDcmVhdGVkIHswfSBpdGVtcyIsIGFyZ3M6IG5ldyBvYmplY3RbXSB7IGl0ZW1zLkNvdW50IH0pOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImNyZWF0ZS1hbmQtc2V0LXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGl0ZW1zID0gaXRlbXMsCiAgICAgICAgICAgICAgICAgICAgbWV0YWRhdGEgPSBtZXRhZGF0YSwKICAgICAgICAgICAgICAgICAgICBjcmVhdGVBbmRTZXRSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBvYmplY3RzQ3JlYXRlZCA9IDMsCiAgICAgICAgICAgICAgICAgICAgICAgIGxpc3RJdGVtQ291bnQgPSBpdGVtcy5Db3VudCwKICAgICAgICAgICAgICAgICAgICAgICAgcHJvcGVydGllc1NldCA9IHRydWUKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImNvbGxlY3Rpb24tb2JqZWN0LXRlc3QiLCAiY3JlYXRlLWFuZC1zZXQiLCAic3VjY2VzcyIgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJDcmVhdGVBbmRTZXQgVGVzdCAtIEZhaWxlZDogezB9IiwgYXJnczogbmV3IG9iamVjdFtdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImNyZWF0ZS1hbmQtc2V0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "create-and-set-completed",
+            "target": "test-get-list-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "CreateObject / SetProperty Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "CreateObject / SetProperty Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-get-list-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test GetList, AsList"
+          },
+          {
+            "language": "tr-TR",
+            "label": "GetList, AsList Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GetListAndAsListMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IEdldExpc3QoKSwgQXNMaXN0KCkKLy8vIFJldHJpZXZlcyB0aGUgaXRlbXMgbGlzdCBmcm9tIEluc3RhbmNlLkRhdGEgYW5kIHZlcmlmaWVzIEFzTGlzdCgpIGVkZ2UgY2FzZXMuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBHZXRMaXN0QW5kQXNMaXN0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiR2V0TGlzdCBhbmQgQXNMaXN0IFRlc3QgLSBTdGFydGluZyIpOwoKICAgICAgICAgICAgdmFyIGluc3RhbmNlRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE7CgogICAgICAgICAgICAvLyBUZXN0IEdldExpc3QoKSAtIHJldHJpZXZlIGl0ZW1zIGZyb20gaW5zdGFuY2UgZGF0YSBieSBwcm9wZXJ0eSBuYW1lCiAgICAgICAgICAgIHZhciBpdGVtcyA9IEdldExpc3QoaW5zdGFuY2VEYXRhLCAiaXRlbXMiKTsKCiAgICAgICAgICAgIC8vIFRlc3QgQXNMaXN0KCkgd2l0aCBhIHZhbGlkIGxpc3QgLSBzaG91bGQgcmV0dXJuIHNhbWUgaXRlbXMKICAgICAgICAgICAgdmFyIGFzTGlzdEZyb21WYWxpZCA9IEFzTGlzdChpdGVtcyk7CgogICAgICAgICAgICAvLyBUZXN0IEFzTGlzdCgpIHdpdGggbnVsbCAtIHNob3VsZCByZXR1cm4gZW1wdHkgbGlzdCAoZ3JhY2VmdWwgZGVncmFkYXRpb24pCiAgICAgICAgICAgIHZhciBhc0xpc3RGcm9tTnVsbCA9IEFzTGlzdChudWxsKTsKCiAgICAgICAgICAgIC8vIFRlc3QgQXNMaXN0KCkgd2l0aCBhIG5vbi1saXN0IHZhbHVlIC0gc2hvdWxkIHJldHVybiBlbXB0eSBsaXN0CiAgICAgICAgICAgIHZhciBhc0xpc3RGcm9tU3RyaW5nID0gQXNMaXN0KCJub3QgYSBsaXN0Iik7CgogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiR2V0TGlzdCBUZXN0IC0gUmV0cmlldmVkIHswfSBpdGVtcyIsIGFyZ3M6IG5ldyBvYmplY3RbXSB7IGl0ZW1zLkNvdW50IH0pOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImdldC1saXN0LXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGdldExpc3RSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBpdGVtQ291bnQgPSBpdGVtcy5Db3VudCwKICAgICAgICAgICAgICAgICAgICAgICAgZ2V0TGlzdFdvcmtlZCA9IGl0ZW1zLkNvdW50ID09IDMsCiAgICAgICAgICAgICAgICAgICAgICAgIGFzTGlzdEZyb21WYWxpZENvdW50ID0gYXNMaXN0RnJvbVZhbGlkLkNvdW50LAogICAgICAgICAgICAgICAgICAgICAgICBhc0xpc3ROdWxsUmV0dXJuc0VtcHR5ID0gYXNMaXN0RnJvbU51bGwuQ291bnQgPT0gMCwKICAgICAgICAgICAgICAgICAgICAgICAgYXNMaXN0SW52YWxpZFJldHVybnNFbXB0eSA9IGFzTGlzdEZyb21TdHJpbmcuQ291bnQgPT0gMAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29sbGVjdGlvbi1vYmplY3QtdGVzdCIsICJnZXQtbGlzdCIsICJhcy1saXN0IiwgInN1Y2Nlc3MiIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBMb2dFcnJvcigiR2V0TGlzdCBUZXN0IC0gRmFpbGVkOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0W10geyBleC5NZXNzYWdlIH0pOwogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZ2V0LWxpc3QtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "get-list-completed",
+            "target": "test-filter-count-any-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "GetList / AsList Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "GetList / AsList Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-filter-count-any-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test ListFilter, ListCount, ListAny"
+          },
+          {
+            "language": "tr-TR",
+            "label": "ListFilter, ListCount, ListAny Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ListFilterCountAnyMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IExpc3RGaWx0ZXIoKSwgTGlzdENvdW50KCksIExpc3RBbnkoKQovLy8gVXNlcyB0aGUgaXRlbXMgbGlzdCAoQWxpY2U9YWN0aXZlLCBCb2I9aW5hY3RpdmUsIENoYXJsaWU9YWN0aXZlKSBmcm9tIEluc3RhbmNlLkRhdGEuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMaXN0RmlsdGVyQ291bnRBbnlNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJMaXN0RmlsdGVyLCBMaXN0Q291bnQsIExpc3RBbnkgVGVzdCAtIFN0YXJ0aW5nIik7CgogICAgICAgICAgICBvYmplY3QgaW5zdGFuY2VEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YTsKICAgICAgICAgICAgdmFyIGl0ZW1zID0gR2V0TGlzdChpbnN0YW5jZURhdGEsICJpdGVtcyIpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0RmlsdGVyKCkgLSBmaWx0ZXIgYWN0aXZlIGl0ZW1zIChBbGljZSArIENoYXJsaWUpCiAgICAgICAgICAgIHZhciBhY3RpdmVJdGVtcyA9IExpc3RGaWx0ZXIoaXRlbXMsIHggPT4geC5zdGF0dXMgPT0gImFjdGl2ZSIpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0Q291bnQoKSAtIG5vIHByZWRpY2F0ZSAodG90YWwpCiAgICAgICAgICAgIHZhciB0b3RhbENvdW50ID0gTGlzdENvdW50KGl0ZW1zKTsKCiAgICAgICAgICAgIC8vIFRlc3QgTGlzdENvdW50KCkgd2l0aCBwcmVkaWNhdGUKICAgICAgICAgICAgdmFyIGFjdGl2ZUNvdW50ID0gTGlzdENvdW50KGl0ZW1zLCB4ID0+IHguc3RhdHVzID09ICJhY3RpdmUiKTsKICAgICAgICAgICAgdmFyIGluYWN0aXZlQ291bnQgPSBMaXN0Q291bnQoaXRlbXMsIHggPT4geC5zdGF0dXMgPT0gImluYWN0aXZlIik7CgogICAgICAgICAgICAvLyBUZXN0IExpc3RBbnkoKSAtIG5vIHByZWRpY2F0ZSAoaGFzIGFueSBlbGVtZW50KQogICAgICAgICAgICB2YXIgaGFzSXRlbXMgPSBMaXN0QW55KGl0ZW1zKTsKCiAgICAgICAgICAgIC8vIFRlc3QgTGlzdEFueSgpIHdpdGggcHJlZGljYXRlCiAgICAgICAgICAgIHZhciBoYXNBY3RpdmUgPSBMaXN0QW55KGl0ZW1zLCB4ID0+IHguc3RhdHVzID09ICJhY3RpdmUiKTsKICAgICAgICAgICAgdmFyIGhhc0FkbWluUm9sZSA9IExpc3RBbnkoaXRlbXMsIHggPT4geC5zdGF0dXMgPT0gImFkbWluIik7CgogICAgICAgICAgICAvLyBFbXB0eSBsaXN0IGNoZWNrcwogICAgICAgICAgICB2YXIgZW1wdHlMaXN0ID0gQ3JlYXRlTGlzdCgpOwogICAgICAgICAgICB2YXIgZW1wdHlIYXNJdGVtcyA9IExpc3RBbnkoZW1wdHlMaXN0KTsKICAgICAgICAgICAgdmFyIGVtcHR5Q291bnQgPSBMaXN0Q291bnQoZW1wdHlMaXN0KTsKCiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCJMaXN0RmlsdGVyOiBhY3RpdmU9ezB9LCBpbmFjdGl2ZT17MX0sIHRvdGFsPXsyfSIsCiAgICAgICAgICAgICAgICBhcmdzOiBuZXcgb2JqZWN0W10geyBhY3RpdmVDb3VudCwgaW5hY3RpdmVDb3VudCwgdG90YWxDb3VudCB9KTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJmaWx0ZXItY291bnQtYW55LXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGZpbHRlckNvdW50QW55UmVzdWx0ID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBzdWNjZXNzID0gdHJ1ZSwKICAgICAgICAgICAgICAgICAgICAgICAgdG90YWxDb3VudCA9IHRvdGFsQ291bnQsCiAgICAgICAgICAgICAgICAgICAgICAgIGFjdGl2ZUNvdW50ID0gYWN0aXZlQ291bnQsCiAgICAgICAgICAgICAgICAgICAgICAgIGluYWN0aXZlQ291bnQgPSBpbmFjdGl2ZUNvdW50LAogICAgICAgICAgICAgICAgICAgICAgICBhY3RpdmVJdGVtc0ZpbHRlcmVkID0gYWN0aXZlSXRlbXMuQ291bnQsCiAgICAgICAgICAgICAgICAgICAgICAgIGhhc0l0ZW1zID0gaGFzSXRlbXMsCiAgICAgICAgICAgICAgICAgICAgICAgIGhhc0FjdGl2ZSA9IGhhc0FjdGl2ZSwKICAgICAgICAgICAgICAgICAgICAgICAgaGFzQWRtaW5Sb2xlID0gaGFzQWRtaW5Sb2xlLAogICAgICAgICAgICAgICAgICAgICAgICBlbXB0eUxpc3RIYXNJdGVtcyA9IGVtcHR5SGFzSXRlbXMsCiAgICAgICAgICAgICAgICAgICAgICAgIGVtcHR5TGlzdENvdW50ID0gZW1wdHlDb3VudCwKICAgICAgICAgICAgICAgICAgICAgICAgZmlsdGVyV29ya2VkID0gYWN0aXZlSXRlbXMuQ291bnQgPT0gMiwKICAgICAgICAgICAgICAgICAgICAgICAgY291bnRXb3JrZWQgPSB0b3RhbENvdW50ID09IDMgJiYgYWN0aXZlQ291bnQgPT0gMiAmJiBpbmFjdGl2ZUNvdW50ID09IDEsCiAgICAgICAgICAgICAgICAgICAgICAgIGFueVdvcmtlZCA9IGhhc0l0ZW1zICYmIGhhc0FjdGl2ZSAmJiAhaGFzQWRtaW5Sb2xlICYmICFlbXB0eUhhc0l0ZW1zCiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJjb2xsZWN0aW9uLW9iamVjdC10ZXN0IiwgImxpc3QtZmlsdGVyIiwgImxpc3QtY291bnQiLCAibGlzdC1hbnkiLCAic3VjY2VzcyIgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJMaXN0RmlsdGVyL0NvdW50L0FueSBUZXN0IC0gRmFpbGVkOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0W10geyBleC5NZXNzYWdlIH0pOwogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZmlsdGVyLWNvdW50LWFueS1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "filter-count-any-completed",
+            "target": "test-first-last-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ListFilter / ListCount / ListAny Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "ListFilter / ListCount / ListAny Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-first-last-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test ListFirst, ListLast"
+          },
+          {
+            "language": "tr-TR",
+            "label": "ListFirst, ListLast Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ListFirstLastMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IExpc3RGaXJzdCgpLCBMaXN0TGFzdCgpCi8vLyBJdGVtcyBvcmRlcjogQWxpY2UoYWN0aXZlKSwgQm9iKGluYWN0aXZlKSwgQ2hhcmxpZShhY3RpdmUpCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMaXN0Rmlyc3RMYXN0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGlzdEZpcnN0IGFuZCBMaXN0TGFzdCBUZXN0IC0gU3RhcnRpbmciKTsKCiAgICAgICAgICAgIG9iamVjdCBpbnN0YW5jZURhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhOwogICAgICAgICAgICB2YXIgaXRlbXMgPSBHZXRMaXN0KGluc3RhbmNlRGF0YSwgIml0ZW1zIik7CgogICAgICAgICAgICAvLyBUZXN0IExpc3RGaXJzdCgpIHdpdGhvdXQgcHJlZGljYXRlIOKGkiBBbGljZQogICAgICAgICAgICB2YXIgZmlyc3QgPSBMaXN0Rmlyc3QoaXRlbXMpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0Rmlyc3QoKSB3aXRoIHByZWRpY2F0ZSDihpIgZmlyc3QgYWN0aXZlID0gQWxpY2UsIGZpcnN0IGluYWN0aXZlID0gQm9iCiAgICAgICAgICAgIHZhciBmaXJzdEFjdGl2ZSA9IExpc3RGaXJzdChpdGVtcywgeCA9PiB4LnN0YXR1cyA9PSAiYWN0aXZlIik7CiAgICAgICAgICAgIHZhciBmaXJzdEluYWN0aXZlID0gTGlzdEZpcnN0KGl0ZW1zLCB4ID0+IHguc3RhdHVzID09ICJpbmFjdGl2ZSIpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0Rmlyc3QoKSB3aXRoIG5vIG1hdGNoIOKGkiBudWxsCiAgICAgICAgICAgIHZhciBmaXJzdE5vdEZvdW5kID0gTGlzdEZpcnN0KGl0ZW1zLCB4ID0+IHguc3RhdHVzID09ICJhZG1pbiIpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0TGFzdCgpIHdpdGhvdXQgcHJlZGljYXRlIOKGkiBDaGFybGllCiAgICAgICAgICAgIHZhciBsYXN0ID0gTGlzdExhc3QoaXRlbXMpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0TGFzdCgpIHdpdGggcHJlZGljYXRlIOKGkiBsYXN0IGFjdGl2ZSA9IENoYXJsaWUKICAgICAgICAgICAgdmFyIGxhc3RBY3RpdmUgPSBMaXN0TGFzdChpdGVtcywgeCA9PiB4LnN0YXR1cyA9PSAiYWN0aXZlIik7CgogICAgICAgICAgICAvLyBUZXN0IG9uIGVtcHR5IGxpc3Qg4oaSIG51bGwKICAgICAgICAgICAgdmFyIGVtcHR5Rmlyc3QgPSBMaXN0Rmlyc3QoQ3JlYXRlTGlzdCgpKTsKICAgICAgICAgICAgdmFyIGVtcHR5TGFzdCA9IExpc3RMYXN0KENyZWF0ZUxpc3QoKSk7CgogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiRmlyc3Q6IHswfSwgTGFzdDogezF9IiwgYXJnczogbmV3IG9iamVjdFtdIHsgZmlyc3Q/Lm5hbWUsIGxhc3Q/Lm5hbWUgfSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZmlyc3QtbGFzdC1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBmaXJzdExhc3RSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBmaXJzdE5hbWUgPSAoc3RyaW5nKShmaXJzdD8ubmFtZSA/PyAibnVsbCIpLAogICAgICAgICAgICAgICAgICAgICAgICBsYXN0TmFtZSA9IChzdHJpbmcpKGxhc3Q/Lm5hbWUgPz8gIm51bGwiKSwKICAgICAgICAgICAgICAgICAgICAgICAgZmlyc3RBY3RpdmVOYW1lID0gKHN0cmluZykoZmlyc3RBY3RpdmU/Lm5hbWUgPz8gIm51bGwiKSwKICAgICAgICAgICAgICAgICAgICAgICAgZmlyc3RJbmFjdGl2ZU5hbWUgPSAoc3RyaW5nKShmaXJzdEluYWN0aXZlPy5uYW1lID8/ICJudWxsIiksCiAgICAgICAgICAgICAgICAgICAgICAgIGxhc3RBY3RpdmVOYW1lID0gKHN0cmluZykobGFzdEFjdGl2ZT8ubmFtZSA/PyAibnVsbCIpLAogICAgICAgICAgICAgICAgICAgICAgICBmaXJzdE5vdEZvdW5kSXNOdWxsID0gZmlyc3ROb3RGb3VuZCA9PSBudWxsLAogICAgICAgICAgICAgICAgICAgICAgICBlbXB0eUZpcnN0SXNOdWxsID0gZW1wdHlGaXJzdCA9PSBudWxsLAogICAgICAgICAgICAgICAgICAgICAgICBlbXB0eUxhc3RJc051bGwgPSBlbXB0eUxhc3QgPT0gbnVsbCwKICAgICAgICAgICAgICAgICAgICAgICAgZmlyc3RXb3JrZWQgPSBmaXJzdD8uaWQgPT0gIml0ZW0tMDAxIiwKICAgICAgICAgICAgICAgICAgICAgICAgbGFzdFdvcmtlZCA9IGxhc3Q/LmlkID09ICJpdGVtLTAwMyIsCiAgICAgICAgICAgICAgICAgICAgICAgIGZpcnN0V2l0aFByZWRpY2F0ZVdvcmtlZCA9IGZpcnN0QWN0aXZlPy5pZCA9PSAiaXRlbS0wMDEiLAogICAgICAgICAgICAgICAgICAgICAgICBsYXN0V2l0aFByZWRpY2F0ZVdvcmtlZCA9IGxhc3RBY3RpdmU/LmlkID09ICJpdGVtLTAwMyIKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImNvbGxlY3Rpb24tb2JqZWN0LXRlc3QiLCAibGlzdC1maXJzdCIsICJsaXN0LWxhc3QiLCAic3VjY2VzcyIgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJMaXN0Rmlyc3QvTGFzdCBUZXN0IC0gRmFpbGVkOiB7MH0iLCBhcmdzOiBuZXcgb2JqZWN0W10geyBleC5NZXNzYWdlIH0pOwogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZmlyc3QtbGFzdC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "first-last-completed",
+            "target": "test-list-select-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ListFirst / ListLast Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "ListFirst / ListLast Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-list-select-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test ListSelect"
+          },
+          {
+            "language": "tr-TR",
+            "label": "ListSelect Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ListSelectMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IExpc3RTZWxlY3QmbHQ7VFJlc3VsdCZndDsoKQovLy8gUHJvamVjdHMgbGlzdCBpdGVtcyBpbnRvIGRpZmZlcmVudCB0eXBlczogc3RyaW5nLCBpbnQsIG9iamVjdAovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTGlzdFNlbGVjdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkxpc3RTZWxlY3QgVGVzdCAtIFN0YXJ0aW5nIik7CgogICAgICAgICAgICBvYmplY3QgaW5zdGFuY2VEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YTsKICAgICAgICAgICAgdmFyIGl0ZW1zID0gR2V0TGlzdChpbnN0YW5jZURhdGEsICJpdGVtcyIpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0U2VsZWN0PHN0cmluZz4oKSAtIGV4dHJhY3QgbmFtZXMKICAgICAgICAgICAgdmFyIG5hbWVzID0gTGlzdFNlbGVjdDxzdHJpbmc+KGl0ZW1zLCB4ID0+IChzdHJpbmcpeC5uYW1lKTsKCiAgICAgICAgICAgIC8vIFRlc3QgTGlzdFNlbGVjdDxpbnQ+KCkgLSBleHRyYWN0IGFnZXMKICAgICAgICAgICAgdmFyIGFnZXMgPSBMaXN0U2VsZWN0PGludD4oaXRlbXMsIHggPT4gKGludCl4LmFnZSk7CgogICAgICAgICAgICAvLyBUZXN0IExpc3RTZWxlY3Q8c3RyaW5nPigpIHdpdGggdHJhbnNmb3JtYXRpb24KICAgICAgICAgICAgdmFyIGxhYmVscyA9IExpc3RTZWxlY3Q8c3RyaW5nPihpdGVtcywgeCA9PiAkInt4Lm5hbWV9ICh7eC5zdGF0dXN9KSIpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0U2VsZWN0IG9uIGVtcHR5IGxpc3QgLSBzaG91bGQgcmV0dXJuIGVtcHR5IGxpc3QKICAgICAgICAgICAgdmFyIGVtcHR5UmVzdWx0ID0gTGlzdFNlbGVjdDxzdHJpbmc+KENyZWF0ZUxpc3QoKSwgeCA9PiAoc3RyaW5nKXgubmFtZSk7CgogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGlzdFNlbGVjdDogezB9IG5hbWVzLCB7MX0gYWdlcyIsIGFyZ3M6IG5ldyBvYmplY3RbXSB7IG5hbWVzLkNvdW50LCBhZ2VzLkNvdW50IH0pOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImxpc3Qtc2VsZWN0LXN1Y2Nlc3MiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGxpc3RTZWxlY3RSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBuYW1lcyA9IG5hbWVzLAogICAgICAgICAgICAgICAgICAgICAgICBhZ2VzID0gYWdlcywKICAgICAgICAgICAgICAgICAgICAgICAgbGFiZWxzID0gbGFiZWxzLAogICAgICAgICAgICAgICAgICAgICAgICBuYW1lc0NvdW50ID0gbmFtZXMuQ291bnQsCiAgICAgICAgICAgICAgICAgICAgICAgIGFnZXNDb3VudCA9IGFnZXMuQ291bnQsCiAgICAgICAgICAgICAgICAgICAgICAgIGVtcHR5U2VsZWN0Q291bnQgPSBlbXB0eVJlc3VsdC5Db3VudCwKICAgICAgICAgICAgICAgICAgICAgICAgc2VsZWN0U3RyaW5nV29ya2VkID0gbmFtZXMuQ291bnQgPT0gMyAmJiBuYW1lc1swXSA9PSAiQWxpY2UiLAogICAgICAgICAgICAgICAgICAgICAgICBzZWxlY3RJbnRXb3JrZWQgPSBhZ2VzLkNvdW50ID09IDMgJiYgYWdlc1swXSA9PSAzMCwKICAgICAgICAgICAgICAgICAgICAgICAgc2VsZWN0VHJhbnNmb3JtV29ya2VkID0gbGFiZWxzLkNvdW50ID09IDMsCiAgICAgICAgICAgICAgICAgICAgICAgIGVtcHR5U2VsZWN0V29ya2VkID0gZW1wdHlSZXN1bHQuQ291bnQgPT0gMAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29sbGVjdGlvbi1vYmplY3QtdGVzdCIsICJsaXN0LXNlbGVjdCIsICJzdWNjZXNzIiB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkxpc3RTZWxlY3QgVGVzdCAtIEZhaWxlZDogezB9IiwgYXJnczogbmV3IG9iamVjdFtdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImxpc3Qtc2VsZWN0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "list-select-completed",
+            "target": "test-add-remove-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ListSelect Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "ListSelect Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-add-remove-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test ListAdd, ListRemove"
+          },
+          {
+            "language": "tr-TR",
+            "label": "ListAdd, ListRemove Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ListAddRemoveMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IExpc3RBZGQoKSwgTGlzdFJlbW92ZSgpCi8vLyBTdGFydHMgd2l0aCBBbGljZShhY3RpdmUpLCBCb2IoaW5hY3RpdmUpLCBDaGFybGllKGFjdGl2ZSkuCi8vLyBBZGRzIERpYW5hKGFjdGl2ZSkg4oaSIHJlbW92ZXMgYWxsIGluYWN0aXZlIChCb2IpIOKGkiBlbmRzIHdpdGggQWxpY2UsIENoYXJsaWUsIERpYW5hLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTGlzdEFkZFJlbW92ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkxpc3RBZGQgYW5kIExpc3RSZW1vdmUgVGVzdCAtIFN0YXJ0aW5nIik7CgogICAgICAgICAgICBvYmplY3Q/IGluc3RhbmNlRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE7CiAgICAgICAgICAgIHZhciBpdGVtcyA9IEdldExpc3QoaW5zdGFuY2VEYXRhLCAiaXRlbXMiKTsKCiAgICAgICAgICAgIHZhciBjb3VudEJlZm9yZSA9IExpc3RDb3VudChpdGVtcyk7CgogICAgICAgICAgICAvLyBUZXN0IExpc3RBZGQoKSAtIGFkZCBhIG5ldyBpdGVtCiAgICAgICAgICAgIGR5bmFtaWMgbmV3SXRlbSA9IENyZWF0ZU9iamVjdCgpOwogICAgICAgICAgICBTZXRQcm9wZXJ0eShuZXdJdGVtLCAiaWQiLCAiaXRlbS0wMDQiKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkobmV3SXRlbSwgIm5hbWUiLCAiRGlhbmEiKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkobmV3SXRlbSwgImFnZSIsIDI4KTsKICAgICAgICAgICAgU2V0UHJvcGVydHkobmV3SXRlbSwgInN0YXR1cyIsICJhY3RpdmUiKTsKCiAgICAgICAgICAgIExpc3RBZGQoaXRlbXMsIG5ld0l0ZW0pOwoKICAgICAgICAgICAgdmFyIGNvdW50QWZ0ZXJBZGQgPSBMaXN0Q291bnQoaXRlbXMpOwoKICAgICAgICAgICAgLy8gVGVzdCBMaXN0UmVtb3ZlKCkgLSByZW1vdmUgYWxsIGluYWN0aXZlIGl0ZW1zIChCb2IpCiAgICAgICAgICAgIHZhciByZW1vdmVkQ291bnQgPSBMaXN0UmVtb3ZlKGl0ZW1zLCB4ID0+IHguc3RhdHVzID09ICJpbmFjdGl2ZSIpOwoKICAgICAgICAgICAgdmFyIGNvdW50QWZ0ZXJSZW1vdmUgPSBMaXN0Q291bnQoaXRlbXMpOwoKICAgICAgICAgICAgLy8gVmVyaWZ5IG5vIGluYWN0aXZlIGl0ZW1zIHJlbWFpbgogICAgICAgICAgICB2YXIgaGFzSW5hY3RpdmVBZnRlclJlbW92ZSA9IExpc3RBbnkoaXRlbXMsIHggPT4geC5zdGF0dXMgPT0gImluYWN0aXZlIik7CgogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiQWRkL1JlbW92ZTogYmVmb3JlPXswfSwgYWZ0ZXJBZGQ9ezF9LCByZW1vdmVkPXsyfSwgYWZ0ZXJSZW1vdmU9ezN9IiwKICAgICAgICAgICAgICAgIGFyZ3M6IG5ldyBvYmplY3RbXSB7IGNvdW50QmVmb3JlLCBjb3VudEFmdGVyQWRkLCByZW1vdmVkQ291bnQsIGNvdW50QWZ0ZXJSZW1vdmUgfSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiYWRkLXJlbW92ZS1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBpdGVtcyA9IGl0ZW1zLAogICAgICAgICAgICAgICAgICAgIGxpc3RBZGRSZW1vdmVSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBjb3VudEJlZm9yZSA9IGNvdW50QmVmb3JlLAogICAgICAgICAgICAgICAgICAgICAgICBjb3VudEFmdGVyQWRkID0gY291bnRBZnRlckFkZCwKICAgICAgICAgICAgICAgICAgICAgICAgcmVtb3ZlZENvdW50ID0gcmVtb3ZlZENvdW50LAogICAgICAgICAgICAgICAgICAgICAgICBjb3VudEFmdGVyUmVtb3ZlID0gY291bnRBZnRlclJlbW92ZSwKICAgICAgICAgICAgICAgICAgICAgICAgaGFzSW5hY3RpdmVBZnRlclJlbW92ZSA9IGhhc0luYWN0aXZlQWZ0ZXJSZW1vdmUsCiAgICAgICAgICAgICAgICAgICAgICAgIGFkZFdvcmtlZCA9IGNvdW50QWZ0ZXJBZGQgPT0gY291bnRCZWZvcmUgKyAxLAogICAgICAgICAgICAgICAgICAgICAgICByZW1vdmVXb3JrZWQgPSByZW1vdmVkQ291bnQgPT0gMSAmJiAhaGFzSW5hY3RpdmVBZnRlclJlbW92ZQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29sbGVjdGlvbi1vYmplY3QtdGVzdCIsICJsaXN0LWFkZCIsICJsaXN0LXJlbW92ZSIsICJzdWNjZXNzIiB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgTG9nRXJyb3IoIkxpc3RBZGQvUmVtb3ZlIFRlc3QgLSBGYWlsZWQ6IHswfSIsIGFyZ3M6IG5ldyBvYmplY3RbXSB7IGV4Lk1lc3NhZ2UgfSk7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJhZGQtcmVtb3ZlLWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "add-remove-completed",
+            "target": "test-remove-prop-to-dict-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ListAdd / ListRemove Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "ListAdd / ListRemove Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-remove-prop-to-dict-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Test RemoveProperty, ToDictionary, HasProperty"
+          },
+          {
+            "language": "tr-TR",
+            "label": "RemoveProperty, ToDictionary, HasProperty Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RemovePropertyToDictionaryMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGVzdHM6IFJlbW92ZVByb3BlcnR5KCksIFRvRGljdGlvbmFyeSgpLCBIYXNQcm9wZXJ0eSgpCi8vLyBDcmVhdGVzIGEgZHluYW1pYyBvYmplY3QsIHJlbW92ZXMgYSBwcm9wZXJ0eSwgY29udmVydHMgdG8gZGljdGlvbmFyeS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFJlbW92ZVByb3BlcnR5VG9EaWN0aW9uYXJ5TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiUmVtb3ZlUHJvcGVydHkgYW5kIFRvRGljdGlvbmFyeSBUZXN0IC0gU3RhcnRpbmciKTsKCiAgICAgICAgICAgIC8vIENyZWF0ZSBhIHRlc3Qgb2JqZWN0IHdpdGggbXVsdGlwbGUgcHJvcGVydGllcwogICAgICAgICAgICBkeW5hbWljIHRlc3RPYmogPSBDcmVhdGVPYmplY3QoKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkodGVzdE9iaiwgImlkIiwgInRlc3QtMDAxIik7CiAgICAgICAgICAgIFNldFByb3BlcnR5KHRlc3RPYmosICJuYW1lIiwgIlRlc3QgT2JqZWN0Iik7CiAgICAgICAgICAgIFNldFByb3BlcnR5KHRlc3RPYmosICJ0ZW1wRmllbGQiLCAidGhpcyB3aWxsIGJlIHJlbW92ZWQiKTsKICAgICAgICAgICAgU2V0UHJvcGVydHkodGVzdE9iaiwgImtlZXBGaWVsZCIsICJ0aGlzIHN0YXlzIik7CgogICAgICAgICAgICAvLyBWZXJpZnkgcHJvcGVydHkgZXhpc3RzIGJlZm9yZSByZW1vdmFsICh1c2VzIEhhc1Byb3BlcnR5IGZyb20gU2NyaXB0QmFzZSkKICAgICAgICAgICAgdmFyIGhhZFRlbXBGaWVsZCA9IEhhc1Byb3BlcnR5KHRlc3RPYmosICJ0ZW1wRmllbGQiKTsKICAgICAgICAgICAgdmFyIGhhZEtlZXBGaWVsZCA9IEhhc1Byb3BlcnR5KHRlc3RPYmosICJrZWVwRmllbGQiKTsKCiAgICAgICAgICAgIC8vIFRlc3QgUmVtb3ZlUHJvcGVydHkoKQogICAgICAgICAgICB2YXIgcmVtb3ZlUmVzdWx0ID0gUmVtb3ZlUHJvcGVydHkodGVzdE9iaiwgInRlbXBGaWVsZCIpOwoKICAgICAgICAgICAgLy8gVmVyaWZ5IHByb3BlcnR5IGlzIGdvbmUKICAgICAgICAgICAgdmFyIGhhc1RlbXBGaWVsZEFmdGVyID0gSGFzUHJvcGVydHkodGVzdE9iaiwgInRlbXBGaWVsZCIpOwogICAgICAgICAgICB2YXIgaGFzS2VlcEZpZWxkQWZ0ZXIgPSBIYXNQcm9wZXJ0eSh0ZXN0T2JqLCAia2VlcEZpZWxkIik7CgogICAgICAgICAgICAvLyBUZXN0IFJlbW92ZVByb3BlcnR5KCkgb24gbm9uLWV4aXN0ZW50IHByb3BlcnR5IOKGkiBmYWxzZQogICAgICAgICAgICB2YXIgcmVtb3ZlTm9uRXhpc3RlbnQgPSBSZW1vdmVQcm9wZXJ0eSh0ZXN0T2JqLCAiZG9lc05vdEV4aXN0Iik7CgogICAgICAgICAgICAvLyBUZXN0IFRvRGljdGlvbmFyeSgpCiAgICAgICAgICAgIHZhciBkaWN0ID0gVG9EaWN0aW9uYXJ5KHRlc3RPYmopOwogICAgICAgICAgICB2YXIgZGljdEhhc0lkID0gZGljdC5Db250YWluc0tleSgiaWQiKTsKICAgICAgICAgICAgdmFyIGRpY3RIYXNOYW1lID0gZGljdC5Db250YWluc0tleSgibmFtZSIpOwogICAgICAgICAgICB2YXIgZGljdEhhc1RlbXAgPSBkaWN0LkNvbnRhaW5zS2V5KCJ0ZW1wRmllbGQiKTsKICAgICAgICAgICAgdmFyIGRpY3RIYXNLZWVwID0gZGljdC5Db250YWluc0tleSgia2VlcEZpZWxkIik7CgogICAgICAgICAgICAvLyBUZXN0IFRvRGljdGlvbmFyeSgpIHdpdGggbnVsbCDihpIgZW1wdHkgZGljdGlvbmFyeQogICAgICAgICAgICB2YXIgZW1wdHlEaWN0ID0gVG9EaWN0aW9uYXJ5KG51bGwpOwoKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIlJlbW92ZVByb3BlcnR5OiByZW1vdmVkPXswfSwgZGljdENvdW50PXsxfSIsIGFyZ3M6IG5ldyBvYmplY3RbXSB7IHJlbW92ZVJlc3VsdCwgZGljdC5Db3VudCB9KTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJyZW1vdmUtdG8tZGljdC1zdWNjZXNzIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICByZW1vdmVUb0RpY3RSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlLAogICAgICAgICAgICAgICAgICAgICAgICBoYWRUZW1wRmllbGRCZWZvcmUgPSBoYWRUZW1wRmllbGQsCiAgICAgICAgICAgICAgICAgICAgICAgIGhhZEtlZXBGaWVsZEJlZm9yZSA9IGhhZEtlZXBGaWVsZCwKICAgICAgICAgICAgICAgICAgICAgICAgcmVtb3ZlUHJvcGVydHlSZXN1bHQgPSByZW1vdmVSZXN1bHQsCiAgICAgICAgICAgICAgICAgICAgICAgIGhhc1RlbXBGaWVsZEFmdGVyUmVtb3ZlID0gaGFzVGVtcEZpZWxkQWZ0ZXIsCiAgICAgICAgICAgICAgICAgICAgICAgIGhhc0tlZXBGaWVsZEFmdGVyUmVtb3ZlID0gaGFzS2VlcEZpZWxkQWZ0ZXIsCiAgICAgICAgICAgICAgICAgICAgICAgIHJlbW92ZU5vbkV4aXN0ZW50UmV0dXJuc0ZhbHNlID0gIXJlbW92ZU5vbkV4aXN0ZW50LAogICAgICAgICAgICAgICAgICAgICAgICBkaWN0Q291bnQgPSBkaWN0LkNvdW50LAogICAgICAgICAgICAgICAgICAgICAgICBkaWN0SGFzSWQgPSBkaWN0SGFzSWQsCiAgICAgICAgICAgICAgICAgICAgICAgIGRpY3RIYXNOYW1lID0gZGljdEhhc05hbWUsCiAgICAgICAgICAgICAgICAgICAgICAgIGRpY3RSZW1vdmVkVGVtcEZpZWxkID0gIWRpY3RIYXNUZW1wLAogICAgICAgICAgICAgICAgICAgICAgICBkaWN0S2VwdEtlZXBGaWVsZCA9IGRpY3RIYXNLZWVwLAogICAgICAgICAgICAgICAgICAgICAgICBudWxsVG9EaWN0UmV0dXJuc0VtcHR5ID0gZW1wdHlEaWN0LkNvdW50ID09IDAsCiAgICAgICAgICAgICAgICAgICAgICAgIHJlbW92ZVByb3BlcnR5V29ya2VkID0gcmVtb3ZlUmVzdWx0ICYmICFoYXNUZW1wRmllbGRBZnRlciAmJiBoYXNLZWVwRmllbGRBZnRlciwKICAgICAgICAgICAgICAgICAgICAgICAgdG9EaWN0aW9uYXJ5V29ya2VkID0gZGljdEhhc0lkICYmIGRpY3RIYXNOYW1lICYmICFkaWN0SGFzVGVtcCAmJiBkaWN0SGFzS2VlcAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiY29sbGVjdGlvbi1vYmplY3QtdGVzdCIsICJyZW1vdmUtcHJvcGVydHkiLCAidG8tZGljdGlvbmFyeSIsICJoYXMtcHJvcGVydHkiLCAic3VjY2VzcyIgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0Vycm9yKCJSZW1vdmVQcm9wZXJ0eS9Ub0RpY3Rpb25hcnkgVGVzdCAtIEZhaWxlZDogezB9IiwgYXJnczogbmV3IG9iamVjdFtdIHsgZXguTWVzc2FnZSB9KTsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInJlbW92ZS10by1kaWN0LWVycm9yIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9IGV4Lk1lc3NhZ2UgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "remove-prop-to-dict-completed",
+            "target": "test-completed-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "RemoveProperty / ToDictionary Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "RemoveProperty / ToDictionary Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "test-completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "All Tests Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tüm Testler Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

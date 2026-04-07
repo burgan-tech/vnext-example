@@ -1,0 +1,269 @@
+{
+  "key": "account-opening-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-opening",
+    "master-schema",
+    "role-visibility",
+    "demand-deposit"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://schemas.vnext.com/banking/account-opening-master.json",
+      "title": "Account Opening Workflow Master Schema",
+      "description": "Master schema for account-opening instance data with field-level visibility (x-roles). Used by function response filtering per request header role.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "initial": {
+          "type": "object",
+          "description": "Initial request/session data",
+          "additionalProperties": true,
+          "properties": {
+            "session": {
+              "type": "string",
+              "description": "Session identifier"
+            },
+            "requestId": {
+              "type": "string",
+              "description": "Request correlation ID",
+              "roles": [
+                { "role": "morph-idm.maker", "grant": "allow" },
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            }
+          }
+        },
+        "currency": {
+          "type": "string",
+          "description": "Account currency"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "User confirmation flag"
+        },
+        "branchCode": {
+          "type": "string",
+          "description": "Branch code",
+          "roles": [
+                { "role": "$PreviousUser", "grant": "allow" }
+              ]
+        },
+        "accountName": {
+          "type": "string",
+          "description": "Account name/alias",
+          "roles": [
+                { "role": "$InstanceStarter", "grant": "allow" }
+              ]
+        },
+        "accountType": {
+          "type": "string",
+          "description": "Account type (e.g. demand-deposit)"
+        },
+        "userSession": {
+          "type": "object",
+          "description": "User/session context; restricted to approver and above",
+          "additionalProperties": true,
+          "properties": {
+            "userId": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "deviceId": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "ipAddress": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "userAgent": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            }
+          }
+        },
+        "notifications": {
+          "type": "object",
+          "description": "Notification preferences",
+          "additionalProperties": true,
+          "properties": {
+            "smsNotifications": { "type": "boolean" },
+            "pushNotifications": { "type": "boolean" },
+            "emailNotifications": { "type": "boolean" }
+          }
+        },
+        "termsAccepted": {
+          "type": "boolean"
+        },
+        "accountPurpose": {
+          "type": "string"
+        },
+        "accountSummary": {
+          "type": "object",
+          "description": "Summary of created account",
+          "additionalProperties": true,
+          "properties": {
+            "iban": { "type": "string" },
+            "status": { "type": "string" },
+            "currency": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "accountType": { "type": "string" },
+            "accountNumber": { "type": "string" }
+          }
+        },
+        "initialDeposit": {
+          "type": "number",
+          "description": "Initial deposit amount"
+        },
+        "accountCreation": {
+          "type": "object",
+          "description": "Full account creation result; internal IDs and limits restricted",
+          "additionalProperties": true,
+          "properties": {
+            "iban": { "type": "string" },
+            "limits": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "maximumBalance": { "type": "number" },
+                "minimumBalance": { "type": "number" },
+                "dailyTransactionLimit": { "type": "number" },
+                "monthlyTransactionLimit": { "type": "number" }
+              },
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "status": { "type": "string" },
+            "success": { "type": "boolean" },
+            "currency": { "type": "string" },
+            "isActive": { "type": "boolean" },
+            "services": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "accountId": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.maker", "grant": "allow" },
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "branchCode": { "type": "string" },
+            "accountType": { "type": "string" },
+            "accountNumber": { "type": "string" },
+            "coreBankingId": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "currentBalance": { "type": "number" },
+            "availableBalance": { "type": "number" },
+            "creationReference": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "debitCardRequested": { "type": "boolean" },
+            "mobileBankingEnabled": { "type": "boolean" },
+            "onlineBankingEnabled": { "type": "boolean" }
+          }
+        },
+        "policyValidation": {
+          "type": "object",
+          "description": "Policy/compliance validation result; internal details restricted",
+          "additionalProperties": true,
+          "properties": {
+            "passed": { "type": "boolean" },
+            "approvedBy": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "validatedAt": { "type": "string", "format": "date-time" },
+            "validationId": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "accountLimits": {
+              "type": "object",
+              "additionalProperties": true,
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "approvalLevel": {
+              "type": "string",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "policyVersion": { "type": "string" },
+            "validationScore": {
+              "type": "number",
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "complianceChecks": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "amlCompliant": { "type": "boolean" },
+                "kycCompliant": { "type": "boolean" },
+                "riskAssessment": { "type": "string" },
+                "sanctionsCheck": { "type": "boolean" }
+              },
+              "roles": [
+                { "role": "morph-idm.approver", "grant": "allow" },
+                { "role": "morph-idm.manager", "grant": "allow" }
+              ]
+            },
+            "additionalRequirements": {
+              "type": "array",
+              "items": {}
+            }
+          }
+        },
+        "privacyPolicyAccepted": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

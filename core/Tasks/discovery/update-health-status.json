@@ -1,0 +1,27 @@
+{
+  "key": "update-health-status",
+  "flow": "sys-tasks",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "domain",
+    "redis",
+    "health-check",
+    "update"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "{{discoveryDaprUrl}/v1.0/state/vnext-execution-state",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 10,
+      "validateSsl": false
+    }
+  }
+}
+

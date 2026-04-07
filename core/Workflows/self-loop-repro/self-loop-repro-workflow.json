@@ -1,0 +1,252 @@
+{
+  "key": "self-loop-repro-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "self-loop-repro",
+    "auto-transition",
+    "target-self",
+    "rule-invalidation",
+    "repro"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Self-Loop Rule Invalidation Repro Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Self-Loop Kural Geçersizleştirme Repro Akışı"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "entry-state",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Başlat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/StartMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdGFydCBNYXBwaW5nIC0gTWluaW1hbCBpbml0IGZvciBzZWxmLWxvb3AgcmVwcm8gd29ya2Zsb3cKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YXJ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgS2V5ID0gInN0YXJ0ZWQiLAogICAgICAgICAgICBEYXRhID0gbmV3IHsgCiAgICAgICAgICAgICAgICBzdGFydGVkQXQgPSBEYXRlVGltZS5VdGNOb3csIAogICAgICAgICAgICAgICAgcmVwcm8gPSAic2VsZi1sb29wLXJ1bGUtaW52YWxpZGF0aW9uIiwKICAgICAgICAgICAgICAgIGNvbmRpdGlvbiA9IDEKICAgICAgICAgICAgfQogICAgICAgIH07CiAgICB9Cn0K"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "entry-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Entry State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Giriş Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "go-to-loop",
+            "target": "loop-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Go to Loop State"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Döngü Durumuna Git"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "loop-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Loop State (auto target $self + onExecutionTask -> rule invalidated, no 2nd loop)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Döngü Durumu (auto target $self + onExecutionTask -> kural geçersiz, 2. döngü yok)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-self-loop",
+            "target": "$self",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Self-Loop (rule invalidated after onExecutionTask)"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik Self-Loop (onExecutionTask sonrası kural geçersiz)"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFsd2F5cyBUcnVlIFJ1bGUgLSBVc2VkIGZvciBhdXRvIHRyYW5zaXRpb25zIHRoYXQgc2hvdWxkIGFsd2F5cyBwcm9jZWVkIChyZXBybzogaW52YWxpZGF0ZWQgd2hlbiBvbkV4ZWN1dGlvblRhc2sgdGFyZ2V0IGlzIHNlbGYpCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBjb250ZXh0Lkluc3RhbmNlLkRhdGEuY29uZGl0aW9uID09IDE7CiAgICB9Cn0K"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/SelfLoopOnExecutionMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTZWxmLWxvb3AgYXV0byB0cmFuc2l0aW9uIG9uRXhlY3V0aW9uVGFzayAtIHRhcmdldCBpcyBzYW1lIHN0YXRlICgkc2VsZikuCi8vLyBSZXByb2R1Y2VzIGNhc2Ugd2hlcmUgdGhpcyBpbnZhbGlkYXRlcyB0aGUgcnVsZSBzbyB0aGUgc3RhdGUgZG9lcyBub3QgbG9vcCBhIHNlY29uZCB0aW1lLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2VsZkxvb3BPbkV4ZWN1dGlvbk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIEtleSA9ICJzZWxmLWxvb3AtdGFzay1kb25lIiwKICAgICAgICAgICAgRGF0YSA9IG5ldyB7IAogICAgICAgICAgICAgICAgZXhlY3V0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywgCiAgICAgICAgICAgICAgICBub3RlID0gIm9uRXhlY3V0aW9uVGFzayB0YXJnZXQgaXMgc2VsZiAtPiBydWxlIGludmFsaWRhdGVkLCBubyAybmQgbG9vcCIsCiAgICAgICAgICAgICAgICBjb25kaXRpb24gPSAwCiAgICAgICAgICAgIH0KICAgICAgICB9OwogICAgfQp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "proceed",
+            "target": "completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Proceed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Devam Et"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "reject",
+            "target": "cancelled",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Cancel"
+              },
+              {
+                "language": "tr-TR",
+                "label": "İptal"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed",
+        "stateType": 3,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "cancelled",
+        "stateType": 3,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          },
+          {
+            "language": "tr-TR",
+            "label": "İptal Edildi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

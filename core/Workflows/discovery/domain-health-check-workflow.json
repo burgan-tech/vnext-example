@@ -1,0 +1,569 @@
+{
+  "key": "domain-health-check",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "domain",
+    "health-check",
+    "api",
+    "monitoring",
+    "scheduled",
+    "pagination"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Domain Health Check Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Domain Sağlık Kontrolü İş Akışı"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-health-check",
+      "target": "initial",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Health Check"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Sağlık Kontrolünü Başlat"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "initial",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Initial"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Başlangıç"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-fetch-domains",
+            "target": "fetch-domains",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Fetch Domains"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Domainleri Getir"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/InitialTransitionRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEluaXRpYWwgVHJhbnNpdGlvbiBSdWxlIC0gQWx3YXlzIGFsbG93cyB0cmFuc2l0aW9uIGZyb20gaW5pdGlhbCBzdGF0ZQovLy8gVGhpcyBydWxlIGFsd2F5cyByZXR1cm5zIHRydWUgdG8gYWxsb3cgYXV0b21hdGljIHRyYW5zaXRpb24gZnJvbSBpbml0aWFsIHN0YXRlCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJbml0aWFsVHJhbnNpdGlvblJ1bGUgOiBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIC8vIEFsd2F5cyBhbGxvdyB0cmFuc2l0aW9uIGZyb20gaW5pdGlhbCBzdGF0ZQogICAgICAgICAgICAvLyBJbml0aWFsIHN0YXRlIGlzIHRoZSBlbnRyeSBwb2ludCwgc28gdHJhbnNpdGlvbiBzaG91bGQgYWx3YXlzIHByb2NlZWQKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICAvLyBPbiBlcnJvciwgc3RpbGwgYWxsb3cgdHJhbnNpdGlvbiB0byBwcmV2ZW50IHdvcmtmbG93IGZyb20gZ2V0dGluZyBzdHVjawogICAgICAgICAgICByZXR1cm4gdHJ1ZTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "fetch-domains",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Fetch Domains"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Domainleri Getir"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "domains-fetched",
+            "target": "process-page",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Domains Fetched"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Domainler Getirildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/DomainsFetchedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIERvbWFpbnMgRmV0Y2hlZCBSdWxlIC0gQ2hlY2tzIGlmIGRvbWFpbnMgd2VyZSBzdWNjZXNzZnVsbHkgZmV0Y2hlZAovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRG9tYWluc0ZldGNoZWRSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICAvLyBBbHdheXMgcmV0dXJuIHRydWUgLSBtYXBwaW5nIGhhbmRsZXMgdGhlIGxvZ2ljIHZpYSBLZXkKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgICAgfQogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "fetch-failed",
+            "target": "schedule-next-run",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Fetch Failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Getirme Başarısız"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/FetchFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEZldGNoIEZhaWxlZCBSdWxlIC0gQ2hlY2tzIGlmIGZldGNoIGZhaWxlZAovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmV0Y2hGYWlsZWRSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICAvLyBBbHdheXMgcmV0dXJuIHRydWUgLSBtYXBwaW5nIGhhbmRsZXMgdGhlIGxvZ2ljIHZpYSBLZXkKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgICAgfQogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "process-page",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Process Page"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Sayfayı İşle"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-check-health",
+            "target": "check-domain-health",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - To Check Health"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Sağlık Kontrolüne"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/ToCheckHealthRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUbyBDaGVjayBIZWFsdGggUnVsZSAtIENoZWNrcyBpZiBzaG91bGQgcHJvY2VlZCB0byBoZWFsdGggY2hlY2sKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFRvQ2hlY2tIZWFsdGhSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBpZiAoY29udGV4dD8uSW5zdGFuY2U/LkRhdGEgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKCiAgICAgICAgICAgIHZhciBwZW5kaW5nRG9tYWlucyA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5wZW5kaW5nRG9tYWlucyBhcyBMaXN0PG9iamVjdD47CiAgICAgICAgICAgIHJldHVybiBwZW5kaW5nRG9tYWlucyAhPSBudWxsICYmIHBlbmRpbmdEb21haW5zLkNvdW50ID4gMDsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbikKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBmYWxzZTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "no-domains",
+            "target": "check-pagination",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - No Domains"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Domain Yok"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/NoDomainsRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBObyBEb21haW5zIFJ1bGUgLSBDaGVja3MgaWYgbm8gZG9tYWlucyB0byBwcm9jZXNzCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBOb0RvbWFpbnNSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBpZiAoY29udGV4dD8uSW5zdGFuY2U/LkRhdGEgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHJldHVybiB0cnVlOwoKICAgICAgICAgICAgdmFyIHBlbmRpbmdEb21haW5zID0gY29udGV4dC5JbnN0YW5jZS5EYXRhLnBlbmRpbmdEb21haW5zIGFzIExpc3Q8b2JqZWN0PjsKICAgICAgICAgICAgcmV0dXJuIHBlbmRpbmdEb21haW5zID09IG51bGwgfHwgcGVuZGluZ0RvbWFpbnMuQ291bnQgPT0gMDsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbikKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiB0cnVlOwogICAgICAgIH0KICAgIH0KfQoK"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "check-domain-health",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Check Domain Health"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Domain Sağlığını Kontrol Et"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "check-health-endpoint",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/CheckDomainHealthMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5MaW5xOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLy8gPHN1bW1hcnk+Ci8vLyBDaGVjayBEb21haW4gSGVhbHRoIE1hcHBpbmcgLSBDaGVja3MgaGVhbHRoIGZvciBvbmUgZG9tYWluIGF0IGEgdGltZSAoc2VxdWVudGlhbCBwcm9jZXNzaW5nKQovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQ2hlY2tEb21haW5IZWFsdGhNYXBwaW5nIDogSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGh0dHBUYXNrID0gdGFzayBhcyBIdHRwVGFzazsKICAgICAgICAgICAgaWYgKGh0dHBUYXNrID09IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYW4gSHR0cFRhc2siKTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gR2V0IGN1cnJlbnQgZG9tYWluIGZyb20gcGVuZGluZ0RvbWFpbnMgYXJyYXkgdXNpbmcgY3VycmVudERvbWFpbkluZGV4CiAgICAgICAgICAgIHZhciBwZW5kaW5nRG9tYWlucyA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnBlbmRpbmdEb21haW5zIGFzIExpc3Q8b2JqZWN0PjsKICAgICAgICAgICAgdmFyIGN1cnJlbnREb21haW5JbmRleCA9IENvbnZlcnQuVG9JbnQzMihjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5jdXJyZW50RG9tYWluSW5kZXggPz8gMCk7CgogICAgICAgICAgICBpZiAocGVuZGluZ0RvbWFpbnMgPT0gbnVsbCB8fCBjdXJyZW50RG9tYWluSW5kZXggPj0gcGVuZGluZ0RvbWFpbnMuQ291bnQpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgS2V5ID0gInBhZ2UtY29tcGxldGUiLAogICAgICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9ICJObyBtb3JlIGRvbWFpbnMgdG8gcHJvY2VzcyIgfQogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIEdldCBjdXJyZW50IGRvbWFpbgogICAgICAgICAgICB2YXIgY3VycmVudERvbWFpbiA9IHBlbmRpbmdEb21haW5zW2N1cnJlbnREb21haW5JbmRleF0gYXMgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgICAgIGlmIChjdXJyZW50RG9tYWluID09IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgS2V5ID0gInBhZ2UtY29tcGxldGUiLAogICAgICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBlcnJvciA9ICJJbnZhbGlkIGRvbWFpbiBkYXRhIiB9CiAgICAgICAgICAgICAgICB9KTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgdmFyIGhlYWx0aFVybCA9IGN1cnJlbnREb21haW4uQ29udGFpbnNLZXkoImhlYWx0aFVybCIpID8gY3VycmVudERvbWFpblsiaGVhbHRoVXJsIl0/LlRvU3RyaW5nKCkgOiBudWxsOwoKICAgICAgICAgICAgaWYgKHN0cmluZy5Jc051bGxPckVtcHR5KGhlYWx0aFVybCkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgS2V5ID0gImhlYWx0aC1jaGVjay1lcnJvciIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gIkhlYWx0aCBVUkwgaXMgbWlzc2luZyIgfQogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIFNldCB0aGUgaGVhbHRoIFVSTCBmb3IgdGhlIEhUVFAgcmVxdWVzdAogICAgICAgICAgICBodHRwVGFzay5TZXRVcmwoaGVhbHRoVXJsKTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImhlYWx0aC1jaGVjay1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBzdGF0dXNDb2RlID0gY29udGV4dC5Cb2R5Py5zdGF0dXNDb2RlID8/IDUwMDsKICAgICAgICAgICAgdmFyIHBlbmRpbmdEb21haW5zID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGVuZGluZ0RvbWFpbnMgYXMgTGlzdDxvYmplY3Q+ID8/IG5ldyBMaXN0PG9iamVjdD4oKTsKICAgICAgICAgICAgdmFyIGN1cnJlbnREb21haW5JbmRleCA9IENvbnZlcnQuVG9JbnQzMihjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5jdXJyZW50RG9tYWluSW5kZXggPz8gMCk7CiAgICAgICAgICAgIHZhciBoZWFsdGh5RG9tYWlucyA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LkhlYWx0aHlEb21haW5zIGFzIExpc3Q8b2JqZWN0PiA/PyBuZXcgTGlzdDxvYmplY3Q+KCk7CiAgICAgICAgICAgIHZhciBub3RIZWFsdGh5RG9tYWlucyA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/Lk5vdEhlYWx0aHlEb21haW5zIGFzIExpc3Q8b2JqZWN0PiA/PyBuZXcgTGlzdDxvYmplY3Q+KCk7CgogICAgICAgICAgICAvLyBHZXQgY3VycmVudCBkb21haW4KICAgICAgICAgICAgaWYgKGN1cnJlbnREb21haW5JbmRleCA+PSBwZW5kaW5nRG9tYWlucy5Db3VudCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJwYWdlLWNvbXBsZXRlIiwKICAgICAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBIZWFsdGh5RG9tYWlucyA9IGhlYWx0aHlEb21haW5zLAogICAgICAgICAgICAgICAgICAgICAgICBOb3RIZWFsdGh5RG9tYWlucyA9IG5vdEhlYWx0aHlEb21haW5zLAogICAgICAgICAgICAgICAgICAgICAgICBwcm9jZXNzZWRBdCA9IERhdGVUaW1lLlV0Y05vdwogICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImRvbWFpbiIsICJoZWFsdGgtY2hlY2siLCAiY29tcGxldGUiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHZhciBjdXJyZW50RG9tYWluID0gcGVuZGluZ0RvbWFpbnNbY3VycmVudERvbWFpbkluZGV4XSBhcyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICAgICAgdmFyIGRvbWFpbk5hbWUgPSBjdXJyZW50RG9tYWluPy5Db250YWluc0tleSgiZG9tYWluTmFtZSIpID09IHRydWUgPyBjdXJyZW50RG9tYWluWyJkb21haW5OYW1lIl0/LlRvU3RyaW5nKCkgOiBudWxsOwoKICAgICAgICAgICAgLy8gRGV0ZXJtaW5lIGhlYWx0aCBzdGF0dXMgYmFzZWQgb24gSFRUUCBzdGF0dXMgY29kZQogICAgICAgICAgICAvLyAyMDAgPSBoZWFsdGh5LCBvdGhlcndpc2UgdW5oZWFsdGh5CiAgICAgICAgICAgIGJvb2wgaXNIZWFsdGh5ID0gc3RhdHVzQ29kZSA9PSAyMDA7CgogICAgICAgICAgICAvLyBBZGQgdG8gYXBwcm9wcmlhdGUgbGlzdAogICAgICAgICAgICBpZiAoaXNIZWFsdGh5KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBpZiAoIWhlYWx0aHlEb21haW5zLkNvbnRhaW5zKGRvbWFpbk5hbWUpKQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGhlYWx0aHlEb21haW5zLkFkZChkb21haW5OYW1lKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgICBlbHNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGlmICghbm90SGVhbHRoeURvbWFpbnMuQ29udGFpbnMoZG9tYWluTmFtZSkpCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgbm90SGVhbHRoeURvbWFpbnMuQWRkKGRvbWFpbk5hbWUpOwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CgogICAgICAgICAgICAvLyBJbmNyZW1lbnQgaW5kZXggZm9yIG5leHQgZG9tYWluCiAgICAgICAgICAgIHZhciBuZXh0SW5kZXggPSBjdXJyZW50RG9tYWluSW5kZXggKyAxOwogICAgICAgICAgICB2YXIgaGFzTW9yZURvbWFpbnMgPSBuZXh0SW5kZXggPCBwZW5kaW5nRG9tYWlucy5Db3VudDsKCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gaGFzTW9yZURvbWFpbnMgPyAiaGFzLW1vcmUtZG9tYWlucyIgOiAicGFnZS1jb21wbGV0ZSIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgY3VycmVudERvbWFpbkluZGV4ID0gbmV4dEluZGV4LAogICAgICAgICAgICAgICAgICAgIEhlYWx0aHlEb21haW5zID0gaGVhbHRoeURvbWFpbnMsCiAgICAgICAgICAgICAgICAgICAgTm90SGVhbHRoeURvbWFpbnMgPSBub3RIZWFsdGh5RG9tYWlucywKICAgICAgICAgICAgICAgICAgICBpc0hlYWx0aHkgPSBpc0hlYWx0aHksCiAgICAgICAgICAgICAgICAgICAgZG9tYWluTmFtZSA9IGRvbWFpbk5hbWUsCiAgICAgICAgICAgICAgICAgICAgc3RhdHVzQ29kZSA9IHN0YXR1c0NvZGUsCiAgICAgICAgICAgICAgICAgICAgY2hlY2tlZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgImRvbWFpbiIsICJoZWFsdGgtY2hlY2siLCBpc0hlYWx0aHkgPyAiaGVhbHRoeSIgOiAidW5oZWFsdGh5IiwgaGFzTW9yZURvbWFpbnMgPyAiY29udGludWUiIDogImNvbXBsZXRlIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJoZWFsdGgtY2hlY2stZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGVycm9yID0gIkV4Y2VwdGlvbiBkdXJpbmcgaGVhbHRoIGNoZWNrIiwKICAgICAgICAgICAgICAgICAgICBlcnJvckRlc2NyaXB0aW9uID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICBjaGVja2VkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiZG9tYWluIiwgImhlYWx0aC1jaGVjayIsICJleGNlcHRpb24iLCAiZXJyb3IiIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "has-more-domains",
+            "target": "check-domain-health",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Has More Domains (Loop)"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Daha Fazla Domain Var (Döngü)"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/HasMoreDomainsRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBIYXMgTW9yZSBEb21haW5zIFJ1bGUgLSBDaGVja3MgaWYgdGhlcmUgYXJlIG1vcmUgZG9tYWlucyB0byBwcm9jZXNzIGluIGN1cnJlbnQgcGFnZQovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSGFzTW9yZURvbWFpbnNSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBpZiAoY29udGV4dD8uSW5zdGFuY2U/LkRhdGEgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKCiAgICAgICAgICAgIHZhciBwZW5kaW5nRG9tYWlucyA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5wZW5kaW5nRG9tYWlucyBhcyBMaXN0PG9iamVjdD47CiAgICAgICAgICAgIHZhciBjdXJyZW50RG9tYWluSW5kZXggPSBDb252ZXJ0LlRvSW50MzIoY29udGV4dC5JbnN0YW5jZS5EYXRhLmN1cnJlbnREb21haW5JbmRleCA/PyAwKTsKCiAgICAgICAgICAgIGlmIChwZW5kaW5nRG9tYWlucyA9PSBudWxsKQogICAgICAgICAgICAgICAgcmV0dXJuIGZhbHNlOwoKICAgICAgICAgICAgLy8gQ2hlY2sgaWYgdGhlcmUgYXJlIG1vcmUgZG9tYWlucyB0byBwcm9jZXNzCiAgICAgICAgICAgIHJldHVybiBjdXJyZW50RG9tYWluSW5kZXggPCBwZW5kaW5nRG9tYWlucy5Db3VudDsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbikKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBmYWxzZTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "page-complete",
+            "target": "aggregate-results",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Page Complete"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Sayfa Tamamlandı"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/PageCompleteRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBQYWdlIENvbXBsZXRlIFJ1bGUgLSBDaGVja3MgaWYgY3VycmVudCBwYWdlIHByb2Nlc3NpbmcgaXMgY29tcGxldGUKLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFBhZ2VDb21wbGV0ZVJ1bGUgOiBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIGlmIChjb250ZXh0Py5JbnN0YW5jZT8uRGF0YSA9PSBudWxsKQogICAgICAgICAgICAgICAgcmV0dXJuIGZhbHNlOwoKICAgICAgICAgICAgdmFyIHBlbmRpbmdEb21haW5zID0gY29udGV4dC5JbnN0YW5jZS5EYXRhLnBlbmRpbmdEb21haW5zIGFzIExpc3Q8b2JqZWN0PjsKICAgICAgICAgICAgdmFyIGN1cnJlbnREb21haW5JbmRleCA9IENvbnZlcnQuVG9JbnQzMihjb250ZXh0Lkluc3RhbmNlLkRhdGEuY3VycmVudERvbWFpbkluZGV4ID8/IDApOwogICAgICAgICAgICAKICAgICAgICAgICAgaWYgKHBlbmRpbmdEb21haW5zID09IG51bGwpCiAgICAgICAgICAgICAgICByZXR1cm4gdHJ1ZTsKCiAgICAgICAgICAgIHJldHVybiBjdXJyZW50RG9tYWluSW5kZXggPj0gcGVuZGluZ0RvbWFpbnMuQ291bnQ7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgICAgfQogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "aggregate-results",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Aggregate Results"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Sonuçları Topla"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-check-pagination",
+            "target": "check-pagination",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - To Check Pagination"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Sayfalama Kontrolüne"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/ToCheckPaginationRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFRvIENoZWNrIFBhZ2luYXRpb24gUnVsZSAtIEFsd2F5cyBhbGxvd3MgdHJhbnNpdGlvbiB0byBwYWdpbmF0aW9uIGNoZWNrCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBUb0NoZWNrUGFnaW5hdGlvblJ1bGUgOiBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiB0cnVlOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uKQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIGZhbHNlOwogICAgICAgIH0KICAgIH0KfQoK"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "check-pagination",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Check Pagination"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Sayfalamayı Kontrol Et"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "has-next",
+            "target": "fetch-next-page",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Has Next Page"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Sonraki Sayfa Var"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/CheckPaginationRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIENoZWNrIFBhZ2luYXRpb24gUnVsZSAtIENoZWNrcyBpZiBuZXh0IGxpbmsgZXhpc3RzIGluIHJlc3BvbnNlCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBDaGVja1BhZ2luYXRpb25SdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBpZiAoY29udGV4dD8uSW5zdGFuY2U/LkRhdGEgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKCiAgICAgICAgICAgIHZhciBuZXh0UGFnZVVybCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5uZXh0UGFnZVVybD8uVG9TdHJpbmcoKTsKCiAgICAgICAgICAgIC8vIFJldHVybiB0cnVlIGlmIG5leHQgbGluayBpcyBub3QgbnVsbC9lbXB0eQogICAgICAgICAgICByZXR1cm4gIXN0cmluZy5Jc051bGxPckVtcHR5KG5leHRQYWdlVXJsKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbikKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBmYWxzZTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "no-next",
+            "target": "schedule-next-run",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - No Next Page"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Sonraki Sayfa Yok"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/NoNextRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIE5vIE5leHQgUnVsZSAtIENoZWNrcyBpZiB0aGVyZSBpcyBubyBuZXh0IHBhZ2UgKG9wcG9zaXRlIG9mIENoZWNrUGFnaW5hdGlvblJ1bGUpCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBOb05leHRSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICBpZiAoY29udGV4dD8uSW5zdGFuY2U/LkRhdGEgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHJldHVybiB0cnVlOwoKICAgICAgICAgICAgdmFyIG5leHRQYWdlVXJsID0gY29udGV4dC5JbnN0YW5jZS5EYXRhLm5leHRQYWdlVXJsPy5Ub1N0cmluZygpOwogICAgICAgICAgICByZXR1cm4gc3RyaW5nLklzTnVsbE9yRW1wdHkobmV4dFBhZ2VVcmwpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uKQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQogICAgfQp9Cgo="
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "fetch-next-page",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Fetch Next Page"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Sonraki Sayfayı Getir"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "fetch-domains-list",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/FetchNextPageMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gRmV0Y2ggTmV4dCBQYWdlIE1hcHBpbmcgLSBGZXRjaGVzIG5leHQgcGFnZSB1c2luZyBuZXh0IFVSTCBmcm9tIHJlc3BvbnNlCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGZXRjaE5leHRQYWdlTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBodHRwVGFzayA9IHRhc2sgYXMgSHR0cFRhc2s7CiAgICAgICAgICAgIGlmIChodHRwVGFzayA9PSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGFuIEh0dHBUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIEdldCBuZXh0IHBhZ2UgVVJMIGZyb20gY29udGV4dAogICAgICAgICAgICB2YXIgbmV4dFBhZ2VVcmwgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5uZXh0UGFnZVVybD8uVG9TdHJpbmcoKTsKCiAgICAgICAgICAgIGlmIChzdHJpbmcuSXNOdWxsT3JFbXB0eShuZXh0UGFnZVVybCkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgS2V5ID0gIm5vLW5leHQtcGFnZSIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gIk5leHQgcGFnZSBVUkwgaXMgbWlzc2luZyIgfQogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIFNldCB0aGUgbmV4dCBwYWdlIFVSTCBmb3IgdGhlIEhUVFAgcmVxdWVzdAogICAgICAgICAgICBodHRwVGFzay5TZXRVcmwobmV4dFBhZ2VVcmwpOwoKICAgICAgICAgICAgLy8gVXBkYXRlIGN1cnJlbnRQYWdlVXJsCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImZldGNoLW5leHQtcGFnZS1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBzdGF0dXNDb2RlID0gY29udGV4dC5Cb2R5Py5zdGF0dXNDb2RlID8/IDUwMDsKICAgICAgICAgICAgdmFyIHJlc3BvbnNlRGF0YSA9IGNvbnRleHQuQm9keTsKCiAgICAgICAgICAgIC8vIFN1Y2Nlc3NmdWwgcmVzcG9uc2UgKDIwMCBPSykKICAgICAgICAgICAgaWYgKHN0YXR1c0NvZGUgPj0gMjAwICYmIHN0YXR1c0NvZGUgPCAzMDAgJiYgcmVzcG9uc2VEYXRhICE9IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIC8vIEV4dHJhY3QgaXRlbXMgYW5kIGxpbmtzIGZyb20gcmVzcG9uc2UKICAgICAgICAgICAgICAgIHZhciBpdGVtcyA9IHJlc3BvbnNlRGF0YS5pdGVtczsKICAgICAgICAgICAgICAgIHZhciBsaW5rcyA9IHJlc3BvbnNlRGF0YS5saW5rczsKICAgICAgICAgICAgICAgIHZhciBuZXh0VXJsID0gbGlua3M/Lm5leHQ/LlRvU3RyaW5nKCk7CgogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJuZXh0LXBhZ2UtZmV0Y2hlZCIsCiAgICAgICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAgICAgaXRlbXMgPSBpdGVtcywKICAgICAgICAgICAgICAgICAgICAgICAgbGlua3MgPSBsaW5rcywKICAgICAgICAgICAgICAgICAgICAgICAgbmV4dFBhZ2VVcmwgPSBuZXh0VXJsLAogICAgICAgICAgICAgICAgICAgICAgICBjdXJyZW50UGFnZVVybCA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/Lm5leHRQYWdlVXJsLAogICAgICAgICAgICAgICAgICAgICAgICBmZXRjaGVkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJkb21haW4iLCAiZmV0Y2giLCAicGFnaW5hdGlvbiIsICJzdWNjZXNzIiB9CiAgICAgICAgICAgICAgICB9OwogICAgICAgICAgICB9CiAgICAgICAgICAgIC8vIEVycm9yIHJlc3BvbnNlCiAgICAgICAgICAgIGVsc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIEtleSA9ICJmZXRjaC1uZXh0LXBhZ2UtZmFpbGVkIiwKICAgICAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBlcnJvciA9ICJGYWlsZWQgdG8gZmV0Y2ggbmV4dCBwYWdlIiwKICAgICAgICAgICAgICAgICAgICAgICAgc3RhdHVzQ29kZSA9IHN0YXR1c0NvZGUsCiAgICAgICAgICAgICAgICAgICAgICAgIHJlc3BvbnNlRGF0YSA9IHJlc3BvbnNlRGF0YSwKICAgICAgICAgICAgICAgICAgICAgICAgZmV0Y2hlZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiZG9tYWluIiwgImZldGNoIiwgInBhZ2luYXRpb24iLCAiZXJyb3IiIH0KICAgICAgICAgICAgICAgIH07CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImZldGNoLW5leHQtcGFnZS1mYWlsZWQiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGVycm9yID0gIkV4Y2VwdGlvbiBkdXJpbmcgbmV4dCBwYWdlIGZldGNoIiwKICAgICAgICAgICAgICAgICAgICBlcnJvckRlc2NyaXB0aW9uID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICBmZXRjaGVkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiZG9tYWluIiwgImZldGNoIiwgInBhZ2luYXRpb24iLCAiZXhjZXB0aW9uIiwgImVycm9yIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "next-page-fetched",
+            "target": "process-page",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto - Next Page Fetched"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Otomatik - Sonraki Sayfa Getirildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "location": "./src/NextPageFetchedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIE5leHQgUGFnZSBGZXRjaGVkIFJ1bGUgLSBDaGVja3MgaWYgbmV4dCBwYWdlIHdhcyBzdWNjZXNzZnVsbHkgZmV0Y2hlZAovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTmV4dFBhZ2VGZXRjaGVkUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgLy8gQWx3YXlzIHJldHVybiB0cnVlIC0gbWFwcGluZyBoYW5kbGVzIHRoZSBsb2dpYyB2aWEgS2V5CiAgICAgICAgICAgIHJldHVybiB0cnVlOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uKQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIGZhbHNlOwogICAgICAgIH0KICAgIH0KfQoK"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "schedule-next-run",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Schedule Next Run"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Sonraki Çalıştırmayı Planla"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "schedule-health-check",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ScheduleNextRunMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gU2NoZWR1bGUgTmV4dCBSdW4gTWFwcGluZyAtIFRyaWdnZXJzIGRvbWFpbi1oZWFsdGgtY2hlY2sgd29ya2Zsb3cgYXMgc3VicHJvY2VzcyBmb3IgbmV4dCBleGVjdXRpb24KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNjaGVkdWxlTmV4dFJ1bk1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgc3ViUHJvY2Vzc1Rhc2sgPSB0YXNrIGFzIFN1YlByb2Nlc3NUYXNrOwogICAgICAgICAgICBpZiAoc3ViUHJvY2Vzc1Rhc2sgPT0gbnVsbCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIC8vIENvbmZpZ3VyZSBzdWJwcm9jZXNzIHRvIHRyaWdnZXIgdGhlIHNhbWUgd29ya2Zsb3cKICAgICAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0S2V5KCJkb21haW4taGVhbHRoLWNoZWNrIik7CiAgICAgICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldFZlcnNpb24oIjEuMC4wIik7CgogICAgICAgICAgICAvLyBQcmVwYXJlIHN1YnByb2Nlc3MgaW5pdGlhbGl6YXRpb24gZGF0YSAoZW1wdHkgZm9yIHNjaGVkdWxlZCBydW4pCiAgICAgICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldEJvZHkobmV3IHsgfSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzY2hlZHVsZS1uZXh0LXJ1bi1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIC8vIFN1YlByb2Nlc3MgaXMgZmlyZS1hbmQtZm9yZ2V0LCBzbyB3ZSBqdXN0IHJldHVybiBzdWNjZXNzCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInNjaGVkdWxlZCIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgc2NoZWR1bGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICAgICAgbmV4dFJ1bkluID0gIjEgaG91ciIKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAiZG9tYWluIiwgInNjaGVkdWxlIiwgImhlYWx0aC1jaGVjayIsICJzdWNjZXNzIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJzY2hlZHVsZS1uZXh0LXJ1bi1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZXJyb3IgPSAiRXhjZXB0aW9uIGR1cmluZyBzY2hlZHVsaW5nIiwKICAgICAgICAgICAgICAgICAgICBlcnJvckRlc2NyaXB0aW9uID0gZXguTWVzc2FnZSwKICAgICAgICAgICAgICAgICAgICBzY2hlZHVsZWRBdCA9IERhdGVUaW1lLlV0Y05vdwogICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJkb21haW4iLCAic2NoZWR1bGUiLCAiZXhjZXB0aW9uIiwgImVycm9yIiB9CiAgICAgICAgICAgIH07CiAgICAgICAgfQogICAgfQp9Cgo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "scheduled",
+            "target": "completed",
+            "triggerType": 2,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Scheduled - Next Run"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Planlandı - Sonraki Çalıştırma"
+              }
+            ],
+            "schema": null,
+            "timer": {
+              "location": "./src/ScheduleNextRunTimerMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zLlRpbWVyOwoKLy8vIDxzdW1tYXJ5PgovLy8gU2NoZWR1bGUgTmV4dCBSdW4gVGltZXIgTWFwcGluZyAtIFJldHVybnMgdGltZXIgc2NoZWR1bGUgZm9yIDEgaG91ciBkZWxheQovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2NoZWR1bGVOZXh0UnVuVGltZXJNYXBwaW5nIDogSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIC8vIFJldHVybiB0aW1lciBzY2hlZHVsZSBmb3IgMSBob3VyIGZyb20gbm93CiAgICAgICAgICAgIHJldHVybiBUaW1lclNjaGVkdWxlLkZyb21EYXRlVGltZShEYXRlVGltZS5VdGNOb3cuQWRkTWludXRlcygzKSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24pCiAgICAgICAgewogICAgICAgICAgICAvLyBGYWxsYmFjayB0byAxIGhvdXIgb24gZXJyb3IKICAgICAgICAgICAgcmV0dXJuIFRpbWVyU2NoZWR1bGUuRnJvbURhdGVUaW1lKERhdGVUaW1lLlV0Y05vdy5BZGRNaW51dGVzKDMpKTsKICAgICAgICB9CiAgICB9Cn0KCg=="
+            },
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandı"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
