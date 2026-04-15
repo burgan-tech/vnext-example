@@ -148,7 +148,21 @@
           ]
         },
         "subFlow": null,
-        "onEntries": [],
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "get-data-from-workflow",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ParentInitialGetInstanceDataMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gUGFyZW50IEluaXRpYWwgLSBHZXQgSW5zdGFuY2UgRGF0YSBNYXBwaW5nCi8vLyBGZXRjaGVzIGluc3RhbmNlIGRhdGEgZnJvbSBhY2NvdW50LW9wZW5pbmcgd29ya2Zsb3cgb24gZW50cnkgb2YgcGFyZW50LWluaXRpYWwgc3RhdGUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQYXJlbnRJbml0aWFsR2V0SW5zdGFuY2VEYXRhTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZ2dlclRhc2sgPSAodGFzayBhcyBHZXRJbnN0YW5jZURhdGFUYXNrKSE7CgogICAgICAgIHRyaWdnZXJUYXNrLlNldEluc3RhbmNlKCI1MDA0NDA4NjE4OSIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKQogICAgICAgIHsKICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBhY2NvdW50T3BlbmluZ1NuYXBzaG90ID0gY29udGV4dC5Cb2R5LAogICAgICAgICAgICAgICAgZmV0Y2hlZEF0ID0gU3lzdGVtLkRhdGVUaW1lLlV0Y05vdwogICAgICAgICAgICB9CiAgICAgICAgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
         "onExits": [],
         "queryRoles": [
           {

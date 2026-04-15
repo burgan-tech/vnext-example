@@ -14,7 +14,7 @@
     "type": "12",
     "config": {
       "domain": "core",
-      "flow": "sys-flows",
+      "flow": "subflow-view-test-grandchild",
       "transitionName": "complete-busy-state",
       "body": {}
     }

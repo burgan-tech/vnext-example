@@ -1,0 +1,74 @@
+{
+  "collection": {
+    "name": "account-opening",
+    "description": null,
+    "color": "#6366f1"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "api/banking/policies/validate-account-opening",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n    \"validationId\": \"{{helpers.guid()}}\",\n    \"complianceChecks\": {\n      \"kycCompliant\": true,\n      \"amlCompliant\": true,\n      \"sanctionsCheck\": true,\n      \"riskAssessment\": \"low\"\n    },\n    \"accountLimits\": {\n      \"dailyTransactionLimit\": 50000,\n      \"monthlyTransactionLimit\": 500000,\n      \"minimumBalance\": 0,\n      \"maximumBalance\": 1000000\n    },\n    \"additionalRequirements\": [],\n    \"approvedBy\": \"system\",\n    \"approvalLevel\": \"automated\",\n    \"policyVersion\": \"1.0.0\",\n    \"validationScore\": {{ helpers.rand_int(85, 100) }}\n}",
+      "contentType": "application/json",
+      "description": "Validates account opening against bank policies",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.currency",
+          "conditionOperator": "regex",
+          "conditionValue": "SLV|GRS",
+          "statusCode": 403,
+          "responseBody": "{\n  \"validationId\": \"{{helpers.guid()}}\",\n  \"error\": {\n    \"message\": \"Policy validation failed\",\n    \"code\": \"policy_violation\",\n    \"description\": \"Account opening request does not meet policy requirements\"\n  },\n  \"failedChecks\": [\n    \"risk_assessment\"\n  ],\n  \"recommendations\": [\n    \"Please review your account information\",\n    \"Contact customer support for assistance\"\n  ],\n  \"canRetry\": true,\n  \"retryAfter\": 300\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/banking/accounts/create",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "",
+      "contentType": "application/json",
+      "description": "Creates a new bank account in core banking system",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.accountName",
+          "conditionOperator": "regex",
+          "conditionValue": ".+",
+          "statusCode": 201,
+          "responseBody": "{\n  \"accountId\": \"{{helpers.guid()}}\",\n  \"accountNumber\": \"{{random_account_number}}\",\n  \"iban\": \"TR{{random_number_string 24}}\",\n  \"accountType\": \"demand-deposit\",\n  \"currency\": \"{{request.json.currency}}\",\n  \"branchCode\": \"{{request.body.branchCode}}\",\n  \"status\": \"active\",\n  \"isActive\": true,\n  \"currentBalance\": {{request.body.initialDeposit}},\n  \"availableBalance\": {{request.body.initialDeposit}},\n  \"limits\": {\n    \"dailyTransactionLimit\": 50000,\n    \"monthlyTransactionLimit\": 500000,\n    \"minimumBalance\": 0,\n    \"maximumBalance\": 1000000\n  },\n  \"debitCardRequested\": false,\n  \"onlineBankingEnabled\": true,\n  \"mobileBankingEnabled\": true,\n  \"creationReference\": \"{{helpers.guid()}}\",\n  \"coreBankingId\": \"CB{{random_number_string 10}}\",\n  \"services\": [\n    \"online-banking\",\n    \"mobile-banking\",\n    \"sms-banking\"\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "body.accountName",
+          "conditionOperator": "notExists",
+          "conditionValue": "",
+          "statusCode": 400,
+          "responseBody": "{\n  \"error\": {\n    \"message\": \"Account creation failed\",\n    \"code\": \"validation_error\",\n    \"description\": \"Account data validation failed\"\n  },\n  \"failureReason\": \"invalid_account_name\",\n  \"failureCategory\": \"validation_error\",\n  \"canRetry\": true,\n  \"retryAfter\": 300,\n  \"maxRetries\": 3,\n  \"recommendations\": [\n    \"Please check your account information and try again\",\n    \"Account name must be between 1-50 characters\"\n  ],\n  \"supportReference\": \"{{helpers.guid()}}\"\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    }
+  ]
+}

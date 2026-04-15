@@ -12,7 +12,7 @@ public class FunctionValidatePoliciesMapping : IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
-        var httpTask = task as HttpTask;
+        var httpTask = task as HttpTask;;;
         if (httpTask == null)
             return Task.FromResult(new ScriptResponse());
 

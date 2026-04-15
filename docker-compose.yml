@@ -1,0 +1,39 @@
+networks:
+  bbt-development:
+    external: true
+
+services:
+  mocklab:
+    image: ghcr.io/burgan-tech/mocklab:latest
+    container_name: mocklab
+    ports:
+      - "3001:5000"
+    environment:
+      Mocklab__SeedDirectory: /app/seed
+    volumes:
+      - ./etc/docker/config/seed:/app/seed
+    networks:
+      - bbt-development
+
+  mocklab-dapr:
+    image: daprio/daprd:latest
+    container_name: mocklab-dapr
+    command:
+      - ./daprd
+      - --app-id
+      - mocklab
+      - --app-port
+      - "5000"
+      - --dapr-http-port
+      - "3500"
+      - --dapr-grpc-port
+      - "50001"
+      - --config
+      - /etc/dapr/config.yaml
+      - --log-level
+      - info
+    volumes:
+      - ./etc/dapr:/etc/dapr
+    network_mode: "service:mocklab"
+    depends_on:
+      - mocklab
