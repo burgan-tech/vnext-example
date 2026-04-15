@@ -16,7 +16,7 @@
     "task": {
       "order": 1,
       "task": {
-        "key": "user-session",
+        "key": "script-task",
         "domain": "core",
         "version": "1.0.0",
         "flow": "sys-tasks"

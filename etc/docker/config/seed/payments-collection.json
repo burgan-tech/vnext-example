@@ -1,0 +1,259 @@
+{
+  "collection": {
+    "name": "payments",
+    "description": null,
+    "color": "#a855f7"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "/api/payments/schedules",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "",
+      "contentType": "application/json",
+      "description": "Save Payment Configuration",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.userId",
+          "conditionOperator": "exists",
+          "conditionValue": "",
+          "statusCode": 201,
+          "responseBody": "{\n  \"success\": true,\n  \"scheduleId\": \"{{helpers.guid()}}\",\n  \"userId\": \"{{body.userId}}\",\n  \"amount\": {{body.amount}},\n  \"currency\": \"{{body.currency}}\",\n  \"frequency\": \"{{body.frequency}}\",\n  \"startDate\": \"{{body.startDate}}\",\n  \"endDate\": \"{{body.endDate}}\",\n  \"paymentMethodId\": \"{{body.paymentMethodId}}\",\n  \"description\": \"{{body.description}}\",\n  \"recipientId\": \"{{body.recipientId}}\",\n  \"isAutoRetry\": {{body.isAutoRetry}},\n  \"maxRetries\": {{body.maxRetries}},\n  \"status\": \"inactive\",\n  \"nextPaymentDate\": \"{{date_time_add_fmt (now) 1 'days' 'yyyy-MM-dd HH:mm'}}\",\n  \"createdAt\": \"{{now}}\",\n  \"maxPayments\": 4\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "body.userId",
+          "conditionOperator": "notExists",
+          "conditionValue": "",
+          "statusCode": 400,
+          "responseBody": "{\n  \"success\": false,\n  \"error\": \"Invalid payment configuration\",\n  \"errorCode\": \"invalid_payment_config\",\n  \"details\": \"Missing or invalid parameters\"\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "/api/payments/process",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "",
+      "contentType": "application/json",
+      "description": "Process Payment ",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.amount",
+          "conditionOperator": "greaterThan",
+          "conditionValue": "0",
+          "statusCode": 200,
+          "responseBody": "{\n  \"success\": true,\n  \"transactionId\": \"txn_{{helpers.guid()}}\",\n  \"scheduleId\": \"{{request.body.scheduleId}}\",\n  \"amount\": {{request.body.amount}},\n  \"currency\": \"{{request.body.currency}}\",\n  \"paymentMethod\": \"card\",\n  \"processedAt\": \"{{now}}\",\n  \"fees\": {\n    \"amount\": {{faker 'number.float' 0.5 5.0 2}},\n    \"currency\": \"{{request.body.currency}}\"\n  },\n  \"status\": \"completed\"\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "body.amount",
+          "conditionOperator": "equals",
+          "conditionValue": "1000",
+          "statusCode": 402,
+          "responseBody": "{\n  \"success\": false,\n  \"error\": \"Insufficient balance\",\n  \"errorCode\": \"insufficient_funds\",\n  \"amount\": {{request.body.amount}},\n  \"availableBalance\": {{faker 'number.float' 0 100 2}}\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "PATCH",
+      "route": "/api/payments/schedules/{scheduleId}/activate",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "",
+      "contentType": "application/json",
+      "description": "Activate Payment Schedule",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "route.scheduleId",
+          "conditionOperator": "exists",
+          "conditionValue": "",
+          "statusCode": 200,
+          "responseBody": "{\n  \"success\": true,\n  \"scheduleId\": \"{{request.route.scheduleId}}\",\n  \"status\": \"active\",\n  \"activatedAt\": \"{{now}}\",\n  \"nextPaymentDate\": \"{{date_time_add_fmt (now) 1 'months' 'yyyy-MM-dd HH:mm'}}\",\n  \"isActive\": true\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "route.scheduleId",
+          "conditionOperator": "notExists",
+          "conditionValue": "",
+          "statusCode": 404,
+          "responseBody": "{\n  \"success\": false,\n  \"error\": \"Payment plan not found.\",\n  \"errorCode\": \"schedule_not_found\",\n  \"scheduleId\": \"{{request.route.scheduleId}}\"\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "PATCH",
+      "route": "/api/payments/schedules/{scheduleId}/deactivate",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "{\n  \"success\": true,\n  \"scheduleId\": \"{{request.route.scheduleId}}\",\n  \"status\": \"deactive\",\n  \"deactivatedAt\": \"{{now}}\",\n  \"reason\": \"{{body 'reason'}}\",\n  \"isActive\": false\n}",
+      "contentType": "application/json",
+      "description": "Deactivate Payment Schedule",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "/api/payments/schedules/{scheduleId}/archive",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "{\n  \"success\": true,\n  \"scheduleId\": \"{{request.route.scheduleId}}\",\n  \"status\": \"archived\",\n  \"archivedAt\": \"{{now}}\",\n  \"completionReason\": \"{{request.body.completionReason}}\",\n  \"finalPaymentCount\": {{request.body.finalPaymentCount}}\n}",
+      "contentType": "application/json",
+      "description": "Archive Payment Record",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "PATCH",
+      "route": "/api/payments/schedules/{scheduleId}/retry",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"success\": true,\n  \"scheduleId\": \"{{request.route.scheduleId}}\",\n  \"retryCount\": {{request.body.retryCount}},\n  \"retryAt\": \"{{request.body.retryAt}}\",\n  \"maxRetries\": 3,\n  \"retriesRemaining\": {{subtract 3 (body 'retryCount'))}}\n}",
+      "contentType": "application/json",
+      "description": "Increment Retry Counter",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "/api/payments/notify/sms",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "",
+      "contentType": "application/json",
+      "description": "Send Payment Notification Sms",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.userId",
+          "conditionOperator": "exists",
+          "conditionValue": "",
+          "statusCode": 201,
+          "responseBody": "{\n  \"success\": true,\n  \"sendedAt\": \"{{now}}\"\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "body.userId",
+          "conditionOperator": "notExists",
+          "conditionValue": "",
+          "statusCode": 400,
+          "responseBody": "{\n  \"success\": false,\n  \"error\": \"Invalid payment configuration\",\n  \"errorCode\": \"invalid_payment_config\",\n  \"details\": \"Missing or invalid parameters\"\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "/api/payments/notify/push",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "",
+      "contentType": "application/json",
+      "description": "Send Payment Notification Push",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.userId",
+          "conditionOperator": "exists",
+          "conditionValue": "",
+          "statusCode": 201,
+          "responseBody": "{\n  \"success\": true,\n  \"sendedAt\": \"{{now}}\"\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "body.userId",
+          "conditionOperator": "notExists",
+          "conditionValue": "",
+          "statusCode": 400,
+          "responseBody": "{\n  \"success\": false,\n  \"error\": \"Invalid payment configuration\",\n  \"errorCode\": \"invalid_payment_config\",\n  \"details\": \"Missing or invalid parameters\"\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "GET",
+      "route": "/api/payments/users/{userId}",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "{\n  \"name\": \"{{ faker 'person.firstName' }}\",\n  \"surname\": \"{{ faker 'person.lastName' }}\",\n  \"email\": \"{{ faker 'internet.email' }}\",\n  \"phoneNumber\": \"{{ faker 'phone.number' }}\",\n  \"registeredDevices\": [\n    {\n      \"deviceId\": \"{{helpers.guid()}}\",\n      \"deviceInfo\": \"Ios 18\",\n      \"active\": true\n    }\n  ],\n  \"language\": \"{{random_language_code}}\"\n}",
+      "contentType": "application/json",
+      "description": "Get User Info",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}

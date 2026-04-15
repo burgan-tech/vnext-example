@@ -1,0 +1,50 @@
+{
+  "key": "multi-task-function-test",
+  "flow": "sys-functions",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "system",
+    "core",
+    "sys-extensions",
+    "components",
+    "users",
+    "lookup"
+  ],
+  "attributes": {
+    "scope": "I",
+    "onExecutionTasks": [
+      {
+        "order": 1,
+        "task": {
+          "key": "validate-account-policies",
+          "domain": "core",
+          "flow": "sys-tasks",
+          "version": "1.0.0"
+        },
+        "mapping": {
+          "location": "./src/FunctionValidatePoliciesMapping.csx",
+          "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGFzayAxIG1hcHBpbmcgZm9yIG11bHRpLXRhc2sgZnVuY3Rpb24gdGVzdC4KLy8vIENhbGxzIHZhbGlkYXRlLWFjY291bnQtcG9saWNpZXMgSFRUUCB0YXNrIHdpdGggaW5zdGFuY2UgZGF0YS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEZ1bmN0aW9uVmFsaWRhdGVQb2xpY2llc01hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGh0dHBUYXNrID0gdGFzayBhcyBIdHRwVGFzazs7OwogICAgICAgIGlmIChodHRwVGFzayA9PSBudWxsKQogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICAgICAgdmFyIHVzZXJTZXNzaW9uID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8udXNlclNlc3Npb247CiAgICAgICAgdmFyIGFjY291bnRUeXBlID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uYWNjb3VudFR5cGU7CgogICAgICAgIGh0dHBUYXNrLlNldEJvZHkobmV3CiAgICAgICAgewogICAgICAgICAgICB1c2VySWQgPSB1c2VyU2Vzc2lvbj8udXNlcklkLAogICAgICAgICAgICBhY2NvdW50VHlwZSA9IGFjY291bnRUeXBlID8/ICJkZW1hbmQtZGVwb3NpdCIsCiAgICAgICAgICAgIGN1cnJlbmN5ID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uY3VycmVuY3ksCiAgICAgICAgICAgIHJlcXVlc3RlZEF0ID0gRGF0ZVRpbWUuVXRjTm93CiAgICAgICAgfSk7CgogICAgICAgIGh0dHBUYXNrLlNldEhlYWRlcnMobmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PgogICAgICAgIHsKICAgICAgICAgICAgWyJDb250ZW50LVR5cGUiXSA9ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgICAgICAgWyJYLUluc3RhbmNlLUlkIl0gPSBjb250ZXh0Lkluc3RhbmNlPy5JZC5Ub1N0cmluZygpLAogICAgICAgICAgICBbIlgtUmVxdWVzdC1JZCJdID0gY29udGV4dC5IZWFkZXJzP1sieC1yZXF1ZXN0LWlkIl0gPz8gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKQogICAgICAgIH0pOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIEtleSA9ICJwb2xpY3ktY2hlY2stcmVzdWx0IiwKICAgICAgICAgICAgRGF0YSA9IGNvbnRleHQuQm9keQogICAgICAgIH0pOwogICAgfQp9Cg=="
+        }
+      },
+      {
+        "order": 2,
+        "task": {
+          "key": "get-data-from-workflow",
+          "domain": "core",
+          "flow": "sys-tasks",
+          "version": "1.0.0"
+        },
+        "mapping": {
+          "location": "./src/FunctionGetInstanceDataMapping.csx",
+          "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGFzayAyIG1hcHBpbmcgZm9yIG11bHRpLXRhc2sgZnVuY3Rpb24gdGVzdC4KLy8vIEZldGNoZXMgY3VycmVudCB3b3JrZmxvdyBpbnN0YW5jZSBkYXRhIHZpYSBHZXRJbnN0YW5jZURhdGFUYXNrLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRnVuY3Rpb25HZXRJbnN0YW5jZURhdGFNYXBwaW5nIDogSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0YW5jZVRhc2sgPSB0YXNrIGFzIEdldEluc3RhbmNlRGF0YVRhc2s7CiAgICAgICAgaW5zdGFuY2VUYXNrPy5TZXRJbnN0YW5jZShjb250ZXh0Lkluc3RhbmNlLktleSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBLZXkgPSAiaW5zdGFuY2UtZGF0YS1yZXN1bHQiLAogICAgICAgICAgICBEYXRhID0gY29udGV4dC5Cb2R5CiAgICAgICAgfSk7CiAgICB9Cn0K"
+        }
+      }
+    ],
+    "output": {
+      "location": "./src/FunctionOutputMapping.csx",
+      "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gT3V0cHV0IG1hcHBpbmcgZm9yIG11bHRpLXRhc2sgZnVuY3Rpb24gdGVzdC4KLy8vIE5vcm1hbGl6ZXMgcmVzdWx0cyBmcm9tIHZhbGlkYXRlLWFjY291bnQtcG9saWNpZXMgKHRhc2sgMSkgYW5kCi8vLyBnZXQtZGF0YS1mcm9tLXdvcmtmbG93ICh0YXNrIDIpIGludG8gYSBzaW5nbGUgcmVzcG9uc2UuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGdW5jdGlvbk91dHB1dE1hcHBpbmcgOiBJT3V0cHV0SGFuZGxlcgp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHBvbGljeVJlc3VsdCA9IGNvbnRleHQuT3V0cHV0UmVzcG9uc2VbInZhbGlkYXRlQWNjb3VudFBvbGljaWVzIl0uZGF0YTsKICAgICAgICB2YXIgaW5zdGFuY2VEYXRhID0gY29udGV4dC5PdXRwdXRSZXNwb25zZT9bImdldERhdGFGcm9tV29ya2Zsb3ciXS5kYXRhOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgS2V5ID0gIm11bHRpLXRhc2stZnVuY3Rpb24tb3V0cHV0IiwKICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBwb2xpY3lWYWxpZGF0aW9uID0gcG9saWN5UmVzdWx0LAogICAgICAgICAgICAgICAgaW5zdGFuY2VTbmFwc2hvdCA9IGluc3RhbmNlRGF0YSwKICAgICAgICAgICAgICAgIG5vcm1hbGl6ZWRBdCA9IERhdGVUaW1lLlV0Y05vdywKICAgICAgICAgICAgICAgIGluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwKICAgICAgICAgICAgICAgIGluc3RhbmNlS2V5ID0gY29udGV4dC5JbnN0YW5jZT8uS2V5LAogICAgICAgICAgICAgICAgbXVsdGkgPSB0cnVlCiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQo="
+    }
+  }
+}

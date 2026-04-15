@@ -1,6 +1,7 @@
 {
   "key": "payment-process",
   "flow": "sys-flows",
+  "flowVersion": "1.0.0",
   "domain": "core",
   "version": "1.0.0",
   "tags": [

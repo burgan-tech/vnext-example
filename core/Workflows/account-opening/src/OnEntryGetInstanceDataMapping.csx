@@ -1,34 +1,27 @@
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
-using System.Text.Json;
+using BBT.Workflow.Definitions;
 
-public class TriggerGetInstanceTaskMapping : IMapping
+public class OnEntryGetInstanceDataMapping : IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
         var triggerTask = (task as GetInstanceDataTask)!;
-       
+
         triggerTask.SetInstance(context.Instance.Key);
-        
+
         return Task.FromResult(new ScriptResponse());
     }
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
-
         return Task.FromResult(new ScriptResponse()
         {
             Data = new
             {
-                oldInstance=context.Body,
-                success = true
+                instanceSnapshot = context.Body,
+                fetchedAt = System.DateTime.UtcNow
             }
         });
     }
-}
-
-public class RequestModel
-{
-    public string key { get; set; }
-    public dynamic  attributes { get; set; }
 }

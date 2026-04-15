@@ -1,0 +1,31 @@
+{
+  "key": "payment-types",
+  "flow": "sys-functions",
+  "domain": "core",
+  "version": "1.0.0",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "system",
+    "core",
+    "sys-extensions",
+    "components",
+    "users",
+    "lookup"
+  ],
+  "attributes": {
+    "scope": "I",
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "script-task",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/LookupPaymentTypes.csx",
+        "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGFzayAyIG1hcHBpbmcgZm9yIG11bHRpLXRhc2sgZnVuY3Rpb24gdGVzdC4KLy8vIEZldGNoZXMgY3VycmVudCB3b3JrZmxvdyBpbnN0YW5jZSBkYXRhIHZpYSBHZXRJbnN0YW5jZURhdGFUYXNrLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTG9va3VwUGF5bWVudFR5cGVzIDogSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgS2V5ID0gInNlbGYtbG9vcC10YXNrLWRvbmUiLAogICAgICAgICAgICBEYXRhID0gbmV3IHsgCiAgICAgICAgICAgICAgICBleGVjdXRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LCAKICAgICAgICAgICAgICAgIG5vdGUgPSAib25FeGVjdXRpb25UYXNrIHRhcmdldCBpcyBzZWxmIC0+IHJ1bGUgaW52YWxpZGF0ZWQsIG5vIDJuZCBsb29wIiwKICAgICAgICAgICAgICAgIGNvbmRpdGlvbiA9IDAKICAgICAgICAgICAgfQogICAgICAgIH0pOwogICAgfQp9Cg=="
+      }
+    }
+  }
+}

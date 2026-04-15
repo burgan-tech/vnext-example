@@ -6,7 +6,7 @@ using BBT.Workflow.Definitions;
 /// Create Bank Account Mapping - Creates the actual bank account in core banking system
 /// This mapping creates the demand deposit account in the core banking system.
 /// </summary>
-public class CreateBankAccountMapping : IMapping
+public class CreateBankAccountMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -27,7 +27,7 @@ public class CreateBankAccountMapping : IMapping
             var requestBody = new
             {
                 // Account information
-                accountType = accountType?.accountType ?? "demand-deposit",
+                accountType = accountType ?? "demand-deposit",
                 accountName = context.Instance?.Data?.accountName,
                 currency = context.Instance?.Data?.currency,
                 branchCode = context.Instance?.Data?.branchCode,
@@ -84,7 +84,7 @@ public class CreateBankAccountMapping : IMapping
                 ["user_reference"] = userSession?.userId?.ToString(),
                 ["X-Request-Id"] = requestBody.requestId,
                 ["X-Instance-Id"] = context.Instance?.Id.ToString(),
-                ["X-Account-Type"] = accountType?.accountType?.ToString(),
+                ["X-Account-Type"] = accountType?.ToString(),
                 ["X-Currency"] = context.Instance?.Data?.currency?.ToString(),
                 ["X-Branch-Code"] = context.Instance?.Data?.branchCode?.ToString(),
                 ["X-Validation-Id"] = policyValidation?.validationId?.ToString()
@@ -96,6 +96,7 @@ public class CreateBankAccountMapping : IMapping
         }
         catch (Exception ex)
         {
+            LogError("CreateBankAccountMapping - Error: {0}", args: new object?[] { ex.Message });
             return Task.FromResult(new ScriptResponse());
         }
     }
