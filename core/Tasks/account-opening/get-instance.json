@@ -1,0 +1,18 @@
+{
+  "key": "get-instance",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "account-opening",
+    "get-instance"
+  ],
+  "attributes": {
+    "type": "13",
+    "config": {
+      "domain": "core",
+      "flow": "account-opening"
+    }
+  }
+}

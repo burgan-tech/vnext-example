@@ -1,0 +1,30 @@
+networks:
+  bbt-development:
+    external: true
+
+services:
+  jmeter:
+    image: alpine/jmeter:latest
+    container_name: jmeter
+    networks:
+      - bbt-development
+    environment:
+      - VNEXT_BASE_URL=${VNEXT_BASE_URL:-http://host.docker.internal:4201}
+      - JMETER_USERS=${JMETER_USERS:-10}
+      - JMETER_RAMPUP=${JMETER_RAMPUP:-10}
+      - JMETER_LOOPS=${JMETER_LOOPS:-5}
+    volumes:
+      - ./jmeter/tests:/tests
+      - ./jmeter/results:/results
+    working_dir: /tests
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: ["jmeter"]
+    command: >
+      -n -t /tests/workflow-test.jmx
+      -Jbase.url=${VNEXT_BASE_URL:-http://host.docker.internal:4201}
+      -Jusers=${JMETER_USERS:-10}
+      -Jrampup=${JMETER_RAMPUP:-10}
+      -Jloops=${JMETER_LOOPS:-5}
+      -l /results/result.jtl
+      -e -o /results/html-report

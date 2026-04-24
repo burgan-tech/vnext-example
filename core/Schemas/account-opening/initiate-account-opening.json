@@ -1,0 +1,49 @@
+{
+  "key": "initiate-account-opening",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-opening",
+    "start-transition",
+    "input-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$id": "https://schemas.vnext.com/banking/initiate-account-opening.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Initiate Account Opening Schema",
+      "description": "Schema for the start transition payload of the account-opening workflow",
+      "type": "object",
+      "required": [
+        "session"
+      ],
+      "properties": {
+        "session": {
+          "type": "string",
+          "title": "Session",
+          "description": "Unique session identifier for the account opening request",
+          "minLength": 1
+        },
+        "customer": {
+          "type": "object",
+          "title": "Customer",
+          "description": "Customer information for the account opening request",
+          "properties": {
+            "ownerUserId": {
+              "type": "string",
+              "title": "Owner User ID",
+              "description": "Identifier of the user who owns the account opening request",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -19,7 +19,7 @@
       "versionStrategy": "Minor",
       "timer": {
         "reset": "OnEntry",
-        "duration": "PT1M"
+        "duration": "PT15M"
       }
     },
     "labels": [
@@ -84,6 +84,12 @@
           "label": "Hesap Açılışını Başlat"
         }
       ],
+      "schema": {
+        "key": "initiate-account-opening",
+        "version": "1.0.0",
+        "domain": "core",
+        "flow": "sys-schemas"
+      },
       "onExecutionTasks": [
         {
           "order": 1,
@@ -191,6 +197,32 @@
                 "mapping": {
                   "location": "./src/TriggerGetInstanceTaskMapping.csx",
                   "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgU3lzdGVtLlRleHQuSnNvbjsKCnB1YmxpYyBjbGFzcyBUcmlnZ2VyR2V0SW5zdGFuY2VUYXNrTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZ2dlclRhc2sgPSAodGFzayBhcyBHZXRJbnN0YW5jZURhdGFUYXNrKSE7CiAgICAgICAKICAgICAgICB0cmlnZ2VyVGFzay5TZXRJbnN0YW5jZShjb250ZXh0Lkluc3RhbmNlLktleSk7CiAgICAgICAgCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIG9sZEluc3RhbmNlPWNvbnRleHQuQm9keSwKICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSB0cnVlCiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQoKcHVibGljIGNsYXNzIFJlcXVlc3RNb2RlbAp7CiAgICBwdWJsaWMgc3RyaW5nIGtleSB7IGdldDsgc2V0OyB9CiAgICBwdWJsaWMgZHluYW1pYyAgYXR0cmlidXRlcyB7IGdldDsgc2V0OyB9Cn0="
+                }
+              },
+              {
+                "order": 2,
+                "task": {
+                  "key": "get-instances",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/GetInstancesByOldKeyMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gRmlsdGVycyB3b3JrZmxvdyBpbnN0YW5jZXMgYnkgdGhlICJvbGRLZXkiIHZhbHVlIHNlbnQgaW4gdGhlIHRyYW5zaXRpb24gYm9keS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEdldEluc3RhbmNlc0J5T2xkS2V5TWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdGFuY2VzVGFzayA9ICh0YXNrIGFzIEdldEluc3RhbmNlc1Rhc2spITsKCiAgICAgICAgc3RyaW5nPyBvbGRLZXkgPSBjb250ZXh0LkJvZHk/Lm9sZEtleT8uVG9TdHJpbmcoKTsKCiAgICAgICAgaW5zdGFuY2VzVGFzay5TZXRGaWx0ZXIobmV3CiAgICAgICAgewogICAgICAgICAgICBrZXkgPSBuZXcgeyBlcSA9IG9sZEtleSB9CiAgICAgICAgfSk7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgS2V5ID0gImdldC1pbnN0YW5jZXMtYnktb2xkLWtleS1yZXN1bHQiLAogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGluc3RhbmNlcyA9IGNvbnRleHQuQm9keSwKICAgICAgICAgICAgICAgIGZldGNoZWRBdCA9IFN5c3RlbS5EYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgfQogICAgICAgIH0pOwogICAgfQp9Cg=="
+                }
+              },
+              {
+                "order": 3,
+                "task": {
+                  "key": "get-instance",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/GetInstanceByOldKeyMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gUmV0cmlldmVzIGEgc2luZ2xlIHdvcmtmbG93IGluc3RhbmNlIGJ5IHRoZSAib2xkS2V5IiB2YWx1ZSBzZW50IGluIHRoZSB0cmFuc2l0aW9uIGJvZHkuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBHZXRJbnN0YW5jZUJ5T2xkS2V5TWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdGFuY2VUYXNrID0gKHRhc2sgYXMgR2V0SW5zdGFuY2VEYXRhVGFzaykhOwoKICAgICAgICBzdHJpbmc/IG9sZEtleSA9IGNvbnRleHQuQm9keT8ub2xkS2V5Py5Ub1N0cmluZygpOwoKICAgICAgICBpbnN0YW5jZVRhc2suU2V0SW5zdGFuY2Uob2xkS2V5KTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBLZXkgPSAiZ2V0LWluc3RhbmNlLWJ5LW9sZC1rZXktcmVzdWx0IiwKICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBpbnN0YW5jZSA9IGNvbnRleHQuQm9keSwKICAgICAgICAgICAgICAgIGZldGNoZWRBdCA9IFN5c3RlbS5EYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgfQogICAgICAgIH0pOwogICAgfQp9Cg=="
                 }
               }
             ]
