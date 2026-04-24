@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Account Opening Workflow Load Test" enabled="true">
+      <stringProp name="TestPlan.comments">Account-opening workflow async (sync=false) load test. Polls state until status=A (max 5), final step expects status=C.</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="base.url" elementType="Argument">
+            <stringProp name="Argument.name">base.url</stringProp>
+            <stringProp name="Argument.value">${__P(base.url,http://host.docker.internal:4201)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="users" elementType="Argument">
+            <stringProp name="Argument.name">users</stringProp>
+            <stringProp name="Argument.value">${__P(users,10)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="rampup" elementType="Argument">
+            <stringProp name="Argument.name">rampup</stringProp>
+            <stringProp name="Argument.value">${__P(rampup,10)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="loops" elementType="Argument">
+            <stringProp name="Argument.name">loops</stringProp>
+            <stringProp name="Argument.value">${__P(loops,5)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Account Opening Users" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${loops}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${users}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+
+        <!-- Per-iteration setup: random key + request id -->
+        <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Setup Random Vars" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import java.util.UUID
+def rnd = new Random()
+def sb = new StringBuilder()
+17.times { sb.append(rnd.nextInt(10)) }
+vars.put("key", sb.toString())
+vars.put("requestId", UUID.randomUUID().toString())
+vars.put("status", "")
+vars.put("pollCount", "0")
+
+def baseUrl = vars.get("base.url") ?: props.get("base.url") ?: "http://host.docker.internal:4201"
+def u = new java.net.URL(baseUrl)
+vars.put("protocol", u.getProtocol())
+vars.put("host", u.getHost())
+vars.put("port", (u.getPort() == -1 ? (u.getProtocol() == "https" ? "443" : "80") : u.getPort()).toString())
+</stringProp>
+        </JSR223PreProcessor>
+        <hashTree/>
+
+        <!-- 1) START INSTANCE -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="1. Start Instance" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{
+  "key": "${key}",
+  "attributes": {
+    "session": "16",
+    "customer": {
+      "ownerUserId": "34987491780"
+    }
+  }
+}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/start?sync=false</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Start Headers" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">Accept-Language</stringProp><stringProp name="Header.value">tr-TR</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">X-Request-Id</stringProp><stringProp name="Header.value">${requestId}</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">X-Device-Id</stringProp><stringProp name="Header.value">${requestId}</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">X-Token-Id</stringProp><stringProp name="Header.value">${requestId}</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">X-Device-Info</stringProp><stringProp name="Header.value">IOS 16</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">X-Forwarded-For</stringProp><stringProp name="Header.value">192.168.2.1</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">user_reference</stringProp><stringProp name="Header.value">34987491018</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">sub</stringProp><stringProp name="Header.value">34987491018</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">act_sub</stringProp><stringProp name="Header.value">34987491780</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">role</stringProp><stringProp name="Header.value">morph-idm.viewers</stringProp></elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract instanceId" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">instanceId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+
+        <!-- POLL 1: wait for status=A -->
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Poll 1 - Reset Counter" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">vars.put("pollCount","0"); vars.put("status","");</stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While status != A &amp;&amp; status != F &amp;&amp; pollCount &lt; 5" enabled="true">
+          <stringProp name="WhileController.condition">${__groovy(!"A".equals(vars.get("status")) &amp;&amp; !"F".equals(vars.get("status")) &amp;&amp; (vars.get("pollCount") as Integer) &lt; 5)}</stringProp>
+        </WhileController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET state" enabled="true">
+            <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/${instanceId}/functions/state</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"/></elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="State Headers" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header"><stringProp name="Header.name">sub</stringProp><stringProp name="Header.value">349874917801</stringProp></elementProp>
+                <elementProp name="" elementType="Header"><stringProp name="Header.name">act_sub</stringProp><stringProp name="Header.value">34987491781</stringProp></elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract status" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">status</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.status</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues"></stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Inc Counter + Backoff if B" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="script">def c = (vars.get("pollCount") as Integer) + 1
+vars.put("pollCount", c.toString())
+def s = vars.get("status")
+if ("B".equals(s)) { Thread.sleep(1000) }
+if ("F".equals(s) || "C".equals(s)) { ctx.setRestartNextLoop(true) }
+</stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <!-- 2) Transition: select-demand-deposit -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="2. select-demand-deposit" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{
+  "tags": ["test","banking","account-openning","key-test"],
+  "attributes": {
+    "accountType": "demand-deposit",
+    "oldKey": "${key}"
+  }
+}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/${instanceId}/transitions/select-demand-deposit?sync=false</stringProp>
+          <stringProp name="HTTPSampler.method">PATCH</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="T1 Headers" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">sub</stringProp><stringProp name="Header.value">34987491018</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">act_sub</stringProp><stringProp name="Header.value">56467491010</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">role</stringProp><stringProp name="Header.value">morph-idm.select</stringProp></elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+
+        <!-- POLL 2 -->
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Poll 2 - Reset Counter" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">vars.put("pollCount","0"); vars.put("status","");</stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While poll 2" enabled="true">
+          <stringProp name="WhileController.condition">${__groovy(!"A".equals(vars.get("status")) &amp;&amp; !"F".equals(vars.get("status")) &amp;&amp; (vars.get("pollCount") as Integer) &lt; 5)}</stringProp>
+        </WhileController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET state" enabled="true">
+            <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/${instanceId}/functions/state</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"/></elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="State Headers" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header"><stringProp name="Header.name">sub</stringProp><stringProp name="Header.value">349874917801</stringProp></elementProp>
+                <elementProp name="" elementType="Header"><stringProp name="Header.name">act_sub</stringProp><stringProp name="Header.value">34987491781</stringProp></elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract status" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">status</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.status</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues"></stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Inc + Backoff" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="script">def c = (vars.get("pollCount") as Integer) + 1
+vars.put("pollCount", c.toString())
+def s = vars.get("status")
+if ("B".equals(s)) { Thread.sleep(1000) }
+if ("F".equals(s) || "C".equals(s)) { ctx.setRestartNextLoop(true) }
+</stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <!-- 3) Transition: submit-account-details -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="3. submit-account-details" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{
+  "attributes": {
+    "accountName": "demand-deposit",
+    "currency": "SLV",
+    "branchCode": "5436",
+    "initialDeposit": 100,
+    "accountPurpose": "personal-banking",
+    "notifications": {
+      "smsNotifications": true,
+      "emailNotifications": true,
+      "pushNotifications": true
+    }
+  }
+}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/${instanceId}/transitions/submit-account-details?sync=false</stringProp>
+          <stringProp name="HTTPSampler.method">PATCH</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="T2 Headers" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">sub</stringProp><stringProp name="Header.value">34987491018</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">act_sub</stringProp><stringProp name="Header.value">56467491011</stringProp></elementProp>
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">role</stringProp><stringProp name="Header.value">morph-idm.approver</stringProp></elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+
+        <!-- POLL 3 -->
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Poll 3 - Reset Counter" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">vars.put("pollCount","0"); vars.put("status","");</stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While poll 3" enabled="true">
+          <stringProp name="WhileController.condition">${__groovy(!"A".equals(vars.get("status")) &amp;&amp; !"F".equals(vars.get("status")) &amp;&amp; (vars.get("pollCount") as Integer) &lt; 5)}</stringProp>
+        </WhileController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET state" enabled="true">
+            <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/${instanceId}/functions/state</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments"/></elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="State Headers" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header"><stringProp name="Header.name">sub</stringProp><stringProp name="Header.value">349874917801</stringProp></elementProp>
+                <elementProp name="" elementType="Header"><stringProp name="Header.name">act_sub</stringProp><stringProp name="Header.value">34987491781</stringProp></elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract status" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">status</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.status</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues"></stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Inc + Backoff" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="script">def c = (vars.get("pollCount") as Integer) + 1
+vars.put("pollCount", c.toString())
+def s = vars.get("status")
+if ("B".equals(s)) { Thread.sleep(1000) }
+if ("F".equals(s) || "C".equals(s)) { ctx.setRestartNextLoop(true) }
+</stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <!-- 4) Transition: confirm-account-opening -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="4. confirm-account-opening" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{
+  "attributes": {
+    "confirmed": true,
+    "termsAccepted": true,
+    "privacyPolicyAccepted": true
+  }
+}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/core/workflows/account-opening/instances/${instanceId}/transitions/confirm-account-opening?sync=false</stringProp>
+          <stringProp name="HTTPSampler.method">PATCH</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="T3 Headers" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header"><stringProp name="Header.name">Content-Type</stringProp><stringProp name="Header.value">application/json</stringProp></elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+
+        <!-- Listeners -->
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time><latency>true</latency><timestamp>true</timestamp><success>true</success>
+              <label>true</label><code>true</code><message>true</message><threadName>true</threadName>
+              <dataType>true</dataType><encoding>false</encoding><assertions>true</assertions>
+              <subresults>true</subresults><responseData>false</responseData><samplerData>false</samplerData>
+              <xml>false</xml><fieldNames>true</fieldNames><responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders><responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave><bytes>true</bytes><sentBytes>true</sentBytes>
+              <url>true</url><threadCounts>true</threadCounts><idleTime>true</idleTime><connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time><latency>true</latency><timestamp>true</timestamp><success>true</success>
+              <label>true</label><code>true</code><message>true</message><threadName>true</threadName>
+              <dataType>true</dataType><encoding>false</encoding><assertions>true</assertions>
+              <subresults>true</subresults><responseData>false</responseData><samplerData>false</samplerData>
+              <xml>false</xml><fieldNames>true</fieldNames><responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders><responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave><bytes>true</bytes><sentBytes>true</sentBytes>
+              <url>true</url><threadCounts>true</threadCounts><idleTime>true</idleTime><connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

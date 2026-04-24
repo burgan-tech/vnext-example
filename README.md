@@ -219,6 +219,63 @@ dist/
 | `npm test` | Run tests |
 
 
+## 🧪 Load Testing (JMeter)
+
+Asynchronous (`sync=false`) load test for the account-opening workflow is executed via `docker-compose.test.yml`. JMeter joins the existing `bbt-development` Docker network and does not modify the main `docker-compose.yml`.
+
+### Structure
+
+```
+jmeter/
+├── tests/
+│   └── workflow-test.jmx
+└── results/              # gitignored; reports are written here
+```
+
+### Running
+
+```bash
+# Default: 10 users, 10s ramp-up, 5 loops, base URL http://host.docker.internal:4201
+docker compose -f docker-compose.test.yml up --abort-on-container-exit
+
+# Custom base URL (e.g. a service name on the same network)
+VNEXT_BASE_URL=http://amorphie-workflow:4201 \
+  docker compose -f docker-compose.test.yml up --abort-on-container-exit
+
+# Custom load profile
+VNEXT_BASE_URL=http://host.docker.internal:4201 \
+JMETER_USERS=50 JMETER_RAMPUP=30 JMETER_LOOPS=10 \
+  docker compose -f docker-compose.test.yml up --abort-on-container-exit
+
+# Tear down
+docker compose -f docker-compose.test.yml down
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VNEXT_BASE_URL` | `http://host.docker.internal:4201` | vNext workflow engine base URL |
+| `JMETER_USERS` | `10` | Number of concurrent threads (users) |
+| `JMETER_RAMPUP` | `10` | Ramp-up time in seconds |
+| `JMETER_LOOPS` | `5` | Iterations per thread |
+
+### Scenario
+
+Single thread group, full happy path:
+
+1. `POST /instances/start?sync=false` → extract `id` → poll state until `status=A` (max 5 polls, 1s backoff while `B`)
+2. `PATCH /transitions/select-demand-deposit?sync=false` → poll until `status=A`
+3. `PATCH /transitions/submit-account-details?sync=false` → poll until `status=A`
+4. `PATCH /transitions/confirm-account-opening?sync=false` (final transition; response not asserted)
+
+If the polled status returns `F` (or unexpected `C`) at any intermediate step, the remaining samplers in that iteration are skipped and the next loop starts.
+
+### Results
+
+- Raw JTL: `./jmeter/results/result.jtl`
+- HTML report: `./jmeter/results/html-report/index.html`
+
 ## 🤝 Contributing
 
 1. Fork the repository

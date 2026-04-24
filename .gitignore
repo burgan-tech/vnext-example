@@ -272,3 +272,7 @@ secrets.json
 
 # AI folders
 ai-docs/
+
+# JMeter
+jmeter/results/
+!jmeter/results/.gitkeep
