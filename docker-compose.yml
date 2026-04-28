@@ -30,6 +30,8 @@ services:
       - "50001"
       - --config
       - /etc/dapr/config.yaml
+      - --resources-path
+      - /etc/dapr/components
       - --log-level
       - info
     volumes:

@@ -1,0 +1,146 @@
+{
+  "info": {
+    "_postman_id": "b383d938-352a-4425-a364-3e3f27ce9306",
+    "name": "vNext Test - Error Boundary",
+    "description": "Auto-generated from error-boundary-test-workflow.http.\nvNext workflow integration test collection for error-boundary.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    },
+    {
+      "key": "workflow",
+      "value": "error-boundary-test-workflow",
+      "type": "string"
+    },
+    {
+      "key": "mocklabBaseUrl",
+      "value": "http://localhost:3002",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Adim 1: Workflow baslat (sync; HTTP task retries may add delay)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "start"
+          ],
+          "query": [
+            {
+              "key": "sync",
+              "value": "true"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"key\": \"error-boundary-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"error-boundary\"],\n  \"attributes\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.id) {",
+              "    pm.collectionVariables.set(\"errorBoundaryInstanceId\", jsonData.id);",
+              "    console.log(\"errorBoundaryInstanceId set to: \" + jsonData.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Adim 2: Durum (notify-test-state uzerinden completed-state beklenir; global abort veya basarisizlikta error-final)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{errorBoundaryInstanceId}}/functions/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{errorBoundaryInstanceId}}",
+            "functions",
+            "state"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Adim 3: Instance data (errorTestStarted, httpErrorHandled, errorIgnored, rollbackExecuted, rollbackAt, logOnlyExecuted, notifyExecuted, notifyAt)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{errorBoundaryInstanceId}}/functions/data",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{errorBoundaryInstanceId}}",
+            "functions",
+            "data"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

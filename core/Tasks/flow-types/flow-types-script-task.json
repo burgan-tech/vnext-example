@@ -1,0 +1,12 @@
+{
+  "key": "flow-types-script-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["integration-test", "flow-types", "script"],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

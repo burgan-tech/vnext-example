@@ -1,0 +1,206 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = subflow-orchestration-parent
+
+###############################################################################
+# TEST 1: Happy path
+# Start parent (autos to child then grandchild), complete grandchild on the
+# parent instance URL, cascade to parent-completed. Verify data flags via
+# /functions/data (parentStarted, childStarted, grandchildStarted,
+# grandchildFinished, childCompleted as produced by mappings).
+###############################################################################
+
+### TEST 1 — Step 1: Start parent workflow (sync)
+# @name createHappyPathInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "subflow-orch-happy-{{$timestamp}}",
+  "tags": ["integration-test", "subflow-orchestration"],
+  "attributes": {
+    "testId": "orch-happy-path",
+    "parentData": {
+      "note": "from-parent-start"
+    }
+  }
+}
+
+@happyParentInstanceId = {{createHappyPathInstance.response.body.$.id}}
+
+### TEST 1 — Step 2: State (deepest active should be grandchild-initial after autos)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyParentInstanceId}}/functions/state
+
+### TEST 1 — Step 3: Complete grandchild (routed via parent instance + parent workflow key)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyParentInstanceId}}/transitions/complete-grandchild?sync=true
+Content-Type: application/json
+
+{}
+
+### TEST 1 — Step 4: State should reach parent-completed after cascade autos
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyParentInstanceId}}/functions/state
+
+### TEST 1 — Step 5: Instance data flags
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyParentInstanceId}}/functions/data
+
+###############################################################################
+# TEST 2: Cancel cascade
+# Start parent, confirm nested execution reached grandchild-initial, cancel the
+# parent from the parent instance. Expect parent final state parent-cancelled
+# (verify via /functions/state: state / metadata.currentState and cancel
+# cascade into subflows per platform rules).
+###############################################################################
+
+### TEST 2 — Step 1: Start parent (sync)
+# @name createCancelCascadeInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "subflow-orch-cancel-cascade-{{$timestamp}}",
+  "tags": ["integration-test", "subflow-orchestration", "cancel-cascade"],
+  "attributes": {
+    "testId": "orch-cancel-cascade"
+  }
+}
+
+@cancelCascadeParentInstanceId = {{createCancelCascadeInstance.response.body.$.id}}
+
+### TEST 2 — Step 2: Wait until deepest state is grandchild-initial (poll until effectiveState or state reflects grandchild-initial; re-run if autos are slower)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelCascadeParentInstanceId}}/functions/state
+
+### TEST 2 — Step 3: Cancel parent while nested (cascade should terminate child/grandchild definitions toward parent-cancelled)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelCascadeParentInstanceId}}/transitions/cancel-parent?sync=true
+Content-Type: application/json
+
+{}
+
+### TEST 2 — Step 4: Verify parent reached parent-cancelled (state function)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelCascadeParentInstanceId}}/functions/state
+
+###############################################################################
+# TEST 3: Shared transition from child workflow
+# While nested, effective tracking should surface grandchild. Fire the child
+# flow shared transition (shared-child-update) through the parent instance URL.
+###############################################################################
+
+### TEST 3 — Step 1: Start parent (sync)
+# @name createChildSharedInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "subflow-orch-child-shared-{{$timestamp}}",
+  "tags": ["integration-test", "subflow-orchestration", "child-shared"],
+  "attributes": {
+    "testId": "orch-child-shared",
+    "parentData": {
+      "beforeChildShared": true
+    }
+  }
+}
+
+@childSharedParentInstanceId = {{createChildSharedInstance.response.body.$.id}}
+
+### TEST 3 — Step 2: Confirm nested / effective view shows grandchild-initial (effectiveState or nested state payload per runtime)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childSharedParentInstanceId}}/functions/state
+
+### TEST 3 — Step 3: Trigger child shared transition on parent instance (availableIn child-subflow-state)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childSharedParentInstanceId}}/transitions/shared-child-update?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "message": "child-shared-from-http"
+  }
+}
+
+### TEST 3 — Step 4: Data should include childSharedUpdateExecuted=true while still nested until grandchild completes
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childSharedParentInstanceId}}/functions/data
+
+### TEST 3 — Step 5: Complete grandchild then verify final cascade
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childSharedParentInstanceId}}/transitions/complete-grandchild?sync=true
+Content-Type: application/json
+
+{}
+
+### TEST 3 — Step 6: Final state and merged data
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childSharedParentInstanceId}}/functions/state
+
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childSharedParentInstanceId}}/functions/data
+
+###############################################################################
+# TEST 4: Effective state
+# After start, /functions/state should expose effectiveState (deepest active
+# subflow state, e.g. grandchild-initial) alongside the parent stack state.
+###############################################################################
+
+### TEST 4 — Step 1: Start parent (sync)
+# @name createEffectiveStateInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "subflow-orch-effective-{{$timestamp}}",
+  "tags": ["integration-test", "subflow-orchestration", "effective-state"],
+  "attributes": {
+    "testId": "orch-effective-state"
+  }
+}
+
+@effectiveStateParentInstanceId = {{createEffectiveStateInstance.response.body.$.id}}
+
+### TEST 4 — Step 2: State function — verify effectiveState (and related metadata if present) shows deepest active subflow state (grandchild-initial)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{effectiveStateParentInstanceId}}/functions/state
+
+### TEST 4 — Step 3: Optional data snapshot while nested
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{effectiveStateParentInstanceId}}/functions/data
+
+###############################################################################
+# TEST 5: UpdateData transition from SubFlow
+# Start parent, wait until nested in child-subflow-state, trigger the
+# updateData transition (update-parent-data) on the child. This should
+# update the parent instance data with childUpdatedParent=true via
+# UpdateParentDataMapping.csx. Target is $self so child stays in same state.
+###############################################################################
+
+### TEST 5 — Step 1: Start parent (sync)
+# @name createUpdateDataInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "subflow-orch-updatedata-{{$timestamp}}",
+  "tags": ["integration-test", "subflow-orchestration", "update-data"],
+  "attributes": {
+    "testId": "orch-update-data"
+  }
+}
+
+@updateDataParentInstanceId = {{createUpdateDataInstance.response.body.$.id}}
+
+### TEST 5 — Step 2: Verify nested state (child-subflow-state or grandchild-initial)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{updateDataParentInstanceId}}/functions/state
+
+### TEST 5 — Step 3: Trigger updateData transition from child
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{updateDataParentInstanceId}}/transitions/update-parent-data?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "updateMessage": "from-child-updatedata"
+  }
+}
+
+### TEST 5 — Step 4: Verify parent data now includes childUpdatedParent=true
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{updateDataParentInstanceId}}/functions/data
+
+### TEST 5 — Step 5: Complete grandchild to finish the flow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{updateDataParentInstanceId}}/transitions/complete-grandchild?sync=true
+Content-Type: application/json
+
+{}
+
+### TEST 5 — Step 6: Verify final state and data
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{updateDataParentInstanceId}}/functions/state

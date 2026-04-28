@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = view-function-extension-test-workflow
+@mocklabBaseUrl = http://localhost:3002
+
+###############################################################################
+# View, function, and extension integration tests.
+# Requires: API with MocklabBaseUrl for HTTP task in multi-task-function;
+# Mocklab seeded with GET /api/test/user-info (integration-test-collection).
+###############################################################################
+
+### Start workflow (sync)
+# @name createVfeInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "vfe-test-{{$timestamp}}",
+  "tags": ["integration-test", "view-function-extension"],
+  "attributes": {}
+}
+
+@vfeInstanceId = {{createVfeInstance.response.body.$.id}}
+
+### Get state (includes view href when state has a view)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state
+
+### Get view payload for current state (optional transitionKey; platform for rule-based clients)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/view?platform=web
+
+### Execute single-task function (instance-scoped)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/single-task-function
+
+### Execute multi-task function (script then HTTP; output handler aggregates)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/multi-task-function
+
+### Instance data without extension filter (global-extension scope Everywhere may apply)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data
+
+### Requested extensions via query (DefinedFlowAndRequested + on-demand)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data?extensions=requested-extension,global-extension

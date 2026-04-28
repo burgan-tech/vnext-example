@@ -1,0 +1,17 @@
+{
+  "key": "html-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "html-view"
+  ],
+  "attributes": {
+    "type": 2,
+    "display": "popup",
+    "content": "<h1>HTML View Test</h1><p>Integration test view</p>"
+  }
+}

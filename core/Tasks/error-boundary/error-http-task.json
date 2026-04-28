@@ -1,0 +1,23 @@
+{
+  "key": "error-http-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "error-boundary",
+    "http-task"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "{MocklabBaseUrl}/api/test/error-endpoint",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeoutSeconds": 30
+    }
+  }
+}

@@ -8,3 +8,4 @@ public class AlwaysTrueRule : IConditionMapping
         return true;
     }
 }
+

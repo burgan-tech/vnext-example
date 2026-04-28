@@ -1,0 +1,17 @@
+{
+  "key": "json-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "json-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "content": "{\"title\":\"JSON View Test\",\"fields\":[{\"key\":\"status\",\"label\":\"Status\"}]}"
+  }
+}

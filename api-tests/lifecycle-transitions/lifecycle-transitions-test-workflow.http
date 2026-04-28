@@ -1,0 +1,313 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = lifecycle-transitions-test-workflow
+
+###############################################################################
+# TEST 1: Happy Path (testPath=pass)
+# Tests: start, manual transition, ITransitionMapping, onEntries, onExits,
+#        auto transition (complementary rules), scheduled timer, 
+#        auto AlwaysTrue, manual to Final(Success)
+###############################################################################
+
+### Adim 1: Workflow Baslat (testPath=pass)
+# @name createPassInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-pass-test-{{$timestamp}}",
+  "tags": ["integration-test", "lifecycle", "pass-path"],
+  "attributes": {
+    "testPath": "pass"
+  }
+}
+
+### Response'dan instance ID yakala
+@passInstanceId = {{createPassInstance.response.body.$.id}}
+
+### Adim 2: Durum Kontrol (initialize-state olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
+
+### Adim 3: Manuel Transition - Move to Processing (ITransitionMapping test)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/move-to-processing?sync=true
+Content-Type: application/json
+
+{}
+
+### Adim 4: Durum Kontrol (auto-passed-state olmali, auto transition testPath=pass rule calisti)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
+
+### Adim 5: 15 saniye bekle (scheduled timer 10s) ve durum kontrol
+# timer-triggered-state -> (auto AlwaysTrue) -> pre-complete-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
+
+### Adim 6: Manuel Transition - Complete Workflow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/complete-workflow?sync=true
+Content-Type: application/json
+
+{}
+
+### Adim 7: Durum Kontrol (completed-state, Final/Success olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
+
+###############################################################################
+# TEST 2: Fail Path (testPath=fail)
+# Tests: complementary auto rule (fail path), Final(Error) state subtype
+###############################################################################
+
+### Adim 1: Workflow Baslat (testPath=fail)
+# @name createFailInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-fail-test-{{$timestamp}}",
+  "tags": ["integration-test", "lifecycle", "fail-path"],
+  "attributes": {
+    "testPath": "fail"
+  }
+}
+
+@failInstanceId = {{createFailInstance.response.body.$.id}}
+
+### Adim 2: Manuel Transition - Move to Processing
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{failInstanceId}}/transitions/move-to-processing?sync=true
+Content-Type: application/json
+
+{}
+
+### Adim 3: Durum Kontrol (auto-failed-state, Final/Error olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{failInstanceId}}/functions/state
+
+###############################################################################
+# TEST 3: Default Auto Transition (triggerKind:10)
+# Tests: testPath=unknown, neither pass nor fail rule matches -> default auto
+###############################################################################
+
+### Adim 1: Workflow Baslat (testPath=unknown)
+# @name createDefaultInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-default-test-{{$timestamp}}",
+  "tags": ["integration-test", "lifecycle", "default-path"],
+  "attributes": {
+    "testPath": "unknown"
+  }
+}
+
+@defaultInstanceId = {{createDefaultInstance.response.body.$.id}}
+
+### Adim 2: Manuel Transition - Move to Processing
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{defaultInstanceId}}/transitions/move-to-processing?sync=true
+Content-Type: application/json
+
+{}
+
+### Adim 3: Durum Kontrol (default-fallback-state -> completed-state olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{defaultInstanceId}}/functions/state
+
+###############################################################################
+# TEST 4: Idempotent Start
+# Tests: same key returns existing instance, no duplicate created
+###############################################################################
+
+### Adim 1: Workflow Baslat
+# @name createIdempotentInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-idempotent-key",
+  "tags": ["integration-test", "lifecycle", "idempotent"],
+  "attributes": {
+    "testPath": "pass"
+  }
+}
+
+@idempotentInstanceId = {{createIdempotentInstance.response.body.$.id}}
+
+### Adim 2: Ayni Key ile Tekrar Baslat (ayni instance donmeli)
+# @name createIdempotentInstance2
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-idempotent-key",
+  "tags": ["integration-test"],
+  "attributes": {
+    "testPath": "pass"
+  }
+}
+
+@idempotentInstanceId2 = {{createIdempotentInstance2.response.body.$.id}}
+
+### Karsilastir: idempotentInstanceId == idempotentInstanceId2 olmali
+
+###############################################################################
+# TEST 5: Cancel Transition
+# Tests: cancel from any state -> terminated-state (Final/Terminated)
+###############################################################################
+
+### Adim 1: Workflow Baslat
+# @name createCancelInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-cancel-test-{{$timestamp}}",
+  "tags": ["integration-test", "lifecycle", "cancel"],
+  "attributes": {
+    "testPath": "pass"
+  }
+}
+
+@cancelInstanceId = {{createCancelInstance.response.body.$.id}}
+
+### Adim 2: Cancel Workflow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-workflow?sync=true
+Content-Type: application/json
+
+{}
+
+### Adim 3: Durum Kontrol (terminated-state, Final/Terminated olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state
+
+### ============================================================
+### TEST: Exit Transition
+### ============================================================
+
+### Adim 1: Workflow Baslat (Exit Test)
+# @name exitCreate
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "exit-test-{{$timestamp}}",
+  "tags": ["exit-test"],
+  "attributes": {
+    "testId": "exit-test"
+  }
+}
+
+### Response'dan instance ID'yi yakala
+@exitInstanceId = {{exitCreate.response.body.$.id}}
+
+### Adim 2: Exit Transition Tetikle (initialize-state'den)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-workflow
+Content-Type: application/json
+
+{}
+
+### Adim 3: Durum Kontrol - terminated-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state
+
+### Adim 4: Instance Data Kontrol - exitExecuted=true olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}
+
+### ============================================================
+### TEST: Schedule Cancel (Manual ile timer iptali)
+### ============================================================
+
+### Adim 1: Workflow Baslat (Schedule Cancel Test)
+# @name scheduleCancelCreate
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "schedule-cancel-test-{{$timestamp}}",
+  "tags": ["schedule-cancel-test"],
+  "attributes": {
+    "testId": "schedule-cancel-test",
+    "testPath": "pass"
+  }
+}
+
+### Response'dan instance ID'yi yakala
+@scheduleCancelInstanceId = {{scheduleCancelCreate.response.body.$.id}}
+
+### Adim 2: Durum Kontrol - auto-passed-state olmali (auto transitions sonrasi)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/functions/state
+
+### Adim 3: Timer tetiklenmeden cancel-schedule-manually transition cagir
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/cancel-schedule-manually
+Content-Type: application/json
+
+{}
+
+### Adim 4: Durum Kontrol - pre-complete-state olmali (timer iptali basarili)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/functions/state
+
+### ============================================================
+### TEST: Reschedule Timer ($self transition)
+### ============================================================
+
+### Adim 1: Workflow Baslat (Reschedule Test)
+# @name rescheduleCreate
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "reschedule-test-{{$timestamp}}",
+  "tags": ["reschedule-test"],
+  "attributes": {
+    "testId": "reschedule-test",
+    "testPath": "pass"
+  }
+}
+
+### Response'dan instance ID'yi yakala
+@rescheduleInstanceId = {{rescheduleCreate.response.body.$.id}}
+
+### Adim 2: Durum Kontrol - auto-passed-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
+
+### Adim 3: Reschedule timer ($self transition - timer sifirlanmali)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/reschedule-timer
+Content-Type: application/json
+
+{}
+
+### Adim 4: Durum Kontrol - hala auto-passed-state olmali ($self = ayni state)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
+
+### ============================================================
+### TEST: QueryRoles ve Transition Roles
+### ============================================================
+
+### Adim 1: Workflow Baslat (Roles Test)
+# @name rolesCreate
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "key": "roles-test-{{$timestamp}}",
+  "tags": ["roles-test"],
+  "attributes": {
+    "testId": "roles-test",
+    "testPath": "pass"
+  }
+}
+
+### Response'dan instance ID'yi yakala
+@rolesInstanceId = {{rolesCreate.response.body.$.id}}
+
+### Adim 2: QueryRoles ile yetki kontrolu - test-viewer izinli olmali (workflow-level)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-viewer
+
+### Adim 3: move-to-processing transition (test-operator rolu ile)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/move-to-processing
+Content-Type: application/json
+
+{}
+
+### Adim 4: Durum Kontrol - processing-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/state
+
+### Adim 5: QueryRoles - processing-state'de test-processor izinli, test-viewer reddedilmis olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-processor
+
+### Adim 6: QueryRoles - test-viewer deny olmali (state-level override)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-viewer

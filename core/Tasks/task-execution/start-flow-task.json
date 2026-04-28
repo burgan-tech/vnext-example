@@ -1,0 +1,19 @@
+{
+  "key": "start-flow-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-execution",
+    "start-flow-task"
+  ],
+  "attributes": {
+    "type": "11",
+    "config": {
+      "domain": "core",
+      "flow": "task-target-workflow"
+    }
+  }
+}

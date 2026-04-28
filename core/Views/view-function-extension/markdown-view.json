@@ -1,0 +1,17 @@
+{
+  "key": "markdown-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "markdown-view"
+  ],
+  "attributes": {
+    "type": 3,
+    "display": "bottom-sheet",
+    "content": "# Markdown View\n\nIntegration test view"
+  }
+}
