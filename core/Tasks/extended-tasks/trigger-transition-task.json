@@ -1,0 +1,16 @@
+{
+  "key": "trigger-transition-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["integration-test", "extended-tasks", "trigger-transition"],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "task-target-workflow",
+      "transitionName": "auto-complete-target"
+    }
+  }
+}

@@ -276,3 +276,8 @@ ai-docs/
 # JMeter
 jmeter/results/
 !jmeter/results/.gitkeep
+# vnext-forge LSP scaffold
+.vnext-forge-lsp/
+
+# vnext-forge LSP scaffold
+.vnext-forge-lsp/

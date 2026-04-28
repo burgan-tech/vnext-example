@@ -1,0 +1,28 @@
+{
+  "key": "single-task-function",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "single-task-function"
+  ],
+  "attributes": {
+    "scope": "I",
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "vfe-script-task",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "type": "G",
+        "location": "./src/FunctionSingleTaskMapping.csx"
+      }
+    }
+  }
+}

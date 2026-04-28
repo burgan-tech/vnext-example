@@ -1,0 +1,180 @@
+{
+  "key": "version-consistency-test-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "version-consistency",
+    "version-v1"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Version Consistency Test (v1.0.0)"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Versiyon Tutarliligi Testi (v1.0.0)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-version-test",
+      "target": "init-state",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Version Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Versiyon Testini Baslat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "version-consistency-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/InitVersionMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEluaXRWZXJzaW9uTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKQogICAgICAgICAgICByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CgogICAgICAgIHJlc3VsdC5pbml0aWFsaXplZCA9IHRydWU7CiAgICAgICAgcmVzdWx0LmluaXRBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigiSW5pdFZlcnNpb25NYXBwaW5nIGNvbXBsZXRlZCAtIHZlcnNpb24gY29uc2lzdGVuY3kgdGVzdCBpbml0aWFsaXplZCIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "init-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Init State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Baslangic Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-processing",
+            "target": "processing-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Processing"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Isleme Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "processing-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Processing State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Isleme Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-processing",
+            "target": "completed-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Processing"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Islemi Tamamla"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed (v1)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandi (v1)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "version-consistency-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/V1CompletedMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFYxQ29tcGxldGVkTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKQogICAgICAgICAgICByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJpbml0aWFsaXplZCIpKQogICAgICAgICAgICByZXN1bHQuaW5pdGlhbGl6ZWQgPSBkYXRhLmluaXRpYWxpemVkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaW5pdEF0IikpCiAgICAgICAgICAgIHJlc3VsdC5pbml0QXQgPSBkYXRhLmluaXRBdDsKCiAgICAgICAgcmVzdWx0LnYxQ29tcGxldGVkID0gdHJ1ZTsKICAgICAgICByZXN1bHQuY29tcGxldGVkQXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICByZXN1bHQuY29tcGxldGVkQnlWZXJzaW9uID0gIjEuMC4wIjsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlYxQ29tcGxldGVkTWFwcGluZyBjb21wbGV0ZWQgLSB2MSBwYXRoIGZpbmFsaXplZCIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

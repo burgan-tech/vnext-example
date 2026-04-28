@@ -1,0 +1,6 @@
+{
+  // Points the VS Code .NET Test Explorer to the local override runsettings.
+  // test.runsettings.local is git-ignored — edit it freely for personal settings.
+  // If the file is absent, the extension falls back to the default test.runsettings.
+  "dotnet.unitTests.runSettingsPath": "./test.runsettings.local"
+}

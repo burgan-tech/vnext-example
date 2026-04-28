@@ -1,0 +1,47 @@
+{
+  "key": "multi-task-function",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "multi-task-function"
+  ],
+  "attributes": {
+    "scope": "I",
+    "onExecutionTasks": [
+      {
+        "order": 1,
+        "task": {
+          "key": "vfe-script-task",
+          "domain": "core",
+          "version": "1.0.0",
+          "flow": "sys-tasks"
+        },
+        "mapping": {
+          "type": "G",
+          "location": "./src/FunctionMultiTask1Mapping.csx"
+        }
+      },
+      {
+        "order": 2,
+        "task": {
+          "key": "vfe-http-task",
+          "domain": "core",
+          "version": "1.0.0",
+          "flow": "sys-tasks"
+        },
+        "mapping": {
+          "type": "G",
+          "location": "./src/FunctionMultiTask2Mapping.csx"
+        }
+      }
+    ],
+    "output": {
+      "type": "G",
+      "location": "./src/FunctionOutputMapping.csx"
+    }
+  }
+}

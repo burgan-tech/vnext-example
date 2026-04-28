@@ -1,0 +1,174 @@
+{
+  "key": "subflow-orchestration-grandchild",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-orchestration",
+    "grandchild",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Orchestration Grandchild"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Alt Akis Orkestrasyon Torun"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-grandchild",
+      "target": "grandchild-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Grandchild"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Grandchild Iptal"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-subflow-orchestration-grandchild",
+      "target": "grandchild-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Grandchild"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Torunu Baslat"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "grandchild-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild Initial"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Baslangic"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "subflow-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GrandchildStartMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBHcmFuZGNoaWxkU3RhcnRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcmVzdWx0LmdyYW5kY2hpbGRTdGFydGVkID0gdHJ1ZTsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgICAgICB9CiAgICAgICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAicGFyZW50RGF0YSIpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICByZXN1bHQucGFyZW50RGF0YSA9IGRhdGEucGFyZW50RGF0YTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImNoaWxkU3RhcnRlZCIpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICByZXN1bHQuY2hpbGRTdGFydGVkID0gZGF0YS5jaGlsZFN0YXJ0ZWQ7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkdyYW5kY2hpbGRTdGFydE1hcHBpbmc6IGdyYW5kY2hpbGRTdGFydGVkIHNldCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-grandchild",
+            "target": "grandchild-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Grandchild"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Torunu Tamamla"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "grandchild-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Tamamlandi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "subflow-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GrandchildCompleteMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBHcmFuZGNoaWxkQ29tcGxldGVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcmVzdWx0LmdyYW5kY2hpbGRGaW5pc2hlZCA9IHRydWU7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkdyYW5kY2hpbGRDb21wbGV0ZU1hcHBpbmc6IGdyYW5kY2hpbGRGaW5pc2hlZCBzZXQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "grandchild-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Grandchild Cancelled"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Torun Iptal"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

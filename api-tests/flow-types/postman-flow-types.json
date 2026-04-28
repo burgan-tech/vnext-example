@@ -1,0 +1,193 @@
+{
+  "info": {
+    "_postman_id": "c51b9d51-e6b7-4435-87bd-d88e5a5cdf7b",
+    "name": "vNext Test - Flow Types",
+    "description": "Auto-generated from flow-types-test.http.\nvNext workflow integration test collection for flow-types.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Section",
+      "item": [
+        {
+          "name": "Adim 1: Core Flow Baslat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/core-flow-test/instances/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "core-flow-test",
+                "instances",
+                "start"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"core-test-{{$timestamp}}\",\n  \"tags\": [\"test\", \"core-flow\"],\n  \"attributes\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.collectionVariables.set(\"coreInstanceId\", jsonData.id);",
+                  "    console.log(\"coreInstanceId set to: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 2: Core State Kontrol (auto transition ile core-completed'a gecmis olmali)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/core-flow-test/instances/{{coreInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "core-flow-test",
+                "instances",
+                "{{coreInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Section",
+      "item": [
+        {
+          "name": "Adim 3: SubProcess Flow Baslat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/subprocess-flow-test/instances/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "subprocess-flow-test",
+                "instances",
+                "start"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"subprocess-test-{{$timestamp}}\",\n  \"tags\": [\"test\", \"subprocess-flow\"],\n  \"attributes\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.collectionVariables.set(\"subProcessInstanceId\", jsonData.id);",
+                  "    console.log(\"subProcessInstanceId set to: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 4: SubProcess State Kontrol",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/subprocess-flow-test/instances/{{subProcessInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "subprocess-flow-test",
+                "instances",
+                "{{subProcessInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

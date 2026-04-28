@@ -1,0 +1,4 @@
+TestResults/
+*.runsettings.local
+bin/
+obj/

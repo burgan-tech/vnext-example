@@ -1,0 +1,274 @@
+{
+  "key": "schema-data-test-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-data",
+    "master-schema",
+    "transition-schema",
+    "schema-rejection",
+    "update-data",
+    "field-roles",
+    "etag"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schema & Data Management Integration Test"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Schema ve Data Yonetimi Entegrasyon Testi"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "schema": {
+      "schema": {
+        "key": "schema-data-master",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      }
+    },
+    "updateData": {
+      "key": "update-instance-data",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Instance Data (updateData $self)"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Instance Datasini Guncelle (updateData $self)"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-schema-test",
+      "target": "data-initialized",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Schema Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Schema Testini Baslat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "schema-data-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/SchemaInitMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFNjaGVtYUluaXRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgIm9yZGVySWQiKSkKICAgICAgICAgICAgcmVzdWx0Lm9yZGVySWQgPSBkYXRhLm9yZGVySWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjdXN0b21lck5hbWUiKSkKICAgICAgICAgICAgcmVzdWx0LmN1c3RvbWVyTmFtZSA9IGRhdGEuY3VzdG9tZXJOYW1lOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiYW1vdW50IikpCiAgICAgICAgICAgIHJlc3VsdC5hbW91bnQgPSBkYXRhLmFtb3VudDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImN1cnJlbmN5IikpCiAgICAgICAgICAgIHJlc3VsdC5jdXJyZW5jeSA9IGRhdGEuY3VycmVuY3k7CgogICAgICAgIHJlc3VsdC5zdGF0dXMgPSAiaW5pdGlhbGl6ZWQiOwogICAgICAgIHJlc3VsdC5pbnRlcm5hbE5vdGUgPSAiQ3JlYXRlZCBieSBpbnRlZ3JhdGlvbiB0ZXN0IjsKICAgICAgICByZXN1bHQuYXVkaXRMb2cgPSAiSW5pdCBhdCAiICsgRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiU2NoZW1hSW5pdE1hcHBpbmc6IG9yZGVyPXtyZXN1bHQub3JkZXJJZH0iKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "data-initialized",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Data Initialized (Master Schema Active)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Data Baslatildi (Ana Schema Aktif)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "confirm-with-schema",
+            "target": "schema-validated-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Confirm with Transition Schema"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Transition Schema ile Onayla"
+              }
+            ],
+            "schema": {
+              "key": "schema-data-confirm-transition",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            },
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "schema-data-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/ConfirmMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIENvbmZpcm1NYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgIm9yZGVySWQiKSkKICAgICAgICAgICAgcmVzdWx0Lm9yZGVySWQgPSBkYXRhLm9yZGVySWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjdXN0b21lck5hbWUiKSkKICAgICAgICAgICAgcmVzdWx0LmN1c3RvbWVyTmFtZSA9IGRhdGEuY3VzdG9tZXJOYW1lOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiYW1vdW50IikpCiAgICAgICAgICAgIHJlc3VsdC5hbW91bnQgPSBkYXRhLmFtb3VudDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImN1cnJlbmN5IikpCiAgICAgICAgICAgIHJlc3VsdC5jdXJyZW5jeSA9IGRhdGEuY3VycmVuY3k7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJpbnRlcm5hbE5vdGUiKSkKICAgICAgICAgICAgcmVzdWx0LmludGVybmFsTm90ZSA9IGRhdGEuaW50ZXJuYWxOb3RlOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiYXVkaXRMb2ciKSkKICAgICAgICAgICAgcmVzdWx0LmF1ZGl0TG9nID0gZGF0YS5hdWRpdExvZzsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImNvbmZpcm1lZCIpKQogICAgICAgICAgICByZXN1bHQuY29uZmlybWVkID0gZGF0YS5jb25maXJtZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjb25maXJtZWRCeSIpKQogICAgICAgICAgICByZXN1bHQuY29uZmlybWVkQnkgPSBkYXRhLmNvbmZpcm1lZEJ5OwoKICAgICAgICByZXN1bHQuc3RhdHVzID0gImNvbmZpcm1lZCI7CiAgICAgICAgcmVzdWx0LnVwZGF0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkNvbmZpcm1NYXBwaW5nOiBjb25maXJtZWQgYnkge3Jlc3VsdC5jb25maXJtZWRCeX0iKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "skip-to-no-schema",
+            "target": "no-schema-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Skip to No-Schema State"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Schemasiz Duruma Atla"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "schema-validated-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Schema Validated State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Schema Dogrulanmis Durum"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-no-schema",
+            "target": "no-schema-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Move to No-Schema State"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Schemasiz Duruma Gec"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "no-schema-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "No Schema State (Free-form transitions)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Schemasiz Durum (Serbest gecisler)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-schema-test",
+            "target": "completed-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Schema Test"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Schema Testini Tamamla"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Schema Test Completed (Final/Success)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Schema Testi Tamamlandi (Final/Basarili)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

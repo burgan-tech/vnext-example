@@ -1,0 +1,221 @@
+{
+  "info": {
+    "_postman_id": "382174e0-fc37-4d36-ba7b-653b40194f3c",
+    "name": "vNext Test - Extended Tasks",
+    "description": "Auto-generated from extended-tasks-test-workflow.http.\nvNext workflow integration test collection for extended-tasks.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    },
+    {
+      "key": "workflow",
+      "value": "extended-tasks-test-workflow",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Adim 1: Workflow Baslat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "start"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"key\": \"extended-tasks-test-{{$timestamp}}\",\n  \"tags\": [\"extended-tasks-test\"],\n  \"attributes\": {\n    \"testId\": \"extended-tasks-happy-path\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.id) {",
+              "    pm.collectionVariables.set(\"instanceId\", jsonData.id);",
+              "    console.log(\"instanceId set to: \" + jsonData.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Adim 2: Durum Kontrol - Auto zincir sonrasi human-task-state'de beklenmeli",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{instanceId}}",
+            "functions",
+            "state"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Adim 3: Instance Data Kontrol - Tum task sonuclarini kontrol et",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{instanceId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Adim 4: Human Task Onayla (manuel transition)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/approve-human-task",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{instanceId}}",
+            "transitions",
+            "approve-human-task"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Adim 5: Durum Kontrol - completed-state olmali",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{instanceId}}",
+            "functions",
+            "state"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Adim 6: Final Instance Data - Tum task sonuclari mevcut olmali",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{instanceId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

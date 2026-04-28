@@ -1,0 +1,258 @@
+{
+  "info": {
+    "_postman_id": "5422afe4-5655-4252-91ff-ecbbd776cb64",
+    "name": "vNext Test - View Function Extension",
+    "description": "Auto-generated from view-function-extension-test-workflow.http.\nvNext workflow integration test collection for view-function-extension.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    },
+    {
+      "key": "workflow",
+      "value": "view-function-extension-test-workflow",
+      "type": "string"
+    },
+    {
+      "key": "mocklabBaseUrl",
+      "value": "http://localhost:3002",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Start workflow (sync)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "start"
+          ],
+          "query": [
+            {
+              "key": "sync",
+              "value": "true"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"key\": \"vfe-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"view-function-extension\"],\n  \"attributes\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.id) {",
+              "    pm.collectionVariables.set(\"vfeInstanceId\", jsonData.id);",
+              "    console.log(\"vfeInstanceId set to: \" + jsonData.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get state (includes view href when state has a view)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "state"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get view payload for current state (optional transitionKey; platform for rule-based clients)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/view?platform=web",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "view"
+          ],
+          "query": [
+            {
+              "key": "platform",
+              "value": "web"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Execute single-task function (instance-scoped)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/single-task-function",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "single-task-function"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Execute multi-task function (script then HTTP; output handler aggregates)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/multi-task-function",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "multi-task-function"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Instance data without extension filter (global-extension scope Everywhere may apply)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "data"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Requested extensions via query (DefinedFlowAndRequested + on-demand)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data?extensions=requested-extension,global-extension",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "data"
+          ],
+          "query": [
+            {
+              "key": "extensions",
+              "value": "requested-extension,global-extension"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

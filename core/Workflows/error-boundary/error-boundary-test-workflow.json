@@ -1,0 +1,520 @@
+{
+  "key": "error-boundary-test-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "error-boundary",
+    "retry",
+    "abort",
+    "ignore",
+    "log",
+    "rollback",
+    "log-action",
+    "retry-policy",
+    "priority",
+    "task-level-boundary",
+    "state-level-boundary",
+    "global-boundary",
+    "notify",
+    "notify-action",
+    "timeout-policy",
+    "error-types",
+    "error-codes"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Error Boundary Integration Test"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Hata Sinir Entegrasyon Testi"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "errorBoundary": {
+      "onError": [
+        {
+          "action": 0,
+          "priority": 100
+        }
+      ],
+      "onTimeout": {
+        "action": 3
+      }
+    },
+    "startTransition": {
+      "key": "start-error-boundary-test",
+      "target": "retry-test-state",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Error Boundary Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Hata Sinir Testini Baslat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "error-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/InitErrorTestMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBJbml0RXJyb3JUZXN0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC50ZXN0SWQgPSBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpOwogICAgICAgIHJlc3VsdC5lcnJvclRlc3RTdGFydGVkID0gdHJ1ZTsKICAgICAgICByZXN1bHQuc3RhcnRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkluaXRFcnJvclRlc3RNYXBwaW5nOiBlcnJvciBib3VuZGFyeSBpbnRlZ3JhdGlvbiB0ZXN0IGluaXRpYWxpemVkIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "retry-test-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Retry Test State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Yeniden Deneme Test Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "error-http-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ErrorHttpMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCnB1YmxpYyBjbGFzcyBFcnJvckh0dHBNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBodHRwVGFzayA9ICh0YXNrIGFzIEh0dHBUYXNrKSE7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgc3RyaW5nIGJhc2VVcmwgPSBHZXRDb25maWdWYWx1ZSgiTW9ja2xhYkJhc2VVcmwiKTsKICAgICAgICBodHRwVGFzay5VcmwgPSBodHRwVGFzay5VcmwuUmVwbGFjZSgie01vY2tsYWJCYXNlVXJsfSIsIGJhc2VVcmwpOwogICAgICAgIHZhciBib2R5ID0gbmV3CiAgICAgICAgewogICAgICAgICAgICBzb3VyY2UgPSAiZXJyb3ItYm91bmRhcnktdGVzdCIsCiAgICAgICAgICAgIHRlc3RJZCA9IEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSA/IGRhdGEudGVzdElkIDogbnVsbCwKICAgICAgICAgICAgdGltZXN0YW1wID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIikKICAgICAgICB9OwogICAgICAgIGh0dHBUYXNrLlNldEJvZHkoYm9keSk7CiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZSgpOwogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICB2YXIgdGFza1Jlc3BvbnNlID0gY29udGV4dC5Cb2R5OwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKSByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJlcnJvclRlc3RTdGFydGVkIikpIHJlc3VsdC5lcnJvclRlc3RTdGFydGVkID0gZGF0YS5lcnJvclRlc3RTdGFydGVkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAic3RhcnRlZEF0IikpIHJlc3VsdC5zdGFydGVkQXQgPSBkYXRhLnN0YXJ0ZWRBdDsKICAgICAgICByZXN1bHQuaHR0cEVycm9ySGFuZGxlZCA9IHRydWU7CiAgICAgICAgaWYgKHRhc2tSZXNwb25zZSAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcmVzdWx0Lmh0dHBTdGF0dXNDb2RlID0gdGFza1Jlc3BvbnNlLnN0YXR1c0NvZGU7CiAgICAgICAgICAgIHJlc3VsdC5odHRwSXNTdWNjZXNzID0gdGFza1Jlc3BvbnNlLmlzU3VjY2VzczsKICAgICAgICAgICAgaWYgKHRhc2tSZXNwb25zZS5kYXRhICE9IG51bGwpCiAgICAgICAgICAgICAgICByZXN1bHQuaHR0cFJlc3BvbnNlRGF0YSA9IHRhc2tSZXNwb25zZS5kYXRhOwogICAgICAgIH0KICAgICAgICBMb2dJbmZvcm1hdGlvbigiRXJyb3JIdHRwTWFwcGluZzogb3V0cHV0IGFmdGVyIEhUVFAgY2FsbCAoZXJyb3IgYm91bmRhcnkgbWF5IGhhdmUgcmV0cmllZCkiKTsKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9OwogICAgfQp9Cg=="
+            },
+            "errorBoundary": {
+              "onError": [
+                {
+                  "action": 1,
+                  "priority": 10,
+                  "retryPolicy": {
+                    "maxRetries": 2,
+                    "initialDelay": "PT2S",
+                    "backoffType": 0
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-ignore-test",
+            "target": "ignore-test-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Ignore Test"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Yoksayma Testine Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ignore-test-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Ignore Test State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Yoksayma Test Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 3,
+              "priority": 10,
+              "errorTypes": [
+                "System.InvalidOperationException"
+              ],
+              "errorCodes": [
+                "*"
+              ]
+            }
+          ]
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ThrowErrorMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFRocm93RXJyb3JNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0aHJvdyBuZXcgRXhjZXB0aW9uKCJJbnRlbnRpb25hbCB0ZXN0IGVycm9yIGZvciBlcnJvciBib3VuZGFyeSIpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/IgnoreErrorMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBJZ25vcmVFcnJvck1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKSByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJlcnJvclRlc3RTdGFydGVkIikpIHJlc3VsdC5lcnJvclRlc3RTdGFydGVkID0gZGF0YS5lcnJvclRlc3RTdGFydGVkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaHR0cEVycm9ySGFuZGxlZCIpKSByZXN1bHQuaHR0cEVycm9ySGFuZGxlZCA9IGRhdGEuaHR0cEVycm9ySGFuZGxlZDsKICAgICAgICByZXN1bHQuZXJyb3JJZ25vcmVkID0gdHJ1ZTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiSWdub3JlRXJyb3JNYXBwaW5nOiBjb250aW51YXRpb24gYWZ0ZXIgaWdub3JlIHBvbGljeSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-rollback-from-ignore",
+            "target": "rollback-test-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Rollback from Ignore"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Ignore'dan Rollback'e Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "rollback-test-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Rollback Action Test"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Rollback Action Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 2,
+              "priority": 10
+            }
+          ]
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ThrowErrorMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFRocm93RXJyb3JNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0aHJvdyBuZXcgRXhjZXB0aW9uKCJJbnRlbnRpb25hbCB0ZXN0IGVycm9yIGZvciBlcnJvciBib3VuZGFyeSIpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RollbackMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFJvbGxiYWNrTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKQogICAgICAgICAgICByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJyZXRyeUNvbXBsZXRlZCIpKQogICAgICAgICAgICByZXN1bHQucmV0cnlDb21wbGV0ZWQgPSBkYXRhLnJldHJ5Q29tcGxldGVkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiZXJyb3JJZ25vcmVkIikpCiAgICAgICAgICAgIHJlc3VsdC5lcnJvcklnbm9yZWQgPSBkYXRhLmVycm9ySWdub3JlZDsKCiAgICAgICAgcmVzdWx0LnJvbGxiYWNrRXhlY3V0ZWQgPSB0cnVlOwogICAgICAgIHJlc3VsdC5yb2xsYmFja0F0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCJSb2xsYmFja01hcHBpbmcgY29tcGxldGVkIC0gcm9sbGJhY2sgYWN0aW9uIHRlc3QiKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-log-from-rollback",
+            "target": "log-test-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Log from Rollback"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Rollback'den Log'a Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "log-test-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Log Action Test"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Log Action Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 5,
+              "priority": 10
+            }
+          ]
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ThrowErrorMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFRocm93RXJyb3JNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0aHJvdyBuZXcgRXhjZXB0aW9uKCJJbnRlbnRpb25hbCB0ZXN0IGVycm9yIGZvciBlcnJvciBib3VuZGFyeSIpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/LogOnlyMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBMb2dPbmx5TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpIHJlc3VsdC50ZXN0SWQgPSBkYXRhLnRlc3RJZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImVycm9yVGVzdFN0YXJ0ZWQiKSkgcmVzdWx0LmVycm9yVGVzdFN0YXJ0ZWQgPSBkYXRhLmVycm9yVGVzdFN0YXJ0ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJodHRwRXJyb3JIYW5kbGVkIikpIHJlc3VsdC5odHRwRXJyb3JIYW5kbGVkID0gZGF0YS5odHRwRXJyb3JIYW5kbGVkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiZXJyb3JJZ25vcmVkIikpIHJlc3VsdC5lcnJvcklnbm9yZWQgPSBkYXRhLmVycm9ySWdub3JlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInJvbGxiYWNrRXhlY3V0ZWQiKSkgcmVzdWx0LnJvbGxiYWNrRXhlY3V0ZWQgPSBkYXRhLnJvbGxiYWNrRXhlY3V0ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJyb2xsYmFja0F0IikpIHJlc3VsdC5yb2xsYmFja0F0ID0gZGF0YS5yb2xsYmFja0F0OwogICAgICAgIHJlc3VsdC5sb2dPbmx5RXhlY3V0ZWQgPSB0cnVlOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCJMb2dPbmx5TWFwcGluZzogbG9nLW9ubHkgcGF0aCBleGVjdXRlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-completed-from-log",
+            "target": "notify-test-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Completed from Log"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Log'dan Completed'a Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "notify-test-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Notify Action Test"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Notify Action Testi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "priority": 10,
+              "transition": "auto-to-completed-from-notify"
+            }
+          ]
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ThrowErrorMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFRocm93RXJyb3JNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0aHJvdyBuZXcgRXhjZXB0aW9uKCJJbnRlbnRpb25hbCB0ZXN0IGVycm9yIGZvciBlcnJvciBib3VuZGFyeSIpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "error-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/NotifyMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIE5vdGlmeU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKCiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkKICAgICAgICAgICAgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAicmV0cnlDb21wbGV0ZWQiKSkKICAgICAgICAgICAgcmVzdWx0LnJldHJ5Q29tcGxldGVkID0gZGF0YS5yZXRyeUNvbXBsZXRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImVycm9ySWdub3JlZCIpKQogICAgICAgICAgICByZXN1bHQuZXJyb3JJZ25vcmVkID0gZGF0YS5lcnJvcklnbm9yZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJyb2xsYmFja0V4ZWN1dGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5yb2xsYmFja0V4ZWN1dGVkID0gZGF0YS5yb2xsYmFja0V4ZWN1dGVkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAicm9sbGJhY2tBdCIpKQogICAgICAgICAgICByZXN1bHQucm9sbGJhY2tBdCA9IGRhdGEucm9sbGJhY2tBdDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImxvZ0V4ZWN1dGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5sb2dFeGVjdXRlZCA9IGRhdGEubG9nRXhlY3V0ZWQ7CgogICAgICAgIHJlc3VsdC5ub3RpZnlFeGVjdXRlZCA9IHRydWU7CiAgICAgICAgcmVzdWx0Lm5vdGlmeUF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCJOb3RpZnlNYXBwaW5nIGNvbXBsZXRlZCAtIG5vdGlmeSBhY3Rpb24gdGVzdCIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-completed-from-notify",
+            "target": "completed-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Completed from Notify"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Notify'dan Completed'a Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Success Final"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Basari Son"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "error-final",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Error Final"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Hata Son"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

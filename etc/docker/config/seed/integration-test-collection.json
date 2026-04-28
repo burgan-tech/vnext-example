@@ -1,0 +1,117 @@
+{
+  "collection": {
+    "name": "integration-tests",
+    "description": "Mock API endpoints for vNext integration tests",
+    "color": "#10b981"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "api/test/process",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"processId\": \"{{helpers.guid()}}\",\n  \"status\": \"completed\",\n  \"result\": {\n    \"success\": true,\n    \"message\": \"Process completed successfully\",\n    \"processedAt\": \"{{helpers.now()}}\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Generic process endpoint for HTTP task testing",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/test/validate",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"validationId\": \"{{helpers.guid()}}\",\n  \"isValid\": true,\n  \"validatedAt\": \"{{helpers.now()}}\",\n  \"checks\": {\n    \"formatCheck\": true,\n    \"businessRuleCheck\": true,\n    \"complianceCheck\": true\n  }\n}",
+      "contentType": "application/json",
+      "description": "Validation endpoint for testing HTTP task with rules",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.shouldFail",
+          "conditionOperator": "equals",
+          "conditionValue": "true",
+          "statusCode": 400,
+          "responseBody": "{\n  \"validationId\": \"{{helpers.guid()}}\",\n  \"isValid\": false,\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"Validation failed intentionally for testing\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "GET",
+      "route": "api/test/user-info",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"userId\": \"{{helpers.guid()}}\",\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"role\": \"admin\",\n  \"isActive\": true\n}",
+      "contentType": "application/json",
+      "description": "User info endpoint for function and extension testing",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/test/error-endpoint",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 500,
+      "responseBody": "{\n  \"error\": {\n    \"code\": \"INTERNAL_ERROR\",\n    \"message\": \"Intentional server error for error boundary testing\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Always-failing endpoint for error boundary testing",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/test/slow-endpoint",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"result\": \"completed after delay\"\n}",
+      "contentType": "application/json",
+      "description": "Slow endpoint for timeout testing",
+      "delayMs": 5000,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/test/notification",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"notificationId\": \"{{helpers.guid()}}\",\n  \"sent\": true\n}",
+      "contentType": "application/json",
+      "description": "Notification endpoint for notification task testing",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}

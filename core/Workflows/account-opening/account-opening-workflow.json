@@ -683,7 +683,7 @@
       {
         "key": "timeouted",
         "stateType": 3,
-        "subType": 8,
+        "subType": 6,
         "versionStrategy": "Minor",
         "labels": [
           {

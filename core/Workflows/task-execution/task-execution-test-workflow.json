@@ -1,0 +1,374 @@
+{
+  "key": "task-execution-test-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-execution",
+    "http-task",
+    "script-task",
+    "start-flow-task",
+    "get-instance-data-task",
+    "task-ordering",
+    "on-entries"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Task Execution Integration Test"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Gorev Calistirma Entegrasyon Testi"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-task-execution",
+      "target": "http-task-state",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Task Execution Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Gorev Testini Baslat"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "task-exec-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/InitTaskTestMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEluaXRUYXNrVGVzdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQudGVzdElkID0gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKTsKICAgICAgICByZXN1bHQuc3RhcnRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkluaXRUYXNrVGVzdE1hcHBpbmc6IHRhc2sgZXhlY3V0aW9uIHRlc3QgaW5pdGlhbGl6ZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "http-task-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "HTTP Task State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "HTTP Gorev Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "http-process-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/HttpProcessMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCnB1YmxpYyBjbGFzcyBIdHRwUHJvY2Vzc01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGh0dHBUYXNrID0gKHRhc2sgYXMgSHR0cFRhc2spITsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBzdHJpbmcgYmFzZVVybCA9IEdldENvbmZpZ1ZhbHVlKCJNb2NrbGFiQmFzZVVybCIpOwogICAgICAgIGh0dHBUYXNrLlVybCA9IGh0dHBUYXNrLlVybC5SZXBsYWNlKCJ7TW9ja2xhYkJhc2VVcmx9IiwgYmFzZVVybCk7CiAgICAgICAgdmFyIGJvZHkgPSBuZXcgeyBzb3VyY2UgPSAidGFzay1leGVjdXRpb24tdGVzdCIsIHRpbWVzdGFtcCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpIH07CiAgICAgICAgaHR0cFRhc2suU2V0Qm9keShib2R5KTsKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIHZhciB0YXNrUmVzcG9uc2UgPSBjb250ZXh0LkJvZHk7CiAgICAgICAgdmFyIHJlc3BvbnNlQm9keSA9IHRhc2tSZXNwb25zZS5kYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKSByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgcmVzdWx0Lmh0dHBUYXNrQ29tcGxldGVkID0gdHJ1ZTsKICAgICAgICByZXN1bHQuaHR0cFN0YXR1c0NvZGUgPSB0YXNrUmVzcG9uc2Uuc3RhdHVzQ29kZTsKICAgICAgICByZXN1bHQuaHR0cElzU3VjY2VzcyA9IHRhc2tSZXNwb25zZS5pc1N1Y2Nlc3M7CiAgICAgICAgaWYgKHJlc3BvbnNlQm9keSAhPSBudWxsICYmIEhhc1Byb3BlcnR5KHJlc3BvbnNlQm9keSwgInByb2Nlc3NJZCIpKQogICAgICAgICAgICByZXN1bHQucHJvY2Vzc0lkID0gcmVzcG9uc2VCb2R5LnByb2Nlc3NJZDsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkh0dHBQcm9jZXNzTWFwcGluZyBjb21wbGV0ZWQsIHN0YXR1cz17dGFza1Jlc3BvbnNlLnN0YXR1c0NvZGV9Iik7CiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-script-processing",
+            "target": "script-processing-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Script Processing"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Script Isleme Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "script-processing-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Script Processing State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Script Isleme Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "task-exec-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ScriptProcessMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFNjcmlwdFByb2Nlc3NNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaHR0cFRhc2tDb21wbGV0ZWQiKSkgcmVzdWx0Lmh0dHBUYXNrQ29tcGxldGVkID0gZGF0YS5odHRwVGFza0NvbXBsZXRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInByb2Nlc3NJZCIpKSByZXN1bHQucHJvY2Vzc0lkID0gZGF0YS5wcm9jZXNzSWQ7CiAgICAgICAgcmVzdWx0LnNjcmlwdFByb2Nlc3NlZCA9IHRydWU7CiAgICAgICAgcmVzdWx0LnNjcmlwdFByb2Nlc3NlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlNjcmlwdFByb2Nlc3NNYXBwaW5nIGNvbXBsZXRlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-cross-workflow",
+            "target": "cross-workflow-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Cross Workflow"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Capraz Is Akisi Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "cross-workflow-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cross Workflow State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Capraz Is Akisi Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "task-exec-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/CrossWorkflowMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIENyb3NzV29ya2Zsb3dNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaHR0cFRhc2tDb21wbGV0ZWQiKSkgcmVzdWx0Lmh0dHBUYXNrQ29tcGxldGVkID0gZGF0YS5odHRwVGFza0NvbXBsZXRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInNjcmlwdFByb2Nlc3NlZCIpKSByZXN1bHQuc2NyaXB0UHJvY2Vzc2VkID0gZGF0YS5zY3JpcHRQcm9jZXNzZWQ7CiAgICAgICAgcmVzdWx0LmNyb3NzV29ya2Zsb3dDb21wbGV0ZWQgPSB0cnVlOwogICAgICAgIHJlc3VsdC5jcm9zc1dvcmtmbG93QXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiQ3Jvc3NXb3JrZmxvd01hcHBpbmcgY29tcGxldGVkIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-start-flow",
+            "target": "start-flow-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Start Flow"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Flow Baslatma Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "start-flow-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Start Flow State (StartTask type 11)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Flow Baslatma Durumu (StartTask tip 11)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "start-flow-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StartFlowMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCnB1YmxpYyBjbGFzcyBTdGFydEZsb3dNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzdGFydFRhc2sgPSAodGFzayBhcyBTdGFydFRhc2spITsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKCiAgICAgICAgdmFyIGJvZHkgPSBuZXcKICAgICAgICB7CiAgICAgICAgICAgIHNvdXJjZSA9ICJ0YXNrLWV4ZWN1dGlvbi10ZXN0IiwKICAgICAgICAgICAgcGFyZW50SW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2UuSWQKICAgICAgICB9OwogICAgICAgIHN0YXJ0VGFzay5TZXRCb2R5KGJvZHkpOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigiU3RhcnRGbG93TWFwcGluZyBJbnB1dEhhbmRsZXI6IGJvZHkgc2V0IGZvciB0YXJnZXQgd29ya2Zsb3ciKTsKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIHZhciB0YXNrUmVzcG9uc2UgPSBjb250ZXh0LkJvZHk7CiAgICAgICAgdmFyIHJlc3BvbnNlQm9keSA9IHRhc2tSZXNwb25zZS5kYXRhOwoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaHR0cFRhc2tDb21wbGV0ZWQiKSkgcmVzdWx0Lmh0dHBUYXNrQ29tcGxldGVkID0gZGF0YS5odHRwVGFza0NvbXBsZXRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInByb2Nlc3NJZCIpKSByZXN1bHQucHJvY2Vzc0lkID0gZGF0YS5wcm9jZXNzSWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJzY3JpcHRQcm9jZXNzZWQiKSkgcmVzdWx0LnNjcmlwdFByb2Nlc3NlZCA9IGRhdGEuc2NyaXB0UHJvY2Vzc2VkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY3Jvc3NXb3JrZmxvd0NvbXBsZXRlZCIpKSByZXN1bHQuY3Jvc3NXb3JrZmxvd0NvbXBsZXRlZCA9IGRhdGEuY3Jvc3NXb3JrZmxvd0NvbXBsZXRlZDsKCiAgICAgICAgcmVzdWx0LnN0YXJ0Rmxvd0NvbXBsZXRlZCA9IHRydWU7CiAgICAgICAgcmVzdWx0LnN0YXJ0Rmxvd0lzU3VjY2VzcyA9IHRhc2tSZXNwb25zZS5pc1N1Y2Nlc3M7CgogICAgICAgIGlmIChyZXNwb25zZUJvZHkgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShyZXNwb25zZUJvZHksICJpbnN0YW5jZUlkIikpCiAgICAgICAgICAgIHJlc3VsdC5zdGFydGVkSW5zdGFuY2VJZCA9IHJlc3BvbnNlQm9keS5pbnN0YW5jZUlkOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlN0YXJ0Rmxvd01hcHBpbmcgT3V0cHV0SGFuZGxlcjogaXNTdWNjZXNzPXt0YXNrUmVzcG9uc2UuaXNTdWNjZXNzfSIpOwogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH07CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-get-instance-data",
+            "target": "get-instance-data-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Get Instance Data"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Instance Data Alma Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "get-instance-data-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Get Instance Data State (GetInstanceDataTask type 13)"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Instance Data Alma Durumu (GetInstanceDataTask tip 13)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "get-instance-data-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/GetInstanceDataMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCnB1YmxpYyBjbGFzcyBHZXRJbnN0YW5jZURhdGFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBnZXREYXRhVGFzayA9ICh0YXNrIGFzIEdldEluc3RhbmNlRGF0YVRhc2spITsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKCiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJzdGFydGVkSW5zdGFuY2VJZCIpKQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGluc3RhbmNlSWQgPSBkYXRhLnN0YXJ0ZWRJbnN0YW5jZUlkPy5Ub1N0cmluZygpOwogICAgICAgICAgICBnZXREYXRhVGFzay5TZXRJbnN0YW5jZShpbnN0YW5jZUlkKTsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJHZXRJbnN0YW5jZURhdGFNYXBwaW5nIElucHV0SGFuZGxlcjogdGFyZ2V0IGluc3RhbmNlSWQ9e2luc3RhbmNlSWR9Iik7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIHZhciB0YXNrUmVzcG9uc2UgPSBjb250ZXh0LkJvZHk7CiAgICAgICAgdmFyIHJlc3BvbnNlQm9keSA9IHRhc2tSZXNwb25zZS5kYXRhOwoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaHR0cFRhc2tDb21wbGV0ZWQiKSkgcmVzdWx0Lmh0dHBUYXNrQ29tcGxldGVkID0gZGF0YS5odHRwVGFza0NvbXBsZXRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInByb2Nlc3NJZCIpKSByZXN1bHQucHJvY2Vzc0lkID0gZGF0YS5wcm9jZXNzSWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJzY3JpcHRQcm9jZXNzZWQiKSkgcmVzdWx0LnNjcmlwdFByb2Nlc3NlZCA9IGRhdGEuc2NyaXB0UHJvY2Vzc2VkOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY3Jvc3NXb3JrZmxvd0NvbXBsZXRlZCIpKSByZXN1bHQuY3Jvc3NXb3JrZmxvd0NvbXBsZXRlZCA9IGRhdGEuY3Jvc3NXb3JrZmxvd0NvbXBsZXRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInN0YXJ0Rmxvd0NvbXBsZXRlZCIpKSByZXN1bHQuc3RhcnRGbG93Q29tcGxldGVkID0gZGF0YS5zdGFydEZsb3dDb21wbGV0ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJzdGFydGVkSW5zdGFuY2VJZCIpKSByZXN1bHQuc3RhcnRlZEluc3RhbmNlSWQgPSBkYXRhLnN0YXJ0ZWRJbnN0YW5jZUlkOwoKICAgICAgICByZXN1bHQuZ2V0SW5zdGFuY2VEYXRhQ29tcGxldGVkID0gdHJ1ZTsKICAgICAgICByZXN1bHQuZ2V0SW5zdGFuY2VEYXRhSXNTdWNjZXNzID0gdGFza1Jlc3BvbnNlLmlzU3VjY2VzczsKCiAgICAgICAgaWYgKHJlc3BvbnNlQm9keSAhPSBudWxsKQogICAgICAgICAgICByZXN1bHQucmVtb3RlSW5zdGFuY2VEYXRhID0gcmVzcG9uc2VCb2R5OwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkdldEluc3RhbmNlRGF0YU1hcHBpbmcgT3V0cHV0SGFuZGxlcjogaXNTdWNjZXNzPXt0YXNrUmVzcG9uc2UuaXNTdWNjZXNzfSIpOwogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH07CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-completed",
+            "target": "completed-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Tamamlanmaya Otomatik Gecis"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandi Durumu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
