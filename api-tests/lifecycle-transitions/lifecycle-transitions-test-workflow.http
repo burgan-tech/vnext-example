@@ -30,8 +30,10 @@ Content-Type: application/json
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
 ### Adim 3: Manuel Transition - Move to Processing (ITransitionMapping test)
+### transition roles: allow sadece test-operator (rolsuz cagri -> instance status F)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
+role: test-operator
 
 {}
 
@@ -43,8 +45,10 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
 ### Adim 6: Manuel Transition - Complete Workflow
+### transition roles: allow test-approver; test-operator deny
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/complete-workflow?sync=true
 Content-Type: application/json
+role: test-approver
 
 {}
 
@@ -74,6 +78,7 @@ Content-Type: application/json
 ### Adim 2: Manuel Transition - Move to Processing
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{failInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
+role: test-operator
 
 {}
 
@@ -103,6 +108,7 @@ Content-Type: application/json
 ### Adim 2: Manuel Transition - Move to Processing
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{defaultInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
+role: test-operator
 
 {}
 
@@ -300,6 +306,7 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 ### Adim 3: move-to-processing transition (test-operator rolu ile)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/move-to-processing
 Content-Type: application/json
+role: test-operator
 
 {}
 

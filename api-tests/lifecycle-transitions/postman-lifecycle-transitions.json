@@ -124,6 +124,11 @@
                 "key": "Content-Type",
                 "value": "application/json",
                 "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-operator",
+                "type": "text"
               }
             ],
             "url": {
@@ -219,6 +224,11 @@
               {
                 "key": "Content-Type",
                 "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-approver",
                 "type": "text"
               }
             ],
@@ -355,6 +365,11 @@
                 "key": "Content-Type",
                 "value": "application/json",
                 "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-operator",
+                "type": "text"
               }
             ],
             "url": {
@@ -489,6 +504,11 @@
               {
                 "key": "Content-Type",
                 "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-operator",
                 "type": "text"
               }
             ],
@@ -1349,6 +1369,11 @@
               {
                 "key": "Content-Type",
                 "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-operator",
                 "type": "text"
               }
             ],

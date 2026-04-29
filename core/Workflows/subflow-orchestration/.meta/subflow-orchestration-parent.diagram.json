@@ -1,0 +1,24 @@
+{
+  "nodePos": {
+    "parent-initial": {
+      "x": 496,
+      "y": 240
+    },
+    "parent-subflow-state": {
+      "x": 940,
+      "y": 480
+    },
+    "parent-completed": {
+      "x": 1348,
+      "y": 240
+    },
+    "parent-cancelled": {
+      "x": 100,
+      "y": 100
+    },
+    "__start__": {
+      "x": 100,
+      "y": 240
+    }
+  }
+}

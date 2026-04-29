@@ -1,0 +1,113 @@
+{
+  "key": "smoke-runtime-check-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "smoke",
+    "diagnostic",
+    "runtime-check",
+    "minimal"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Smoke Runtime Check (minimal manual flow)"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Runtime Smoke Testi"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-smoke",
+      "target": "smoke-start",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Baslat"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "smoke-start",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Smoke Start"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Baslangic"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "finish-smoke",
+            "target": "smoke-done",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish (manual only)"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Bitir"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "smoke-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Smoke Done"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

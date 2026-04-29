@@ -7,9 +7,6 @@ public class ShortTimerMapping : ScriptBase, ITimerMapping
     public async Task<TimerSchedule> Handler(ScriptContext context)
     {
         LogInformation("ShortTimerMapping: scheduling 10 seconds from now");
-        return new TimerSchedule
-        {
-            FireAt = DateTime.UtcNow.AddSeconds(10)
-        };
+        return TimerSchedule.FromDateTime(DateTime.UtcNow.AddSeconds(10));
     }
 }

@@ -42,7 +42,7 @@ core/
 
 **Workflow:** `lifecycle-transitions-test-workflow` (type: F)
 
-**Amac:** Workflow yasam dongusu ve tum transition tiplerini test eder; ayrica **exit transition**, **zamanlayici schedule yonetimi** (manuel iptal ve `$self` ile reschedule), **workflow/state queryRoles** ve **transition bazli roller** senaryolarini kapsar.
+**Amac:** Workflow yasam dongusu ve tum transition tiplerini test eder; ayrica **exit transition**, **zamanlayici schedule yonetimi** (manuel iptal ve **self-loop reschedule** — hedef olarak mevcut state anahtari `auto-passed-state`; `$self` ile ayni davranis), **workflow/state queryRoles** ve **transition bazli roller** senaryolarini kapsar.
 
 ### Agac Yapisi
 
@@ -90,8 +90,8 @@ lifecycle-transitions-test-workflow (F)
 │       │   └── timer: ShortTimerMapping.csx (ITimerMapping, 10 saniye)
 │       ├── cancel-schedule-manually (Manual, triggerType:0) → pre-complete-state
 │       │   └── (zamanlayici schedule'ini manuel transition ile iptal senaryosu)
-│       └── reschedule-timer (Manual, triggerType:0, target: $self)
-│           └── (timer'i ayni state'te yeniden zamanlama senaryosu)
+│       └── reschedule-timer (Manual, triggerType:0, target: auto-passed-state)
+│           └── (aynı state'te self-loop; timer'i yeniden zamanlama — tanim dogrulamasinda `$self` yerine acik state anahtari gerekir)
 │
 ├── timer-triggered-state (Intermediate, stateType:2)
 │   ├── onEntries:
@@ -135,7 +135,7 @@ lifecycle-transitions-test-workflow (F)
 | Cancel transition | Workflow iptal mekanizmasi | cancel-workflow → terminated-state |
 | **Exit transition (`attributes.exit`)** | Belirli state'lerde cikis; hedef terminated; IMapping ile exitExecuted | exit-workflow, ExitMapping.csx |
 | **Schedule iptal (manuel)** | auto-passed-state'ten manuel gecisle timer beklemeden pre-complete | cancel-schedule-manually |
-| **Timer reschedule ($self)** | Ayni state'te kalarak zamanlayiciyi yeniden baglama | reschedule-timer → $self |
+| **Timer reschedule (self-loop)** | Ayni state'te kalarak zamanlayiciyi yeniden baglama | reschedule-timer → **auto-passed-state** (`$self` semantigi; amorphie-flow E_BAD_TARGET icin acik hedef) |
 | **queryRoles (workflow)** | authorize endpoint ile workflow datasi sorgu yetkisi | attributes.queryRoles, test-viewer |
 | **queryRoles (state)** | State bazli allow/deny override | processing-state queryRoles |
 | **Transition roles** | Manuel transition'da rol grant/deny | move-to-processing, complete-workflow |
@@ -151,7 +151,7 @@ lifecycle-transitions-test-workflow (F)
 | Cancel | cancel-workflow → terminated-state |
 | **Exit** | initialize-state'ten exit-workflow; terminated-state ve `exitExecuted` |
 | **Schedule cancel** | auto-passed-state'te cancel-schedule-manually → pre-complete-state |
-| **Reschedule** | reschedule-timer ($self), state auto-passed-state kalir |
+| **Reschedule** | reschedule-timer (`target: auto-passed-state`), state auto-passed-state kalir |
 | **QueryRoles / roller** | `/functions/authorize?role=...`; move-to-processing; processing-state'te test-processor / test-viewer deny |
 
 ### Kullanilan Bilesenler
@@ -1168,7 +1168,7 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris:
 | Cancel transition | X | X | | | | | | | | |
 | **Exit transition (`attributes.exit`)** | X | | | | | | | | | |
 | **Schedule cancel (manuel)** | X | | | | | | | | | |
-| **Timer reschedule ($self)** | X | | | | | | | | | |
+| **Timer reschedule (self-loop)** | X | | | | | | | | | |
 | Shared transitions ($self) | | X | | | | | | | | |
 | **Child-level shared transition** | | X | | | | | | | | |
 | **SubFlow cancel final states (child/grandchild)** | | X | | | | | | | | |

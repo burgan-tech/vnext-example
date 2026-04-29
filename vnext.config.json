@@ -25,12 +25,7 @@
       "description": "Exported components for core domain",
       "maintainer": "vNext Team",
       "license": "MIT",
-      "keywords": [
-        "core",
-        "vnext",
-        "workflow",
-        "domain"
-      ]
+      "keywords": ["core", "vnext", "workflow", "domain"]
     }
   },
   "dependencies": {

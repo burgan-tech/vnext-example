@@ -1,0 +1,32 @@
+{
+  "nodePos": {
+    "http-task-state": {
+      "x": 340,
+      "y": -180
+    },
+    "script-processing-state": {
+      "x": 500,
+      "y": 560
+    },
+    "cross-workflow-state": {
+      "x": 980,
+      "y": 260
+    },
+    "start-flow-state": {
+      "x": 1200,
+      "y": -220
+    },
+    "get-instance-data-state": {
+      "x": 1880,
+      "y": 280
+    },
+    "completed-state": {
+      "x": 2480,
+      "y": 60
+    },
+    "__start__": {
+      "x": -296,
+      "y": 100
+    }
+  }
+}
