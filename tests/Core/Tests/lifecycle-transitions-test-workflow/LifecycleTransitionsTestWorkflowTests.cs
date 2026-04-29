@@ -31,7 +31,8 @@ namespace Core.IntegrationTests.Tests.LifecycleTransitionsTestWorkflow;
 
 /// <summary>
 /// Integration tests aligned with <c>api-tests/lifecycle-transitions/lifecycle-transitions-test-workflow.http</c>.
-/// Helpers live in <see cref="Core.IntegrationTests.Helpers"/>.
+/// Paylaşılan API yardımcıları: <see cref="Core.IntegrationTests.Helpers"/>; bu workflow’a özel veri sözleşmesi:
+/// <see cref="LifecyclePassPathInstanceDataAssertions"/>.
 /// </summary>
 public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
 {
@@ -81,6 +82,52 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         );
 
         await _workflow.AssertStateAsync(instanceId, "completed-state");
+    }
+
+    /// <summary>
+    /// Timer ile <c>pre-complete-state</c>'e ulaşan pass path'te instance verisinde, ilgili state'lerde tanımlı
+    /// <b>onEntry / onExit</b> (ve geçiş) script görevlerinin instance data'ya yazdığı alanların beklenen şekilde
+    /// dolduğunu doğrular. Böylece bu görevlerin fiilen çalıştığı veri sözleşmesi üzerinden garanti altına alınır.
+    /// </summary>
+    /// <remarks>
+    /// Alan adları <c>core/Workflows/lifecycle-transitions/src/*.csx</c> ile eşleşir; script gövdeleri değişirse bu test bilinçli olarak güncellenmelidir.
+    /// </remarks>
+    [Fact]
+    public async Task PassPath_InstanceData_AfterPreCompleteViaTimer_ReflectsOnEntryOnExitScripts()
+    {
+        var key = WorkflowInstanceTestHelper.UniqueInstanceKey("lifecycle-pass-data-contract");
+        var instanceId = await _workflow.StartInstanceIdAsync(
+            new
+            {
+                key,
+                tags = new[] { "integration-test", "lifecycle", "pass-data-contract" },
+                attributes = new { testPath = "pass" },
+            }
+        );
+
+        await _workflow.AssertStateAsync(instanceId, "initialize-state");
+
+        await _workflow.RunTransitionAsync(
+            instanceId,
+            "move-to-processing",
+            WorkflowTestHttpHeaders.Role("test-operator")
+        );
+
+        await _workflow.AssertStateAsync(instanceId, "auto-passed-state");
+
+        await _workflow.WaitForStateAsync(
+            instanceId,
+            "pre-complete-state",
+            TimeSpan.FromSeconds(15)
+        );
+
+        var instanceAtPreComplete = await Api.GetInstanceAsync(WorkflowKey, instanceId);
+        Assert.True(
+            instanceAtPreComplete.Body.TryGetProperty("attributes", out var attrs),
+            "GetInstance should include attributes"
+        );
+
+        LifecyclePassPathInstanceDataAssertions.AssertAfterPreCompleteViaTimer(attrs);
     }
 
     [Fact]
@@ -204,6 +251,51 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         );
     }
 
+    // TODO: Bu test şu anda başarısız — runtime/platform tarafında exit ile ilgili bug var; workflow tanımı doğru kabul ediliyor.
+    [Fact]
+    public async Task ExitTransition_FromPreComplete_SetsExitExecutedOnInstance()
+    {
+        var key = WorkflowInstanceTestHelper.UniqueInstanceKey("exit-precomplete-test");
+        var instanceId = await _workflow.StartInstanceIdAsync(
+            new
+            {
+                key,
+                tags = new[] { "exit-precomplete-test" },
+                attributes = new { testId = "exit-precomplete-test", testPath = "pass" },
+            }
+        );
+
+        await _workflow.RunTransitionAsync(
+            instanceId,
+            "move-to-processing",
+            WorkflowTestHttpHeaders.Role("test-operator")
+        );
+
+        await _workflow.AssertStateAsync(instanceId, "auto-passed-state");
+
+        await _workflow.RunTransitionAsync(instanceId, "cancel-schedule-manually", headers: null);
+
+        await _workflow.AssertStateAsync(instanceId, "pre-complete-state");
+
+        await _workflow.RunTransitionAsync(instanceId, "exit-workflow", headers: null);
+
+        await _workflow.AssertStateAsync(instanceId, "terminated-state");
+
+        var instanceResponse = await Api.GetInstanceAsync(WorkflowKey, instanceId);
+        var body = instanceResponse.Body;
+
+        Assert.True(
+            body.TryGetProperty("attributes", out var attributes),
+            "GetInstance response should include attributes"
+        );
+
+        Assert.True(
+            attributes.TryGetProperty("exitExecuted", out var exitExecuted)
+                && exitExecuted.ValueKind == JsonValueKind.True,
+            "Exit mapping should set attributes.exitExecuted = true"
+        );
+    }
+
     [Fact]
     public async Task ScheduleCancel_ManualTransition_CancelsTimerAndReachesPreComplete()
     {
@@ -291,9 +383,9 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task QueryRoles_OnProcessingState_AllowsProcessor_DeniesViewerWhenObserved()
+    public async Task QueryRoles_OnPreCompleteState_AllowsProcessor_DeniesViewer()
     {
-        var key = WorkflowInstanceTestHelper.UniqueInstanceKey("roles-processing-test");
+        var key = WorkflowInstanceTestHelper.UniqueInstanceKey("roles-precomplete-test");
         var instanceId = await _workflow.StartInstanceIdAsync(
             new
             {
@@ -309,29 +401,22 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
             WorkflowTestHttpHeaders.Role("test-operator")
         );
 
-        var observed = await _workflow.PollStateUntilAnyAsync(
-            instanceId,
-            TimeSpan.FromSeconds(2),
-            new HashSet<string>(StringComparer.Ordinal) { "processing-state", "auto-passed-state" }
-        );
+        await _workflow.AssertStateAsync(instanceId, "auto-passed-state");
 
-        if (observed == "processing-state")
-        {
-            await _workflow.AssertAuthorizeQueryRolesAsync(
-                instanceId,
-                "test-processor",
-                expectAllowed: true
-            );
-            await _workflow.AssertAuthorizeQueryRolesAsync(
-                instanceId,
-                "test-viewer",
-                expectAllowed: false
-            );
-        }
-        else
-        {
-            Assert.Equal("auto-passed-state", observed);
-        }
+        await _workflow.RunTransitionAsync(instanceId, "cancel-schedule-manually", headers: null);
+
+        await _workflow.AssertStateAsync(instanceId, "pre-complete-state");
+
+        await _workflow.AssertAuthorizeQueryRolesAsync(
+            instanceId,
+            "test-processor",
+            expectAllowed: true
+        );
+        await _workflow.AssertAuthorizeQueryRolesAsync(
+            instanceId,
+            "test-viewer",
+            expectAllowed: false
+        );
     }
 
     [Fact]
@@ -355,7 +440,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         );
         Assert.True(
             StateFunctionJson.TransitionsContainKey(body, "move-to-processing"),
-            "State response transitions[] should include an item with name \"move-to-processing\" when role matches transition roles (v0.0.39+ filtering)."
+            "State response transitions[] should list \"move-to-processing\" when caller role is in transition allow list (v0.0.39+ list filtering only; PATCH is not role-gated by this list)."
         );
     }
 
@@ -380,7 +465,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         );
         Assert.False(
             StateFunctionJson.TransitionsContainKey(body, "move-to-processing"),
-            "State response transitions[] should not list name \"move-to-processing\" when caller role is not in transition roles allow list."
+            "State response transitions[] should omit \"move-to-processing\" when caller role is not in allow list (UI/list filtering); same transition may still be invokable via PATCH depending on runtime/API policy."
         );
     }
 }

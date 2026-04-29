@@ -203,16 +203,6 @@
             "label": "Isleme Durumu (Ara Durum, onEntries + onExits)"
           }
         ],
-        "queryRoles": [
-          {
-            "role": "test-processor",
-            "grant": "allow"
-          },
-          {
-            "role": "test-viewer",
-            "grant": "deny"
-          }
-        ],
         "view": null,
         "subFlow": null,
         "onEntries": [
@@ -457,6 +447,16 @@
           {
             "language": "tr-TR",
             "label": "Tamamlama Oncesi Durum"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "test-processor",
+            "grant": "allow"
+          },
+          {
+            "role": "test-viewer",
+            "grant": "deny"
           }
         ],
         "view": null,

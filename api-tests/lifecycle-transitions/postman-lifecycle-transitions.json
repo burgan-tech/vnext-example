@@ -1611,6 +1611,7 @@
     },
     {
       "name": "TEST: State — transitions filtrelenir (role, v0.0.39+)",
+      "description": "Yalnizca initialize-state'te GET /functions/state: transition roles ile transitions[] filtrelenir. move-to-processing sonrasi processing-state genelde auto ile atlanir; bu klasorde move sonrasi durum assert'i yoktur.",
       "item": [
         {
           "name": "Workflow Baslat (state filter)",
@@ -1773,6 +1774,7 @@
     },
     {
       "name": "TEST: QueryRoles ve Transition Roles",
+      "description": "State-level queryRoles pre-complete-state uzerindedir (processing-state auto gecisli). Akis: move -> auto-passed -> cancel-schedule-manually -> pre-complete -> authorize test-processor OK, test-viewer 403.",
       "item": [
         {
           "name": "Adim 1: Workflow Baslat (Roles Test)",
@@ -1920,7 +1922,7 @@
           "response": []
         },
         {
-          "name": "Adim 4: Durum Kontrol - processing-state olmali",
+          "name": "Adim 4: Durum Kontrol - auto-passed-state (sync sonrasi)",
           "request": {
             "method": "GET",
             "header": [],
@@ -1942,10 +1944,121 @@
               ]
             }
           },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function sn(b) {",
+                  "    if (!b || typeof b !== 'object') return '';",
+                  "    if (typeof b.state === 'string') return b.state;",
+                  "    if (b.data && typeof b.data.state === 'string') return b.data.state;",
+                  "    return '';",
+                  "}",
+                  "var n = sn(pm.response.json());",
+                  "pm.test('Roles flow: auto-passed-state', function () {",
+                  "    pm.expect(n).to.equal('auto-passed-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 5: cancel-schedule-manually (pre-complete'e git)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/cancel-schedule-manually?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{rolesInstanceId}}",
+                "transitions",
+                "cancel-schedule-manually"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 5: QueryRoles - processing-state'de test-processor izinli, test-viewer reddedilmis olmali",
+          "name": "Adim 6: Durum Kontrol - pre-complete-state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{rolesInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function sn(b) {",
+                  "    if (!b || typeof b !== 'object') return '';",
+                  "    if (typeof b.state === 'string') return b.state;",
+                  "    if (b.data && typeof b.data.state === 'string') return b.data.state;",
+                  "    return '';",
+                  "}",
+                  "var n = sn(pm.response.json());",
+                  "pm.test('Roles flow: pre-complete-state', function () {",
+                  "    pm.expect(n).to.equal('pre-complete-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 7: QueryRoles - pre-complete'te test-processor izinli",
           "request": {
             "method": "GET",
             "header": [],
@@ -1980,7 +2093,7 @@
           "response": []
         },
         {
-          "name": "Adim 6: QueryRoles - test-viewer deny olmali (state-level override)",
+          "name": "Adim 8: QueryRoles - test-viewer deny (state-level)",
           "request": {
             "method": "GET",
             "header": [],

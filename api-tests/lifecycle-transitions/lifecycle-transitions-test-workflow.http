@@ -335,6 +335,8 @@ role: test-viewer
 
 ### ============================================================
 ### TEST: QueryRoles ve Transition Roles
+### State-level queryRoles artık pre-complete-state üzerinde (processing-state auto geçişli, gözlemlenemez).
+### Akış: move -> auto-passed -> cancel-schedule-manually -> pre-complete -> authorize (processor OK, viewer deny)
 ### ============================================================
 
 ### Adim 1: Workflow Baslat (Roles Test)
@@ -364,11 +366,20 @@ role: test-operator
 
 {}
 
-### Adim 4: Durum Kontrol - processing-state olmali
+### Adim 4: Durum Kontrol - auto-passed-state olmali (sync sonrasi processing atlanir)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/state
 
-### Adim 5: QueryRoles - processing-state'de test-processor izinli, test-viewer reddedilmis olmali
+### Adim 5: cancel-schedule-manually (timer beklemeden pre-complete — Schedule cancel ile ayni gecis)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/cancel-schedule-manually?sync=true
+Content-Type: application/json
+
+{}
+
+### Adim 6: Durum Kontrol - pre-complete-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/state
+
+### Adim 7: QueryRoles - pre-complete-state'te test-processor izinli olmali
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-processor
 
-### Adim 6: QueryRoles - test-viewer deny olmali (state-level override)
+### Adim 8: QueryRoles - test-viewer deny olmali (state-level override)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-viewer

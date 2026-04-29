@@ -8,7 +8,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 
 | # | Grup | Workflow | Test Edilen Ana Ozellikler |
 |---|------|----------|---------------------------|
-| 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition rolleri** |
+| 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
 | 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)** |
 | 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` | HTTP/Script/StartFlow/GetInstanceData task tipleri |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
@@ -42,7 +42,11 @@ core/
 
 **Workflow:** `lifecycle-transitions-test-workflow` (type: F)
 
-**Amac:** Workflow yasam dongusu ve tum transition tiplerini test eder; ayrica **exit transition**, **zamanlayici schedule yonetimi** (manuel iptal ve **self-loop reschedule** — hedef olarak mevcut state anahtari `auto-passed-state`; `$self` ile ayni davranis), **workflow/state queryRoles** ve **transition bazli roller** senaryolarini kapsar.
+**Amac:** Workflow yasam dongusu ve tum transition tiplerini test eder; ayrica **exit transition**, **zamanlayici schedule yonetimi** (manuel iptal ve **self-loop reschedule** — hedef olarak mevcut state anahtari `auto-passed-state`; `$self` ile ayni davranis), **workflow/state queryRoles** ve **`GET .../functions/state` icinde transition listesinin role gore filtrelenmesi** senaryolarini kapsar.
+
+**Onemli (transition `roles`):** Runtime modelinde transition uzerindeki `roles` (allow/deny), **PATCH ile gecisi calistirmayi engelleyen bir yetki kapisi degildir**; agirlikli olarak **state fonksiyonu yanitindaki `transitions[]` listesini** cagiran rol header'ina gore **suzmek** icin kullanilir. Rolü izin listesinde olmayan bir istemci, UI/API listesinde o gecisi **gormeyebilir**; bu, dokumante edilen davranista gecisin API ile **mutlaka reddedilecegi** anlamina gelmez. (Ayrı mekanizma: **`authorize?queryRoles=...`** ile workflow/instance datasi sorgu yetkisi.)
+
+**C# testleri:** `StateFunction_*` testleri, ilgili **role header** ile state sorgulandiginda `transitions[]` icinde beklenen anahtarin **listelenip listelenmedigini** dogrular.
 
 ### Agac Yapisi
 
@@ -68,10 +72,9 @@ lifecycle-transitions-test-workflow (F)
 │   └── Transitions:
 │       └── move-to-processing (Manual, triggerType:0) → processing-state
 │           ├── mapping: ProcessTransitionMapping.csx (ITransitionMapping)
-│           └── roles: test-operator (allow)
+│           └── roles: test-operator (allow) — state `transitions[]` filtresi; PATCH zorunlu red degil
 │
 ├── processing-state (Intermediate, stateType:2)
-│   ├── queryRoles: test-processor (allow), test-viewer (deny)
 │   ├── onEntries:
 │   │   └── script-task + ProcessEntryMapping.csx
 │   ├── onExits:
@@ -101,9 +104,10 @@ lifecycle-transitions-test-workflow (F)
 │           └── rule: AlwaysTrueRule.csx
 │
 ├── pre-complete-state (Intermediate, stateType:2)
+│   ├── queryRoles: test-processor (allow), test-viewer (deny)
 │   └── Transitions:
 │       └── complete-workflow (Manual, triggerType:0) → completed-state
-│           └── roles: test-approver (allow), test-operator (deny)
+│           └── roles: test-approver (allow), test-operator (deny) — listeleme filtresi; deny PATCH'i garanti etmez
 │
 ├── default-fallback-state (Intermediate, stateType:2)
 │   └── Transitions:
@@ -137,8 +141,8 @@ lifecycle-transitions-test-workflow (F)
 | **Schedule iptal (manuel)** | auto-passed-state'ten manuel gecisle timer beklemeden pre-complete | cancel-schedule-manually |
 | **Timer reschedule (self-loop)** | Ayni state'e manuel gecis ile zamanlayici reschedule | reschedule-timer → **auto-passed-state**; sonra yeniden kurulan `scheduled-timer-transition` (~10s) → timer-triggered → auto → pre-complete |
 | **queryRoles (workflow)** | authorize endpoint ile workflow datasi sorgu yetkisi | attributes.queryRoles, test-viewer |
-| **queryRoles (state)** | State bazli allow/deny override | processing-state queryRoles |
-| **Transition roles** | Manuel transition'da rol grant/deny | move-to-processing, complete-workflow |
+| **queryRoles (state)** | State bazli allow/deny override | **pre-complete-state** queryRoles (`processing-state` auto gecisli; testte cancel-schedule ile pre-complete) |
+| **Transition `roles`** | **`GET .../functions/state` yanıtında `transitions[]` listesini** role gore **filtreleme** (v0.0.39+); transition yürütme (PATCH) için aynı listedeki deny'in zorunlu red anlamı **yoktur** | move-to-processing, complete-workflow; xUnit: `StateFunction_WithTestOperatorRole_*` / `StateFunction_WithTestViewerRole_*` |
 | Version strategy (Major/Minor/Patch) | Farkli versiyonlama stratejileri | Cesitli transitions |
 | Idempotent start | Ayni key ile tekrar baslatma | HTTP test dosyasinda |
 
@@ -152,7 +156,7 @@ lifecycle-transitions-test-workflow (F)
 | **Exit** | initialize-state'ten exit-workflow; terminated-state ve `exitExecuted` |
 | **Schedule cancel** | auto-passed-state'te cancel-schedule-manually → pre-complete-state |
 | **Reschedule** | reschedule-timer ile kisa sure `auto-passed-state`; yeniden kurulan ~10s timer sonrasi `timer-triggered-state` → auto → **pre-complete-state** (xUnit: `RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState`) |
-| **QueryRoles / roller** | `/functions/authorize?role=...`; move-to-processing; processing-state'te test-processor / test-viewer deny |
+| **QueryRoles / transition listesi** | **authorize:** `/functions/authorize?queryRoles=true&role=...` (datasi sorgu). **State listesi:** `GET .../functions/state` + role header ile **move-to-processing** gorunurlugu (allow/omit). **pre-complete-state:** cancel-schedule ile; queryRoles'ta test-processor allow / test-viewer deny |
 
 ### Kullanilan Bilesenler
 
@@ -629,6 +633,8 @@ view-function-extension-test-workflow (F)
 
 **Amac:** Master schema, transition schema validasyonu, updateData ($self) mekanizmasi ve field roles ozelliklerini test eder.
 
+**Not (field roles vs. transition roles):** Bu gruptaki **field roles**, master şema uzerinde **alan bazlı gorunurluk** (or. `GET .../functions/data` ciktisinda rol ile alan suzme) ile ilgilidir. **Grup 1** `lifecycle-transitions` workflow'undaki transition **`roles`** alani ise **`GET .../functions/state` icindeki `transitions[]` listeleme filtresi** icindir; ikisi farkli mekanizmalardir.
+
 ### Agac Yapisi
 
 ```
@@ -676,7 +682,7 @@ schema-data-test-workflow (F)
 | Schema validasyonu | Gecerli data ile transition | confirm-with-schema |
 | Schema sessiz reddi | Gecersiz data gonderildiginde state degismez | HTTP test: eksik required alan gonderme |
 | updateData ($self) | State degistirmeden data guncelleme | update-instance-data |
-| Field roles | Alan bazli erisim kontrolu | internalNote (admin/customer), auditLog (auditor) |
+| Field roles (master schema alan gorunurlugu) | Alan bazli data gorunurlugu | internalNote (admin/customer), auditLog (auditor) |
 | JSON Schema Draft 2020-12 | Schema standardi uyumu | Her iki schema dosyasi |
 | Required alan kontrolu | Zorunlu alanlarin validasyonu | orderId, customerName, amount, currency |
 | Enum validasyonu | Gecerli deger kümesi kontrolu | currency: TRY, USD, EUR |
@@ -1177,9 +1183,9 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris:
 | **UpdateData (SubFlow context)** | | X | | | | | | | | |
 | Master schema | | | | | | X | | | | |
 | Transition schema | | | | | | X | | | | |
-| Field roles | | | | | | X | | | | |
+| Field roles (master schema) | | | | | | X | | | | |
 | **queryRoles (workflow/state)** | X | | | | | | | | | |
-| **Transition roles** | X | | | | | | | | | |
+| **Transition roles (state fn. list filter)** | X | | | | | | | | | |
 | Error boundary (task) | | | | X | | | | | | |
 | Error boundary (state) | | | | X | | | | | | |
 | Error boundary (workflow) | | | | X | | | | | | |
