@@ -847,7 +847,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -859,6 +859,12 @@
                 "{{workflow}}",
                 "instances",
                 "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -900,7 +906,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-workflow",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-workflow?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -914,6 +920,12 @@
                 "{{exitInstanceId}}",
                 "transitions",
                 "exit-workflow"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -980,6 +992,7 @@
     },
     {
       "name": "TEST: Schedule Cancel (Manual ile timer iptali)",
+      "description": "xUnit: ScheduleCancel_ManualTransition_CancelsTimerAndReachesPreComplete. VNext.Testing.Sdk tum start/transition cagrilarinda sync=true ekler. Akis: start -> move-to-processing (role: test-operator) -> state=auto-passed -> cancel-schedule-manually (rol header yok) -> state=pre-complete. Zamanlayici 10s; iptal bunun onunde yapilir.",
       "item": [
         {
           "name": "Adim 1: Workflow Baslat (Schedule Cancel Test)",
@@ -993,7 +1006,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1005,6 +1018,12 @@
                 "{{workflow}}",
                 "instances",
                 "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -1024,18 +1043,88 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "pm.test('ScheduleCancel: start 200 (sync=true, StartInstanceAsync)', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
                   "var jsonData = pm.response.json();",
                   "if (jsonData && jsonData.id) {",
                   "    pm.collectionVariables.set(\"scheduleCancelInstanceId\", jsonData.id);",
                   "    console.log(\"scheduleCancelInstanceId set to: \" + jsonData.id);",
-                  "}"
+                  "}",
+                  "pm.test('ScheduleCancel: start yanıtında id', function () {",
+                  "    pm.expect(jsonData && jsonData.id).to.be.ok;",
+                  "});"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Adim 2: Durum Kontrol - auto-passed-state olmali (auto transitions sonrasi)",
+          "name": "Adim 2: move-to-processing (RunTransitionAsync + role test-operator)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-operator",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/move-to-processing?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{scheduleCancelInstanceId}}",
+                "transitions",
+                "move-to-processing"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ScheduleCancel: move-to-processing 200 (sync=true)', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 3: Durum Kontrol - auto-passed-state (AssertStateAsync)",
           "request": {
             "method": "GET",
             "header": [],
@@ -1057,10 +1146,31 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function extractStateName(body) {",
+                  "    if (!body || typeof body !== 'object') { return ''; }",
+                  "    if (typeof body.state === 'string') { return body.state; }",
+                  "    if (body.data && typeof body.data === 'object' && typeof body.data.state === 'string') { return body.data.state; }",
+                  "    return '';",
+                  "}",
+                  "var j = pm.response.json();",
+                  "var name = extractStateName(j);",
+                  "pm.test('ScheduleCancel: state auto-passed-state (C# ScheduleCancel satir 287)', function () {",
+                  "    pm.expect(name).to.equal('auto-passed-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 3: Timer tetiklenmeden cancel-schedule-manually transition cagir",
+          "name": "Adim 4: cancel-schedule-manually (rol yok; RunTransitionAsync headers null)",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1071,7 +1181,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/cancel-schedule-manually",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/cancel-schedule-manually?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1085,6 +1195,12 @@
                 "{{scheduleCancelInstanceId}}",
                 "transitions",
                 "cancel-schedule-manually"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -1097,10 +1213,23 @@
               }
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ScheduleCancel: cancel-schedule-manually 200 (sync=true)', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 4: Durum Kontrol - pre-complete-state olmali (timer iptali basarili)",
+          "name": "Adim 5: Durum Kontrol - pre-complete-state (AssertStateAsync; timer iptal)",
           "request": {
             "method": "GET",
             "header": [],
@@ -1122,12 +1251,34 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function extractStatePre(body) {",
+                  "    if (!body || typeof body !== 'object') { return ''; }",
+                  "    if (typeof body.state === 'string') { return body.state; }",
+                  "    if (body.data && typeof body.data === 'object' && typeof body.data.state === 'string') { return body.data.state; }",
+                  "    return '';",
+                  "}",
+                  "var j = pm.response.json();",
+                  "var name = extractStatePre(j);",
+                  "pm.test('ScheduleCancel: state pre-complete-state (C# ScheduleCancel satir 291)', function () {",
+                  "    pm.expect(name).to.equal('pre-complete-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST: Reschedule Timer ($self transition)",
+      "name": "TEST: Reschedule Timer ($self + yeniden kurulan timer -> pre-complete)",
+      "description": "xUnit: RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState. reschedule-timer sonrasi auto-passed kali, sonra yeniden kurulan ~10s timer -> timer-triggered-state -> auto -> pre-complete. Adim 5b postman-echo 12s beklemesi icerir (offline ise Runner delay veya manuel bekleyip 5b atlayin; dogrudan Adim 6 GET ile poll edin).",
       "item": [
         {
           "name": "Adim 1: Workflow Baslat (Reschedule Test)",
@@ -1141,7 +1292,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1153,6 +1304,12 @@
                 "{{workflow}}",
                 "instances",
                 "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -1183,32 +1340,7 @@
           ]
         },
         {
-          "name": "Adim 2: Durum Kontrol - auto-passed-state olmali",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v{{apiVersion}}",
-                "{{domain}}",
-                "workflows",
-                "{{workflow}}",
-                "instances",
-                "{{rescheduleInstanceId}}",
-                "functions",
-                "state"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Adim 3: Reschedule timer ($self transition - timer sifirlanmali)",
+          "name": "Adim 2: move-to-processing (test-operator — transition roles)",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1216,10 +1348,15 @@
                 "key": "Content-Type",
                 "value": "application/json",
                 "type": "text"
+              },
+              {
+                "key": "role",
+                "value": "test-operator",
+                "type": "text"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/reschedule-timer",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/move-to-processing?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1232,7 +1369,13 @@
                 "instances",
                 "{{rescheduleInstanceId}}",
                 "transitions",
-                "reschedule-timer"
+                "move-to-processing"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -1248,7 +1391,7 @@
           "response": []
         },
         {
-          "name": "Adim 4: Durum Kontrol - hala auto-passed-state olmali ($self = ayni state)",
+          "name": "Adim 3: Durum Kontrol - auto-passed-state (AssertStateAsync)",
           "request": {
             "method": "GET",
             "header": [],
@@ -1270,7 +1413,361 @@
               ]
             }
           },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function extractStateName(body) {",
+                  "    if (!body || typeof body !== 'object') { return ''; }",
+                  "    if (typeof body.state === 'string') { return body.state; }",
+                  "    if (body.data && typeof body.data === 'object' && typeof body.data.state === 'string') { return body.data.state; }",
+                  "    return '';",
+                  "}",
+                  "var j = pm.response.json();",
+                  "var name = extractStateName(j);",
+                  "pm.test('Reschedule: once move sonrasi auto-passed-state', function () {",
+                  "    pm.expect(name).to.equal('auto-passed-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 4: reschedule-timer ($self, timer reschedule)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/reschedule-timer?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{rescheduleInstanceId}}",
+                "transitions",
+                "reschedule-timer"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reschedule: reschedule-timer 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 5: Durum Kontrol - hala auto-passed-state ($self)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{rescheduleInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function extractStateName2(body) {",
+                  "    if (!body || typeof body !== 'object') { return ''; }",
+                  "    if (typeof body.state === 'string') { return body.state; }",
+                  "    if (body.data && typeof body.data === 'object' && typeof body.data.state === 'string') { return body.data.state; }",
+                  "    return '';",
+                  "}",
+                  "var j = pm.response.json();",
+                  "var name = extractStateName2(j);",
+                  "pm.test('Reschedule: reschedule sonrasi hala auto-passed-state', function () {",
+                  "    pm.expect(name).to.equal('auto-passed-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 5b: Bekleme ~12s (yeniden kurulan timer; postman-echo — opsiyonel)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://postman-echo.com/delay/12",
+              "protocol": "https",
+              "host": [
+                "postman-echo",
+                "com"
+              ],
+              "path": [
+                "delay",
+                "12"
+              ]
+            }
+          },
           "response": []
+        },
+        {
+          "name": "Adim 6: Durum Kontrol - pre-complete-state (rescheduled timer tamamlandi)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{rescheduleInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function extractStatePre(body) {",
+                  "    if (!body || typeof body !== 'object') { return ''; }",
+                  "    if (typeof body.state === 'string') { return body.state; }",
+                  "    if (body.data && typeof body.data === 'object' && typeof body.data.state === 'string') { return body.data.state; }",
+                  "    return '';",
+                  "}",
+                  "var j = pm.response.json();",
+                  "var name = extractStatePre(j);",
+                  "pm.test('Reschedule: pre-complete-state (timer-triggered + auto)', function () {",
+                  "    pm.expect(name).to.equal('pre-complete-state');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TEST: State — transitions filtrelenir (role, v0.0.39+)",
+      "item": [
+        {
+          "name": "Workflow Baslat (state filter)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"lifecycle-state-filter-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"lifecycle\", \"state-filter\"],\n  \"attributes\": {\n    \"testPath\": \"pass\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.collectionVariables.set(\"stateFilterInstanceId\", jsonData.id);",
+                  "    console.log(\"stateFilterInstanceId set to: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET state + role test-operator — transitions icinde move-to-processing",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "role",
+                "value": "test-operator",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{stateFilterInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{stateFilterInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j = pm.response.json();",
+                  "var tr = j.transitions || [];",
+                  "var hasMove = tr.some(function (x) {",
+                  "    return x.name === 'move-to-processing' || x.key === 'move-to-processing';",
+                  "});",
+                  "pm.test('transitions icinde move-to-processing (test-operator)', function () {",
+                  "    pm.expect(hasMove).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET state + role test-viewer — move-to-processing listelenmez",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "role",
+                "value": "test-viewer",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{stateFilterInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{stateFilterInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j = pm.response.json();",
+                  "var tr = j.transitions || [];",
+                  "var hasMove = tr.some(function (x) {",
+                  "    return x.name === 'move-to-processing' || x.key === 'move-to-processing';",
+                  "});",
+                  "pm.test('move-to-processing yok (test-viewer, transition role disinda)', function () {",
+                  "    pm.expect(hasMove).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -1289,7 +1786,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1301,6 +1798,12 @@
                 "{{workflow}}",
                 "instances",
                 "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -1336,7 +1839,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-viewer",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-viewer",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1352,6 +1855,10 @@
                 "authorize"
               ],
               "query": [
+                {
+                  "key": "queryRoles",
+                  "value": "true"
+                },
                 {
                   "key": "role",
                   "value": "test-viewer"
@@ -1378,7 +1885,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/move-to-processing",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/move-to-processing?sync=true",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1392,6 +1899,12 @@
                 "{{rolesInstanceId}}",
                 "transitions",
                 "move-to-processing"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
               ]
             },
             "body": {
@@ -1437,7 +1950,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-processor",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-processor",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1454,6 +1967,10 @@
               ],
               "query": [
                 {
+                  "key": "queryRoles",
+                  "value": "true"
+                },
+                {
                   "key": "role",
                   "value": "test-processor"
                 }
@@ -1468,7 +1985,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-viewer",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-viewer",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1484,6 +2001,10 @@
                 "authorize"
               ],
               "query": [
+                {
+                  "key": "queryRoles",
+                  "value": "true"
+                },
                 {
                   "key": "role",
                   "value": "test-viewer"

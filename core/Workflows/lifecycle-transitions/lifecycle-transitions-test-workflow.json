@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "tags": [
     "integration-test",
     "lifecycle",
@@ -56,8 +56,8 @@
       "target": "terminated-state",
       "triggerType": 0,
       "versionStrategy": "Major",
-      "availableIn": [],
       "onExecutionTasks": [],
+      "availableIn": [],
       "labels": [
         {
           "language": "en-US",
@@ -170,6 +170,12 @@
               {
                 "language": "tr-TR",
                 "label": "Isleme Gec (Manuel + ITransitionMapping)"
+              }
+            ],
+            "roles": [
+              {
+                "role": "test-operator",
+                "grant": "allow"
               }
             ],
             "schema": null,

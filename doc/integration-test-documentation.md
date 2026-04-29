@@ -135,7 +135,7 @@ lifecycle-transitions-test-workflow (F)
 | Cancel transition | Workflow iptal mekanizmasi | cancel-workflow → terminated-state |
 | **Exit transition (`attributes.exit`)** | Belirli state'lerde cikis; hedef terminated; IMapping ile exitExecuted | exit-workflow, ExitMapping.csx |
 | **Schedule iptal (manuel)** | auto-passed-state'ten manuel gecisle timer beklemeden pre-complete | cancel-schedule-manually |
-| **Timer reschedule (self-loop)** | Ayni state'te kalarak zamanlayiciyi yeniden baglama | reschedule-timer → **auto-passed-state** (`$self` semantigi; amorphie-flow E_BAD_TARGET icin acik hedef) |
+| **Timer reschedule (self-loop)** | Ayni state'e manuel gecis ile zamanlayici reschedule | reschedule-timer → **auto-passed-state**; sonra yeniden kurulan `scheduled-timer-transition` (~10s) → timer-triggered → auto → pre-complete |
 | **queryRoles (workflow)** | authorize endpoint ile workflow datasi sorgu yetkisi | attributes.queryRoles, test-viewer |
 | **queryRoles (state)** | State bazli allow/deny override | processing-state queryRoles |
 | **Transition roles** | Manuel transition'da rol grant/deny | move-to-processing, complete-workflow |
@@ -151,7 +151,7 @@ lifecycle-transitions-test-workflow (F)
 | Cancel | cancel-workflow → terminated-state |
 | **Exit** | initialize-state'ten exit-workflow; terminated-state ve `exitExecuted` |
 | **Schedule cancel** | auto-passed-state'te cancel-schedule-manually → pre-complete-state |
-| **Reschedule** | reschedule-timer (`target: auto-passed-state`), state auto-passed-state kalir |
+| **Reschedule** | reschedule-timer ile kisa sure `auto-passed-state`; yeniden kurulan ~10s timer sonrasi `timer-triggered-state` → auto → **pre-complete-state** (xUnit: `RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState`) |
 | **QueryRoles / roller** | `/functions/authorize?role=...`; move-to-processing; processing-state'te test-processor / test-viewer deny |
 
 ### Kullanilan Bilesenler
