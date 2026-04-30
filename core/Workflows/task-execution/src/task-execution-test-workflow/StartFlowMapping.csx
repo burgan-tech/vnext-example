@@ -9,17 +9,20 @@ public class StartFlowMapping : ScriptBase, IMapping
 {
     public async Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
+        // StartTask (tip 11) yeni bir hedef workflow instance'i acar.
+        // Body uzerinden hedef instance data'sina parent referansi ve kaynak notu yaziyoruz ki
+        // testler hedef GetInstance attributes'unda parent zincirini dogrulayabilsin.
         var startTask = (task as StartTask)!;
-        var data = context.Instance.Data;
 
         var body = new
         {
             source = "task-execution-test",
-            parentInstanceId = context.Instance.Id
+            parentInstanceId = context.Instance.Id,
+            note = "this is a startflow from task-execution-test-workflow"
         };
         startTask.SetBody(body);
 
-        LogInformation("StartFlowMapping InputHandler: body set for target workflow");
+        LogInformation("StartFlowMapping InputHandler: body set with parentInstanceId/source/note");
         return new ScriptResponse();
     }
 

@@ -65,6 +65,13 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
             "completed",
             ContractHint
         );
+        // SubProcessTask (tip 14) gercekten yeni bir hedef instance acmali; SubProcessMapping
+        // OutputHandler'i runtime yanitindaki id alanini parent attributes.subprocessInstanceId'ye yazar.
+        JsonElementAssertions.AssertPropertyNonEmptyString(
+            attributes,
+            "subprocessInstanceId",
+            ContractHint
+        );
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "getInstances" },

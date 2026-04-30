@@ -414,11 +414,11 @@ extended-tasks-test-workflow (F)
 |---------|-------------------|---------------|
 | HTTP Task (type:6) | Mocklab HTTP | http-process-task + HttpProcessMapping |
 | Script Task (type:7) | C# script data | task-exec-script-task + ScriptProcessMapping |
-| StartFlow Task (type:11) | Hedef workflow baslatma | start-flow-task + StartFlowMapping |
+| StartFlow Task (type:11) | Hedef workflow baslatma + hedef instance teyidi (`startedInstanceId` + GET state) | start-flow-task + StartFlowMapping (SetBody parentInstanceId/source/note) |
 | GetInstanceData Task (type:13) | Baska instance datasi | get-instance-data-task + GetInstanceDataMapping |
 | Notification Task (type:10) | Platform mapping G (script yok) | notification-task + mapping `{ "type": "G" }` |
 | TriggerTransition Task (type:12) | Hedef instance + manuel gecis | trigger-transition-task + TriggerTransitionMapping (SetInstance + `manual-complete-target`) |
-| SubProcess Task (type:14) | Alt surec baslatma | subprocess-task + SubProcessMapping |
+| SubProcess Task (type:14) | Alt surec baslatma + hedef instance teyidi (`subprocessInstanceId` + GET state/attributes) | subprocess-task + SubProcessMapping (SetBody parentInstanceId/source/note) |
 | GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
 | Human Task (type:5) | Manuel `approve-human-task` | human-task + HumanTaskMapping |
 | Dapr HTTP (1) / Service (3) / Binding (2) / PubSub (4) | Sidecar + YAML | `extended-tasks-test-workflow` + dapr-*-task |

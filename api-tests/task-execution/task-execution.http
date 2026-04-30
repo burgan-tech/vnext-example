@@ -40,11 +40,28 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 
 ### B1 — Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
 # Beklenen: testId, httpTaskCompleted, scriptProcessed, crossWorkflowCompleted,
-# startFlowCompleted, startedInstanceId, getInstanceDataCompleted,
-# taskResults.triggerTransition.completed,
+# startFlowCompleted, startedInstanceId (StartTask sonucu hedef workflow id),
+# subprocessInstanceId (SubProcessTask sonucu hedef workflow id),
+# getInstanceDataCompleted, taskResults.triggerTransition.completed,
 # taskResults.subprocess.completed, taskResults.getInstances.completed,
 # taskResults.humanTask.completed
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
+
+### B1 — Adim 3a: StartTask ile baslatilan hedef instance functions/state (target-completed olmali)
+# startedInstanceId'yi B1 Adim 3 cikisindan kopyalayip asagidaki degiskene yapistir.
+# (Postman koleksiyonu bunu otomatik degisken olarak set eder.)
+@taskExecStartedTargetId = REPLACE_WITH_startedInstanceId
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecStartedTargetId}}/functions/state
+
+### B1 — Adim 3b: SubProcessTask ile acilan hedef instance functions/state
+# Subprocess fire-and-forget'tir; state target-initial (Active) veya target-completed olabilir.
+@taskExecSubprocessId = REPLACE_WITH_subprocessInstanceId
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}/functions/state
+
+### B1 — Adim 3c: SubProcessTask ile acilan hedef instance attributes
+# Beklenen: source = "task-execution-test", parentInstanceId = ana workflow instance id,
+# note alani SubProcessMapping InputHandler'da SetBody ile yazilmali.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}
 
 ### B1 — Adim 4: Human task onayla (manuel transition)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/transitions/approve-human-task

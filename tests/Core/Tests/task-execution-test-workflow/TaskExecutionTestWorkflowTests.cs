@@ -79,6 +79,54 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         );
         Assert.Equal("C", StateFunctionJson.ExtractStatus(targetStateAfterTrigger));
 
+        // SubProcessTask (tip 14) ayri bir hedef instance acar (fire-and-forget).
+        // attributes.subprocessInstanceId, SubProcessMapping OutputHandler'inda runtime yanitindan yazilir;
+        // varligi ve hedef workflow GET functions/state cevabinin Active/Completed olmasi, subprocess'in
+        // gercekten baslatildigini kanitlar (sadece "completed" bayragi yetmez). Ayrica GetInstance ile
+        // hedef instance attributes'inda parentInstanceId/source/note alanlarinin yazildigini dogrulariz.
+        var subprocessInstanceId = attrsBefore.GetProperty("subprocessInstanceId").GetString();
+        Assert.False(
+            string.IsNullOrWhiteSpace(subprocessInstanceId),
+            "subprocessInstanceId should be a non-empty string from SubProcessMapping output"
+        );
+
+        var subprocessStateBody = await _targetWorkflow.GetStateFunctionBodyAsync(
+            subprocessInstanceId!,
+            headers: null
+        );
+        // Subprocess fire-and-forget oldugu icin tetiklemiyoruz; ya target-initial'da Active kalmali
+        // ya da runtime tarafindan otomatik Completed olmus olmali. Her iki durumda da instance'in
+        // gercekten yaratildigi GET 200 + gecerli state ile teyit edilir.
+        var subprocessState = StateFunctionJson.ExtractStateName(subprocessStateBody);
+        var subprocessStatus = StateFunctionJson.ExtractStatus(subprocessStateBody);
+        Assert.True(
+            subprocessState == "target-initial" || subprocessState == "target-completed",
+            $"subprocess instance should be in target-initial or target-completed, got '{subprocessState}'"
+        );
+        Assert.True(
+            subprocessStatus == "A" || subprocessStatus == "C",
+            $"subprocess instance status should be Active (A) or Completed (C), got '{subprocessStatus}'"
+        );
+
+        var subprocessAttrs = await GetAttributesAsync(TargetWorkflowKey, subprocessInstanceId!);
+        JsonElementAssertions.AssertPropertyString(
+            subprocessAttrs,
+            "source",
+            "task-execution-test",
+            "subprocess instance attributes.source (set via SubProcessTask body)"
+        );
+        JsonElementAssertions.AssertPropertyString(
+            subprocessAttrs,
+            "parentInstanceId",
+            instanceId,
+            "subprocess instance attributes.parentInstanceId (must equal parent workflow instance id)"
+        );
+        JsonElementAssertions.AssertPropertyNonEmptyString(
+            subprocessAttrs,
+            "note",
+            "subprocess instance attributes.note (set via SubProcessTask body)"
+        );
+
         await _mainWorkflow.RunTransitionAsync(
             instanceId,
             "approve-human-task",

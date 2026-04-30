@@ -3,17 +3,35 @@ using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
 public class SubProcessMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
+        // SubProcessTask (tip 14) fire-and-forget bir alt instance acar.
+        // Body uzerinden subprocess'in instance data'sina parent referansi ve kaynak notu yaziyoruz;
+        // testler bu alanlari subprocess GetInstance attributes'unda dogrulayabilsin.
+        var subProcessTask = (task as SubProcessTask)!;
+
+        var body = new
+        {
+            source = "task-execution-test",
+            parentInstanceId = context.Instance.Id,
+            note = "this is a subprocess started from task-execution-test-workflow"
+        };
+        subProcessTask.SetBody(body);
+
+        LogInformation("SubProcessMapping InputHandler: body set with parentInstanceId/source/note");
         return Task.FromResult(new ScriptResponse());
     }
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
         var data = context.Instance.Data;
+        var taskResponse = context.Body;
+        var responseBody = taskResponse?.data;
+
         dynamic result = new ExpandoObject();
 
         if (HasProperty(data, "testId")) result.testId = data.testId;
@@ -46,6 +64,19 @@ public class SubProcessMapping : ScriptBase, IMapping
         result.taskResults.subprocess = new ExpandoObject();
         result.taskResults.subprocess.completed = true;
         result.taskResults.subprocess.executedAt = DateTime.UtcNow.ToString("o");
+
+        // SubProcess yaniti runtime dokumanina gore data.id (yeni instance id) doner.
+        // Eski yanitlarda data.instanceId gorulebilir; ikisini de guvenli sekilde dene.
+        if (responseBody != null)
+        {
+            if (HasProperty(responseBody, "id"))
+                result.subprocessInstanceId = responseBody.id;
+            else if (HasProperty(responseBody, "instanceId"))
+                result.subprocessInstanceId = responseBody.instanceId;
+        }
+
+        if (taskResponse != null && HasProperty(taskResponse, "isSuccess"))
+            result.taskResults.subprocess.isSuccess = taskResponse.isSuccess;
 
         LogInformation("SubProcessMapping completed");
         return Task.FromResult(new ScriptResponse { Data = result });

@@ -75,6 +75,62 @@
               "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{taskExecInstanceId}}", "functions", "data"]
             }
           },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.startedInstanceId) {",
+                  "    pm.collectionVariables.set(\"taskExecStartedTargetId\", jsonData.startedInstanceId);",
+                  "}",
+                  "if (jsonData && jsonData.subprocessInstanceId) {",
+                  "    pm.collectionVariables.set(\"taskExecSubprocessId\", jsonData.subprocessInstanceId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 3a: StartTask hedef instance state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecStartedTargetId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "{{taskExecStartedTargetId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3b: SubProcessTask hedef instance state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "{{taskExecSubprocessId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3c: SubProcessTask hedef instance attributes (parentInstanceId/source/note)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "{{taskExecSubprocessId}}"]
+            }
+          },
           "response": []
         },
         {
