@@ -17,8 +17,8 @@
       "y": 40
     },
     "get-instance-data-state": {
-      "x": 1750,
-      "y": 350
+      "x": 1760,
+      "y": 370
     },
     "completed-state": {
       "x": 3110,
@@ -27,10 +27,6 @@
     "__start__": {
       "x": 540,
       "y": 60
-    },
-    "human-task-state": {
-      "x": 2840,
-      "y": -10
     },
     "get-instances-state": {
       "x": 2680,
@@ -41,8 +37,8 @@
       "y": -10
     },
     "trigger-transition-state": {
-      "x": 2180,
-      "y": 380
+      "x": 2220,
+      "y": 360
     },
     "notification-state": {
       "x": 2000,

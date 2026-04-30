@@ -33,7 +33,7 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task B1_MainWorkflow_HappyPath_InstanceDataThenApprove_ReachesCompleted()
+    public async Task B1_MainWorkflow_HappyPath_ReachesCompleted()
     {
         var key = WorkflowInstanceTestHelper.UniqueInstanceKey("task-exec-it");
         var instanceId = await _mainWorkflow.StartInstanceIdAsync(
@@ -45,27 +45,33 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             }
         );
 
+        // Workflow zinciri: http -> script -> timer-wait (3 sn) -> start-flow -> get-instance-data
+        // -> notification -> trigger-transition -> subprocess -> get-instances -> completed-state.
+        // Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu
+        // workflow'da kullanilmaz; happy path manuel onay olmadan dogrudan completed-state'e ulasir.
         await _mainWorkflow.WaitForStateAsync(
             instanceId,
-            "human-task-state",
+            "completed-state",
             MainWorkflowStateTimeout
         );
 
-        var stateBody = await _mainWorkflow.GetStateFunctionBodyAsync(instanceId, headers: null);
-        Assert.True(
-            StateFunctionJson.TransitionsContainKey(stateBody, "approve-human-task"),
-            "human-task-state should expose approve-human-task transition"
+        var stateCompleted = await _mainWorkflow.GetStateFunctionBodyAsync(
+            instanceId,
+            headers: null
         );
+        var status = StateFunctionJson.ExtractStatus(stateCompleted);
+        // Happy path bittiginde instance tamamlanmistir; GET .../functions/state govdesindeki status 'C' (Completed) olmalidir.
+        Assert.Equal("C", status);
 
-        var attrsBefore = await GetAttributesAsync(MainWorkflowKey, instanceId);
-        TaskExecutionMainWorkflowInstanceDataAssertions.AssertWhileWaitingOnHumanTask(attrsBefore);
+        var attrs = await GetAttributesAsync(MainWorkflowKey, instanceId);
+        TaskExecutionMainWorkflowInstanceDataAssertions.AssertHappyPathCompleted(attrs);
 
         // Timer Task (tip 9) gercekten beklemis mi? timer-wait-state'in scheduled transition'i
         // ITimerMapping ile 3 sn sonra start-flow-state'e gecirir; eger sadece auto transition
-        // calissaydi human-task-state'e ~yari saniyede ulasirdik. timerStartedAt parent attributes'unda
-        // yazildigi icin (TimerStartMapping) human-task-state'e ulasilan ana kadar gecen sure 3 sn'den
+        // calissaydi completed-state'e ~yari saniyede ulasirdik. timerStartedAt parent attributes'unda
+        // yazildigi icin (TimerStartMapping) completed-state'e ulasilan ana kadar gecen sure 3 sn'den
         // buyuk olmalidir. Toleransi 2.5 sn olarak aliyoruz; ust sinir koymuyoruz (CI yavasligi).
-        var timerStartedAtRaw = attrsBefore.GetProperty("timerStartedAt").GetString()!;
+        var timerStartedAtRaw = attrs.GetProperty("timerStartedAt").GetString()!;
         var timerStartedAt = DateTime.Parse(
             timerStartedAtRaw,
             System.Globalization.CultureInfo.InvariantCulture,
@@ -79,10 +85,10 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
                 + "Eger bu deger 3 sn'den kucukse scheduled transition timer'i devre disi kalmis olabilir."
         );
 
-        // StartFlow + DirectTrigger zincirinin sadece parent instance'a `startedInstanceId` yazmış olması yeterli değildir.
-        // Hedef workflow'un `functions/state` çağrısıyla; (1) StartTask yeni bir instance açtı, (2) DirectTriggerTask
-        // hedefin manuel `manual-complete-target` geçişini gerçekten tetikledi, doğrulanır.
-        var startedTargetId = attrsBefore.GetProperty("startedInstanceId").GetString();
+        // StartFlow + DirectTrigger zincirinin sadece parent instance'a `startedInstanceId` yazmis olmasi yeterli degildir.
+        // Hedef workflow'un `functions/state` cagrisiyla; (1) StartTask yeni bir instance acti, (2) DirectTriggerTask
+        // hedefin manuel `manual-complete-target` gecisini gercekten tetikledi, dogrulanir.
+        var startedTargetId = attrs.GetProperty("startedInstanceId").GetString();
         Assert.False(
             string.IsNullOrWhiteSpace(startedTargetId),
             "startedInstanceId should be a non-empty string from StartFlowMapping output. Because startflow task should start a workflow."
@@ -103,7 +109,7 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         // varligi ve hedef workflow GET functions/state cevabinin Active/Completed olmasi, subprocess'in
         // gercekten baslatildigini kanitlar (sadece "completed" bayragi yetmez). Ayrica GetInstance ile
         // hedef instance attributes'inda parentInstanceId/source/note alanlarinin yazildigini dogrulariz.
-        var subprocessInstanceId = attrsBefore.GetProperty("subprocessInstanceId").GetString();
+        var subprocessInstanceId = attrs.GetProperty("subprocessInstanceId").GetString();
         Assert.False(
             string.IsNullOrWhiteSpace(subprocessInstanceId),
             "subprocessInstanceId should be a non-empty string from SubProcessMapping output"
@@ -146,25 +152,36 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             "subprocess instance attributes.note (set via SubProcessTask body)"
         );
 
-        await _mainWorkflow.RunTransitionAsync(
-            instanceId,
-            "approve-human-task",
-            headers: null,
-            transitionBody: new { }
+        // SubProcess (tip 14) baslatildiginda parent instance'in `functions/state` cevabindaki
+        // `activeCorrelations` listesinde subprocess'e karsilik gelen bir correlation bulunur:
+        //  - `subFlowInstanceId` parent attributes'taki `subprocessInstanceId` ile birebir esit,
+        //  - `subFlowType` SubProcess kisa kodu olan "P".
+        // Bu, parent'in attributes'ina yazilan id'nin (mapping uretimi) yaninda runtime'in da
+        // sub-flow correlation'ini gercekten kaydettigini kanitlar; sadece "completed = true"
+        // bayragi yetmez (vnext-runtime/doc/tr/flow/function.md "Sub-flow Korelasyonlari" tablosu;
+        // vnext-tests-as-code skill "ActiveCorrelations ile SubProcess / SubFlow teyidi" bolumu).
+        // Not: Eger parent COMPLETED iken activeCorrelations bos donerse bu adim fail olur ve
+        // doğrulamayi parent subprocess'i baslattiktan hemen sonraki bir state snapshot'inda
+        // yapmaya tasimak gerekir; ilk fail durumunda hata mesaji bu durumu da belirtir.
+        var correlationFound = StateFunctionJson.TryFindActiveCorrelationBySubFlowInstanceId(
+            stateCompleted,
+            subprocessInstanceId!,
+            out var subprocessCorrelation
+        );
+        var allCorrelations = StateFunctionJson.ExtractActiveCorrelations(stateCompleted);
+        Assert.True(
+            correlationFound,
+            $"parent functions/state.activeCorrelations icinde subFlowInstanceId == '{subprocessInstanceId}' olan correlation bulunmali; "
+                + $"toplam correlation sayisi = {allCorrelations.Count}. "
+                + "Eger 0 geldiyse parent COMPLETED'a ulastiginda runtime correlation'i listeden cikarmis olabilir; "
+                + "doğrulamayi parent subprocess-state'inde iken alinan bir snapshot'a tasimak gerekebilir."
         );
 
-        await _mainWorkflow.AssertStateAsync(instanceId, "completed-state");
-
-        var stateCompleted = await _mainWorkflow.GetStateFunctionBodyAsync(
-            instanceId,
-            headers: null
+        var subFlowType = StateFunctionJson.ExtractSubFlowType(subprocessCorrelation);
+        Assert.True(
+            string.Equals(subFlowType, "P", StringComparison.Ordinal),
+            $"activeCorrelations[<subprocess>].subFlowType beklenen 'P' (SubProcess kisa kodu); actual = '{subFlowType ?? "<null>"}'."
         );
-        var status = StateFunctionJson.ExtractStatus(stateCompleted);
-        // Happy path bittiğinde instance tamamlanmıştır; GET .../functions/state gövdesindeki status 'C' (Completed) olmalıdır.
-        Assert.Equal("C", status);
-
-        var attrsAfter = await GetAttributesAsync(MainWorkflowKey, instanceId);
-        TaskExecutionMainWorkflowInstanceDataAssertions.AssertWhileWaitingOnHumanTask(attrsAfter);
     }
 
     [Fact]

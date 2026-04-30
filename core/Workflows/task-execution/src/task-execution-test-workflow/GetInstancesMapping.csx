@@ -40,7 +40,6 @@ public class GetInstancesMapping : ScriptBase, IMapping
             if (HasProperty(data.taskResults, "triggerTransition")) result.taskResults.triggerTransition = data.taskResults.triggerTransition;
             if (HasProperty(data.taskResults, "subprocess")) result.taskResults.subprocess = data.taskResults.subprocess;
             if (HasProperty(data.taskResults, "getInstances")) result.taskResults.getInstances = data.taskResults.getInstances;
-            if (HasProperty(data.taskResults, "humanTask")) result.taskResults.humanTask = data.taskResults.humanTask;
         }
 
         result.taskResults.getInstances = new ExpandoObject();

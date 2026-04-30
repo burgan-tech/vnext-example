@@ -76,7 +76,7 @@
                   "    var ts = Date.parse(timerStartedAt);",
                   "    pm.expect(isNaN(ts), \"timerStartedAt should be parseable ISO 8601\").to.equal(false);",
                   "    var elapsedMs = Date.now() - ts;",
-                  "    pm.expect(elapsedMs, \"sync start oncesinde human-task-state'e ulasilmasi 3 sn'lik scheduled transition'i ortaya cikarmali (>= 2500 ms)\").to.be.at.least(2500);",
+                  "    pm.expect(elapsedMs, \"sync start oncesinde completed-state'e ulasilmasi 3 sn'lik scheduled transition'i ortaya cikarmali (>= 2500 ms)\").to.be.at.least(2500);",
                   "    var expectedSeconds = (a && typeof a.timerExpectedSeconds === \"number\") ? a.timerExpectedSeconds : (typeof jsonData.timerExpectedSeconds === \"number\" ? jsonData.timerExpectedSeconds : null);",
                   "    pm.expect(expectedSeconds, \"timerExpectedSeconds attribute (TimerStartMapping)\").to.equal(3);",
                   "    var sfId = optPick(jsonData, a, [\"subflowInstanceId\", \"subFlowInstanceId\", \"childSubFlowInstanceId\"]);",
@@ -94,7 +94,7 @@
           ]
         },
         {
-          "name": "Adim 2: Durum (human-task-state)",
+          "name": "Adim 2: Durum (completed-state)",
           "request": {
             "method": "GET",
             "header": [],
@@ -271,21 +271,7 @@
           "response": []
         },
         {
-          "name": "Adim 4: approve-human-task",
-          "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/transitions/approve-human-task",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{taskExecInstanceId}}", "transitions", "approve-human-task"]
-            },
-            "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }
-          },
-          "response": []
-        },
-        {
-          "name": "Adim 5: Durum (completed-state)",
+          "name": "Adim 4: Final durum (completed-state)",
           "request": {
             "method": "GET",
             "header": [],
@@ -298,7 +284,7 @@
           "response": []
         },
         {
-          "name": "Adim 6: Final instance data",
+          "name": "Adim 5: Final instance data",
           "request": {
             "method": "GET",
             "header": [],

@@ -323,7 +323,7 @@ subflow-orchestration-parent (F)
 ## Grup 3: Task Execution (runtime gorevleri + Dapr dis servis)
 
 **Workflow'lar:**
-- `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances, Human task + manuel onay)
+- `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, Timer Wait, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances → completed). Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu zincirden cikartildi.
 - `task-target-workflow` (type: F) — StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
 - `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, Binding, PubSub (tek zincir; HTTP test: `api-tests/task-execution/task-execution.http` **Bolum 3**)
 
@@ -380,11 +380,7 @@ task-execution-test-workflow (F)
 │
 ├── get-instances-state
 │   ├── onEntries: get-instances-task (type:15) + GetInstancesMapping.csx
-│   └── Transitions: auto-to-human-task → human-task-state
-│
-├── human-task-state
-│   ├── onEntries: human-task (type:5) + HumanTaskMapping.csx
-│   └── Transitions: approve-human-task (Manual) → completed-state
+│   └── Transitions: auto-to-completed → completed-state
 │
 └── completed-state (Final/Success, stateType:3, subType:1)
 
@@ -409,7 +405,7 @@ extended-tasks-test-workflow (F)
 ├── dapr-http-state → dapr-service-state → dapr-binding-state → dapr-pubsub-state
 │   (sirasiyla type 1, 3, 2, 4 Dapr task'leri + Dapr*Mapping.csx)
 │
-└── completed-state (Final; pubsub sonrasi otomatik tamamlanma, manuel human task yok)
+└── completed-state (Final; pubsub sonrasi otomatik tamamlanma)
 ```
 
 ### Test Edilen Ozellikler
@@ -426,7 +422,6 @@ extended-tasks-test-workflow (F)
 | TriggerTransition Task (type:12) | Hedef instance + manuel gecis | trigger-transition-task + TriggerTransitionMapping (SetInstance + `manual-complete-target`) |
 | SubProcess Task (type:14) | Alt surec baslatma + hedef instance teyidi (`subprocessInstanceId` + `subprocessData` yanit ozeti + GET state/attributes) | subprocess-task + SubProcessMapping (SetBody parentInstanceId/source/note; OutputHandler `subprocessData` = `context.Body.data` alanlari) |
 | GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
-| Human Task (type:5) | Manuel `approve-human-task` | human-task + HumanTaskMapping |
 | Dapr HTTP (1) / Service (3) / Binding (2) / PubSub (4) | Sidecar + YAML | `extended-tasks-test-workflow` + dapr-*-task |
 | HttpTask / StartTask / GetInstanceDataTask cast | InputHandler | Ilgili mapping.csx |
 | context.Body.data | Task yaniti | OutputHandler'lar |
@@ -446,7 +441,6 @@ extended-tasks-test-workflow (F)
 | Task | `trigger-transition-task` | 12 | Tasks/task-execution/task-execution-test-workflow/trigger-transition-task.json |
 | Task | `subprocess-task` | 14 | Tasks/task-execution/task-execution-test-workflow/subprocess-task.json |
 | Task | `get-instances-task` | 15 | Tasks/task-execution/task-execution-test-workflow/get-instances-task.json |
-| Task | `human-task` | 5 | Tasks/task-execution/task-execution-test-workflow/human-task.json |
 | Task | `dapr-http-task` | 1 | Tasks/task-execution/extended-tasks-test-workflow/dapr-http-task.json |
 | Task | `dapr-service-task` | 3 | Tasks/task-execution/extended-tasks-test-workflow/dapr-service-task.json |
 | Task | `dapr-binding-task` | 2 | Tasks/task-execution/extended-tasks-test-workflow/dapr-binding-task.json |
@@ -1081,7 +1075,6 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | **Dapr Binding Task (2)** |  |  | X |  |  |  |  |  |  |
 | **Dapr Service Task (3)** |  |  | X |  |  |  |  |  |  |
 | **Dapr PubSub Task (4)** |  |  | X |  |  |  |  |  |  |
-| **Human Task (5)** |  |  | X |  |  |  |  |  |  |
 | **Notification Task (10)** |  |  | X |  |  |  |  |  |  |
 | **Trigger Transition Task (12)** |  |  | X |  |  |  |  |  |  |
 | **SubProcess Task (14)** |  |  | X |  |  |  |  |  |  |

@@ -19,12 +19,14 @@
 # HTTP -> Script -> Timer Wait (Timer Task tip 9, scheduled transition 3 sn)
 # -> Start Flow (11) -> Get Instance Data (13)
 # -> Notification (10, mapping.type G) -> TriggerTransition (12) -> SubProcess (14)
-# -> GetInstances (15) -> Human Task (5) -> PATCH approve -> Completed
+# -> GetInstances (15) -> Completed (auto)
 # Condition Task (tip 8) tum auto transition rule'larinda (AlwaysTrueRule) dolayli olarak uretilir.
+# NOT: Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu
+# zincirden cikartildi; happy path manuel onay olmadan dogrudan completed-state'e ulasir.
 # Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
 ###############################################################################
 
-### B1 — Adim 1: Ana workflow baslat (sync zincir human-task-state'te durur)
+### B1 — Adim 1: Ana workflow baslat (sync zincir completed-state'e ulasir)
 # @name createTaskExecInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -37,7 +39,7 @@ Content-Type: application/json
 
 @taskExecInstanceId = {{createTaskExecInstance.response.body.$.id}}
 
-### B1 — Adim 2: Durum kontrol (human-task-state beklenir)
+### B1 — Adim 2: Durum kontrol (completed-state, status: C)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
 
 ### B1 — Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
@@ -48,9 +50,8 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 # subprocessInstanceId (SubProcessTask sonucu hedef workflow id),
 # subprocessData (SubProcessTask context.Body.data anlık kopyası: id/instanceId/state vb.),
 # getInstanceDataCompleted, taskResults.triggerTransition.completed,
-# taskResults.subprocess.completed, taskResults.getInstances.completed,
-# taskResults.humanTask.completed
-# Not: human-task-state'e ulasilana kadar gecen toplam sure >= 3 sn olmali; aksi halde
+# taskResults.subprocess.completed, taskResults.getInstances.completed
+# Not: completed-state'e ulasilana kadar gecen toplam sure >= 3 sn olmali; aksi halde
 # scheduled transition'in Timer Task'i devre disi olabilir.
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
@@ -69,18 +70,6 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/inst
 # Beklenen: source = "task-execution-test", parentInstanceId = ana workflow instance id,
 # note alani SubProcessMapping InputHandler'da SetBody ile yazilmali.
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}
-
-### B1 — Adim 4: Human task onayla (manuel transition)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/transitions/approve-human-task
-Content-Type: application/json
-
-{}
-
-### B1 — Adim 5: Durum kontrol (completed-state)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
-
-### B1 — Adim 6: Final instance data
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
 ###############################################################################
 # BOLUM 2 — Happy path: Hedef workflow (task-target-workflow) bagimsiz baslatma

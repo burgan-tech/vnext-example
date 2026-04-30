@@ -14,15 +14,17 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
         "(task-execution-test-workflow mappings + task-execution.http B1 expected flags)";
 
     /// <summary>
-    /// Human-task beklemeden önce: HTTP, script, timer-wait (Timer Task tip 9), start-flow,
-    /// get-instance-data, trigger, subprocess, get-instances ve human-task onEntry mapping
-    /// bayrakları. Notification task <c>mapping.type: G</c> kullandığı için
-    /// <c>taskResults.notification</c> entegrasyon assert'ine dahil edilmez.
-    /// timer-wait-state, scheduled transition (<c>triggerType: 2</c>) + <c>ITimerMapping</c>
-    /// ile 3 sn beklediği için <c>timerStartedAt</c> attribute'ü zorunludur ve test bunun
-    /// üzerinden gerçek bekleme süresini doğrular.
+    /// Happy path tamamlandiginda: HTTP, script, timer-wait (Timer Task tip 9), start-flow,
+    /// get-instance-data, trigger, subprocess ve get-instances onEntry mapping bayraklari.
+    /// Notification task <c>mapping.type: G</c> kullandigi icin <c>taskResults.notification</c>
+    /// entegrasyon assert'ine dahil edilmez. Human Task (tip 5) runtime tarafindan kaldirilacak
+    /// gecici bir ozellik oldugu icin bu workflow'da kullanilmaz; happy path human onayi olmadan
+    /// dogrudan completed-state'e ulasir. timer-wait-state, scheduled transition
+    /// (<c>triggerType: 2</c>) + <c>ITimerMapping</c> ile 3 sn bekledigi icin
+    /// <c>timerStartedAt</c> attribute'u zorunludur ve test bunun uzerinden gercek bekleme
+    /// suresini dogrular.
     /// </summary>
-    public static void AssertWhileWaitingOnHumanTask(JsonElement attributes)
+    public static void AssertHappyPathCompleted(JsonElement attributes)
     {
         JsonElementAssertions.AssertPropertyNonEmptyString(
             attributes,
@@ -91,12 +93,6 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "getInstances" },
-            "completed",
-            ContractHint
-        );
-        JsonElementAssertions.AssertNestedPropertyTrue(
-            attributes,
-            new[] { "taskResults", "humanTask" },
             "completed",
             ContractHint
         );
