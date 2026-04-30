@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "2835031e-c465-4e76-b09c-a4b3b3e63246",
     "name": "vNext Test - Task Execution",
-    "description": "Auto-generated from task-execution-test-workflow.http.\nvNext workflow integration test collection for task-execution.",
+    "description": "Auto-generated from task-execution-test-workflow.http.\nAna zincir: task-execution-test-workflow. Dapr-only senaryo: ayri koleksiyon postman-extended-tasks.json (extended-tasks-test-workflow).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -101,7 +101,7 @@
           ]
         },
         {
-          "name": "Adim 2: Durum kontrol (completed-state beklenir)",
+          "name": "Adim 2: Durum kontrol (human-task-state beklenir)",
           "request": {
             "method": "GET",
             "header": [],
@@ -126,7 +126,97 @@
           "response": []
         },
         {
-          "name": "Adim 3: Instance data dogrula",
+          "name": "Adim 3: Instance data (notification / trigger / subprocess / getInstances)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{taskExecInstanceId}}",
+                "functions",
+                "data"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 4: Human task onayla (approve-human-task)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/transitions/approve-human-task",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{taskExecInstanceId}}",
+                "transitions",
+                "approve-human-task"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 5: Durum kontrol (completed-state)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{taskExecInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 6: Final instance data",
           "request": {
             "method": "GET",
             "header": [],

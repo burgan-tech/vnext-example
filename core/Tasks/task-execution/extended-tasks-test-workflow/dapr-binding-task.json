@@ -4,7 +4,7 @@
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
-  "tags": ["integration-test", "extended-tasks", "dapr-binding"],
+  "tags": ["integration-test", "task-execution", "dapr-binding"],
   "attributes": {
     "type": "2",
     "config": {

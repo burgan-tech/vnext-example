@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = extended-tasks-test-workflow
+
+### ============================================================
+### TEST: Dapr task zinciri (sadece dis servis / Dapr)
+### Dapr HTTP (1) -> Dapr Service (3) -> Dapr Binding (2) ->
+### Dapr PubSub (4) -> completed-state (otomatik)
+### ============================================================
+
+### Adim 1: Workflow Baslat (sync - tam zincir)
+# @name createExtendedInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "extended-tasks-test-{{$timestamp}}",
+  "tags": ["integration-test", "task-execution", "dapr-only"],
+  "attributes": {
+    "testId": "extended-tasks-dapr-path"
+  }
+}
+
+@instanceId = {{createExtendedInstance.response.body.$.id}}
+
+### Adim 2: Durum Kontrol - completed-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state
+
+### Adim 3: Instance Data - Dapr task sonuclari
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}
+
+### ============================================================
+### Beklenen Sonuclar:
+### - initCompleted: true
+### - taskResults.daprHttp.completed: true
+### - taskResults.daprService.completed: true
+### - taskResults.daprBinding.completed: true
+### - taskResults.daprPubSub.completed: true
+### ============================================================

@@ -1,32 +1,52 @@
 {
   "nodePos": {
     "http-task-state": {
-      "x": 340,
-      "y": -180
+      "x": 690,
+      "y": 320
     },
     "script-processing-state": {
-      "x": 500,
-      "y": 560
+      "x": 950,
+      "y": 20
     },
     "cross-workflow-state": {
-      "x": 980,
-      "y": 260
+      "x": 1220,
+      "y": 320
     },
     "start-flow-state": {
-      "x": 1200,
-      "y": -220
+      "x": 1520,
+      "y": 40
     },
     "get-instance-data-state": {
-      "x": 1880,
-      "y": 280
+      "x": 1750,
+      "y": 350
     },
     "completed-state": {
-      "x": 2480,
-      "y": 60
+      "x": 3110,
+      "y": 360
     },
     "__start__": {
-      "x": -296,
-      "y": 100
+      "x": 540,
+      "y": 60
+    },
+    "human-task-state": {
+      "x": 2840,
+      "y": -10
+    },
+    "get-instances-state": {
+      "x": 2600,
+      "y": 380
+    },
+    "subprocess-state": {
+      "x": 2460,
+      "y": -10
+    },
+    "trigger-transition-state": {
+      "x": 2180,
+      "y": 380
+    },
+    "notification-state": {
+      "x": 2000,
+      "y": 20
     }
   }
 }

@@ -1,0 +1,144 @@
+{
+  "info": {
+    "_postman_id": "382174e0-fc37-4d36-ba7b-653b40194f3c",
+    "name": "vNext Test - Extended Tasks (Dapr only)",
+    "description": "extended-tasks-test-workflow: sadece Dapr HTTP/Service/Binding/PubSub zinciri.\nKlasor: api-tests/task-execution (task-execution grubu altinda).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    },
+    {
+      "key": "workflow",
+      "value": "extended-tasks-test-workflow",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Dapr zinciri: extended-tasks-test-workflow",
+      "item": [
+        {
+          "name": "Adim 1: Workflow baslat (sync)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"extended-tasks-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"task-execution\", \"dapr-only\"],\n  \"attributes\": {\n    \"testId\": \"extended-tasks-dapr-path\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.collectionVariables.set(\"instanceId\", jsonData.id);",
+                  "    console.log(\"instanceId set to: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 2: Durum (completed-state)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{instanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Instance (Dapr taskResults)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{instanceId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

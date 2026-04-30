@@ -1,0 +1,358 @@
+{
+  "key": "extended-tasks-test-workflow",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-execution",
+    "dapr-http",
+    "dapr-binding",
+    "dapr-service",
+    "dapr-pubsub"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Extended Tasks (Dapr) Test Workflow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Genisletilmis Gorevler (Dapr) Test Is Akisi"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-extended-tasks",
+      "target": "init-state",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Extended Tasks Test"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Genisletilmis Gorev Testini Baslat"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "init-state",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Initialize"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Baslangic"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-task",
+              "version": "1.0.0",
+              "domain": "core",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/extended-tasks-test-workflow/InitExtendedTaskMapping.csx",
+              "code": ""
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-dapr-http",
+            "target": "dapr-http-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Dapr HTTP"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dapr HTTP'ye Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/shared/AlwaysTrueRule.csx",
+              "code": ""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "dapr-http-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Dapr HTTP Task"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Dapr HTTP Gorevi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "dapr-http-task",
+              "version": "1.0.0",
+              "domain": "core",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/extended-tasks-test-workflow/DaprHttpMapping.csx",
+              "code": ""
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-dapr-service",
+            "target": "dapr-service-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Dapr Service"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dapr Service'e Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/shared/AlwaysTrueRule.csx",
+              "code": ""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "dapr-service-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Dapr Service Task"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Dapr Service Gorevi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "dapr-service-task",
+              "version": "1.0.0",
+              "domain": "core",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/extended-tasks-test-workflow/DaprServiceMapping.csx",
+              "code": ""
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-dapr-binding",
+            "target": "dapr-binding-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Dapr Binding"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dapr Binding'e Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/shared/AlwaysTrueRule.csx",
+              "code": ""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "dapr-binding-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Dapr Binding Task"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Dapr Binding Gorevi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "dapr-binding-task",
+              "version": "1.0.0",
+              "domain": "core",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/extended-tasks-test-workflow/DaprBindingMapping.csx",
+              "code": ""
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-dapr-pubsub",
+            "target": "dapr-pubsub-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Dapr PubSub"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dapr PubSub'a Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/shared/AlwaysTrueRule.csx",
+              "code": ""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "dapr-pubsub-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Dapr PubSub Task"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Dapr PubSub Gorevi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "dapr-pubsub-task",
+              "version": "1.0.0",
+              "domain": "core",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/extended-tasks-test-workflow/DaprPubSubMapping.csx",
+              "code": ""
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-completed",
+            "target": "completed-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Completed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Tamamlanmaya Otomatik"
+              }
+            ],
+            "rule": {
+              "location": "./src/shared/AlwaysTrueRule.csx",
+              "code": ""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

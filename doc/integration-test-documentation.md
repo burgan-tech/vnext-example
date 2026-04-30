@@ -10,14 +10,15 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 |---|------|----------|---------------------------|
 | 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
 | 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)** |
-| 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` | HTTP/Script/StartFlow/GetInstanceData task tipleri |
+| 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances/Human; Dapr HTTP/Service/Binding/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
 | 5 | View, Function & Extension | `view-function-extension-test-workflow` | View tipleri, display modlari, function, extension, wizard state, **features** referansi |
 | 6 | Schema & Data | `schema-data-test-workflow` | Master schema, transition schema, updateData, field roles |
 | 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
-| 8 | Extended Tasks | `extended-tasks-test-workflow` | Dapr HTTP/Binding/Service/PubSub, notification, trigger-transition, subprocess, get-instances, human-task; Dapr bilesen konfigurasyonu |
-| 9 | Flow Types | `core-flow-test` + `subprocess-flow-test` | **Core (C)** ve **SubProcess (P)** workflow tipleri |
-| 10 | Version Consistency | `version-consistency-test-workflow` (v1.0.0 + v2.0.0) | Workflow versiyon degisiminde mevcut instance'larin kendi versiyonlariyla devam etmesi |
+| 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` | **Core (C)** ve **SubProcess (P)** workflow tipleri |
+| 9 | Version Consistency | `version-consistency-test-workflow` (v1.0.0 + v2.0.0) | Workflow versiyon degisiminde mevcut instance'larin kendi versiyonlariyla devam etmesi |
+
+**Grup numaralari:** Eski **Grup 8 (Extended Tasks)** icerigi **Grup 3 (Task Execution)** altinda birlestirilmistir (`extended-tasks-test-workflow` artik Grup 3 kapsaminda). Matris ve tablolarda **G8 / Grup 8** = Flow Types, **G9 / Grup 9** = Version Consistency.
 
 ---
 
@@ -319,15 +320,20 @@ subflow-orchestration-parent (F)
 
 ---
 
-## Grup 3: Task Execution & Scripting
+## Grup 3: Task Execution (runtime gorevleri + Dapr dis servis)
 
 **Workflow'lar:**
-- `task-execution-test-workflow` (type: F) - Ana test workflow'u
-- `task-target-workflow` (type: F) - Cross-workflow test icin hedef
+- `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances, Human task + manuel onay)
+- `task-target-workflow` (type: F) — Cross-workflow / StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
+- `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, Binding, PubSub (tek zincir, `api-tests/task-execution/extended-tasks-test-workflow.http`)
 
-**Amac:** Farkli task tiplerini (HTTP, Script, StartFlow, GetInstanceData) ve task siralama mekanizmasini test eder.
+**Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, cross-workflow iletisim ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
 
-### Agac Yapisi
+**CSX klasorleri:** `Workflows/task-execution/src/task-execution-test-workflow/` (`task-execution-test-workflow.json` mapping'leri), `.../src/extended-tasks-test-workflow/` (`extended-tasks-test-workflow.json`), `.../src/shared/AlwaysTrueRule.csx` (otomatik gecis kurallari; `task-target-workflow` dahil).
+
+**Task JSON klasorleri:** `Tasks/task-execution/task-execution-test-workflow/` (ana workflow + hedef workflow'un kullandigi task'lar), `Tasks/task-execution/extended-tasks-test-workflow/` (Dapr task'lari).
+
+### Agac Yapisi — `task-execution-test-workflow` (F)
 
 ```
 task-execution-test-workflow (F)
@@ -337,82 +343,115 @@ task-execution-test-workflow (F)
 │       └── task-exec-script-task + InitTaskTestMapping.csx
 │
 ├── http-task-state (Initial, stateType:1)
-│   ├── onEntries:
-│   │   └── http-process-task (type:6) + HttpProcessMapping.csx
-│   └── Transitions:
-│       └── auto-to-script-processing (Auto) → script-processing-state
+│   ├── onEntries: http-process-task (type:6) + HttpProcessMapping.csx
+│   └── Transitions: auto-to-script-processing → script-processing-state
 │
-├── script-processing-state (Intermediate, stateType:2)
-│   ├── onEntries:
-│   │   └── task-exec-script-task (type:7) + ScriptProcessMapping.csx
-│   └── Transitions:
-│       └── auto-to-cross-workflow (Auto) → cross-workflow-state
+├── script-processing-state
+│   ├── onEntries: task-exec-script-task (type:7) + ScriptProcessMapping.csx
+│   └── Transitions: auto-to-cross-workflow → cross-workflow-state
 │
-├── cross-workflow-state (Intermediate, stateType:2)
-│   ├── onEntries:
-│   │   └── task-exec-script-task (type:7) + CrossWorkflowMapping.csx
-│   └── Transitions:
-│       └── auto-to-start-flow (Auto) → start-flow-state
+├── cross-workflow-state
+│   ├── onEntries: task-exec-script-task + CrossWorkflowMapping.csx
+│   └── Transitions: auto-to-start-flow → start-flow-state
 │
-├── start-flow-state (Intermediate, stateType:2)
-│   ├── onEntries:
-│   │   └── start-flow-task (type:11) + StartFlowMapping.csx
-│   └── Transitions:
-│       └── auto-to-get-instance-data (Auto) → get-instance-data-state
+├── start-flow-state
+│   ├── onEntries: start-flow-task (type:11) + StartFlowMapping.csx
+│   └── Transitions: auto-to-get-instance-data → get-instance-data-state
 │
-├── get-instance-data-state (Intermediate, stateType:2)
-│   ├── onEntries:
-│   │   └── get-instance-data-task (type:13) + GetInstanceDataMapping.csx
-│   └── Transitions:
-│       └── auto-to-completed (Auto) → completed-state
+├── get-instance-data-state
+│   ├── onEntries: get-instance-data-task (type:13) + GetInstanceDataMapping.csx
+│   └── Transitions: auto-to-notification → notification-state
+│
+├── notification-state
+│   ├── onEntries: notification-task (type:10) + NotificationMapping.csx
+│   └── Transitions: auto-to-trigger-transition → trigger-transition-state
+│
+├── trigger-transition-state
+│   ├── onEntries: trigger-transition-task (type:12) + TriggerTransitionMapping.csx
+│   └── Transitions: auto-to-subprocess → subprocess-state
+│
+├── subprocess-state
+│   ├── onEntries: subprocess-task (type:14) + SubProcessMapping.csx
+│   └── Transitions: auto-to-get-instances → get-instances-state
+│
+├── get-instances-state
+│   ├── onEntries: get-instances-task (type:15) + GetInstancesMapping.csx
+│   └── Transitions: auto-to-human-task → human-task-state
+│
+├── human-task-state
+│   ├── onEntries: human-task (type:5) + HumanTaskMapping.csx
+│   └── Transitions: approve-human-task (Manual) → completed-state
 │
 └── completed-state (Final/Success, stateType:3, subType:1)
 
 task-target-workflow (F)
 │
 ├── [startTransition] start-target → target-initial
+├── target-initial → auto-complete-target → target-completed
+└── target-completed
+```
+
+### Agac Yapisi — `extended-tasks-test-workflow` (F, sadece Dapr)
+
+```
+extended-tasks-test-workflow (F)
 │
-├── target-initial (Initial, stateType:1)
-│   └── Transitions:
-│       └── auto-complete-target (Auto) → target-completed
-│           └── rule: AlwaysTrueRule.csx
+├── [startTransition] start-extended-tasks → init-state
 │
-└── target-completed (Final/Success, stateType:3, subType:1)
+├── init-state (Initial)
+│   ├── onEntries: script-task (Tasks/lifecycle-transitions/script-task.json) + InitExtendedTaskMapping.csx
+│   └── Transitions: auto-to-dapr-http → dapr-http-state
+│
+├── dapr-http-state → dapr-service-state → dapr-binding-state → dapr-pubsub-state
+│   (sirasiyla type 1, 3, 2, 4 Dapr task'leri + Dapr*Mapping.csx)
+│
+└── completed-state (Final; pubsub sonrasi otomatik tamamlanma, manuel human task yok)
 ```
 
 ### Test Edilen Ozellikler
 
 | Ozellik | Nasil Test Edilir | Ilgili Eleman |
 |---------|-------------------|---------------|
-| HTTP Task (type:6) | Mockoon'a HTTP istegi gonderme | http-process-task + HttpProcessMapping |
-| Script Task (type:7) | C# script ile data donusumu | task-exec-script-task + ScriptProcessMapping |
-| StartFlow Task (type:11) | Baska bir workflow baslatma | start-flow-task + StartFlowMapping |
-| GetInstanceData Task (type:13) | Baska workflow'un datasini okuma | get-instance-data-task + GetInstanceDataMapping |
-| HttpTask cast + SetBody | HTTP task'a body set etme | HttpProcessMapping.csx InputHandler |
-| StartTask cast + SetBody | Start task'a body set etme | StartFlowMapping.csx InputHandler |
-| GetInstanceDataTask cast + SetInstance | Hedef instance belirleme | GetInstanceDataMapping.csx InputHandler |
-| context.Body.data | HTTP/Task response okuma | OutputHandler'larda context.Body.data |
-| GetConfigValue | Vault'tan config degeri okuma | HttpProcessMapping (MocklabBaseUrl) |
-| Task siralama (onEntries order) | Her state'te order:1 task | Tum onEntries |
-| Cross-workflow iletisim | Bir workflow baska bir workflow baslatir ve datasini okur | start-flow → get-instance-data zinciri |
+| HTTP Task (type:6) | Mocklab HTTP | http-process-task + HttpProcessMapping |
+| Script Task (type:7) | C# script data | task-exec-script-task + ScriptProcessMapping |
+| StartFlow Task (type:11) | Hedef workflow baslatma | start-flow-task + StartFlowMapping |
+| GetInstanceData Task (type:13) | Baska instance datasi | get-instance-data-task + GetInstanceDataMapping |
+| Notification Task (type:10) | Bildirim metadata | notification-task + NotificationMapping |
+| TriggerTransition Task (type:12) | Hedef instance'da transition | trigger-transition-task + TriggerTransitionMapping |
+| SubProcess Task (type:14) | Alt surec baslatma | subprocess-task + SubProcessMapping |
+| GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
+| Human Task (type:5) | Manuel `approve-human-task` | human-task + HumanTaskMapping |
+| Dapr HTTP (1) / Service (3) / Binding (2) / PubSub (4) | Sidecar + YAML | `extended-tasks-test-workflow` + dapr-*-task |
+| HttpTask / StartTask / GetInstanceDataTask cast | InputHandler | Ilgili mapping.csx |
+| context.Body.data | Task yaniti | OutputHandler'lar |
+| GetConfigValue | MocklabBaseUrl | HttpProcessMapping |
+| Task siralama | onEntries order | Tum state'ler |
+| Cross-workflow | StartFlow + GetInstanceData + hedef workflow | task-target-workflow |
 
-### Kullanilan Bilesenler
+### Kullanilan Bilesenler (ozet)
 
 | Tip | Anahtar | Tip Kodu | Dosya |
 |-----|---------|----------|-------|
-| Task | `http-process-task` | type:6 (HTTP) | Tasks/task-execution/http-process-task.json |
-| Task | `task-exec-script-task` | type:7 (Script) | Tasks/task-execution/task-exec-script-task.json |
-| Task | `start-flow-task` | type:11 (StartFlow) | Tasks/task-execution/start-flow-task.json |
-| Task | `get-instance-data-task` | type:13 (GetInstanceData) | Tasks/task-execution/get-instance-data-task.json |
-| CSX | InitTaskTestMapping | | Workflows/task-execution/src/InitTaskTestMapping.csx |
-| CSX | HttpProcessMapping | | Workflows/task-execution/src/HttpProcessMapping.csx |
-| CSX | ScriptProcessMapping | | Workflows/task-execution/src/ScriptProcessMapping.csx |
-| CSX | CrossWorkflowMapping | | Workflows/task-execution/src/CrossWorkflowMapping.csx |
-| CSX | StartFlowMapping | | Workflows/task-execution/src/StartFlowMapping.csx |
-| CSX | GetInstanceDataMapping | | Workflows/task-execution/src/GetInstanceDataMapping.csx |
-| CSX | AlwaysTrueRule | | Workflows/task-execution/src/AlwaysTrueRule.csx |
+| Task | `http-process-task` | 6 | Tasks/task-execution/task-execution-test-workflow/http-process-task.json |
+| Task | `task-exec-script-task` | 7 | Tasks/task-execution/task-execution-test-workflow/task-exec-script-task.json |
+| Task | `start-flow-task` | 11 | Tasks/task-execution/task-execution-test-workflow/start-flow-task.json |
+| Task | `get-instance-data-task` | 13 | Tasks/task-execution/task-execution-test-workflow/get-instance-data-task.json |
+| Task | `notification-task` | 10 | Tasks/task-execution/task-execution-test-workflow/notification-task.json |
+| Task | `trigger-transition-task` | 12 | Tasks/task-execution/task-execution-test-workflow/trigger-transition-task.json |
+| Task | `subprocess-task` | 14 | Tasks/task-execution/task-execution-test-workflow/subprocess-task.json |
+| Task | `get-instances-task` | 15 | Tasks/task-execution/task-execution-test-workflow/get-instances-task.json |
+| Task | `human-task` | 5 | Tasks/task-execution/task-execution-test-workflow/human-task.json |
+| Task | `dapr-http-task` | 1 | Tasks/task-execution/extended-tasks-test-workflow/dapr-http-task.json |
+| Task | `dapr-service-task` | 3 | Tasks/task-execution/extended-tasks-test-workflow/dapr-service-task.json |
+| Task | `dapr-binding-task` | 2 | Tasks/task-execution/extended-tasks-test-workflow/dapr-binding-task.json |
+| Task | `dapr-pubsub-task` | 4 | Tasks/task-execution/extended-tasks-test-workflow/dapr-pubsub-task.json |
+| Task | `script-task` (paylasimli) | 7 | Tasks/lifecycle-transitions/script-task.json |
+| CSX | `task-execution-test-workflow` mapping'leri | `Workflows/task-execution/src/task-execution-test-workflow/*.csx` |
+| CSX | `extended-tasks-test-workflow` mapping'leri | `Workflows/task-execution/src/extended-tasks-test-workflow/*.csx` |
+| CSX | Ortak auto-transition rule | `Workflows/task-execution/src/shared/AlwaysTrueRule.csx` |
 
----
+**HTTP / Postman:** `api-tests/task-execution/task-execution-test-workflow.http` (ana zincir + human onay), `api-tests/task-execution/extended-tasks-test-workflow.http` (Dapr-only). Mini Postman: `postman-task-execution.json`, `postman-extended-tasks.json` (`api-tests/task-execution/` klasorunde).
+
 
 ## Grup 4: Error Boundary
 
@@ -767,136 +806,7 @@ instance-management-test-workflow (F)
 
 ---
 
-## Grup 8: Extended Tasks (Dapr ve Genisletilmis Gorev Tipleri)
-
-**Workflow:** `extended-tasks-test-workflow` (type: F)
-
-**Dosya:** `Workflows/extended-tasks/extended-tasks-test-workflow.json`
-
-**Amac:** Dapr tabanli gorev tipleri (HTTP, Service, Binding, PubSub), bildirim, baska instance uzerinde gecis tetikleme, alt surec baslatma, instance listesi sorgulama ve insan gorevi (manuel onay) akislarini tek workflow zincirinde dogrular. Baslangic state'inde **lifecycle-transitions** modulundeki **`script-task`** tanimi yeniden kullanilir; mapping bu workflow'a ozel **`InitExtendedTaskMapping.csx`** dosyasidir.
-
-### Gorev Tipleri (`Tasks/extended-tasks/`)
-
-| Anahtar | type (kod) | Aciklama |
-|---------|------------|----------|
-| `dapr-http-task` | 1 | Dapr HTTP invoke |
-| `dapr-binding-task` | 2 | Dapr output binding |
-| `dapr-service-task` | 3 | Dapr service invocation |
-| `dapr-pubsub-task` | 4 | Dapr pub/sub publish |
-| `human-task` | 5 | Insan onayi / manuel gorev |
-| `notification-task` | 10 | Dis bildirim (HTTP vb.) |
-| `trigger-transition-task` | 12 | Hedef instance'da transition tetikleme |
-| `subprocess-task` | 14 | Alt surec / bagli flow calistirma |
-| `get-instances-task` | 15 | Instance listesi filtreleme |
-
-### Agac Yapisi
-
-```
-extended-tasks-test-workflow (F)
-│
-├── [startTransition] start-extended-tasks → init-state
-│   └── onExecutionTasks: (bos)
-│
-├── init-state (Initial, stateType:1)
-│   ├── onEntries:
-│   │   └── script-task (lifecycle-transitions tanimi) + InitExtendedTaskMapping.csx
-│   └── Transitions:
-│       └── auto-to-dapr-http (Auto) → dapr-http-state
-│           └── rule: AlwaysTrueRule.csx
-│
-├── dapr-http-state (Intermediate, stateType:2)
-│   ├── onEntries: dapr-http-task (type:1) + DaprHttpMapping.csx
-│   └── Transitions: auto-to-dapr-service → dapr-service-state (AlwaysTrueRule)
-│
-├── dapr-service-state (Intermediate, stateType:2)
-│   ├── onEntries: dapr-service-task (type:3) + DaprServiceMapping.csx
-│   └── Transitions: auto-to-dapr-binding → dapr-binding-state
-│
-├── dapr-binding-state (Intermediate, stateType:2)
-│   ├── onEntries: dapr-binding-task (type:2) + DaprBindingMapping.csx
-│   └── Transitions: auto-to-dapr-pubsub → dapr-pubsub-state
-│
-├── dapr-pubsub-state (Intermediate, stateType:2)
-│   ├── onEntries: dapr-pubsub-task (type:4) + DaprPubSubMapping.csx
-│   └── Transitions: auto-to-notification → notification-state
-│
-├── notification-state (Intermediate, stateType:2)
-│   ├── onEntries: notification-task (type:10) + NotificationMapping.csx
-│   └── Transitions: auto-to-trigger-transition → trigger-transition-state
-│
-├── trigger-transition-state (Intermediate, stateType:2)
-│   ├── onEntries: trigger-transition-task (type:12) + TriggerTransitionMapping.csx
-│   └── Transitions: auto-to-subprocess → subprocess-state
-│
-├── subprocess-state (Intermediate, stateType:2)
-│   ├── onEntries: subprocess-task (type:14) + SubProcessMapping.csx
-│   └── Transitions: auto-to-get-instances → get-instances-state
-│
-├── get-instances-state (Intermediate, stateType:2)
-│   ├── onEntries: get-instances-task (type:15) + GetInstancesMapping.csx
-│   └── Transitions: auto-to-human-task → human-task-state
-│
-├── human-task-state (Intermediate, stateType:2)
-│   ├── onEntries: human-task (type:5) + HumanTaskMapping.csx
-│   └── Transitions:
-│       └── approve-human-task (Manual) → completed-state
-│
-└── completed-state (Final/Success, stateType:3, subType:1)
-```
-
-### CSX Dosyalari (`Workflows/extended-tasks/src/`)
-
-| Dosya | Rol |
-|-------|-----|
-| InitExtendedTaskMapping.csx | IMapping — init-state onEntries |
-| DaprHttpMapping.csx | IMapping |
-| DaprServiceMapping.csx | IMapping |
-| DaprBindingMapping.csx | IMapping |
-| DaprPubSubMapping.csx | IMapping |
-| NotificationMapping.csx | IMapping |
-| TriggerTransitionMapping.csx | IMapping |
-| SubProcessMapping.csx | IMapping |
-| GetInstancesMapping.csx | IMapping |
-| HumanTaskMapping.csx | IMapping |
-| AlwaysTrueRule.csx | IConditionMapping — otomatik gecis kurallari |
-
-### Test Edilen Ozellikler (ozet)
-
-| Ozellik | Nasil Test Edilir | Ilgili Eleman |
-|---------|-------------------|---------------|
-| Dapr HTTP task | Sidecar uzerinden uzaktan HTTP cagri | dapr-http-task, DaprHttpMapping |
-| Dapr Service task | App-id ile service invocation | dapr-service-task |
-| Dapr Binding task | Tanimli output binding | dapr-binding-task, test-binding.yaml |
-| Dapr PubSub task | Pub/sub mesaj yayini | dapr-pubsub-task, test-pubsub.yaml |
-| Notification task | Mock HTTP bildirim ucu | notification-task |
-| Trigger transition task | Baska instance transition | trigger-transition-task |
-| Subprocess task | Bagli workflow calistirma | subprocess-task |
-| Get instances task | Filtreli instance listesi | get-instances-task |
-| Human task | Manuel onay ile tamamlama | human-task, approve-human-task |
-| Script task paylasimi | Ayni script-task JSON, farkli mapping | script-task + InitExtendedTaskMapping |
-
-### HTTP Test
-
-`Workflows/extended-tasks/extended-tasks-test-workflow.http` dosyasi ile uçtan uca senaryo ve ara kontroller calistirilabilir.
-
-### Kullanilan Bilesenler (task JSON yollari)
-
-| Tip | Anahtar | Dosya |
-|-----|---------|-------|
-| Task | `dapr-http-task` | Tasks/extended-tasks/dapr-http-task.json |
-| Task | `dapr-binding-task` | Tasks/extended-tasks/dapr-binding-task.json |
-| Task | `dapr-service-task` | Tasks/extended-tasks/dapr-service-task.json |
-| Task | `dapr-pubsub-task` | Tasks/extended-tasks/dapr-pubsub-task.json |
-| Task | `human-task` | Tasks/extended-tasks/human-task.json |
-| Task | `notification-task` | Tasks/extended-tasks/notification-task.json |
-| Task | `trigger-transition-task` | Tasks/extended-tasks/trigger-transition-task.json |
-| Task | `subprocess-task` | Tasks/extended-tasks/subprocess-task.json |
-| Task | `get-instances-task` | Tasks/extended-tasks/get-instances-task.json |
-| Task | `script-task` (paylasimli) | Tasks/lifecycle-transitions/script-task.json |
-
----
-
-## Grup 9: Flow Types (Core ve SubProcess)
+## Grup 8: Flow Types (Core ve SubProcess)
 
 **Workflow'lar:**
 - `core-flow-test` (type: C) - Core flow tipi
@@ -944,7 +854,7 @@ subprocess-flow-test (P)
 |---------|-------------------|---------------|
 | Core flow tipi (type: C) | Minimal workflow publish ve calistirma | core-flow-test |
 | SubProcess flow tipi (type: P) | Minimal workflow publish ve calistirma | subprocess-flow-test |
-| Farkli flow tiplerinin runtime uyumlulugu | Tum 4 tip: C (G9), F (G1-G8), S (G2), P (G9) | Tum gruplarda |
+| Farkli flow tiplerinin runtime uyumlulugu | Tum 4 tip: C (G8), F (G1-G7, G9), S (G2), P (G8) | Tum gruplarda |
 
 ### Kullanilan Bilesenler
 
@@ -964,7 +874,7 @@ subprocess-flow-test (P)
 
 ---
 
-## Grup 10: Version Consistency (Versiyon Tutarliligi)
+## Grup 9: Version Consistency (Versiyon Tutarliligi)
 
 **Workflow:** `version-consistency-test-workflow` (type: F) — ayni key, iki farkli versiyon (v1.0.0 ve v2.0.0)
 
@@ -1093,8 +1003,8 @@ version-consistency-test-workflow (F, v2.0.0) — 4 state (ekstra review-state)
 
 | Dosya | Amac |
 |-------|------|
-| `etc/dapr/components/test-binding.yaml` | Dapr output binding testleri (Grup 8) |
-| `etc/dapr/components/test-pubsub.yaml` | Dapr pub/sub testleri (Grup 8) |
+| `etc/dapr/components/test-binding.yaml` | Dapr output binding testleri (Grup 3, `extended-tasks-test-workflow`) |
+| `etc/dapr/components/test-pubsub.yaml` | Dapr pub/sub testleri (Grup 3, `extended-tasks-test-workflow`) |
 | `etc/dapr/config.yaml` | Dapr genel konfigurasyon |
 
 ### Mockoon Mock Endpoint'leri
@@ -1136,83 +1046,83 @@ Integration testlerde kullanilan C# script interface'leri:
 
 ## Ozellik Kapsam Matrisi
 
-Her grubun hangi vNext ozelliklerini test ettigini gosteren matris:
+Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutunu Genel Bakis tablosundaki **Grup n** ile eslesir (1-9; birlestirilmis Dapr senaryosu **G3**).
 
-| Ozellik | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 | G9 | G10 |
-|---------|----|----|----|----|----|----|----|-----|-----|------|
-| State tipleri (1/2/3) | X | X | X | X | X | X | X | X | X | X |
-| State alt tipleri (1/2/3) | X | X | | X | | | X | X | | |
-| **State alt tipleri (4/5/6)** | | | | | | | X | | | |
-| SubFlow state (4) | | X | | | | | | | | |
-| Wizard state (5) | | | | | X | | | | | |
-| Manuel transition (0) | X | X | | | X | X | X | X | | X |
-| Otomatik transition (1) | X | X | X | X | X | | | X | X | X |
-| Zamanlanmis transition (2) | X | | | | | | | | | |
-| triggerKind:10 (default) | X | | | | X | | | | | |
-| onEntries | X | X | X | X | | | | X | X | X |
-| onExits | X | | | | | | | | | |
-| startTransition tasks | X | X | X | X | X | X | X | | X | X |
-| IMapping | X | X | X | X | X | X | X | X | X | X |
-| IConditionMapping | X | X | X | X | X | | | X | X | X |
-| ITimerMapping | X | | | | | | | | | |
-| ITransitionMapping | X | | | | | | | | | |
-| ISubFlowMapping | | X | | | | | | | | |
-| IOutputHandler | | | | | X | | | | | |
-| HTTP Task (type:6) | | | X | X | | | | | | |
-| Script Task (type:7) | X | X | X | X | X | X | X | X | X | X |
-| StartFlow Task (11) | | | X | | | | | | | |
-| GetInstanceData Task (13) | | | X | | | | | | | |
-| **Dapr HTTP Task (1)** | | | | | | | | X | | |
-| **Dapr Binding Task (2)** | | | | | | | | X | | |
-| **Dapr Service Task (3)** | | | | | | | | X | | |
-| **Dapr PubSub Task (4)** | | | | | | | | X | | |
-| **Human Task (5)** | | | | | | | | X | | |
-| **Notification Task (10)** | | | | | | | | X | | |
-| **Trigger Transition Task (12)** | | | | | | | | X | | |
-| **SubProcess Task (14)** | | | | | | | | X | | |
-| **Get Instances Task (15)** | | | | | | | | X | | |
-| Cancel transition | X | X | | | | | | | | |
-| **Exit transition (`attributes.exit`)** | X | | | | | | | | | |
-| **Schedule cancel (manuel)** | X | | | | | | | | | |
-| **Timer reschedule (self-loop)** | X | | | | | | | | | |
-| Shared transitions ($self) | | X | | | | | | | | |
-| **Child-level shared transition** | | X | | | | | | | | |
-| **SubFlow cancel final states (child/grandchild)** | | X | | | | | | | | |
-| **Effective state (/functions/state, nested)** | | X | | | | | | | | |
-| updateData ($self) | | X | | | | X | | | | |
-| **UpdateData (SubFlow context)** | | X | | | | | | | | |
-| Master schema | | | | | | X | | | | |
-| Transition schema | | | | | | X | | | | |
-| Field roles (master schema) | | | | | | X | | | | |
-| **queryRoles (workflow/state)** | X | | | | | | | | | |
-| **Transition roles (state fn. list filter)** | X | | | | | | | | | |
-| Error boundary (task) | | | | X | | | | | | |
-| Error boundary (state) | | | | X | | | | | | |
-| Error boundary (workflow) | | | | X | | | | | | |
-| Retry policy | | | | X | | | | | | |
-| **Rollback (action:2)** | | | | X | | | | | | |
-| **Log action (action:5, state)** | | | | X | | | | | | |
-| **Notify action (action:4)** | | | | X | | | | | | |
-| **timeoutPolicy (onTimeout)** | | | | X | | | | | | |
-| **errorHandlerRule (errorTypes/errorCodes)** | | | | X | | | | | | |
-| View (JSON/HTML/MD) | | | | | X | | | | | |
-| Display modlari | | | | | X | | | | | |
-| Function (single/multi) | | | | | X | | | | | |
-| Extension (global/req) | | | | | X | | | | | |
-| **Features referansi** | | | | | X | | | | | |
-| Workflow timeout | | | | | | | X | | | |
-| Idempotent start | X | | | | | | X | | | |
-| Instance filtreleme | | | | | | | X | X | | |
-| Sayfalama/Siralama | | | | | | | X | X | | |
-| Cross-workflow task | | | X | | | | | | | |
-| Complementary rules | X | | | | X | | | | | |
-| **Dapr sidecar + bilesen YAML** | | | | | | | | X | | |
-| **Flow tipi: Core (C)** | | | | | | | | | X | |
-| **Flow tipi: SubProcess (P)** | | | | | | | | | X | |
-| Flow tipi: Flow (F) | X | | X | X | X | X | X | X | | X |
-| Flow tipi: SubFlow (S) | | X | | | | | | | | |
-| **Version isolation (ayni key, farkli versiyon)** | | | | | | | | | | X |
-| **Eski instance eski versiyonda kalir** | | | | | | | | | | X |
+| Ozellik | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 | G9 |
+|---------|----|----|----|----|----|----|----|----|----|
+| State tipleri (1/2/3) | X | X | X | X | X | X | X | X | X |
+| State alt tipleri (1/2/3) | X | X |  | X |  |  | X |  |  |
+| **State alt tipleri (4/5/6)** |  |  |  |  |  |  | X |  |  |
+| SubFlow state (4) |  | X |  |  |  |  |  |  |  |
+| Wizard state (5) |  |  |  |  | X |  |  |  |  |
+| Manuel transition (0) | X | X |  |  | X | X | X |  | X |
+| Otomatik transition (1) | X | X | X | X | X |  |  | X | X |
+| Zamanlanmis transition (2) | X |  |  |  |  |  |  |  |  |
+| triggerKind:10 (default) | X |  |  |  | X |  |  |  |  |
+| onEntries | X | X | X | X |  |  |  | X | X |
+| onExits | X |  |  |  |  |  |  |  |  |
+| startTransition tasks | X | X | X | X | X | X | X | X | X |
+| IMapping | X | X | X | X | X | X | X | X | X |
+| IConditionMapping | X | X | X | X | X |  |  | X | X |
+| ITimerMapping | X |  |  |  |  |  |  |  |  |
+| ITransitionMapping | X |  |  |  |  |  |  |  |  |
+| ISubFlowMapping |  | X |  |  |  |  |  |  |  |
+| IOutputHandler |  |  |  |  | X |  |  |  |  |
+| HTTP Task (type:6) |  |  | X | X |  |  |  |  |  |
+| Script Task (type:7) | X | X | X | X | X | X | X | X | X |
+| StartFlow Task (11) |  |  | X |  |  |  |  |  |  |
+| GetInstanceData Task (13) |  |  | X |  |  |  |  |  |  |
+| **Dapr HTTP Task (1)** |  |  | X |  |  |  |  |  |  |
+| **Dapr Binding Task (2)** |  |  | X |  |  |  |  |  |  |
+| **Dapr Service Task (3)** |  |  | X |  |  |  |  |  |  |
+| **Dapr PubSub Task (4)** |  |  | X |  |  |  |  |  |  |
+| **Human Task (5)** |  |  | X |  |  |  |  |  |  |
+| **Notification Task (10)** |  |  | X |  |  |  |  |  |  |
+| **Trigger Transition Task (12)** |  |  | X |  |  |  |  |  |  |
+| **SubProcess Task (14)** |  |  | X |  |  |  |  |  |  |
+| **Get Instances Task (15)** |  |  | X |  |  |  |  |  |  |
+| Cancel transition | X | X |  |  |  |  |  |  |  |
+| **Exit transition (`attributes.exit`)** | X |  |  |  |  |  |  |  |  |
+| **Schedule cancel (manuel)** | X |  |  |  |  |  |  |  |  |
+| **Timer reschedule (self-loop)** | X |  |  |  |  |  |  |  |  |
+| Shared transitions ($self) |  | X |  |  |  |  |  |  |  |
+| **Child-level shared transition** |  | X |  |  |  |  |  |  |  |
+| **SubFlow cancel final states (child/grandchild)** |  | X |  |  |  |  |  |  |  |
+| **Effective state (/functions/state, nested)** |  | X |  |  |  |  |  |  |  |
+| updateData ($self) |  | X |  |  |  | X |  |  |  |
+| **UpdateData (SubFlow context)** |  | X |  |  |  |  |  |  |  |
+| Master schema |  |  |  |  |  | X |  |  |  |
+| Transition schema |  |  |  |  |  | X |  |  |  |
+| Field roles (master schema) |  |  |  |  |  | X |  |  |  |
+| **queryRoles (workflow/state)** | X |  |  |  |  |  |  |  |  |
+| **Transition roles (state fn. list filter)** | X |  |  |  |  |  |  |  |  |
+| Error boundary (task) |  |  |  | X |  |  |  |  |  |
+| Error boundary (state) |  |  |  | X |  |  |  |  |  |
+| Error boundary (workflow) |  |  |  | X |  |  |  |  |  |
+| Retry policy |  |  |  | X |  |  |  |  |  |
+| **Rollback (action:2)** |  |  |  | X |  |  |  |  |  |
+| **Log action (action:5, state)** |  |  |  | X |  |  |  |  |  |
+| **Notify action (action:4)** |  |  |  | X |  |  |  |  |  |
+| **timeoutPolicy (onTimeout)** |  |  |  | X |  |  |  |  |  |
+| **errorHandlerRule (errorTypes/errorCodes)** |  |  |  | X |  |  |  |  |  |
+| View (JSON/HTML/MD) |  |  |  |  | X |  |  |  |  |
+| Display modlari |  |  |  |  | X |  |  |  |  |
+| Function (single/multi) |  |  |  |  | X |  |  |  |  |
+| Extension (global/req) |  |  |  |  | X |  |  |  |  |
+| **Features referansi** |  |  |  |  | X |  |  |  |  |
+| Workflow timeout |  |  |  |  |  |  | X |  |  |
+| Idempotent start | X |  |  |  |  |  | X |  |  |
+| Instance filtreleme |  |  | X |  |  |  | X |  |  |
+| Sayfalama/Siralama |  |  | X |  |  |  | X |  |  |
+| Cross-workflow task |  |  | X |  |  |  |  |  |  |
+| Complementary rules | X |  |  |  | X |  |  |  |  |
+| **Dapr sidecar + bilesen YAML** |  |  | X |  |  |  |  |  |  |
+| **Flow tipi: Core (C)** |  |  |  |  |  |  |  | X |  |
+| **Flow tipi: SubProcess (P)** |  |  |  |  |  |  |  | X |  |
+| Flow tipi: Flow (F) | X |  | X | X | X | X | X |  | X |
+| Flow tipi: SubFlow (S) |  | X |  |  |  |  |  |  |  |
+| **Version isolation (ayni key, farkli versiyon)** |  |  |  |  |  |  |  |  | X |
+| **Eski instance eski versiyonda kalir** |  |  |  |  |  |  |  |  | X |
 
 ---
 

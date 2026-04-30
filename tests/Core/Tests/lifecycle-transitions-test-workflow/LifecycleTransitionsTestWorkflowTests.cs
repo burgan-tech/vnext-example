@@ -5,24 +5,6 @@ using Core.IntegrationTests.Infrastructure;
 namespace Core.IntegrationTests.Tests.LifecycleTransitionsTestWorkflow;
 
 /*
-* Bug olabilecek noktalar
-* - cancel: availableIn: [] içerisine wf cli'ı yazılan state'leri error olarak
-*  algılıyor. Runtime tarafı nasıl bilemiyorum
-* - bir state'ten başka bir state'e transtion çalıştırıldığında
-* diğer state'in auto transition'u varsa ve bu otomatik çalışınca
-* başka state'e geçiyorsa ve son geçilen state'in hatalı transition mapping code'u
-* varsa status F oluyor ve son state geçişi gösterilmiyor. Ne demek istiyorum:
-* A -> B -> C -> D
-* A'dan B'ye manuel geçiş. B auto geçişi var. C'ye geçiyor problem yok gibi.
-* C'nin D'ye transition'u var ve bu transition'a bağlı mapping'de problem var.
-* workflow deployunda felan problem çıkmyıor. A'dan B'ye transition olduğunda
-* state B'de gösteriliyor ama aslında C ile D arasındaki transition'dan dolayı uygulama
-* F status'e düşüyor. workflow B durumunda F status ile duruyor kalıyor.
-! Kısacası feedback yanlış oluyor. state consistency yanlış oluyor.
-*
-*/
-
-/*
 ! Buglar:
 ! Cancel
 ! Exit

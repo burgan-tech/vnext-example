@@ -4,7 +4,7 @@
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
-  "tags": ["integration-test", "extended-tasks", "notification"],
+  "tags": ["integration-test", "task-execution", "notification"],
   "attributes": {
     "type": "10",
     "config": {

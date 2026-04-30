@@ -7,12 +7,13 @@
 
 ###############################################################################
 # TEST 1: Full task execution chain
-# HTTP task -> Script task -> Cross workflow -> Start Flow (type 11) ->
-# Get Instance Data (type 13) -> Completed
+# HTTP -> Script -> Cross workflow -> Start Flow (11) -> Get Instance Data (13)
+# -> Notification (10) -> TriggerTransition (12) -> SubProcess (14)
+# -> GetInstances (15) -> Human Task (5) -> PATCH approve -> Completed
 # Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
 ###############################################################################
 
-### Adim 1: Ana workflow baslat (sync)
+### Adim 1: Ana workflow baslat (sync zincir human-task-state'te durur)
 # @name createTaskExecInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -25,13 +26,27 @@ Content-Type: application/json
 
 @taskExecInstanceId = {{createTaskExecInstance.response.body.$.id}}
 
-### Adim 2: Durum kontrol (completed-state beklenir)
+### Adim 2: Durum kontrol (human-task-state beklenir)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
 
-### Adim 3: Instance data dogrula
-# Beklenen bayraklar: testId, httpTaskCompleted, scriptProcessed,
-# crossWorkflowCompleted, startFlowCompleted, startedInstanceId,
-# getInstanceDataCompleted, remoteInstanceData
+### Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
+# Beklenen: testId, httpTaskCompleted, scriptProcessed, crossWorkflowCompleted,
+# startFlowCompleted, startedInstanceId, getInstanceDataCompleted,
+# taskResults.notification.completed, taskResults.triggerTransition.completed,
+# taskResults.subprocess.completed, taskResults.getInstances.completed,
+# taskResults.humanTask.completed
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
+
+### Adim 4: Human task onayla (manuel transition)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/transitions/approve-human-task
+Content-Type: application/json
+
+{}
+
+### Adim 5: Durum kontrol (completed-state)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
+
+### Adim 6: Final instance data
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
 ###############################################################################

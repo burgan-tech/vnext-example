@@ -1,28 +1,28 @@
 {
   "nodePos": {
     "initialize-state": {
-      "x": 480,
-      "y": 380
+      "x": 560,
+      "y": 680
     },
     "processing-state": {
-      "x": 840,
-      "y": 40
+      "x": 740,
+      "y": -40
     },
     "auto-passed-state": {
-      "x": 1500,
-      "y": -140
+      "x": 1480,
+      "y": -310
     },
     "timer-triggered-state": {
-      "x": 1640,
-      "y": 540
+      "x": 1730,
+      "y": 340
     },
     "pre-complete-state": {
-      "x": 2140,
-      "y": 240
+      "x": 2240,
+      "y": 100
     },
     "default-fallback-state": {
-      "x": 2180,
-      "y": -40
+      "x": 2720,
+      "y": -100
     },
     "auto-failed-state": {
       "x": 1120,
