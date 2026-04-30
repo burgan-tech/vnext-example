@@ -5,11 +5,12 @@
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
   "tags": ["integration-test", "task-execution", "human-task"],
+  "_comment": "TaskType 5 = Human Task (task-definition.schema.json). Script Task (7) degildir.",
   "attributes": {
     "type": "5",
     "config": {
-      "title": "Test Approval",
-      "instructions": "Approve or reject the test request",
+      "title": "Task Execution Integration — Human Onay",
+      "instructions": "Integration test human-task-state adiminda manuel onay beklenir; PATCH approve-human-task ile tamamlanir.",
       "assignedTo": "test-user"
     }
   }
