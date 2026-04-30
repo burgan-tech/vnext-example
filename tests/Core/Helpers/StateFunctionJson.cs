@@ -33,6 +33,30 @@ public static class StateFunctionJson
     }
 
     /// <summary>
+    /// Runtime instance status from state function body (e.g. A/B/C/F); shape may vary by version.
+    /// </summary>
+    public static string? ExtractStatus(JsonElement body)
+    {
+        if (
+            body.ValueKind == JsonValueKind.Object
+            && body.TryGetProperty("status", out var direct)
+            && direct.ValueKind == JsonValueKind.String
+        )
+            return direct.GetString();
+
+        if (
+            body.ValueKind == JsonValueKind.Object
+            && body.TryGetProperty("data", out var data)
+            && data.ValueKind == JsonValueKind.Object
+            && data.TryGetProperty("status", out var nested)
+            && nested.ValueKind == JsonValueKind.String
+        )
+            return nested.GetString();
+
+        return null;
+    }
+
+    /// <summary>
     /// Whether <paramref name="stateBody"/><c>.transitions[]</c> contains an item whose <c>name</c> equals <paramref name="transitionKey"/> (primary for runtime state function), or whose <c>key</c> equals it if present.
     /// </summary>
     public static bool TransitionsContainKey(JsonElement stateBody, string transitionKey)

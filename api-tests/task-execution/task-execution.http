@@ -3,17 +3,26 @@
 @domain = core
 @workflow = task-execution-test-workflow
 @targetWorkflow = task-target-workflow
+@extendedWorkflow = extended-tasks-test-workflow
 @mocklabBaseUrl = http://localhost:3002
 
 ###############################################################################
-# TEST 1: Full task execution chain
+# vNext Task execution — tek dosya (Postman koleksiyonu ile ayni bolum yapisi)
+#
+# BOLUM 1 — Ana zincir (task-execution-test-workflow): happy path
+# BOLUM 2 — Hedef workflow (task-target-workflow): happy path
+# BOLUM 3 — Dapr zinciri (extended-tasks-test-workflow): happy path
+###############################################################################
+
+###############################################################################
+# BOLUM 1 — Happy path: Ana task execution zinciri
 # HTTP -> Script -> Cross workflow -> Start Flow (11) -> Get Instance Data (13)
 # -> Notification (10) -> TriggerTransition (12) -> SubProcess (14)
 # -> GetInstances (15) -> Human Task (5) -> PATCH approve -> Completed
 # Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
 ###############################################################################
 
-### Adim 1: Ana workflow baslat (sync zincir human-task-state'te durur)
+### B1 — Adim 1: Ana workflow baslat (sync zincir human-task-state'te durur)
 # @name createTaskExecInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -26,10 +35,10 @@ Content-Type: application/json
 
 @taskExecInstanceId = {{createTaskExecInstance.response.body.$.id}}
 
-### Adim 2: Durum kontrol (human-task-state beklenir)
+### B1 — Adim 2: Durum kontrol (human-task-state beklenir)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
 
-### Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
+### B1 — Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
 # Beklenen: testId, httpTaskCompleted, scriptProcessed, crossWorkflowCompleted,
 # startFlowCompleted, startedInstanceId, getInstanceDataCompleted,
 # taskResults.notification.completed, taskResults.triggerTransition.completed,
@@ -37,23 +46,23 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 # taskResults.humanTask.completed
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
-### Adim 4: Human task onayla (manuel transition)
+### B1 — Adim 4: Human task onayla (manuel transition)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/transitions/approve-human-task
 Content-Type: application/json
 
 {}
 
-### Adim 5: Durum kontrol (completed-state)
+### B1 — Adim 5: Durum kontrol (completed-state)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
 
-### Adim 6: Final instance data
+### B1 — Adim 6: Final instance data
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
 ###############################################################################
-# TEST 2: Hedef workflow (task-target-workflow) bagimsiz baslatma
+# BOLUM 2 — Happy path: Hedef workflow (task-target-workflow) bagimsiz baslatma
 ###############################################################################
 
-### Adim 1: Hedef workflow baslat
+### B2 — Adim 1: Hedef workflow baslat
 # @name createTargetInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -66,5 +75,39 @@ Content-Type: application/json
 
 @targetInstanceId = {{createTargetInstance.response.body.$.id}}
 
-### Adim 2: Hedef workflow durumu (target-completed olmali)
+### B2 — Adim 2: Hedef workflow durumu (target-completed olmali)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/functions/state
+
+###############################################################################
+# BOLUM 3 — Happy path: Dapr task zinciri (extended-tasks-test-workflow, sadece dis servis)
+# Dapr HTTP (1) -> Dapr Service (3) -> Dapr Binding (2) ->
+# Dapr PubSub (4) -> completed-state (otomatik)
+###############################################################################
+
+### B3 — Adim 1: Workflow baslat (sync - tam zincir)
+# @name createExtendedInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "extended-tasks-test-{{$timestamp}}",
+  "tags": ["integration-test", "task-execution", "dapr-only"],
+  "attributes": {
+    "testId": "extended-tasks-dapr-path"
+  }
+}
+
+@extendedInstanceId = {{createExtendedInstance.response.body.$.id}}
+
+### B3 — Adim 2: Durum kontrol - completed-state olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}/functions/state
+
+### B3 — Adim 3: Instance - Dapr task sonuclari
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}
+
+### B3 — Beklenen sonuclar (yorum):
+### - initCompleted: true
+### - taskResults.daprHttp.completed: true
+### - taskResults.daprService.completed: true
+### - taskResults.daprBinding.completed: true
+### - taskResults.daprPubSub.completed: true

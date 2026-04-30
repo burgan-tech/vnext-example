@@ -46,4 +46,49 @@ public static class JsonElementAssertions
             message ?? $"Property '{name}' should be a non-empty string."
         );
     }
+
+    /// <summary>
+    /// Follows <paramref name="path"/> as nested objects and returns the final segment object (e.g. <c>["taskResults","notification"]</c>).
+    /// </summary>
+    public static bool TryGetNestedObject(
+        JsonElement root,
+        string[] path,
+        out JsonElement nested
+    )
+    {
+        nested = default;
+        var current = root;
+        foreach (var segment in path)
+        {
+            if (
+                current.ValueKind != JsonValueKind.Object
+                || !current.TryGetProperty(segment, out var next)
+            )
+                return false;
+            current = next;
+        }
+
+        nested = current;
+        return true;
+    }
+
+    public static void AssertNestedPropertyTrue(
+        JsonElement root,
+        string[] pathToParent,
+        string booleanPropertyName,
+        string? message = null
+    )
+    {
+        Assert.True(
+            TryGetNestedObject(root, pathToParent, out var parent)
+                && parent.ValueKind == JsonValueKind.Object,
+            message
+                ?? $"Expected object at path '{string.Join(".", pathToParent)}'."
+        );
+        AssertPropertyTrue(
+            parent,
+            booleanPropertyName,
+            message ?? $"'{booleanPropertyName}' should be true under {string.Join(".", pathToParent)}."
+        );
+    }
 }

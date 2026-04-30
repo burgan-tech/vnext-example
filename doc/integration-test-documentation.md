@@ -325,7 +325,7 @@ subflow-orchestration-parent (F)
 **Workflow'lar:**
 - `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances, Human task + manuel onay)
 - `task-target-workflow` (type: F) — Cross-workflow / StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
-- `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, Binding, PubSub (tek zincir, `api-tests/task-execution/extended-tasks-test-workflow.http`)
+- `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, Binding, PubSub (tek zincir; HTTP test: `api-tests/task-execution/task-execution.http` **Bolum 3**)
 
 **Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, cross-workflow iletisim ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
 
@@ -450,10 +450,9 @@ extended-tasks-test-workflow (F)
 | CSX | `extended-tasks-test-workflow` mapping'leri | `Workflows/task-execution/src/extended-tasks-test-workflow/*.csx` |
 | CSX | Ortak auto-transition rule | `Workflows/task-execution/src/shared/AlwaysTrueRule.csx` |
 
-**HTTP / Postman:** `api-tests/task-execution/task-execution-test-workflow.http` (ana zincir + human onay), `api-tests/task-execution/extended-tasks-test-workflow.http` (Dapr-only). Mini Postman: `postman-task-execution.json`, `postman-extended-tasks.json` (`api-tests/task-execution/` klasorunde).
+**HTTP / Postman:** `api-tests/task-execution/task-execution.http` (Bolum 1-3, happy path). Postman: `postman-task-execution-collection.json` (aynı üç bölüm).
 
-
-## Grup 4: Error Boundary
+**C# integration testler:** `tests/Core/Tests/task-execution-test-workflow/` (`TaskExecutionTestWorkflowTests`, `TaskExecutionInstanceDataAssertions`) — B1/B2/B3 happy path, ana workflow için instance data sözleşmesi ve extended Dapr `taskResults` bayrakları.
 
 **Workflow:** `error-boundary-test-workflow` (type: F)
 
