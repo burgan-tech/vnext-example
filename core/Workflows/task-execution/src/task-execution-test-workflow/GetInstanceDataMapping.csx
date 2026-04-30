@@ -33,7 +33,8 @@ public class GetInstanceDataMapping : ScriptBase, IMapping
         if (HasProperty(data, "httpTaskCompleted")) result.httpTaskCompleted = data.httpTaskCompleted;
         if (HasProperty(data, "processId")) result.processId = data.processId;
         if (HasProperty(data, "scriptProcessed")) result.scriptProcessed = data.scriptProcessed;
-        if (HasProperty(data, "crossWorkflowCompleted")) result.crossWorkflowCompleted = data.crossWorkflowCompleted;
+        if (HasProperty(data, "timerStartedAt")) result.timerStartedAt = data.timerStartedAt;
+        if (HasProperty(data, "timerExpectedSeconds")) result.timerExpectedSeconds = data.timerExpectedSeconds;
         if (HasProperty(data, "startFlowCompleted")) result.startFlowCompleted = data.startFlowCompleted;
         if (HasProperty(data, "startedInstanceId")) result.startedInstanceId = data.startedInstanceId;
 

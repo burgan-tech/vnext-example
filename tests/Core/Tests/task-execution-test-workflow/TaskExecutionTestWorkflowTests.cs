@@ -60,6 +60,25 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         var attrsBefore = await GetAttributesAsync(MainWorkflowKey, instanceId);
         TaskExecutionMainWorkflowInstanceDataAssertions.AssertWhileWaitingOnHumanTask(attrsBefore);
 
+        // Timer Task (tip 9) gercekten beklemis mi? timer-wait-state'in scheduled transition'i
+        // ITimerMapping ile 3 sn sonra start-flow-state'e gecirir; eger sadece auto transition
+        // calissaydi human-task-state'e ~yari saniyede ulasirdik. timerStartedAt parent attributes'unda
+        // yazildigi icin (TimerStartMapping) human-task-state'e ulasilan ana kadar gecen sure 3 sn'den
+        // buyuk olmalidir. Toleransi 2.5 sn olarak aliyoruz; ust sinir koymuyoruz (CI yavasligi).
+        var timerStartedAtRaw = attrsBefore.GetProperty("timerStartedAt").GetString()!;
+        var timerStartedAt = DateTime.Parse(
+            timerStartedAtRaw,
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.RoundtripKind
+        );
+        var timerElapsed = DateTime.UtcNow - timerStartedAt;
+        Assert.True(
+            timerElapsed.TotalSeconds >= 2.5,
+            $"Timer Task (tip 9) should have delayed scheduled transition by ~3s; "
+                + $"elapsed since timerStartedAt={timerStartedAtRaw} is only {timerElapsed.TotalSeconds:F2}s. "
+                + "Eger bu deger 3 sn'den kucukse scheduled transition timer'i devre disi kalmis olabilir."
+        );
+
         // StartFlow + DirectTrigger zincirinin sadece parent instance'a `startedInstanceId` yazmış olması yeterli değildir.
         // Hedef workflow'un `functions/state` çağrısıyla; (1) StartTask yeni bir instance açtı, (2) DirectTriggerTask
         // hedefin manuel `manual-complete-target` geçişini gerçekten tetikledi, doğrulanır.

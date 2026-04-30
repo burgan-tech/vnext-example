@@ -42,8 +42,8 @@ public class SubProcessMapping : ScriptBase, IMapping
         if (HasProperty(data, "processId")) result.processId = data.processId;
         if (HasProperty(data, "scriptProcessed")) result.scriptProcessed = data.scriptProcessed;
         if (HasProperty(data, "scriptProcessedAt")) result.scriptProcessedAt = data.scriptProcessedAt;
-        if (HasProperty(data, "crossWorkflowCompleted")) result.crossWorkflowCompleted = data.crossWorkflowCompleted;
-        if (HasProperty(data, "crossWorkflowAt")) result.crossWorkflowAt = data.crossWorkflowAt;
+        if (HasProperty(data, "timerStartedAt")) result.timerStartedAt = data.timerStartedAt;
+        if (HasProperty(data, "timerExpectedSeconds")) result.timerExpectedSeconds = data.timerExpectedSeconds;
         if (HasProperty(data, "startFlowCompleted")) result.startFlowCompleted = data.startFlowCompleted;
         if (HasProperty(data, "startFlowIsSuccess")) result.startFlowIsSuccess = data.startFlowIsSuccess;
         if (HasProperty(data, "startedInstanceId")) result.startedInstanceId = data.startedInstanceId;
@@ -65,10 +65,19 @@ public class SubProcessMapping : ScriptBase, IMapping
         result.taskResults.subprocess.completed = true;
         result.taskResults.subprocess.executedAt = DateTime.UtcNow.ToString("o");
 
-        // SubProcess yaniti runtime dokumanina gore data.id (yeni instance id) doner.
-        // Eski yanitlarda data.instanceId gorulebilir; ikisini de guvenli sekilde dene.
+        // SubProcessTask yanitinin gercek servis "data" govdesi parent attributes.subprocessData altinda saklanir
+        // (integration test ve operasyonel inceleme icin). Ayrica subprocessInstanceId kolay erisim icin ayri yazilir.
         if (responseBody != null)
         {
+            dynamic snapshot = new ExpandoObject();
+            if (HasProperty(responseBody, "id")) snapshot.id = responseBody.id;
+            if (HasProperty(responseBody, "instanceId")) snapshot.instanceId = responseBody.instanceId;
+            if (HasProperty(responseBody, "state")) snapshot.state = responseBody.state;
+            if (HasProperty(responseBody, "launched")) snapshot.launched = responseBody.launched;
+            if (HasProperty(responseBody, "status")) snapshot.status = responseBody.status;
+            if (HasProperty(responseBody, "statusCode")) snapshot.statusCode = responseBody.statusCode;
+            result.subprocessData = snapshot;
+
             if (HasProperty(responseBody, "id"))
                 result.subprocessInstanceId = responseBody.id;
             else if (HasProperty(responseBody, "instanceId"))

@@ -330,16 +330,16 @@
             "labels": [
               {
                 "language": "en-US",
-                "label": "Scheduled Timer (ITimerMapping, 10s)"
+                "label": "Scheduled Timer (ITimerMapping, 6s)"
               },
               {
                 "language": "tr-TR",
-                "label": "Zamanlanmis Gecis (ITimerMapping, 10s)"
+                "label": "Zamanlanmis Gecis (ITimerMapping, 6s)"
               }
             ],
             "timer": {
               "location": "./src/ShortTimerMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFNob3J0VGltZXJNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiU2hvcnRUaW1lck1hcHBpbmc6IHNjaGVkdWxpbmcgMTAgc2Vjb25kcyBmcm9tIG5vdyIpOwogICAgICAgIHJldHVybiBUaW1lclNjaGVkdWxlLkZyb21EYXRlVGltZShEYXRlVGltZS5VdGNOb3cuQWRkU2Vjb25kcygxMCkpOwogICAgfQp9Cg=="
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFNob3J0VGltZXJNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiU2hvcnRUaW1lck1hcHBpbmc6IHNjaGVkdWxpbmcgNiBzZWNvbmRzIGZyb20gbm93Iik7CiAgICAgICAgcmV0dXJuIFRpbWVyU2NoZWR1bGUuRnJvbURhdGVUaW1lKERhdGVUaW1lLlV0Y05vdy5BZGRTZWNvbmRzKDYpKTsKICAgIH0KfQo="
             },
             "onExecutionTasks": []
           },

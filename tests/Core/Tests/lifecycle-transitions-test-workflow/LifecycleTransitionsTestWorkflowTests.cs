@@ -54,7 +54,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         await _workflow.WaitForStateAsync(
             instanceId,
             "pre-complete-state",
-            TimeSpan.FromSeconds(15)
+            TimeSpan.FromSeconds(10)
         );
 
         await _workflow.RunTransitionAsync(
@@ -100,7 +100,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         await _workflow.WaitForStateAsync(
             instanceId,
             "pre-complete-state",
-            TimeSpan.FromSeconds(15)
+            TimeSpan.FromSeconds(10)
         );
 
         var instanceAtPreComplete = await Api.GetInstanceAsync(WorkflowKey, instanceId);
@@ -304,11 +304,11 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         await _workflow.AssertStateAsync(instanceId, "pre-complete-state");
     }
 
-    // TODO / BUG: reschedule-timer çalışınca workflow tanımına göre scheduled-timer-transition yeniden kurulmalı (~10s sonra timer-triggered → pre-complete).
+    // TODO / BUG: reschedule-timer çalışınca workflow tanımına göre scheduled-timer-transition yeniden kurulmalı (~6 sonra timer-triggered → pre-complete).
     // Şu an runtime’da timer yeniden schedule olmuyor; instance sürekli auto-passed-state’te kalıyor — WaitForStateAsync(pre-complete) zaman aşımına düşer.
     // Workflow JSON / reschedule-timer → auto-passed-state ($self) doğru kabul ediliyor; platform tarafı incelenmeli.
     /// <summary>
-    /// reschedule-timer: $self ile hâlâ auto-passed-state; ardından zamanlayıcı yeniden kurulmalı (ShortTimerMapping +10s).
+    /// reschedule-timer: $self ile hâlâ auto-passed-state; ardından zamanlayıcı yeniden kurulmalı (ShortTimerMapping +6).
     /// Beklenen: scheduled-timer-transition -> timer-triggered-state -> auto-to-pre-complete -> pre-complete-state.
     /// </summary>
     [Fact]
@@ -336,7 +336,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
 
         await _workflow.AssertStateAsync(instanceId, "auto-passed-state");
 
-        // Yeniden kurulan timer ~10 sn; timer-triggered onEntries + auto gecis icin pay
+        // Yeniden kurulan timer ~6 sn; timer-triggered onEntries + auto gecis icin pay
         await _workflow.WaitForStateAsync(
             instanceId,
             "pre-complete-state",

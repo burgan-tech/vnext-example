@@ -192,7 +192,7 @@
           "response": []
         },
         {
-          "name": "Adim 5: 15 saniye bekle (scheduled timer 10s) ve durum kontrol",
+          "name": "Adim 5: ~12 saniye bekleyip durum kontrol (scheduled timer 6s + islem payi)",
           "request": {
             "method": "GET",
             "header": [],
@@ -992,7 +992,7 @@
     },
     {
       "name": "TEST: Schedule Cancel (Manual ile timer iptali)",
-      "description": "xUnit: ScheduleCancel_ManualTransition_CancelsTimerAndReachesPreComplete. VNext.Testing.Sdk tum start/transition cagrilarinda sync=true ekler. Akis: start -> move-to-processing (role: test-operator) -> state=auto-passed -> cancel-schedule-manually (rol header yok) -> state=pre-complete. Zamanlayici 10s; iptal bunun onunde yapilir.",
+      "description": "xUnit: ScheduleCancel_ManualTransition_CancelsTimerAndReachesPreComplete. VNext.Testing.Sdk tum start/transition cagrilarinda sync=true ekler. Akis: start -> move-to-processing (role: test-operator) -> state=auto-passed -> cancel-schedule-manually (rol header yok) -> state=pre-complete. Zamanlayici 6s; iptal bunun onunde yapilir.",
       "item": [
         {
           "name": "Adim 1: Workflow Baslat (Schedule Cancel Test)",
@@ -1278,7 +1278,7 @@
     },
     {
       "name": "TEST: Reschedule Timer ($self + yeniden kurulan timer -> pre-complete)",
-      "description": "xUnit: RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState. reschedule-timer sonrasi auto-passed kali, sonra yeniden kurulan ~10s timer -> timer-triggered-state -> auto -> pre-complete. Adim 5b postman-echo 12s beklemesi icerir (offline ise Runner delay veya manuel bekleyip 5b atlayin; dogrudan Adim 6 GET ile poll edin).",
+      "description": "xUnit: RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState. reschedule-timer sonrasi auto-passed kali, sonra yeniden kurulan ~6s timer -> timer-triggered-state -> auto -> pre-complete. Adim 5b postman-echo 8s beklemesi icerir (offline ise Runner delay veya manuel bekleyip 5b atlayin; dogrudan Adim 6 GET ile poll edin).",
       "item": [
         {
           "name": "Adim 1: Workflow Baslat (Reschedule Test)",
@@ -1542,12 +1542,12 @@
           ]
         },
         {
-          "name": "Adim 5b: Bekleme ~12s (yeniden kurulan timer; postman-echo — opsiyonel)",
+          "name": "Adim 5b: Bekleme ~8s (yeniden kurulan timer; postman-echo — opsiyonel)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://postman-echo.com/delay/12",
+              "raw": "https://postman-echo.com/delay/8",
               "protocol": "https",
               "host": [
                 "postman-echo",
@@ -1555,7 +1555,7 @@
               ],
               "path": [
                 "delay",
-                "12"
+                "8"
               ]
             }
           },

@@ -14,10 +14,13 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
         "(task-execution-test-workflow mappings + task-execution.http B1 expected flags)";
 
     /// <summary>
-    /// Human-task beklemeden önce: HTTP, script, cross-workflow, start-flow, get-instance-data,
-    /// trigger, subprocess, get-instances ve human-task onEntry mapping bayrakları.
-    /// Notification task <c>mapping.type: G</c> kullandığı için
+    /// Human-task beklemeden önce: HTTP, script, timer-wait (Timer Task tip 9), start-flow,
+    /// get-instance-data, trigger, subprocess, get-instances ve human-task onEntry mapping
+    /// bayrakları. Notification task <c>mapping.type: G</c> kullandığı için
     /// <c>taskResults.notification</c> entegrasyon assert'ine dahil edilmez.
+    /// timer-wait-state, scheduled transition (<c>triggerType: 2</c>) + <c>ITimerMapping</c>
+    /// ile 3 sn beklediği için <c>timerStartedAt</c> attribute'ü zorunludur ve test bunun
+    /// üzerinden gerçek bekleme süresini doğrular.
     /// </summary>
     public static void AssertWhileWaitingOnHumanTask(JsonElement attributes)
     {
@@ -32,11 +35,18 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
             ContractHint
         );
         JsonElementAssertions.AssertPropertyTrue(attributes, "scriptProcessed", ContractHint);
-        JsonElementAssertions.AssertPropertyTrue(
+
+        JsonElementAssertions.AssertPropertyNonEmptyString(
             attributes,
-            "crossWorkflowCompleted",
-            ContractHint
+            "timerStartedAt",
+            $"timerStartedAt {ContractHint}"
         );
+        Assert.True(
+            attributes.TryGetProperty("timerExpectedSeconds", out var expectedSeconds)
+                && expectedSeconds.ValueKind == JsonValueKind.Number,
+            $"timerExpectedSeconds should be a JSON number {ContractHint}"
+        );
+
         JsonElementAssertions.AssertPropertyTrue(
             attributes,
             "startFlowCompleted",
@@ -72,6 +82,12 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
             "subprocessInstanceId",
             ContractHint
         );
+        Assert.True(
+            attributes.TryGetProperty("subprocessData", out var subprocessData)
+                && subprocessData.ValueKind == JsonValueKind.Object,
+            $"subprocessData should be a JSON object (SubProcessTask response data snapshot) {ContractHint}"
+        );
+
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "getInstances" },

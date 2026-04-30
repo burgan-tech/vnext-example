@@ -91,7 +91,7 @@ lifecycle-transitions-test-workflow (F)
 ├── auto-passed-state (Intermediate, stateType:2)
 │   └── Transitions:
 │       ├── scheduled-timer-transition (Scheduled, triggerType:2) → timer-triggered-state
-│       │   └── timer: ShortTimerMapping.csx (ITimerMapping, 10 saniye)
+│       │   └── timer: ShortTimerMapping.csx (ITimerMapping, 6 saniye)
 │       ├── cancel-schedule-manually (Manual, triggerType:0) → pre-complete-state
 │       │   └── (zamanlayici schedule'ini manuel transition ile iptal senaryosu)
 │       └── reschedule-timer (Manual, triggerType:0, target: auto-passed-state)
@@ -140,7 +140,7 @@ lifecycle-transitions-test-workflow (F)
 | Cancel transition | Workflow iptal mekanizmasi | cancel-workflow → terminated-state |
 | **Exit transition (`attributes.exit`)** | Belirli state'lerde cikis; hedef terminated; IMapping ile exitExecuted | exit-workflow, ExitMapping.csx |
 | **Schedule iptal (manuel)** | auto-passed-state'ten manuel gecisle timer beklemeden pre-complete | cancel-schedule-manually |
-| **Timer reschedule (self-loop)** | Ayni state'e manuel gecis ile zamanlayici reschedule | reschedule-timer → **auto-passed-state**; sonra yeniden kurulan `scheduled-timer-transition` (~10s) → timer-triggered → auto → pre-complete |
+| **Timer reschedule (self-loop)** | Ayni state'e manuel gecis ile zamanlayici reschedule | reschedule-timer → **auto-passed-state**; sonra yeniden kurulan `scheduled-timer-transition` (~6s) → timer-triggered → auto → pre-complete |
 | **queryRoles (workflow)** | authorize endpoint ile workflow datasi sorgu yetkisi | attributes.queryRoles, test-viewer |
 | **queryRoles (state)** | State bazli allow/deny override | **pre-complete-state** queryRoles (`processing-state` auto gecisli; testte cancel-schedule ile pre-complete) |
 | **Transition `roles`** | **`GET .../functions/state` yanıtında `transitions[]` listesini** role gore **filtreleme** (v0.0.39+); transition yürütme (PATCH) için aynı listedeki deny'in zorunlu red anlamı **yoktur** | move-to-processing, complete-workflow; xUnit: `StateFunction_WithTestOperatorRole_*` / `StateFunction_WithTestViewerRole_*` |
@@ -156,7 +156,7 @@ lifecycle-transitions-test-workflow (F)
 | Cancel | cancel-workflow → terminated-state |
 | **Exit** | initialize-state'ten exit-workflow; terminated-state ve `exitExecuted` |
 | **Schedule cancel** | auto-passed-state'te cancel-schedule-manually → pre-complete-state |
-| **Reschedule** | reschedule-timer ile kisa sure `auto-passed-state`; yeniden kurulan ~10s timer sonrasi `timer-triggered-state` → auto → **pre-complete-state** (xUnit: `RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState`) |
+| **Reschedule** | reschedule-timer ile kisa sure `auto-passed-state`; yeniden kurulan ~6s timer sonrasi `timer-triggered-state` → auto → **pre-complete-state** (xUnit: `RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState`) |
 | **QueryRoles / transition listesi** | **authorize:** `/functions/authorize?queryRoles=true&role=...` (datasi sorgu). **State listesi:** `GET .../functions/state` + role header ile **move-to-processing** gorunurlugu (allow/omit). **pre-complete-state:** cancel-schedule ile; queryRoles'ta test-processor allow / test-viewer deny |
 
 ### Kullanilan Bilesenler
@@ -324,10 +324,10 @@ subflow-orchestration-parent (F)
 
 **Workflow'lar:**
 - `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances, Human task + manuel onay)
-- `task-target-workflow` (type: F) — Cross-workflow / StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
+- `task-target-workflow` (type: F) — StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
 - `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, Binding, PubSub (tek zincir; HTTP test: `api-tests/task-execution/task-execution.http` **Bolum 3**)
 
-**Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, cross-workflow iletisim ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
+**Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, scheduled transition (Timer Task tip 9), auto transition (Condition Task tip 8) ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
 
 **CSX klasorleri:** `Workflows/task-execution/src/task-execution-test-workflow/` (`task-execution-test-workflow.json` mapping'leri), `.../src/extended-tasks-test-workflow/` (`extended-tasks-test-workflow.json`), `.../src/shared/AlwaysTrueRule.csx` (otomatik gecis kurallari; `task-target-workflow` dahil).
 
@@ -348,11 +348,15 @@ task-execution-test-workflow (F)
 │
 ├── script-processing-state
 │   ├── onEntries: task-exec-script-task (type:7) + ScriptProcessMapping.csx
-│   └── Transitions: auto-to-cross-workflow → cross-workflow-state
+│   └── Transitions: auto-to-timer-wait → timer-wait-state
 │
-├── cross-workflow-state
-│   ├── onEntries: task-exec-script-task + CrossWorkflowMapping.csx
-│   └── Transitions: auto-to-start-flow → start-flow-state
+├── timer-wait-state  (Timer Task tip 9 testi)
+│   ├── onEntries: task-exec-script-task + TimerStartMapping.csx
+│   │              (timerStartedAt, timerExpectedSeconds=3 yazar)
+│   └── Transitions: scheduled-to-start-flow → start-flow-state
+│       (triggerType: 2 + ITimerMapping (TimerScheduleMapping.csx, 3 sn) →
+│        runtime arka planda Timer Task uretir; testler timerStartedAt'tan
+│        gecen sureye bakarak gercek beklemeyi dogrular)
 │
 ├── start-flow-state
 │   ├── onEntries: start-flow-task (type:11) + StartFlowMapping.csx
@@ -414,11 +418,13 @@ extended-tasks-test-workflow (F)
 |---------|-------------------|---------------|
 | HTTP Task (type:6) | Mocklab HTTP | http-process-task + HttpProcessMapping |
 | Script Task (type:7) | C# script data | task-exec-script-task + ScriptProcessMapping |
+| **Condition Task (type:8)** | Sistem gorevi — `triggerType: 1` (auto) + `IConditionMapping` rule calistirilirken runtime tarafindan otomatik uretilir; manuel JSON ile tanimlanmaz. Tum `auto-to-*` gecislerinde `AlwaysTrueRule.csx` calisir → her auto transition icin Condition Task ortaya cikar. | Tum auto transition'lar (`script-processing-state`, `start-flow-state`, `get-instance-data-state`, `notification-state`, `trigger-transition-state`, `subprocess-state`, `get-instances-state`) + `shared/AlwaysTrueRule.csx` |
+| **Timer Task (type:9)** | Sistem gorevi — `triggerType: 2` (scheduled) + `ITimerMapping` calistirilirken runtime tarafindan otomatik uretilir; manuel JSON ile tanimlanmaz. `timer-wait-state` cikis transition'i `scheduled-to-start-flow` 3 sn bekler; testler parent attributes.timerStartedAt ile (DateTime.UtcNow - timerStartedAt) >= ~2.5 sn olarak gercek beklemeyi dogrular. | timer-wait-state + TimerStartMapping (anlik mark) + TimerScheduleMapping (scheduled timer 3 sn) |
 | StartFlow Task (type:11) | Hedef workflow baslatma + hedef instance teyidi (`startedInstanceId` + GET state) | start-flow-task + StartFlowMapping (SetBody parentInstanceId/source/note) |
 | GetInstanceData Task (type:13) | Baska instance datasi | get-instance-data-task + GetInstanceDataMapping |
 | Notification Task (type:10) | Platform mapping G (script yok) | notification-task + mapping `{ "type": "G" }` |
 | TriggerTransition Task (type:12) | Hedef instance + manuel gecis | trigger-transition-task + TriggerTransitionMapping (SetInstance + `manual-complete-target`) |
-| SubProcess Task (type:14) | Alt surec baslatma + hedef instance teyidi (`subprocessInstanceId` + GET state/attributes) | subprocess-task + SubProcessMapping (SetBody parentInstanceId/source/note) |
+| SubProcess Task (type:14) | Alt surec baslatma + hedef instance teyidi (`subprocessInstanceId` + `subprocessData` yanit ozeti + GET state/attributes) | subprocess-task + SubProcessMapping (SetBody parentInstanceId/source/note; OutputHandler `subprocessData` = `context.Body.data` alanlari) |
 | GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
 | Human Task (type:5) | Manuel `approve-human-task` | human-task + HumanTaskMapping |
 | Dapr HTTP (1) / Service (3) / Binding (2) / PubSub (4) | Sidecar + YAML | `extended-tasks-test-workflow` + dapr-*-task |
@@ -426,7 +432,7 @@ extended-tasks-test-workflow (F)
 | context.Body.data | Task yaniti | OutputHandler'lar |
 | GetConfigValue | MocklabBaseUrl | HttpProcessMapping |
 | Task siralama | onEntries order | Tum state'ler |
-| Cross-workflow | StartFlow + GetInstanceData + hedef workflow | task-target-workflow |
+| Hedef workflow yasam dongusu | StartFlow + GetInstanceData + TriggerTransition + SubProcess hedefleri | task-target-workflow (ortak hedef) |
 
 ### Kullanilan Bilesenler (ozet)
 
@@ -1113,7 +1119,9 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | Idempotent start | X |  |  |  |  |  | X |  |  |
 | Instance filtreleme |  |  | X |  |  |  | X |  |  |
 | Sayfalama/Siralama |  |  | X |  |  |  | X |  |  |
-| Cross-workflow task |  |  | X |  |  |  |  |  |  |
+| Hedef workflow yasam dongusu (StartFlow/SubProcess hedefi) |  |  | X |  |  |  |  |  |  |
+| **Condition Task (tip 8) — auto transition rule** |  |  | X |  |  |  |  |  |  |
+| **Timer Task (tip 9) — scheduled transition** |  |  | X |  |  |  |  |  |  |
 | Complementary rules | X |  |  |  | X |  |  |  |  |
 | **Dapr sidecar + bilesen YAML** |  |  | X |  |  |  |  |  |  |
 | **Flow tipi: Core (C)** |  |  |  |  |  |  |  | X |  |

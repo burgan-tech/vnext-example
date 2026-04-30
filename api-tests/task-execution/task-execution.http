@@ -16,9 +16,11 @@
 
 ###############################################################################
 # BOLUM 1 — Happy path: Ana task execution zinciri
-# HTTP -> Script -> Cross workflow -> Start Flow (11) -> Get Instance Data (13)
+# HTTP -> Script -> Timer Wait (Timer Task tip 9, scheduled transition 3 sn)
+# -> Start Flow (11) -> Get Instance Data (13)
 # -> Notification (10, mapping.type G) -> TriggerTransition (12) -> SubProcess (14)
 # -> GetInstances (15) -> Human Task (5) -> PATCH approve -> Completed
+# Condition Task (tip 8) tum auto transition rule'larinda (AlwaysTrueRule) dolayli olarak uretilir.
 # Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
 ###############################################################################
 
@@ -39,12 +41,17 @@ Content-Type: application/json
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
 
 ### B1 — Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
-# Beklenen: testId, httpTaskCompleted, scriptProcessed, crossWorkflowCompleted,
+# Beklenen: testId, httpTaskCompleted, scriptProcessed,
+# timerStartedAt (TimerStartMapping anligi - timer-wait-state'e girildigi an),
+# timerExpectedSeconds = 3 (TimerScheduleMapping bekleme suresi),
 # startFlowCompleted, startedInstanceId (StartTask sonucu hedef workflow id),
 # subprocessInstanceId (SubProcessTask sonucu hedef workflow id),
+# subprocessData (SubProcessTask context.Body.data anlık kopyası: id/instanceId/state vb.),
 # getInstanceDataCompleted, taskResults.triggerTransition.completed,
 # taskResults.subprocess.completed, taskResults.getInstances.completed,
 # taskResults.humanTask.completed
+# Not: human-task-state'e ulasilana kadar gecen toplam sure >= 3 sn olmali; aksi halde
+# scheduled transition'in Timer Task'i devre disi olabilir.
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
 ### B1 — Adim 3a: StartTask ile baslatilan hedef instance functions/state (target-completed olmali)

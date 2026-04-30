@@ -40,7 +40,7 @@ role: test-operator
 ### Adim 4: Durum Kontrol (auto-passed-state olmali, auto transition testPath=pass rule calisti)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
-### Adim 5: 15 saniye bekle (scheduled timer 10s) ve durum kontrol
+### Adim 5: ~12 saniye bekleyip durum kontrol (scheduled timer 6s + islem payi)
 # timer-triggered-state -> (auto AlwaysTrue) -> pre-complete-state olmali
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
@@ -221,7 +221,7 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 ### VNext.Testing.Sdk: StartInstanceAsync / RunTransitionAsync cagrilarinda ?sync=true (XML docs).
 ### Akis: Start -> move-to-processing (role test-operator) -> AssertState auto-passed-state
 ###       -> cancel-schedule-manually (role header YOK) -> AssertState pre-complete-state
-### Workflow: auto-passed-state icinde scheduled-timer 10s; iptal timer tetiklenmeden yapilir.
+### Workflow: auto-passed-state icinde scheduled-timer 6s; iptal timer tetiklenmeden yapilir.
 ### ============================================================
 
 ### Adim 1: StartInstanceAsync — key/tags/attributes C# ile ayni
@@ -263,9 +263,9 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 ### ============================================================
 ### TEST: Reschedule Timer ($self + yeniden kurulan timer -> pre-complete)
 ### xUnit: RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState
-### Akis: move -> auto-passed -> reschedule-timer (yine auto-passed) -> ~10s sonra scheduled transition
+### Akis: move -> auto-passed -> reschedule-timer (yine auto-passed) -> ~6s sonra scheduled transition
 ###       -> timer-triggered-state -> auto-to-pre-complete -> pre-complete-state
-### Adim 6 REST Client: reschedule sonrasi en az ~12-15 sn bekleyin (veya GET'i poll ile tekrarlayin).
+### Adim 6 REST Client: reschedule sonrasi en az ~8-12 sn bekleyin (veya GET'i poll ile tekrarlayin).
 ### ============================================================
 
 ### Adim 1: Workflow Baslat (Reschedule Test)
@@ -304,7 +304,7 @@ Content-Type: application/json
 ### Adim 5: Durum Kontrol — hâlâ auto-passed-state (AssertStateAsync, $self)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
 
-### Adim 6: ~12-25 sn SONRA — pre-complete-state (WaitForStateAsync ile es; timer + timer-triggered auto)
+### Adim 6: ~8-20 sn SONRA — pre-complete-state (WaitForStateAsync ile es; timer + timer-triggered auto)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
 
 ###############################################################################

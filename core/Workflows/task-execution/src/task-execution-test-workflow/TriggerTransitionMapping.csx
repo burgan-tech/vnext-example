@@ -35,8 +35,8 @@ public class TriggerTransitionMapping : ScriptBase, IMapping
         if (HasProperty(data, "processId")) result.processId = data.processId;
         if (HasProperty(data, "scriptProcessed")) result.scriptProcessed = data.scriptProcessed;
         if (HasProperty(data, "scriptProcessedAt")) result.scriptProcessedAt = data.scriptProcessedAt;
-        if (HasProperty(data, "crossWorkflowCompleted")) result.crossWorkflowCompleted = data.crossWorkflowCompleted;
-        if (HasProperty(data, "crossWorkflowAt")) result.crossWorkflowAt = data.crossWorkflowAt;
+        if (HasProperty(data, "timerStartedAt")) result.timerStartedAt = data.timerStartedAt;
+        if (HasProperty(data, "timerExpectedSeconds")) result.timerExpectedSeconds = data.timerExpectedSeconds;
         if (HasProperty(data, "startFlowCompleted")) result.startFlowCompleted = data.startFlowCompleted;
         if (HasProperty(data, "startFlowIsSuccess")) result.startFlowIsSuccess = data.startFlowIsSuccess;
         if (HasProperty(data, "startedInstanceId")) result.startedInstanceId = data.startedInstanceId;
