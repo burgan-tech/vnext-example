@@ -14,9 +14,9 @@ public class GetInstanceDataMapping : ScriptBase, IMapping
 
         if (HasProperty(data, "startedInstanceId"))
         {
-            var instanceId = data.startedInstanceId?.ToString();
-            getDataTask.SetInstance(instanceId);
-            LogInformation($"GetInstanceDataMapping InputHandler: target instanceId={instanceId}");
+            var targetId = data.startedInstanceId?.ToString();
+            getDataTask.SetInstance(targetId);
+            LogInformation($"GetInstanceDataMapping InputHandler: target id={targetId}");
         }
 
         return new ScriptResponse();

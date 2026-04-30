@@ -3,11 +3,22 @@ using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
 public class TriggerTransitionMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
+        var directTrigger = (task as DirectTriggerTask)!;
+        var data = context.Instance.Data;
+
+        if (HasProperty(data, "startedInstanceId"))
+        {
+            var targetId = data.startedInstanceId?.ToString();
+            directTrigger.SetInstance(targetId!);
+            LogInformation($"TriggerTransitionMapping InputHandler: SetInstance {targetId}");
+        }
+
         return Task.FromResult(new ScriptResponse());
     }
 

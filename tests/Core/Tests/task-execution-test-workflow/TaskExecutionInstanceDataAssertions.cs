@@ -15,7 +15,9 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
 
     /// <summary>
     /// Human-task beklemeden önce: HTTP, script, cross-workflow, start-flow, get-instance-data,
-    /// notification, trigger, subprocess, get-instances ve human-task onEntry mapping bayrakları.
+    /// trigger, subprocess, get-instances ve human-task onEntry mapping bayrakları.
+    /// Notification task <c>mapping.type: G</c> kullandığı için
+    /// <c>taskResults.notification</c> entegrasyon assert'ine dahil edilmez.
     /// </summary>
     public static void AssertWhileWaitingOnHumanTask(JsonElement attributes)
     {
@@ -51,12 +53,6 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
             ContractHint
         );
 
-        JsonElementAssertions.AssertNestedPropertyTrue(
-            attributes,
-            new[] { "taskResults", "notification" },
-            "completed",
-            ContractHint
-        );
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "triggerTransition" },

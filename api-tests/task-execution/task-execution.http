@@ -17,7 +17,7 @@
 ###############################################################################
 # BOLUM 1 — Happy path: Ana task execution zinciri
 # HTTP -> Script -> Cross workflow -> Start Flow (11) -> Get Instance Data (13)
-# -> Notification (10) -> TriggerTransition (12) -> SubProcess (14)
+# -> Notification (10, mapping.type G) -> TriggerTransition (12) -> SubProcess (14)
 # -> GetInstances (15) -> Human Task (5) -> PATCH approve -> Completed
 # Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
 ###############################################################################
@@ -41,7 +41,7 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 ### B1 — Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
 # Beklenen: testId, httpTaskCompleted, scriptProcessed, crossWorkflowCompleted,
 # startFlowCompleted, startedInstanceId, getInstanceDataCompleted,
-# taskResults.notification.completed, taskResults.triggerTransition.completed,
+# taskResults.triggerTransition.completed,
 # taskResults.subprocess.completed, taskResults.getInstances.completed,
 # taskResults.humanTask.completed
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
@@ -75,7 +75,13 @@ Content-Type: application/json
 
 @targetInstanceId = {{createTargetInstance.response.body.$.id}}
 
-### B2 — Adim 2: Hedef workflow durumu (target-completed olmali)
+### B2 — Adim 2: Hedefde manuel gecis (DirectTriggerTask ile ayni anahtar: manual-complete-target)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/transitions/manual-complete-target
+Content-Type: application/json
+
+{}
+
+### B2 — Adim 3: Hedef workflow durumu (target-completed olmali)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/functions/state
 
 ###############################################################################

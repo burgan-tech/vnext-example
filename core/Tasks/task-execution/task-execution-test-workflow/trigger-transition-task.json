@@ -10,7 +10,7 @@
     "config": {
       "domain": "core",
       "flow": "task-target-workflow",
-      "transitionName": "auto-complete-target"
+      "transitionName": "manual-complete-target"
     }
   }
 }

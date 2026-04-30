@@ -60,6 +60,25 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         var attrsBefore = await GetAttributesAsync(MainWorkflowKey, instanceId);
         TaskExecutionMainWorkflowInstanceDataAssertions.AssertWhileWaitingOnHumanTask(attrsBefore);
 
+        // StartFlow + DirectTrigger zincirinin sadece parent instance'a `startedInstanceId` yazmış olması yeterli değildir.
+        // Hedef workflow'un `functions/state` çağrısıyla; (1) StartTask yeni bir instance açtı, (2) DirectTriggerTask
+        // hedefin manuel `manual-complete-target` geçişini gerçekten tetikledi, doğrulanır.
+        var startedTargetId = attrsBefore.GetProperty("startedInstanceId").GetString();
+        Assert.False(
+            string.IsNullOrWhiteSpace(startedTargetId),
+            "startedInstanceId should be a non-empty string from StartFlowMapping output. Because startflow task should start a workflow."
+        );
+
+        var targetStateAfterTrigger = await _targetWorkflow.GetStateFunctionBodyAsync(
+            startedTargetId!,
+            headers: null
+        );
+        Assert.Equal(
+            "target-completed",
+            StateFunctionJson.ExtractStateName(targetStateAfterTrigger)
+        );
+        Assert.Equal("C", StateFunctionJson.ExtractStatus(targetStateAfterTrigger));
+
         await _mainWorkflow.RunTransitionAsync(
             instanceId,
             "approve-human-task",
@@ -92,6 +111,19 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
                 tags = new[] { "integration-test", "task-execution", "target" },
                 attributes = new { },
             }
+        );
+
+        await _targetWorkflow.WaitForStateAsync(
+            instanceId,
+            "target-initial",
+            TimeSpan.FromSeconds(30)
+        );
+
+        await _targetWorkflow.RunTransitionAsync(
+            instanceId,
+            "manual-complete-target",
+            headers: null,
+            transitionBody: new { }
         );
 
         await _targetWorkflow.WaitForStateAsync(

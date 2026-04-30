@@ -363,7 +363,7 @@ task-execution-test-workflow (F)
 │   └── Transitions: auto-to-notification → notification-state
 │
 ├── notification-state
-│   ├── onEntries: notification-task (type:10) + NotificationMapping.csx
+│   ├── onEntries: notification-task (type:10) + mapping.type G
 │   └── Transitions: auto-to-trigger-transition → trigger-transition-state
 │
 ├── trigger-transition-state
@@ -387,7 +387,7 @@ task-execution-test-workflow (F)
 task-target-workflow (F)
 │
 ├── [startTransition] start-target → target-initial
-├── target-initial → auto-complete-target → target-completed
+├── target-initial — manual-complete-target → target-completed
 └── target-completed
 ```
 
@@ -416,8 +416,8 @@ extended-tasks-test-workflow (F)
 | Script Task (type:7) | C# script data | task-exec-script-task + ScriptProcessMapping |
 | StartFlow Task (type:11) | Hedef workflow baslatma | start-flow-task + StartFlowMapping |
 | GetInstanceData Task (type:13) | Baska instance datasi | get-instance-data-task + GetInstanceDataMapping |
-| Notification Task (type:10) | Bildirim metadata | notification-task + NotificationMapping |
-| TriggerTransition Task (type:12) | Hedef instance'da transition | trigger-transition-task + TriggerTransitionMapping |
+| Notification Task (type:10) | Platform mapping G (script yok) | notification-task + mapping `{ "type": "G" }` |
+| TriggerTransition Task (type:12) | Hedef instance + manuel gecis | trigger-transition-task + TriggerTransitionMapping (SetInstance + `manual-complete-target`) |
 | SubProcess Task (type:14) | Alt surec baslatma | subprocess-task + SubProcessMapping |
 | GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
 | Human Task (type:5) | Manuel `approve-human-task` | human-task + HumanTaskMapping |

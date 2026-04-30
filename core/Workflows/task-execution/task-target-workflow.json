@@ -65,24 +65,20 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "auto-complete-target",
+            "key": "manual-complete-target",
             "target": "target-completed",
-            "triggerType": 1,
+            "triggerType": 0,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Auto Complete Target"
+                "label": "Complete Target (manual / DirectTriggerTask)"
               },
               {
                 "language": "tr-TR",
-                "label": "Otomatik Tamamla"
+                "label": "Hedefi Tamamla (manuel / DirectTriggerTask)"
               }
             ],
-            "rule": {
-              "location": "./src/shared/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
-            },
             "onExecutionTasks": []
           }
         ]

@@ -39,8 +39,13 @@ public class StartFlowMapping : ScriptBase, IMapping
         result.startFlowCompleted = true;
         result.startFlowIsSuccess = taskResponse.isSuccess;
 
-        if (responseBody != null && HasProperty(responseBody, "instanceId"))
-            result.startedInstanceId = responseBody.instanceId;
+        if (responseBody != null)
+        {
+            if (HasProperty(responseBody, "id"))
+                result.startedInstanceId = responseBody.id;
+            else if (HasProperty(responseBody, "instanceId"))
+                result.startedInstanceId = responseBody.instanceId;
+        }
 
         LogInformation($"StartFlowMapping OutputHandler: isSuccess={taskResponse.isSuccess}");
         return new ScriptResponse { Data = result };

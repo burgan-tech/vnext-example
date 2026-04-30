@@ -156,7 +156,21 @@
           ]
         },
         {
-          "name": "Adim 2: Hedef workflow durumu",
+          "name": "Adim 2: PATCH manual-complete-target",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/transitions/manual-complete-target",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "{{targetInstanceId}}", "transitions", "manual-complete-target"]
+            },
+            "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Hedef workflow durumu",
           "request": {
             "method": "GET",
             "header": [],
