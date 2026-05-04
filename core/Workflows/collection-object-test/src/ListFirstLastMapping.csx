@@ -1,13 +1,9 @@
 using System;
+using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
-using BBT.Workflow.Scripting.Functions;
 
-/// <summary>
-/// Tests: ListFirst(), ListLast()
-/// Items order: Alice(active), Bob(inactive), Charlie(active)
-/// </summary>
 public class ListFirstLastMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
@@ -21,64 +17,62 @@ public class ListFirstLastMapping : ScriptBase, IMapping
         {
             LogInformation("ListFirst and ListLast Test - Starting");
 
-            object instanceData = context.Instance?.Data;
-            var items = GetList(instanceData, "items");
+            var data = context.Instance.Data;
+            var items = GetList(data, "items");
 
-            // Test ListFirst() without predicate → Alice
             var first = ListFirst(items);
-
-            // Test ListFirst() with predicate → first active = Alice, first inactive = Bob
             var firstActive = ListFirst(items, x => x.status == "active");
             var firstInactive = ListFirst(items, x => x.status == "inactive");
-
-            // Test ListFirst() with no match → null
             var firstNotFound = ListFirst(items, x => x.status == "admin");
 
-            // Test ListLast() without predicate → Charlie
             var last = ListLast(items);
-
-            // Test ListLast() with predicate → last active = Charlie
             var lastActive = ListLast(items, x => x.status == "active");
 
-            // Test on empty list → null
             var emptyFirst = ListFirst(CreateList());
             var emptyLast = ListLast(CreateList());
 
-            LogInformation("First: {0}, Last: {1}", args: new object[] { first?.name, last?.name });
+            LogInformation($"First: {first?.name}, Last: {last?.name}");
 
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "first-last-success",
-                Data = new
-                {
-                    firstLastResult = new
-                    {
-                        success = true,
-                        firstName = (string)(first?.name ?? "null"),
-                        lastName = (string)(last?.name ?? "null"),
-                        firstActiveName = (string)(firstActive?.name ?? "null"),
-                        firstInactiveName = (string)(firstInactive?.name ?? "null"),
-                        lastActiveName = (string)(lastActive?.name ?? "null"),
-                        firstNotFoundIsNull = firstNotFound == null,
-                        emptyFirstIsNull = emptyFirst == null,
-                        emptyLastIsNull = emptyLast == null,
-                        firstWorked = first?.id == "item-001",
-                        lastWorked = last?.id == "item-003",
-                        firstWithPredicateWorked = firstActive?.id == "item-001",
-                        lastWithPredicateWorked = lastActive?.id == "item-003"
-                    }
-                },
-                Tags = new[] { "collection-object-test", "list-first", "list-last", "success" }
-            });
+            dynamic result = new ExpandoObject();
+
+            if (HasProperty(data, "testId"))
+                result.testId = data.testId;
+            if (HasProperty(data, "startedAt"))
+                result.startedAt = data.startedAt;
+            if (HasProperty(data, "items"))
+                result.items = data.items;
+            if (HasProperty(data, "metadata"))
+                result.metadata = data.metadata;
+            if (HasProperty(data, "createAndSetResult"))
+                result.createAndSetResult = data.createAndSetResult;
+            if (HasProperty(data, "getListResult"))
+                result.getListResult = data.getListResult;
+            if (HasProperty(data, "filterCountAnyResult"))
+                result.filterCountAnyResult = data.filterCountAnyResult;
+
+            result.firstLastResult = new ExpandoObject();
+            result.firstLastResult.success = true;
+            result.firstLastResult.firstName = (string)(first?.name ?? "null");
+            result.firstLastResult.lastName = (string)(last?.name ?? "null");
+            result.firstLastResult.firstActiveName = (string)(firstActive?.name ?? "null");
+            result.firstLastResult.firstInactiveName = (string)(firstInactive?.name ?? "null");
+            result.firstLastResult.lastActiveName = (string)(lastActive?.name ?? "null");
+            result.firstLastResult.firstNotFoundIsNull = firstNotFound == null;
+            result.firstLastResult.emptyFirstIsNull = emptyFirst == null;
+            result.firstLastResult.emptyLastIsNull = emptyLast == null;
+            result.firstLastResult.firstWorked = first?.id == "item-001";
+            result.firstLastResult.lastWorked = last?.id == "item-003";
+            result.firstLastResult.firstWithPredicateWorked = firstActive?.id == "item-001";
+            result.firstLastResult.lastWithPredicateWorked = lastActive?.id == "item-003";
+
+            return Task.FromResult(new ScriptResponse { Data = result });
         }
         catch (Exception ex)
         {
-            LogError("ListFirst/Last Test - Failed: {0}", args: new object[] { ex.Message });
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "first-last-error",
-                Data = new { error = ex.Message }
-            });
+            LogError($"ListFirst/Last Test - Failed: {ex.Message}");
+            dynamic errResult = new ExpandoObject();
+            errResult.error = ex.Message;
+            return Task.FromResult(new ScriptResponse { Data = errResult });
         }
     }
 }

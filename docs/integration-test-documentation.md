@@ -1046,11 +1046,11 @@ collection-object-test-workflow (F)
 │
 ├── [startTransition] start-collection-test
 │   └── onExecutionTasks:
-│       └── script-task + InitCollectionTestMapping.csx
+│       └── collection-object-script-task + InitCollectionTestMapping.csx
 │
 ├── test-create-and-set-state (Initial, stateType:1)
 │   ├── onEntries:
-│   │   └── script-task + CreateAndSetMapping.csx
+│   │   └── collection-object-script-task + CreateAndSetMapping.csx
 │   │       (CreateObject, CreateList, SetProperty, ListAdd)
 │   └── Transitions:
 │       └── create-and-set-completed (Auto) → test-get-list-state
@@ -1058,7 +1058,7 @@ collection-object-test-workflow (F)
 │
 ├── test-get-list-state (Intermediate, stateType:2)
 │   ├── onEntries:
-│   │   └── script-task + GetListAndAsListMapping.csx
+│   │   └── collection-object-script-task + GetListAndAsListMapping.csx
 │   │       (GetList, AsList — null/non-list edge case)
 │   └── Transitions:
 │       └── get-list-completed (Auto) → test-filter-count-any-state
@@ -1066,7 +1066,7 @@ collection-object-test-workflow (F)
 │
 ├── test-filter-count-any-state (Intermediate, stateType:2)
 │   ├── onEntries:
-│   │   └── script-task + ListFilterCountAnyMapping.csx
+│   │   └── collection-object-script-task + ListFilterCountAnyMapping.csx
 │   │       (ListFilter, ListCount, ListAny — predicate'li/predicate'siz, empty list)
 │   └── Transitions:
 │       └── filter-count-any-completed (Auto) → test-first-last-state
@@ -1074,7 +1074,7 @@ collection-object-test-workflow (F)
 │
 ├── test-first-last-state (Intermediate, stateType:2)
 │   ├── onEntries:
-│   │   └── script-task + ListFirstLastMapping.csx
+│   │   └── collection-object-script-task + ListFirstLastMapping.csx
 │   │       (ListFirst, ListLast — predicate, no-match → null, empty list)
 │   └── Transitions:
 │       └── first-last-completed (Auto) → test-list-select-state
@@ -1082,7 +1082,7 @@ collection-object-test-workflow (F)
 │
 ├── test-list-select-state (Intermediate, stateType:2)
 │   ├── onEntries:
-│   │   └── script-task + ListSelectMapping.csx
+│   │   └── collection-object-script-task + ListSelectMapping.csx
 │   │       (ListSelect<string>, ListSelect<int>, transformation, empty list)
 │   └── Transitions:
 │       └── list-select-completed (Auto) → test-add-remove-state
@@ -1090,7 +1090,7 @@ collection-object-test-workflow (F)
 │
 ├── test-add-remove-state (Intermediate, stateType:2)
 │   ├── onEntries:
-│   │   └── script-task + ListAddRemoveMapping.csx
+│   │   └── collection-object-script-task + ListAddRemoveMapping.csx
 │   │       (ListAdd, ListRemove — predicate ile sayim, count dogrulama)
 │   └── Transitions:
 │       └── add-remove-completed (Auto) → test-remove-prop-to-dict-state
@@ -1098,7 +1098,7 @@ collection-object-test-workflow (F)
 │
 ├── test-remove-prop-to-dict-state (Intermediate, stateType:2)
 │   ├── onEntries:
-│   │   └── script-task + RemovePropertyToDictionaryMapping.csx
+│   │   └── collection-object-script-task + RemovePropertyToDictionaryMapping.csx
 │   │       (RemoveProperty, ToDictionary, HasProperty — null edge case)
 │   └── Transitions:
 │       └── remove-prop-to-dict-completed (Auto) → test-completed-state
@@ -1133,7 +1133,7 @@ collection-object-test-workflow (F)
 
 | Tip | Anahtar | Dosya |
 |-----|---------|-------|
-| Task | `script-task` (paylasimli, type:7) | Tasks/lifecycle-transitions/script-task.json |
+| Task | `collection-object-script-task` (type:7) | Tasks/collection-object-test/collection-object-script-task.json |
 | CSX | InitCollectionTestMapping | Workflows/collection-object-test/src/InitCollectionTestMapping.csx |
 | CSX | CreateAndSetMapping | Workflows/collection-object-test/src/CreateAndSetMapping.csx |
 | CSX | GetListAndAsListMapping | Workflows/collection-object-test/src/GetListAndAsListMapping.csx |
@@ -1144,7 +1144,8 @@ collection-object-test-workflow (F)
 | CSX | RemovePropertyToDictionaryMapping | Workflows/collection-object-test/src/RemovePropertyToDictionaryMapping.csx |
 | CSX | AlwaysTrueRule | Workflows/collection-object-test/src/AlwaysTrueRule.csx |
 
-**HTTP / C# integration test:** Henuz eklenmedi.
+**HTTP test:** [`api-tests/collection-object-test/collection-object-test-workflow.http`](../api-tests/collection-object-test/collection-object-test-workflow.http) — start, `functions/state`, `functions/data`.  
+**C# integration test:** [`tests/Core/Tests/collection-object-test/CollectionObjectTestWorkflowTests.cs`](../tests/Core/Tests/collection-object-test/CollectionObjectTestWorkflowTests.cs).
 
 ---
 
