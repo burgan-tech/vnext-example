@@ -5,6 +5,16 @@ using Xunit;
 
 namespace Core.IntegrationTests.Tests.TaskExecutionTestWorkflow;
 
+/*
+!BUGS:
+! 1. Dapr Pubsub'un context body'sinden dönen JSONELEMENT
+! yapının json serialize işleminde hata veriyor,
+!  dispose olmuş / uygun olmayan durumdaki JsonElement
+ * System.InvalidOperationException: Operation is not valid due to the current state of the object.
+ *  at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.GetMemberAndWriteJson(...)
+ *  at BBT.Workflow.Tasks.Coordinator.TaskExecutionEngine.ExecuteCoreAsync(...):line 531
+*/
+
 /// <summary>
 /// <c>api-tests/task-execution/task-execution.http</c> B1–B3 ve
 /// <c>doc/integration-test-documentation.md</c> Task Execution grubu ile hizalı integration testler.

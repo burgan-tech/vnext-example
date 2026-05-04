@@ -101,6 +101,16 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
 
 /// <summary>
 /// <c>extended-tasks-test-workflow</c> sonunda Dapr zinciri için <c>attributes</c> kontrolleri.
+/// Dapr Binding (tip 2) state ve task'i workflow'dan kaldirildi (bkz. integration-test-documentation.md
+/// "Test Edilmeyen Ozellikler" bolumu); zincir su an HTTP -> Service -> PubSub seklinde ilerler.
+///
+/// Skill vnext-workflow-creation §6.4 geregi her Dapr task'i icin sabit "completed = true" literal
+/// bayraginin yaninda, task'in gercekten calistigini kanitlayan ek bir alan da assert edilir:
+///   - daprHttp / daprService: mocklab yanitindan gelen <c>processId</c> (GUID) parent attributes'a
+///     yazilir; non-empty string olmasi mocklab'a gercekten ulasildiginin kanitidir.
+///   - daprPubSub: PubSub fire-and-forget oldugundan response body'sinde alan donmez; runtime
+///     <c>context.Body.isSuccess</c> bayragini doner ve mapping bunu <c>published</c> olarak
+///     parent attributes'a yazar; <c>published == true</c> task'in basarili publish ettiginin kanitidir.
 /// </summary>
 internal static class ExtendedTasksWorkflowInstanceDataAssertions
 {
@@ -110,29 +120,48 @@ internal static class ExtendedTasksWorkflowInstanceDataAssertions
     public static void AssertDaprChainCompleted(JsonElement attributes)
     {
         JsonElementAssertions.AssertPropertyTrue(attributes, "initCompleted", ContractHint);
+
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "daprHttp" },
             "completed",
             ContractHint
         );
+        // Skill §6.4: mapping bayragi "completed=true" literal; gercek task yanitinin (mocklab GUID)
+        // parent attributes'a yansidigi processId ile kanitlanir.
+        JsonElementAssertions.AssertNestedPropertyNonEmptyString(
+            attributes,
+            new[] { "taskResults", "daprHttp" },
+            "processId",
+            $"daprHttp.processId mocklab yanitindan gelmeli {ContractHint}"
+        );
+
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "daprService" },
             "completed",
             ContractHint
         );
-        JsonElementAssertions.AssertNestedPropertyTrue(
+        JsonElementAssertions.AssertNestedPropertyNonEmptyString(
             attributes,
-            new[] { "taskResults", "daprBinding" },
-            "completed",
-            ContractHint
+            new[] { "taskResults", "daprService" },
+            "processId",
+            $"daprService.processId mocklab yanitindan gelmeli {ContractHint}"
         );
+
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "daprPubSub" },
             "completed",
             ContractHint
+        );
+        // PubSub fire-and-forget: runtime context.Body.isSuccess'i mapping parent attributes'a
+        // "published" olarak yazar; true olmasi PubSub broker'a gercekten gonderildigin kanitidir.
+        JsonElementAssertions.AssertNestedPropertyTrue(
+            attributes,
+            new[] { "taskResults", "daprPubSub" },
+            "published",
+            $"daprPubSub.published runtime isSuccess bayragindan gelmeli {ContractHint}"
         );
     }
 }

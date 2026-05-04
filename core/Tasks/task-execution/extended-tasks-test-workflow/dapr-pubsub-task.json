@@ -9,7 +9,11 @@
     "type": "4",
     "config": {
       "pubSubName": "test-pubsub",
-      "topic": "test-topic"
+      "topic": "test-topic",
+      "data": {
+        "eventType": "IntegrationTest",
+        "source": "extended-tasks-test-workflow"
+      }
     }
   }
 }

@@ -10,7 +10,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 |---|------|----------|---------------------------|
 | 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
 | 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)** |
-| 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances/Human; Dapr HTTP/Service/Binding/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
+| 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
 | 5 | View, Function & Extension | `view-function-extension-test-workflow` | View tipleri, display modlari, function, extension, wizard state, **features** referansi |
 | 6 | Schema & Data | `schema-data-test-workflow` | Master schema, transition schema, updateData, field roles |
@@ -27,7 +27,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 ```
 core/
 ├── Workflows/          (15 workflow - 13 mevcut + 2 yeni version-consistency)
-├── Tasks/              (23 task - 22 mevcut + 1 yeni version-consistency)
+├── Tasks/              (22 task - 21 mevcut + 1 yeni version-consistency; Dapr Binding task kaldirildi)
 ├── Views/              (3 view)
 ├── Schemas/            (2 schema)
 ├── Functions/          (2 function)
@@ -325,7 +325,7 @@ subflow-orchestration-parent (F)
 **Workflow'lar:**
 - `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, Timer Wait, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances → completed). Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu zincirden cikartildi.
 - `task-target-workflow` (type: F) — StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
-- `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, Binding, PubSub (tek zincir; HTTP test: `api-tests/task-execution/task-execution.http` **Bolum 3**)
+- `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, PubSub (tek zincir; HTTP test: `api-tests/task-execution/task-execution.http` **Bolum 3**). **Not:** Dapr Binding (tip 2) test kapsamindan cikarildi (bkz. dosya sonu **Test Edilmeyen Ozellikler** bolumu).
 
 **Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, scheduled transition (Timer Task tip 9), auto transition (Condition Task tip 8) ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
 
@@ -402,8 +402,9 @@ extended-tasks-test-workflow (F)
 │   ├── onEntries: script-task (Tasks/lifecycle-transitions/script-task.json) + InitExtendedTaskMapping.csx
 │   └── Transitions: auto-to-dapr-http → dapr-http-state
 │
-├── dapr-http-state → dapr-service-state → dapr-binding-state → dapr-pubsub-state
-│   (sirasiyla type 1, 3, 2, 4 Dapr task'leri + Dapr*Mapping.csx)
+├── dapr-http-state → dapr-service-state → dapr-pubsub-state
+│   (sirasiyla type 1, 3, 4 Dapr task'leri + Dapr*Mapping.csx)
+│   (Dapr Binding (tip 2) state'i ve task'i kaldirildi — bkz. Test Edilmeyen Ozellikler)
 │
 └── completed-state (Final; pubsub sonrasi otomatik tamamlanma)
 ```
@@ -422,7 +423,7 @@ extended-tasks-test-workflow (F)
 | TriggerTransition Task (type:12) | Hedef instance + manuel gecis | trigger-transition-task + TriggerTransitionMapping (SetInstance + `manual-complete-target`) |
 | SubProcess Task (type:14) | Alt surec baslatma + hedef instance teyidi (`subprocessInstanceId` + `subprocessData` yanit ozeti + GET state/attributes) | subprocess-task + SubProcessMapping (SetBody parentInstanceId/source/note; OutputHandler `subprocessData` = `context.Body.data` alanlari) |
 | GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
-| Dapr HTTP (1) / Service (3) / Binding (2) / PubSub (4) | Sidecar + YAML | `extended-tasks-test-workflow` + dapr-*-task |
+| Dapr HTTP (1) / Service (3) / PubSub (4) | Sidecar + YAML; **task gercekten calisti** kaniti (skill §6.4): HTTP/Service icin mocklab yanitindan donen `processId` parent attributes'a yazilir ve testte non-empty string assert edilir; PubSub icin runtime `context.Body.isSuccess` `published` olarak yazilir ve `true` assert edilir. **PubSub bileseni** task JSON'da `pubSubName: "{DaprPubSubName}"` placeholder; `DaprPubSubMapping.InputHandler` `GetConfigValue("DaprPubSubName")` ile Vault'tan okuyup `SetPubSubName(...)` ile override eder (varsayilan: `vnext-pubsub` Redis sistem bileseni). | `extended-tasks-test-workflow` + dapr-*-task; assertion'lar `ExtendedTasksWorkflowInstanceDataAssertions.AssertDaprChainCompleted` |
 | HttpTask / StartTask / GetInstanceDataTask cast | InputHandler | Ilgili mapping.csx |
 | context.Body.data | Task yaniti | OutputHandler'lar |
 | GetConfigValue | MocklabBaseUrl | HttpProcessMapping |
@@ -443,7 +444,6 @@ extended-tasks-test-workflow (F)
 | Task | `get-instances-task` | 15 | Tasks/task-execution/task-execution-test-workflow/get-instances-task.json |
 | Task | `dapr-http-task` | 1 | Tasks/task-execution/extended-tasks-test-workflow/dapr-http-task.json |
 | Task | `dapr-service-task` | 3 | Tasks/task-execution/extended-tasks-test-workflow/dapr-service-task.json |
-| Task | `dapr-binding-task` | 2 | Tasks/task-execution/extended-tasks-test-workflow/dapr-binding-task.json |
 | Task | `dapr-pubsub-task` | 4 | Tasks/task-execution/extended-tasks-test-workflow/dapr-pubsub-task.json |
 | Task | `script-task` (paylasimli) | 7 | Tasks/lifecycle-transitions/script-task.json |
 | CSX | `task-execution-test-workflow` mapping'leri | `Workflows/task-execution/src/task-execution-test-workflow/*.csx` |
@@ -1002,8 +1002,8 @@ version-consistency-test-workflow (F, v2.0.0) — 4 state (ekstra review-state)
 
 | Dosya | Amac |
 |-------|------|
-| `etc/dapr/components/test-binding.yaml` | Dapr output binding testleri (Grup 3, `extended-tasks-test-workflow`) |
-| `etc/dapr/components/test-pubsub.yaml` | Dapr pub/sub testleri (Grup 3, `extended-tasks-test-workflow`) |
+| `etc/dapr/components/test-binding.yaml` | (Su an **kullanilmiyor**; Dapr Binding test kapsamindan cikarildi — bkz. **Test Edilmeyen Ozellikler**) |
+| `etc/dapr/components/test-pubsub.yaml` | (Su an **kullanilmiyor**; mockoon-dapr sidecar'inda mount edilse de execution-app sidecar'i yalnizca runtime'in yukledigi sistem pubsub bilesenlerini gorur. `extended-tasks-test-workflow` Dapr PubSub task'i Vault'taki `DaprPubSubName` (varsayilan: `vnext-pubsub`) bileseni uzerinden publish eder; `DaprPubSubMapping.csx` `InputHandler`'da `SetPubSubName` ile override edilir.) |
 | `etc/dapr/config.yaml` | Dapr genel konfigurasyon |
 
 ### Mockoon Mock Endpoint'leri
@@ -1072,7 +1072,6 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | StartFlow Task (11) |  |  | X |  |  |  |  |  |  |
 | GetInstanceData Task (13) |  |  | X |  |  |  |  |  |  |
 | **Dapr HTTP Task (1)** |  |  | X |  |  |  |  |  |  |
-| **Dapr Binding Task (2)** |  |  | X |  |  |  |  |  |  |
 | **Dapr Service Task (3)** |  |  | X |  |  |  |  |  |  |
 | **Dapr PubSub Task (4)** |  |  | X |  |  |  |  |  |  |
 | **Notification Task (10)** |  |  | X |  |  |  |  |  |  |
@@ -1133,3 +1132,36 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 2. **platformOverrides**: `view-definition.schema.json` icinde `platformOverrides` alani tanimli degildir. Bu nedenle platform bazli view override testleri mevcut schema ile yapilamaz.
 
 3. **Event transition (triggerType:3)**: Runtime dokumantasyonunda tanimlanan event-driven transition'lar icin test eklenmemistir. Bu, ileri asamada ayri bir senaryoda test edilebilir.
+
+---
+
+## Test Edilmeyen Ozellikler
+
+Bu bolum, runtime tarafindan desteklenen ancak `vnext-example` integration test workflow'lari icinde **bilincli olarak test edilmeyen** ozellikleri listeler. Her madde icin neden test edilmediginin gerekcesi ve ileride etkin test eklenmek istenirse hangi yolun izlenecegine dair kisa bir not bulunur.
+
+### 1. Dapr Binding Task (tip 2)
+
+- **Onceki konum:** Grup 3 → `extended-tasks-test-workflow` icindeki `dapr-binding-state` (state, task ve mapping artik kaldirildi).
+- **Kaldirilan dosyalar:**
+  - State: `core/Workflows/task-execution/extended-tasks-test-workflow.json` icindeki `dapr-binding-state` (ilgili `auto-to-dapr-binding` transition'i ile birlikte). Akis su an `dapr-service-state` → `dapr-pubsub-state` seklinde dogrudan ilerler.
+  - Task tanimi: `core/Tasks/task-execution/extended-tasks-test-workflow/dapr-binding-task.json` (silindi).
+  - Mapping: `core/Workflows/task-execution/src/extended-tasks-test-workflow/DaprBindingMapping.csx` (silindi).
+- **Korunan altyapi:** `etc/dapr/components/test-binding.yaml` Dapr bilesen tanimi dosyada **birakilmistir** ancak workflow tarafindan **artik referans edilmemektedir**; ileride yeniden test eklenmek istendiginde dogrudan kullanilabilir.
+- **Neden test edilmiyor:** Dapr output binding davranisi, runtime'in stabil kapsami disinda kalan bir entegrasyondur ve mevcut integration test ortaminda guvenilir bir mocklab/Dapr kombinasyonu ile uctan uca dogrulanamamaktadir. Diger Dapr task tipleri (HTTP-1, Service-3, PubSub-4) `extended-tasks-test-workflow` icinde test edilmeye devam etmektedir.
+- **Eklenmek istenirse:** Yeni bir `dapr-binding-state` + `dapr-binding-task` (tip 2) cifti `extended-tasks-test-workflow` icinde tekrar olusturulmalidir; Dapr tarafinda `test-binding.yaml` zaten hazirdir. Bu degisiklik mevcut `extended-tasks-test-workflow` zincirini ve C# integration test sozlesmesini (`taskResults.daprBinding`) yeniden gunceller.
+
+### 2. Human Task (tip 5)
+
+- **Onceki konum:** Daha onceki revizyonlarda Grup 3 (`task-execution-test-workflow`) Human Task ozelligini de kapsiyordu; bu zincir icindeki `human-task-state` ve `human-task` (tip 5) artik kaldirilmistir.
+- **Neden test edilmiyor:** Human Task (tip 5) **runtime tarafindan kaldirilacak gecici bir ozellik** olarak isaretlenmistir. Bu nedenle:
+  - Bu ozellik **yeni test workflow'larina eklenmez**.
+  - Mevcut testlerde gecmiste kullanildiysa temizlenir (mevcut durumda `task-execution-test-workflow` ve `instance-management-test-workflow` icinde Human Task tipi referansi yoktur; yalnizca `instance-management` workflow'unda **state subType 6 (Human)** — Human Task task-tipi degil — final state alt tipi olarak korunmaktadir).
+- **Iliskili ama farkli ozellik:** `instance-management-test-workflow` icindeki `human-state` (subType 6) Human **Task** tipi degil, **state alt tipi**dir. Bu state, runtime'in `subType` enum'unu test eder ve Human Task tip 5'in kaldirilma kararindan **etkilenmez**.
+- **Eklenmek istenirse:** Runtime'da Human Task ozelligi kalici olarak destekleneceginin teyidi alindiginda; ayri bir `human-task-test-workflow` ve `human-task` (tip 5) JSON tanimi olusturulup Mocklab veya gercek bir human-task hub uctan uca testle entegre edilmelidir. Su an icin **eklenmemelidir**.
+
+### Ozet Tablo
+
+| Ozellik | Tip / Konum | Durum | Gerekce |
+|---------|-------------|-------|---------|
+| Dapr Binding Task | Task tipi 2, `extended-tasks-test-workflow` | **Kaldirildi (state + task + mapping silindi)** | Runtime kapsamindaki kararsizlik; mocklab/Dapr binding entegrasyonu uctan uca dogrulanamiyor |
+| Human Task | Task tipi 5, daha once `task-execution-test-workflow` zincirinde | **Kaldirildi / yeni testlere eklenmez** | Runtime tarafindan kaldirilacak gecici ozellik; sadece state subType 6 (Human) korunur |

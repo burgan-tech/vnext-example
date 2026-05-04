@@ -91,4 +91,30 @@ public static class JsonElementAssertions
             message ?? $"'{booleanPropertyName}' should be true under {string.Join(".", pathToParent)}."
         );
     }
+
+    /// <summary>
+    /// Nested object yolundaki string property'nin non-empty oldugunu dogrular.
+    /// Skill vnext-workflow-creation §6.4: task'in gercekten calistigi, yaniti parent attributes'a
+    /// non-empty deger olarak yansidiginda kanitlanir (sabit literal "completed = true" yetersiz).
+    /// </summary>
+    public static void AssertNestedPropertyNonEmptyString(
+        JsonElement root,
+        string[] pathToParent,
+        string stringPropertyName,
+        string? message = null
+    )
+    {
+        Assert.True(
+            TryGetNestedObject(root, pathToParent, out var parent)
+                && parent.ValueKind == JsonValueKind.Object,
+            message
+                ?? $"Expected object at path '{string.Join(".", pathToParent)}'."
+        );
+        AssertPropertyNonEmptyString(
+            parent,
+            stringPropertyName,
+            message
+                ?? $"'{stringPropertyName}' should be a non-empty string under {string.Join(".", pathToParent)}."
+        );
+    }
 }

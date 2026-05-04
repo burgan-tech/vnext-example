@@ -259,7 +259,8 @@
           "onError": [
             {
               "action": 2,
-              "priority": 10
+              "priority": 10,
+              "transition": "auto-to-log-from-rollback"
             }
           ]
         },
