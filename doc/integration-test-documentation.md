@@ -9,7 +9,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | # | Grup | Workflow | Test Edilen Ana Ozellikler |
 |---|------|----------|---------------------------|
 | 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
-| 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)** |
+| 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)**, **subFlow.overrides** (timeout, states.queryRoles, transitions.roles) |
 | 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
 | 5 | View, Function & Extension | `view-function-extension-test-workflow` | View tipleri, display modlari, function, extension, wizard state, **features** referansi |
@@ -17,6 +17,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
 | 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` + `flow-flow-test` + `subflow-flow-test` | **Core (C)**, **SubProcess (P)**, **Flow (F)** ve **SubFlow (S)** workflow tipleri |
 | 9 | Version Consistency | `version-consistency-test-workflow` (v1.0.0 + v2.0.0) | Workflow versiyon degisiminde mevcut instance'larin kendi versiyonlariyla devam etmesi |
+| 10 | Dynamic Collection & Object | `collection-object-test-workflow` | ScriptBase dinamik koleksiyon/nesne API'leri (CreateObject, CreateList, SetProperty, GetList, AsList, ListFilter, ListCount, ListAny, ListFirst, ListLast, ListSelect, ListAdd, ListRemove, RemoveProperty, ToDictionary, HasProperty) |
 
 **Grup numaralari:** Eski **Grup 8 (Extended Tasks)** icerigi **Grup 3 (Task Execution)** altinda birlestirilmistir (`extended-tasks-test-workflow` artik Grup 3 kapsaminda). Matris ve tablolarda **G8 / Grup 8** = Flow Types, **G9 / Grup 9** = Version Consistency.
 
@@ -186,7 +187,7 @@ lifecycle-transitions-test-workflow (F)
 - `subflow-orchestration-child` (type: S) - Alt flow
 - `subflow-orchestration-grandchild` (type: S) - Torun flow
 
-**Amac:** Parent-child-grandchild SubFlow zincirini, parent seviyesindeki shared transition'lari, **child workflow uzerindeki shared transition'u**, **cancel cascade** (parent iptalinde alt akislarda **child-cancelled** / **grandchild-cancelled** final state'leri), **`/functions/state` uzerinden effective state** gorunurlugunu ve **updateData transition** (SubFlow'dan parent data guncelleme) ozelligini test eder.
+**Amac:** Parent-child-grandchild SubFlow zincirini, parent seviyesindeki shared transition'lari, **child workflow uzerindeki shared transition'u**, **cancel cascade** (parent iptalinde alt akislarda **child-cancelled** / **grandchild-cancelled** final state'leri), **`/functions/state` uzerinden effective state** gorunurlugunu, **updateData transition** (SubFlow'dan parent data guncelleme) ozelligini ve **`subFlow.overrides`** mekanizmasini (parent'tan child workflow'a timeout, state `queryRoles` ve transition `roles` override etme) test eder.
 
 ### Agac Yapisi
 
@@ -213,7 +214,11 @@ subflow-orchestration-parent (F)
 ├── parent-subflow-state (SubFlow, stateType:4)
 │   ├── subFlow: type "S"
 │   │   ├── process: subflow-orchestration-child
-│   │   └── mapping: ParentToChildSubFlowMapping.csx (ISubFlowMapping)
+│   │   ├── mapping: ParentToChildSubFlowMapping.csx (ISubFlowMapping)
+│   │   └── overrides:
+│   │       ├── timeout: child-push-timeout → child-cancelled (PT15M, OnEntry)
+│   │       ├── states.child-initial.queryRoles: [morph-idm.maker=allow, morph-idm.viewer=deny]
+│   │       └── transitions.auto-child-to-subflow.roles: [morph-idm.maker=allow, morph-idm.viewer=deny]
 │   └── Transitions:
 │       └── auto-parent-to-completed (Auto) → parent-completed
 │           └── rule: AlwaysTrueRule.csx
@@ -291,6 +296,9 @@ subflow-orchestration-parent (F)
 | **Effective state** | `/functions/state` ile en derin aktif alt akis durumu (or. grandchild-initial) | HTTP Test 4 |
 | **UpdateData transition (SubFlow)** | Child'dan parent instance datasini guncelleme ($self) | update-parent-data, UpdateParentDataMapping.csx |
 | Manuel transition (SubFlow icinde) | Grandchild'da kullanici tetikli tamamlama | complete-grandchild |
+| **subFlow.overrides.timeout** | Parent'tan child'a timeout override (PT15M, OnEntry, → child-cancelled) | parent-subflow-state.subFlow.overrides.timeout |
+| **subFlow.overrides.states.queryRoles** | Parent'tan child-initial state'inin queryRoles'unu ezme | parent-subflow-state.subFlow.overrides.states.child-initial |
+| **subFlow.overrides.transitions.roles** | Parent'tan auto-child-to-subflow transition'inin roles'unu ezme | parent-subflow-state.subFlow.overrides.transitions.auto-child-to-subflow |
 
 ### HTTP Test Dosyasi (`subflow-orchestration.http`)
 
@@ -1025,6 +1033,121 @@ version-consistency-test-workflow (F, v2.0.0) — 4 state (ekstra review-state)
 
 ---
 
+## Grup 10: Dynamic Collection & Object
+
+**Workflow:** `collection-object-test-workflow` (type: F)
+
+**Amac:** `ScriptBase` sinifinin sagladigi dinamik koleksiyon ve nesne yardimci metodlarini gercek bir workflow context'inde uctan uca dogrular. Her state bir API grubunu test eder ve `AlwaysTrueRule` ile bir sonraki state'e otomatik gecer.
+
+### Agac Yapisi
+
+```
+collection-object-test-workflow (F)
+│
+├── [startTransition] start-collection-test
+│   └── onExecutionTasks:
+│       └── script-task + InitCollectionTestMapping.csx
+│
+├── test-create-and-set-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── script-task + CreateAndSetMapping.csx
+│   │       (CreateObject, CreateList, SetProperty, ListAdd)
+│   └── Transitions:
+│       └── create-and-set-completed (Auto) → test-get-list-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-get-list-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + GetListAndAsListMapping.csx
+│   │       (GetList, AsList — null/non-list edge case)
+│   └── Transitions:
+│       └── get-list-completed (Auto) → test-filter-count-any-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-filter-count-any-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + ListFilterCountAnyMapping.csx
+│   │       (ListFilter, ListCount, ListAny — predicate'li/predicate'siz, empty list)
+│   └── Transitions:
+│       └── filter-count-any-completed (Auto) → test-first-last-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-first-last-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + ListFirstLastMapping.csx
+│   │       (ListFirst, ListLast — predicate, no-match → null, empty list)
+│   └── Transitions:
+│       └── first-last-completed (Auto) → test-list-select-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-list-select-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + ListSelectMapping.csx
+│   │       (ListSelect<string>, ListSelect<int>, transformation, empty list)
+│   └── Transitions:
+│       └── list-select-completed (Auto) → test-add-remove-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-add-remove-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + ListAddRemoveMapping.csx
+│   │       (ListAdd, ListRemove — predicate ile sayim, count dogrulama)
+│   └── Transitions:
+│       └── add-remove-completed (Auto) → test-remove-prop-to-dict-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-remove-prop-to-dict-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + RemovePropertyToDictionaryMapping.csx
+│   │       (RemoveProperty, ToDictionary, HasProperty — null edge case)
+│   └── Transitions:
+│       └── remove-prop-to-dict-completed (Auto) → test-completed-state
+│           └── rule: AlwaysTrueRule.csx
+│
+└── test-completed-state (Final/Success, stateType:3, subType:1)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| CreateObject() | Yeni dinamik nesne olusturma | CreateAndSetMapping.csx |
+| CreateList() | Bos dinamik liste olusturma | CreateAndSetMapping.csx |
+| SetProperty(obj, key, val) | Dinamik nesneye property atama | CreateAndSetMapping.csx |
+| ListAdd(list, item) | Listeye eleman ekleme | CreateAndSetMapping.csx, ListAddRemoveMapping.csx |
+| GetList(obj, propName) | Instance data'dan liste alma | GetListAndAsListMapping.csx |
+| AsList(value) | Degeri listeye donusturme (null/non-list edge case) | GetListAndAsListMapping.csx |
+| ListFilter(list, predicate) | Kosul ile filtreleme | ListFilterCountAnyMapping.csx |
+| ListCount(list) / ListCount(list, predicate) | Predicate'li/predicate'siz sayim | ListFilterCountAnyMapping.csx |
+| ListAny(list) / ListAny(list, predicate) | Eleman varlik kontrolu | ListFilterCountAnyMapping.csx |
+| ListFirst(list) / ListFirst(list, predicate) | Ilk eleman (no-match → null) | ListFirstLastMapping.csx |
+| ListLast(list) / ListLast(list, predicate) | Son eleman (no-match → null) | ListFirstLastMapping.csx |
+| ListSelect<T>(list, selector) | Projeksiyon: string, int, transformation | ListSelectMapping.csx |
+| ListRemove(list, predicate) | Kosul ile eleman silme | ListAddRemoveMapping.csx |
+| RemoveProperty(obj, key) | Property silme (non-existent → false) | RemovePropertyToDictionaryMapping.csx |
+| ToDictionary(obj) | ExpandoObject → Dictionary (null → empty) | RemovePropertyToDictionaryMapping.csx |
+| HasProperty(obj, key) | Property varlik kontrolu (ScriptBase) | RemovePropertyToDictionaryMapping.csx |
+| Empty list / null edge cases | Bos liste ve null ile graceful degradation | GetListAndAsListMapping, ListFilterCountAnyMapping, ListFirstLastMapping, ListSelectMapping |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `script-task` (paylasimli, type:7) | Tasks/lifecycle-transitions/script-task.json |
+| CSX | InitCollectionTestMapping | Workflows/collection-object-test/src/InitCollectionTestMapping.csx |
+| CSX | CreateAndSetMapping | Workflows/collection-object-test/src/CreateAndSetMapping.csx |
+| CSX | GetListAndAsListMapping | Workflows/collection-object-test/src/GetListAndAsListMapping.csx |
+| CSX | ListFilterCountAnyMapping | Workflows/collection-object-test/src/ListFilterCountAnyMapping.csx |
+| CSX | ListFirstLastMapping | Workflows/collection-object-test/src/ListFirstLastMapping.csx |
+| CSX | ListSelectMapping | Workflows/collection-object-test/src/ListSelectMapping.csx |
+| CSX | ListAddRemoveMapping | Workflows/collection-object-test/src/ListAddRemoveMapping.csx |
+| CSX | RemovePropertyToDictionaryMapping | Workflows/collection-object-test/src/RemovePropertyToDictionaryMapping.csx |
+| CSX | AlwaysTrueRule | Workflows/collection-object-test/src/AlwaysTrueRule.csx |
+
+**HTTP / C# integration test:** Henuz eklenmedi.
+
+---
+
 ## Altyapi Bilesenleri
 
 ### Docker Compose
@@ -1083,83 +1206,89 @@ Integration testlerde kullanilan C# script interface'leri:
 
 ## Ozellik Kapsam Matrisi
 
-Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutunu Genel Bakis tablosundaki **Grup n** ile eslesir (1-9; birlestirilmis Dapr senaryosu **G3**).
+Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutunu Genel Bakis tablosundaki **Grup n** ile eslesir (1-10; birlestirilmis Dapr senaryosu **G3**).
 
-| Ozellik | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 | G9 |
-|---------|----|----|----|----|----|----|----|----|----|
-| State tipleri (1/2/3) | X | X | X | X | X | X | X | X | X |
-| State alt tipleri (1/2/3) | X | X |  | X |  |  | X |  |  |
-| **State alt tipleri (4/5/6)** |  |  |  |  |  |  | X |  |  |
-| SubFlow state (4) |  | X |  |  |  |  |  |  |  |
-| Wizard state (5) |  |  |  |  | X |  |  |  |  |
-| Manuel transition (0) | X | X |  |  | X | X | X |  | X |
-| Otomatik transition (1) | X | X | X | X | X |  |  | X | X |
-| Zamanlanmis transition (2) | X |  |  |  |  |  |  |  |  |
-| triggerKind:10 (default) | X |  |  |  | X |  |  |  |  |
-| onEntries | X | X | X | X |  |  |  | X | X |
-| onExits | X |  |  |  |  |  |  |  |  |
-| startTransition tasks | X | X | X | X | X | X | X | X | X |
-| IMapping | X | X | X | X | X | X | X | X | X |
-| IConditionMapping | X | X | X | X | X |  |  | X | X |
-| ITimerMapping | X |  |  |  |  |  |  |  |  |
-| ITransitionMapping | X |  |  |  |  |  |  |  |  |
-| ISubFlowMapping |  | X |  |  |  |  |  |  |  |
-| IOutputHandler |  |  |  |  | X |  |  |  |  |
-| HTTP Task (type:6) |  |  | X | X |  |  |  |  |  |
-| Script Task (type:7) | X | X | X | X | X | X | X | X | X |
-| StartFlow Task (11) |  |  | X |  |  |  |  |  |  |
-| GetInstanceData Task (13) |  |  | X |  |  |  |  |  |  |
-| **Dapr HTTP Task (1)** |  |  | X |  |  |  |  |  |  |
-| **Dapr Service Task (3)** |  |  | X |  |  |  |  |  |  |
-| **Dapr PubSub Task (4)** |  |  | X |  |  |  |  |  |  |
-| **Notification Task (10)** |  |  | X |  |  |  |  |  |  |
-| **Trigger Transition Task (12)** |  |  | X |  |  |  |  |  |  |
-| **SubProcess Task (14)** |  |  | X |  |  |  |  |  |  |
-| **Get Instances Task (15)** |  |  | X |  |  |  |  |  |  |
-| Cancel transition | X | X |  |  |  |  |  |  |  |
-| **Exit transition (`attributes.exit`)** | X |  |  |  |  |  |  |  |  |
-| **Schedule cancel (manuel)** | X |  |  |  |  |  |  |  |  |
-| **Timer reschedule (self-loop)** | X |  |  |  |  |  |  |  |  |
-| Shared transitions ($self) |  | X |  |  |  |  |  |  |  |
-| **Child-level shared transition** |  | X |  |  |  |  |  |  |  |
-| **SubFlow cancel final states (child/grandchild)** |  | X |  |  |  |  |  |  |  |
-| **Effective state (/functions/state, nested)** |  | X |  |  |  |  |  |  |  |
-| updateData ($self) |  | X |  |  |  | X |  |  |  |
-| **UpdateData (SubFlow context)** |  | X |  |  |  |  |  |  |  |
-| Master schema |  |  |  |  |  | X |  |  |  |
-| Transition schema |  |  |  |  |  | X |  |  |  |
-| Field roles (master schema) |  |  |  |  |  | X |  |  |  |
-| **queryRoles (workflow/state)** | X |  |  |  |  |  |  |  |  |
-| **Transition roles (state fn. list filter)** | X |  |  |  |  |  |  |  |  |
-| Error boundary (task) |  |  |  | X |  |  |  |  |  |
-| Error boundary (state) |  |  |  | X |  |  |  |  |  |
-| Error boundary (workflow) |  |  |  | X |  |  |  |  |  |
-| Retry policy |  |  |  | X |  |  |  |  |  |
-| **Rollback (action:2)** |  |  |  | X |  |  |  |  |  |
-| **Log action (action:5, state)** |  |  |  | X |  |  |  |  |  |
-| **Notify action (action:4)** |  |  |  | X |  |  |  |  |  |
-| **timeoutPolicy (onTimeout)** |  |  |  | X |  |  |  |  |  |
-| **errorHandlerRule (errorTypes/errorCodes)** |  |  |  | X |  |  |  |  |  |
-| View (JSON/HTML/MD) |  |  |  |  | X |  |  |  |  |
-| Display modlari |  |  |  |  | X |  |  |  |  |
-| Function (single/multi) |  |  |  |  | X |  |  |  |  |
-| Extension (global/req) |  |  |  |  | X |  |  |  |  |
-| **Features referansi** |  |  |  |  | X |  |  |  |  |
-| Workflow timeout |  |  |  |  |  |  | X |  |  |
-| Idempotent start | X |  |  |  |  |  | X |  |  |
-| Instance filtreleme |  |  | X |  |  |  | X |  |  |
-| Sayfalama/Siralama |  |  | X |  |  |  | X |  |  |
-| Hedef workflow yasam dongusu (StartFlow/SubProcess hedefi) |  |  | X |  |  |  |  |  |  |
-| **Condition Task (tip 8) — auto transition rule** |  |  | X |  |  |  |  |  |  |
-| **Timer Task (tip 9) — scheduled transition** |  |  | X |  |  |  |  |  |  |
-| Complementary rules | X |  |  |  | X |  |  |  |  |
-| **Dapr sidecar + bilesen YAML** |  |  | X |  |  |  |  |  |  |
-| **Flow tipi: Core (C)** |  |  |  |  |  |  |  | X |  |
-| **Flow tipi: SubProcess (P)** |  |  |  |  |  |  |  | X |  |
-| Flow tipi: Flow (F) | X |  | X | X | X | X | X |  | X |
-| Flow tipi: SubFlow (S) |  | X |  |  |  |  |  |  |  |
-| **Version isolation (ayni key, farkli versiyon)** |  |  |  |  |  |  |  |  | X |
-| **Eski instance eski versiyonda kalir** |  |  |  |  |  |  |  |  | X |
+| Ozellik | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 | G9 | G10 |
+|---------|----|----|----|----|----|----|----|----|----|----|
+| State tipleri (1/2/3) | X | X | X | X | X | X | X | X | X | X |
+| State alt tipleri (1/2/3) | X | X |  | X |  |  | X |  |  | X |
+| **State alt tipleri (4/5/6)** |  |  |  |  |  |  | X |  |  |  |
+| SubFlow state (4) |  | X |  |  |  |  |  |  |  |  |
+| Wizard state (5) |  |  |  |  | X |  |  |  |  |  |
+| Manuel transition (0) | X | X |  |  | X | X | X |  | X |  |
+| Otomatik transition (1) | X | X | X | X | X |  |  | X | X | X |
+| Zamanlanmis transition (2) | X |  |  |  |  |  |  |  |  |  |
+| triggerKind:10 (default) | X |  |  |  | X |  |  |  |  |  |
+| onEntries | X | X | X | X |  |  |  | X | X | X |
+| onExits | X |  |  |  |  |  |  |  |  |  |
+| startTransition tasks | X | X | X | X | X | X | X | X | X | X |
+| IMapping | X | X | X | X | X | X | X | X | X | X |
+| IConditionMapping | X | X | X | X | X |  |  | X | X | X |
+| ITimerMapping | X |  |  |  |  |  |  |  |  |  |
+| ITransitionMapping | X |  |  |  |  |  |  |  |  |  |
+| ISubFlowMapping |  | X |  |  |  |  |  |  |  |  |
+| IOutputHandler |  |  |  |  | X |  |  |  |  |  |
+| HTTP Task (type:6) |  |  | X | X |  |  |  |  |  |  |
+| Script Task (type:7) | X | X | X | X | X | X | X | X | X | X |
+| StartFlow Task (11) |  |  | X |  |  |  |  |  |  |  |
+| GetInstanceData Task (13) |  |  | X |  |  |  |  |  |  |  |
+| **Dapr HTTP Task (1)** |  |  | X |  |  |  |  |  |  |  |
+| **Dapr Service Task (3)** |  |  | X |  |  |  |  |  |  |  |
+| **Dapr PubSub Task (4)** |  |  | X |  |  |  |  |  |  |  |
+| **Notification Task (10)** |  |  | X |  |  |  |  |  |  |  |
+| **Trigger Transition Task (12)** |  |  | X |  |  |  |  |  |  |  |
+| **SubProcess Task (14)** |  |  | X |  |  |  |  |  |  |  |
+| **Get Instances Task (15)** |  |  | X |  |  |  |  |  |  |  |
+| Cancel transition | X | X |  |  |  |  |  |  |  |  |
+| **Exit transition (`attributes.exit`)** | X |  |  |  |  |  |  |  |  |  |
+| **Schedule cancel (manuel)** | X |  |  |  |  |  |  |  |  |  |
+| **Timer reschedule (self-loop)** | X |  |  |  |  |  |  |  |  |  |
+| Shared transitions ($self) |  | X |  |  |  |  |  |  |  |  |
+| **Child-level shared transition** |  | X |  |  |  |  |  |  |  |  |
+| **SubFlow cancel final states (child/grandchild)** |  | X |  |  |  |  |  |  |  |  |
+| **Effective state (/functions/state, nested)** |  | X |  |  |  |  |  |  |  |  |
+| updateData ($self) |  | X |  |  |  | X |  |  |  |  |
+| **UpdateData (SubFlow context)** |  | X |  |  |  |  |  |  |  |  |
+| Master schema |  |  |  |  |  | X |  |  |  |  |
+| Transition schema |  |  |  |  |  | X |  |  |  |  |
+| Field roles (master schema) |  |  |  |  |  | X |  |  |  |  |
+| **queryRoles (workflow/state)** | X |  |  |  |  |  |  |  |  |  |
+| **Transition roles (state fn. list filter)** | X |  |  |  |  |  |  |  |  |  |
+| Error boundary (task) |  |  |  | X |  |  |  |  |  |  |
+| Error boundary (state) |  |  |  | X |  |  |  |  |  |  |
+| Error boundary (workflow) |  |  |  | X |  |  |  |  |  |  |
+| Retry policy |  |  |  | X |  |  |  |  |  |  |
+| **Rollback (action:2)** |  |  |  | X |  |  |  |  |  |  |
+| **Log action (action:5, state)** |  |  |  | X |  |  |  |  |  |  |
+| **Notify action (action:4)** |  |  |  | X |  |  |  |  |  |  |
+| **timeoutPolicy (onTimeout)** |  |  |  | X |  |  |  |  |  |  |
+| **errorHandlerRule (errorTypes/errorCodes)** |  |  |  | X |  |  |  |  |  |  |
+| View (JSON/HTML/MD) |  |  |  |  | X |  |  |  |  |  |
+| Display modlari |  |  |  |  | X |  |  |  |  |  |
+| Function (single/multi) |  |  |  |  | X |  |  |  |  |  |
+| Extension (global/req) |  |  |  |  | X |  |  |  |  |  |
+| **Features referansi** |  |  |  |  | X |  |  |  |  |  |
+| Workflow timeout |  |  |  |  |  |  | X |  |  |  |
+| Idempotent start | X |  |  |  |  |  | X |  |  |  |
+| Instance filtreleme |  |  | X |  |  |  | X |  |  |  |
+| Sayfalama/Siralama |  |  | X |  |  |  | X |  |  |  |
+| Hedef workflow yasam dongusu (StartFlow/SubProcess hedefi) |  |  | X |  |  |  |  |  |  |  |
+| **Condition Task (tip 8) — auto transition rule** |  |  | X |  |  |  |  |  |  |  |
+| **Timer Task (tip 9) — scheduled transition** |  |  | X |  |  |  |  |  |  |  |
+| Complementary rules | X |  |  |  | X |  |  |  |  |  |
+| **Dapr sidecar + bilesen YAML** |  |  | X |  |  |  |  |  |  |  |
+| **Flow tipi: Core (C)** |  |  |  |  |  |  |  | X |  |  |
+| **Flow tipi: SubProcess (P)** |  |  |  |  |  |  |  | X |  |  |
+| Flow tipi: Flow (F) | X |  | X | X | X | X | X |  | X | X |
+| Flow tipi: SubFlow (S) |  | X |  |  |  |  |  |  |  |  |
+| **Version isolation (ayni key, farkli versiyon)** |  |  |  |  |  |  |  |  | X |  |
+| **Eski instance eski versiyonda kalir** |  |  |  |  |  |  |  |  | X |  |
+| **subFlow override timeout** |  | X |  |  |  |  |  |  |  |  |
+| **subFlow override queryRoles (state)** |  | X |  |  |  |  |  |  |  |  |
+| **subFlow override transition roles** |  | X |  |  |  |  |  |  |  |  |
+| **ScriptBase dinamik koleksiyon API'leri** (CreateList, ListAdd, ListRemove, ListFilter, ListCount, ListAny, ListFirst, ListLast, ListSelect) |  |  |  |  |  |  |  |  |  | X |
+| **ScriptBase dinamik nesne API'leri** (CreateObject, SetProperty, RemoveProperty, HasProperty, ToDictionary) |  |  |  |  |  |  |  |  |  | X |
+| **AsList / GetList edge case** (null, non-list) |  |  |  |  |  |  |  |  |  | X |
 
 ---
 

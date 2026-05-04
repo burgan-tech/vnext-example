@@ -153,6 +153,33 @@
           "mapping": {
             "location": "./src/ParentToChildSubFlowMapping.csx",
             "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFBhcmVudFRvQ2hpbGRTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIGNoaWxkSW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgSGFzUHJvcGVydHkoZGF0YSwgInBhcmVudERhdGEiKSkKICAgICAgICB7CiAgICAgICAgICAgIGNoaWxkSW5wdXQucGFyZW50RGF0YSA9IGRhdGEucGFyZW50RGF0YTsKICAgICAgICB9CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpCiAgICAgICAgewogICAgICAgICAgICBjaGlsZElucHV0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgIH0KICAgICAgICBMb2dJbmZvcm1hdGlvbigiUGFyZW50VG9DaGlsZFN1YkZsb3dNYXBwaW5nOiBwcmVwYXJlZCBjaGlsZCBpbnB1dCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNoaWxkSW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBkeW5hbWljIG1lcmdlZCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbWVyZ2VkOwogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgaWYgKGJvZHkgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBib2R5KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0YXJnZXRba3YuS2V5XSA9IGt2LlZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIHRhcmdldFsiY2hpbGRDb21wbGV0ZWQiXSA9IHRydWU7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlBhcmVudFRvQ2hpbGRTdWJGbG93TWFwcGluZzogbWVyZ2VkIGNoaWxkIG91dHB1dCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG1lcmdlZCB9KTsKICAgIH0KfQo="
+          },
+          "overrides": {
+            "timeout": {
+              "key": "child-push-timeout",
+              "target": "child-cancelled",
+              "versionStrategy": "Minor",
+              "timer": {
+                "reset": "OnEntry",
+                "duration": "PT15M"
+              }
+            },
+            "states": {
+              "child-initial": {
+                "queryRoles": [
+                  { "role": "morph-idm.maker", "grant": "allow" },
+                  { "role": "morph-idm.viewer", "grant": "deny" }
+                ]
+              }
+            },
+            "transitions": {
+              "auto-child-to-subflow": {
+                "roles": [
+                  { "role": "morph-idm.maker", "grant": "allow" },
+                  { "role": "morph-idm.viewer", "grant": "deny" }
+                ]
+              }
+            }
           }
         },
         "onEntries": [],
