@@ -17,10 +17,6 @@
       {
         "language": "en-US",
         "label": "Smoke Runtime Check (minimal manual flow)"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Runtime Smoke Testi"
       }
     ],
     "functions": [],
@@ -36,10 +32,6 @@
         {
           "language": "en-US",
           "label": "Start"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Baslat"
         }
       ],
       "onExecutionTasks": []
@@ -54,10 +46,6 @@
           {
             "language": "en-US",
             "label": "Smoke Start"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Baslangic"
           }
         ],
         "view": null,
@@ -74,10 +62,6 @@
               {
                 "language": "en-US",
                 "label": "Finish (manual only)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Bitir"
               }
             ],
             "schema": null,
@@ -96,10 +80,6 @@
           {
             "language": "en-US",
             "label": "Smoke Done"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi"
           }
         ],
         "view": null,

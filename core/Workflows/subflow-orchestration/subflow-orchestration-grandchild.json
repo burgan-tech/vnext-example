@@ -17,10 +17,6 @@
       {
         "language": "en-US",
         "label": "SubFlow Orchestration Grandchild"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akis Orkestrasyon Torun"
       }
     ],
     "functions": [],
@@ -36,10 +32,6 @@
         {
           "language": "en-US",
           "label": "Cancel Grandchild"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Grandchild Iptal"
         }
       ]
     },
@@ -52,10 +44,6 @@
         {
           "language": "en-US",
           "label": "Start Grandchild"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Torunu Baslat"
         }
       ]
     },
@@ -69,10 +57,6 @@
           {
             "language": "en-US",
             "label": "Grandchild Initial"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Baslangic"
           }
         ],
         "view": null,
@@ -103,10 +87,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Grandchild"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Torunu Tamamla"
               }
             ],
             "onExecutionTasks": []
@@ -122,10 +102,6 @@
           {
             "language": "en-US",
             "label": "Grandchild Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Tamamlandi"
           }
         ],
         "view": null,
@@ -157,10 +133,6 @@
           {
             "language": "en-US",
             "label": "Grandchild Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Iptal"
           }
         ],
         "view": null,

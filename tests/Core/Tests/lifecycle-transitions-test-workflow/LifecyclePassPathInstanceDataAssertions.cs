@@ -6,8 +6,8 @@ using Xunit;
 namespace Core.IntegrationTests.Tests.LifecycleTransitionsTestWorkflow;
 
 /// <summary>
-/// <c>lifecycle-transitions-test-workflow</c> pass path (timer ile <c>pre-complete-state</c>) için instance
-/// <c>attributes</c> sözleşmesi. Alan adları <c>core/Workflows/lifecycle-transitions/src/*.csx</c> ile hizalıdır.
+/// Instance <c>attributes</c> contract for <c>lifecycle-transitions-test-workflow</c> pass path (timer to <c>pre-complete-state</c>).
+/// Field names align with <c>core/Workflows/lifecycle-transitions/src/*.csx</c>.
 /// </summary>
 internal static class LifecyclePassPathInstanceDataAssertions
 {

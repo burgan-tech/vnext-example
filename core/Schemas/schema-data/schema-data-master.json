@@ -4,17 +4,18 @@
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
-  "tags": ["integration-test", "schema-data", "master-schema", "field-roles"],
+  "tags": [
+    "integration-test",
+    "schema-data",
+    "master-schema",
+    "field-roles"
+  ],
   "attributes": {
     "type": "workflow",
     "labels": [
       {
         "language": "en-US",
         "label": "Schema Data Test Master Schema"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Schema Data Test Ana Semasi"
       }
     ],
     "schema": {
@@ -37,7 +38,11 @@
         },
         "currency": {
           "type": "string",
-          "enum": ["TRY", "USD", "EUR"]
+          "enum": [
+            "TRY",
+            "USD",
+            "EUR"
+          ]
         },
         "status": {
           "type": "string"
@@ -45,14 +50,23 @@
         "internalNote": {
           "type": "string",
           "roles": [
-            { "role": "admin", "grant": "allow" },
-            { "role": "customer", "grant": "deny" }
+            {
+              "role": "admin",
+              "grant": "allow"
+            },
+            {
+              "role": "customer",
+              "grant": "deny"
+            }
           ]
         },
         "auditLog": {
           "type": "string",
           "roles": [
-            { "role": "auditor", "grant": "allow" }
+            {
+              "role": "auditor",
+              "grant": "allow"
+            }
           ]
         },
         "updatedAt": {
@@ -60,7 +74,12 @@
           "format": "date-time"
         }
       },
-      "required": ["orderId", "customerName", "amount", "currency"],
+      "required": [
+        "orderId",
+        "customerName",
+        "amount",
+        "currency"
+      ],
       "additionalProperties": true
     }
   }

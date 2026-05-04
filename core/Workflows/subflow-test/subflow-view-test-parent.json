@@ -18,10 +18,6 @@
       {
         "language": "en-US",
         "label": "SubFlow View Test - Parent Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akış Görünüm Testi - Ana Akış"
       }
     ],
     "cancel": {
@@ -61,10 +57,6 @@
           {
             "language": "en-US",
             "label": "Parent Shared Update (issue #425)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Üst Akış Paylaşımlı Güncelleme (#425)"
           }
         ],
         "schema": null,
@@ -97,10 +89,6 @@
         {
           "language": "en-US",
           "label": "Start Parent Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Ana Akışı Başlat"
         }
       ],
       "onExecutionTasks": [
@@ -129,10 +117,6 @@
           {
             "language": "en-US",
             "label": "Parent Initial State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ana Akış Başlangıç Durumu"
           }
         ],
         "view": {
@@ -184,10 +168,6 @@
               {
                 "language": "en-US",
                 "label": "Start SubFlow"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Alt Akışı Başlat"
               }
             ],
             "schema": null,
@@ -207,10 +187,6 @@
           {
             "language": "en-US",
             "label": "Waiting for SubFlow"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Akış Bekleniyor"
           }
         ],
         "view": null,
@@ -290,10 +266,6 @@
               {
                 "language": "en-US",
                 "label": "SubFlow Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Alt Akış Tamamlandı"
               }
             ],
             "schema": null,
@@ -316,10 +288,6 @@
           {
             "language": "en-US",
             "label": "After SubFlow State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Akış Sonrası Durumu"
           }
         ],
         "view": {
@@ -347,10 +315,6 @@
               {
                 "language": "en-US",
                 "label": "Proceed After SubFlow"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Alt Akış Sonrası Devam Et"
               }
             ],
             "schema": null,
@@ -384,10 +348,6 @@
           {
             "language": "en-US",
             "label": "Parent Workflow Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ana Akış Tamamlandı"
           }
         ],
         "view": null,
@@ -405,10 +365,6 @@
           {
             "language": "en-US",
             "label": "Parent Workflow Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ana Akış İptal Edildi"
           }
         ],
         "view": null,

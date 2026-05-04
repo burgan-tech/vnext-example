@@ -17,10 +17,6 @@
       {
         "language": "en-US",
         "label": "Core Flow Type Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Cekirdek Akis Tipi Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -36,10 +32,6 @@
         {
           "language": "en-US",
           "label": "Start Core Flow Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Cekirdek Akis Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -68,10 +60,6 @@
           {
             "language": "en-US",
             "label": "Core Init State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cekirdek Baslangic Durumu"
           }
         ],
         "view": null,
@@ -102,10 +90,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Core Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Cekirdek Tamamlanmaya Otomatik Gecis"
               }
             ],
             "rule": {
@@ -125,10 +109,6 @@
           {
             "language": "en-US",
             "label": "Core Completed (Final)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cekirdek Tamamlandi (Final)"
           }
         ],
         "view": null,

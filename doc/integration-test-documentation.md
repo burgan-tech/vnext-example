@@ -45,7 +45,7 @@ core/
 
 **Amac:** Workflow yasam dongusu ve tum transition tiplerini test eder; ayrica **exit transition**, **zamanlayici schedule yonetimi** (manuel iptal ve **self-loop reschedule** — hedef olarak mevcut state anahtari `auto-passed-state`; `$self` ile ayni davranis), **workflow/state queryRoles** ve **`GET .../functions/state` icinde transition listesinin role gore filtrelenmesi** senaryolarini kapsar.
 
-**Onemli (transition `roles`):** Runtime modelinde transition uzerindeki `roles` (allow/deny), **PATCH ile gecisi calistirmayi engelleyen bir yetki kapisi degildir**; agirlikli olarak **state fonksiyonu yanitindaki `transitions[]` listesini** cagiran rol header'ina gore **suzmek** icin kullanilir. Rolü izin listesinde olmayan bir istemci, UI/API listesinde o gecisi **gormeyebilir**; bu, dokumante edilen davranista gecisin API ile **mutlaka reddedilecegi** anlamina gelmez. (Ayrı mekanizma: **`authorize?queryRoles=...`** ile workflow/instance datasi sorgu yetkisi.)
+**Important (transition `roles`):** In the runtime model, transition `roles` (allow/deny) are **not a hard PATCH gate that blocks invoking the transition**; they primarily **filter the `transitions[]` list in the state-function response** for the caller role header. A client not on the allow list may **omit** that transition from UI/API lists; documented behaviour **does not** mean the transition is **always rejected** via the API. (**Separate mechanism:** **`authorize?queryRoles=...`** for querying workflow/instance data.)
 
 **C# testleri:** `StateFunction_*` testleri, ilgili **role header** ile state sorgulandiginda `transitions[]` icinde beklenen anahtarin **listelenip listelenmedigini** dogrular.
 
@@ -95,7 +95,7 @@ lifecycle-transitions-test-workflow (F)
 │       ├── cancel-schedule-manually (Manual, triggerType:0) → pre-complete-state
 │       │   └── (zamanlayici schedule'ini manuel transition ile iptal senaryosu)
 │       └── reschedule-timer (Manual, triggerType:0, target: auto-passed-state)
-│           └── (aynı state'te self-loop; timer'i yeniden zamanlama — tanim dogrulamasinda `$self` yerine acik state anahtari gerekir)
+│           └── (same-state self-loop; reschedule timer — use explicit state key rather than `$self` in definition validation)
 │
 ├── timer-triggered-state (Intermediate, stateType:2)
 │   ├── onEntries:
@@ -143,7 +143,7 @@ lifecycle-transitions-test-workflow (F)
 | **Timer reschedule (self-loop)** | Ayni state'e manuel gecis ile zamanlayici reschedule | reschedule-timer → **auto-passed-state**; sonra yeniden kurulan `scheduled-timer-transition` (~6s) → timer-triggered → auto → pre-complete |
 | **queryRoles (workflow)** | authorize endpoint ile workflow datasi sorgu yetkisi | attributes.queryRoles, test-viewer |
 | **queryRoles (state)** | State bazli allow/deny override | **pre-complete-state** queryRoles (`processing-state` auto gecisli; testte cancel-schedule ile pre-complete) |
-| **Transition `roles`** | **`GET .../functions/state` yanıtında `transitions[]` listesini** role gore **filtreleme** (v0.0.39+); transition yürütme (PATCH) için aynı listedeki deny'in zorunlu red anlamı **yoktur** | move-to-processing, complete-workflow; xUnit: `StateFunction_WithTestOperatorRole_*` / `StateFunction_WithTestViewerRole_*` |
+| **Transition `roles`** | **Filter `transitions[]` in `GET .../functions/state`** by role (v0.0.39+); **no** guaranteed PATCH denial solely from deny on that list | move-to-processing, complete-workflow; xUnit: `StateFunction_WithTestOperatorRole_*` / `StateFunction_WithTestViewerRole_*` |
 | Version strategy (Major/Minor/Patch) | Farkli versiyonlama stratejileri | Cesitli transitions |
 | Idempotent start | Ayni key ile tekrar baslatma | HTTP test dosyasinda |
 
@@ -325,7 +325,7 @@ subflow-orchestration-parent (F)
 **Workflow'lar:**
 - `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, Timer Wait, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances → completed). Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu zincirden cikartildi.
 - `task-target-workflow` (type: F) — StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
-- `extended-tasks-test-workflow` (type: F) — **Sadece Dapr** ile dis servis cagrisi: HTTP invoke, Service, PubSub (tek zincir; HTTP test: `api-tests/task-execution/task-execution.http` **Bolum 3**). **Not:** Dapr Binding (tip 2) test kapsamindan cikarildi (bkz. dosya sonu **Test Edilmeyen Ozellikler** bolumu).
+- `extended-tasks-test-workflow` (type: F) — **Dapr-only** outbound calls: HTTP invoke, Service, PubSub (single chain; HTTP test: `api-tests/task-execution/task-execution.http` **Section 3**). **Note:** Dapr Binding (type 2) was removed from test scope (see **Untested Features** at end of file).
 
 **Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, scheduled transition (Timer Task tip 9), auto transition (Condition Task tip 8) ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
 
@@ -450,9 +450,9 @@ extended-tasks-test-workflow (F)
 | CSX | `extended-tasks-test-workflow` mapping'leri | `Workflows/task-execution/src/extended-tasks-test-workflow/*.csx` |
 | CSX | Ortak auto-transition rule | `Workflows/task-execution/src/shared/AlwaysTrueRule.csx` |
 
-**HTTP / Postman:** `api-tests/task-execution/task-execution.http` (Bolum 1-3, happy path). Postman: `postman-task-execution-collection.json` (aynı üç bölüm).
+**HTTP / Postman:** `api-tests/task-execution/task-execution.http` (Sections 1–3, happy path). Postman: `postman-task-execution-collection.json` (same three sections).
 
-**C# integration testler:** `tests/Core/Tests/task-execution-test-workflow/` (`TaskExecutionTestWorkflowTests`, `TaskExecutionInstanceDataAssertions`) — B1/B2/B3 happy path, ana workflow için instance data sözleşmesi ve extended Dapr `taskResults` bayrakları.
+**C# integration tests:** `tests/Core/Tests/task-execution-test-workflow/` (`TaskExecutionTestWorkflowTests`, `TaskExecutionInstanceDataAssertions`) — B1/B2/B3 happy paths, instance data contract on the main workflow, and extended Dapr `taskResults` flags.
 
 **Workflow:** `error-boundary-test-workflow` (type: F)
 
@@ -671,7 +671,7 @@ view-function-extension-test-workflow (F)
 
 **Amac:** Master schema, transition schema validasyonu, updateData ($self) mekanizmasi ve field roles ozelliklerini test eder.
 
-**Not (field roles vs. transition roles):** Bu gruptaki **field roles**, master şema uzerinde **alan bazlı gorunurluk** (or. `GET .../functions/data` ciktisinda rol ile alan suzme) ile ilgilidir. **Grup 1** `lifecycle-transitions` workflow'undaki transition **`roles`** alani ise **`GET .../functions/state` icindeki `transitions[]` listeleme filtresi** icindir; ikisi farkli mekanizmalardir.
+**Note (field roles vs. transition roles):** Here **field roles** are **field visibility** on the master schema (e.g. role-based field filtering in `GET .../functions/data`). The transition **`roles`** field on **`lifecycle-transitions`** in **Group 1** is the **`transitions[]` listing filter for `GET .../functions/state`**; the two mechanisms differ.
 
 ### Agac Yapisi
 
@@ -723,7 +723,7 @@ schema-data-test-workflow (F)
 | Field roles (master schema alan gorunurlugu) | Alan bazli data gorunurlugu | internalNote (admin/customer), auditLog (auditor) |
 | JSON Schema Draft 2020-12 | Schema standardi uyumu | Her iki schema dosyasi |
 | Required alan kontrolu | Zorunlu alanlarin validasyonu | orderId, customerName, amount, currency |
-| Enum validasyonu | Gecerli deger kümesi kontrolu | currency: TRY, USD, EUR |
+| Enum validation | Allowed value-set check | currency: TRY, USD, EUR |
 | ETag | Instance data versiyonlama (HTTP test) | HTTP test dosyasinda |
 
 ### Kullanilan Bilesenler
@@ -1039,7 +1039,7 @@ Integration testlerde kullanilan C# script interface'leri:
 |-------|----------|
 | `HasProperty(obj, "propName")` | Dynamic nesnede property var mi kontrol eder |
 | `LogInformation($"mesaj")` | Loglama yapar |
-| `GetConfigValue("Key")` | Vault'tan konfigürasyon degeri okur |
+| `GetConfigValue("Key")` | Reads configuration value from Vault |
 
 ---
 

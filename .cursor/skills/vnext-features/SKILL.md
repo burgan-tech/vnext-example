@@ -1,74 +1,72 @@
 ---
 name: vnext-features
-description: Scope is repo-wide domain knowledge (not bound to a single workspace). vNext Runtime platform referansı. Workflow, state, transition, task, schema, view, function ve extension kavramlarını, JSON tanım yapılarını ve C# mapping/rule pattern'lerini kapsar. vNext bileşenleri oluşturulurken veya düzenlenirken bu skill'i kullanın. Trigger this skill whenever vNext workflow/task/schema/view/function/extension JSON or `.csx` mapping/rule files are being created or edited anywhere in the monorepo (or in target vnext domain repositories).
+description: Repo-wide domain knowledge (not bound to a single workspace). vNext Runtime platform reference. Covers workflow, state, transition, task, schema, view, function and extension concepts, JSON definition structures, and C# mapping/rule patterns. Use this skill when creating or editing vNext components. Trigger whenever vNext workflow/task/schema/view/function/extension JSON or `.csx` mapping/rule files are created or edited anywhere in the monorepo (or in target vNext domain repositories).
 ---
 
 # vNext Skill
 
-> **Scope:** Repo-wide domain reference. vNext bileşenleri (workflow, task, schema, view, function, extension JSON ve `.csx` mapping/rule dosyaları) ile çalışırken her workspace'te tetiklenir; tek bir `apps/*` veya `packages/*` ile sınırlı değildir.
+> **Scope:** Repo-wide domain reference. Applies in every workspace when working with vNext components (workflow, task, schema, view, function, extension JSON and `.csx` mapping/rule files); not limited to a single `apps/*` or `packages/*`.
 
-Bu dosya, vNext Runtime'ı hızlı ama eksiksiz sayılabilecek bir çerçevede anlamak için hazırlanmış kompakt bir referanstır. Amaç, vNext ile çalışan birinin platformun ana modelini, JSON tanımlarını, desteklenen yapılarını ve genişleme noktalarını tek yerden kavramasıdır.
+This file is a compact reference for understanding vNext Runtime quickly yet completely. Its goal is to give one place where someone working with vNext can grasp the core model, JSON definitions, supported structures, and extension points.
 
-## 1. vNext Nedir?
+## 1. What is vNext?
 
-vNext, iş akışlarını JSON ile tanımlanan, versiyonlanan ve runtime'da state machine olarak çalışan workflow'lar üzerinden yöneten bir platformdur.
+vNext is a platform where processes are modeled as workflows defined and versioned in JSON and executed as state machines at runtime.
 
-Temel yaklaşım:
+Core ideas:
 
-- Süreçler birer `workflow/flow` olarak tanımlanır.
-- Workflow içindeki ilerleme `state` ve `transition` yapıları ile kontrol edilir.
-- İş yapan parça `task`'tır.
-- Veri kontratı `schema` ile tanımlanır.
-- UI veya istemci gösterimi `view` ile verilir.
-- Okuma/erişim amaçlı runtime endpoint'leri `function` ile sunulur.
-- Response zenginleştirme `extension` ile yapılır.
-- Tekrarlı kod yerine `reference` ve `version strategy` kullanılır.
+- Processes are defined as `workflow`/flow artifacts.
+- Progress through a workflow is controlled by `state` and `transition`.
+- Units of work are `task`s.
+- Data contracts are defined with `schema`.
+- Client/UI presentation uses `view`.
+- Runtime read/access endpoints are surfaced as `function`.
+- Response enrichment uses `extension`.
+- Reuse favors `reference` and version strategy rather than duplication.
 
-Kısacası vNext:
+So vNext brings together:
 
-- süreç modelleme,
-- süreç orkestrasyonu,
-- entegrasyon,
-- stateful runtime,
-- versiyonlu tanım yönetimi
+- process modeling,
+- orchestration,
+- integrations,
+- a stateful runtime,
+- versioned definition management,
 
-işlerini tek çatı altında toplar.
+under one umbrella.
 
-## 2. Zihinsel Model
+## 2. Mental Model
 
-vNext'i doğru anlamanın en kısa yolu şu akışı bilmektir:
+The shortest path to reasoning about vNext is this lifecycle:
 
-1. Bir workflow JSON'u yayınlanır.
-2. Runtime bu workflow'un bir `instance`'ını başlatır.
-3. Instance bir state'te durur.
-4. Kullanıcı, event, timer veya otomatik kural bir transition tetikler.
-5. Transition öncesi/sonrası task'lar çalışır.
-6. Veri schema kurallarına göre taşınır ve doğrulanır.
-7. Gerekirse subflow/subprocess başlatılır.
-8. Runtime state'i değiştirir, view ve function çıktıları buna göre güncellenir.
+1. A workflow JSON is published.
+2. The runtime starts an `instance` of that workflow.
+3. The instance sits in a state.
+4. A user, event, timer, or automatic rule triggers a transition.
+5. Tasks run before/around the transition.
+6. Data is carried and validated per schema rules.
+7. Optionally subflows/subprocesses are started.
+8. The runtime changes state; view and function outputs follow.
 
-Bu yüzden vNext'te ana odak "sayfa" değil, "durumdan duruma ilerleyen süreç"tir.
+So vNext is about **moving from state to state**, not about “screens” alone.
 
-## 3. Ana Elemanlar
+## 3. Building Blocks
 
 ### 3.1 Workflow / Flow
 
-Workflow, sürecin ana tanımıdır. Zorunlu olarak:
+A workflow is the primary process definition. It must include:
 
 - `type`
 - `startTransition`
 - `states`
 
-alanlarını içerir.
-
-Desteklenen workflow tipleri:
+Supported workflow kinds:
 
 - `C`: Core
 - `F`: Flow
 - `S`: SubFlow
 - `P`: SubProcess
 
-Sık kullanılan ek alanlar:
+Common extra fields:
 
 - `labels`
 - `timeout`
@@ -80,25 +78,25 @@ Sık kullanılan ek alanlar:
 - `schema`
 - `errorBoundary`
 
-Ne zaman hangisi:
+When to use which:
 
-- `F`: ana iş akışı
-- `S`: parent ile bağlı çalışan alt akış
-- `P`: bağımsız, fire-and-forget benzeri alt süreç
-- `C`: sistemsel/çekirdek tanımlar
+- `F`: primary business flow
+- `S`: child flow tightly coupled to parent
+- `P`: independent, fire-and-forget–style subprocess
+- `C`: system/core definitions
 
 ### 3.2 State
 
-State, instance'ın o an bulunduğu adımdır.
+State is where the instance is at a moment in time.
 
-State tipleri:
+State types:
 
 - `1`: Initial
 - `2`: Intermediate
 - `3`: Finish
 - `4`: SubFlow
 
-State alt tipleri:
+State subtypes:
 
 - `0`: None
 - `1`: Success
@@ -108,7 +106,7 @@ State alt tipleri:
 - `5`: Busy
 - `6`: Human
 
-Bir state içinde tipik olarak şunlar bulunur:
+Typical state fields:
 
 - `key`
 - `stateType`
@@ -121,23 +119,23 @@ Bir state içinde tipik olarak şunlar bulunur:
 - `subFlow`
 - `errorBoundary`
 
-Önemli not:
+Notes:
 
-- `SubFlow` state'i parent-child ilişki kurar.
-- Runtime, alt akışlarda `effectiveState` mantığı ile dışarıya daha anlamlı durum gösterebilir.
+- A `SubFlow` state binds parent and child hierarchically.
+- The runtime may expose richer external state via `effectiveState` in nested flows.
 
 ### 3.3 Transition
 
-Transition, state değişimini başlatan tanımdır.
+Transitions define valid state moves.
 
-Ana alanlar:
+Main fields:
 
 - `key`
 - `from`
 - `target`
 - `triggerType`
 
-Opsiyonel alanlar:
+Optional fields:
 
 - `timer`
 - `rule`
@@ -148,38 +146,38 @@ Opsiyonel alanlar:
 - `mapping`
 - `onExecutionTasks`
 
-Trigger tipleri:
+Trigger types:
 
 - `0`: Manual
 - `1`: Automatic
 - `2`: Scheduled
 - `3`: Event
 
-Önemli davranışlar:
+Important behaviour:
 
-- `startTransition` başlangıç geçişidir, `from` içermez.
-- `availableIn`, ortak transition'ların birden fazla state'te kullanılmasını sağlar.
-- `target: "$self"` deseni, özellikle subflow sonrası parent data güncelleme gibi senaryolarda kullanılır.
-- Geçiş payload'ı mapping yoksa doğrudan instance data'ya merge edilir.
+- `startTransition` is the entry transition (no `from`).
+- `availableIn` pins shared transitions across multiple states.
+- `target: "$self"` is common for scenarios like refreshing parent data after subflow completion.
+- If there is no mapping, transition payloads merge straight into instance data.
 
 ### 3.4 Task
 
-Task, gerçek işi yapan birimdir. vNext'te entegrasyonun ve işlem yürütmenin temel taşıdır.
+Tasks perform real work—they are integration and execution primitives.
 
-Task'lar şu yerlerde çalışabilir:
+Tasks can run:
 
 - state `onEntries`
 - state `onExits`
 - transition `onExecutionTasks`
-- function tanımları
-- extension tanımları
+- function definitions
+- extension definitions
 
-Çalışma sırası:
+Ordering:
 
-- Aynı `order`: paralel
-- Farklı `order`: küçükten büyüğe sıralı
+- same `order`: parallel
+- different `order`: ascending sequential
 
-Ana task aileleri:
+Families:
 
 - `Http`
 - `DaprService`
@@ -187,17 +185,17 @@ Ana task aileleri:
 - `Script`
 - `Trigger`
 - `GetInstances`
-- `Condition` (sistemsel)
-- `Timer` (sistemsel)
+- `Condition` (generated)
+- `Timer` (generated)
 
-Trigger görev ailesinde öne çıkanlar:
+Notables in the Trigger family:
 
 - `StartTask`
 - `DirectTriggerTask`
 - `GetInstanceDataTask`
 - `SubProcessTask`
 
-Task response tarafında standart olarak şu tip bilgiler bulunur:
+Typical response metadata:
 
 - `Data`
 - `StatusCode`
@@ -208,13 +206,13 @@ Task response tarafında standart olarak şu tip bilgiler bulunur:
 - `ExecutionDurationMs`
 - `TaskType`
 
-Bu yapı sayesinde task'lar sadece çağrı yapmak için değil, workflow orchestration için de kullanılır.
+So tasks are not only adapters—they orchestrate workflows.
 
 ### 3.5 Schema
 
-Schema, veri kontratıdır. Hem workflow verisini hem task/function/view gibi tanım tiplerini standardize eder.
+Schema is the contract. It applies to workflow data and typed definitions (tasks, functions, views, etc.).
 
-Schema tanımı tipik olarak şu alanları taşır:
+Common envelope fields:
 
 - `key`
 - `version`
@@ -224,7 +222,7 @@ Schema tanımı tipik olarak şu alanları taşır:
 - `tags`
 - `attributes`
 
-`attributes.type` destekleri:
+`attributes.type` values include:
 
 - `workflow`
 - `task`
@@ -234,266 +232,90 @@ Schema tanımı tipik olarak şu alanları taşır:
 - `extension`
 - `headers`
 
-Schema motoru JSON Schema Draft 2020-12 tabanlıdır.
+Engines use JSON Schema Draft 2020-12 primitives and keywords (constraints, combinators).
 
-Desteklenen ana JSON Schema özellikleri:
+At flow scope, `master schema` is usually the authoritative instance contract.
 
-- primitive tipler: `string`, `number`, `integer`, `boolean`, `array`, `object`, `null`
-- string doğrulamaları: `minLength`, `maxLength`, `pattern`, `format`
-- formatlar: `email`, `uri`, `date`, `date-time`, `time`, `uuid`, `ipv4`, `ipv6`
-- sayısal doğrulamalar: `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, `multipleOf`
-- array alanları: `items`, `minItems`, `maxItems`, `uniqueItems`
-- object alanları: `properties`, `required`, `additionalProperties`
-- koşullu yapılar: `if/then/else`, `oneOf`, `anyOf`, `allOf`
-
-Flow seviyesinde `master schema` kullanılabilir. Bu, instance data'nın kalıcı kontratıdır. Yan ürün geliştirirken en önemli referans çoğu zaman budur.
-
-Ek olarak:
-
-- property bazlı görünürlük/authorization kurguları desteklenir.
-- transition bazlı schema ile kullanıcı aksiyon payload'ı ayrı doğrulanabilir.
+Schemas also carry field visibility/authorization notions and transition-scoped validation.
 
 ### 3.6 View
 
-View, istemcinin ne göstereceğini tanımlar. UI kodu olmak zorunda değildir; render edilebilir bir temsil tanımıdır.
+View describes what clients render—not necessarily imperative UI—structured renderable payloads.
 
-Ana alanlar:
+Important fields:
 
-- `key`
-- `flow`
-- `domain`
-- `version`
-- `type`
-- `content`
-- `display`
-- `labels`
-- `platformOverrides`
+- key, flow, domain, version (envelope), plus `type`, `content`, `display`, labels, overrides.
 
-Desteklenen view tipleri:
+Representations include JSON/HTML/Markdown/DeepLink/etc.
 
-- `Json`
-- `Html`
-- `Markdown`
-- `DeepLink`
-- `Http`
-- `URN`
+Modes like `full-page`, `popup`, `bottom-sheet`, etc.
 
-Display modları:
+Selections can target state transitions, platforms, locales.
 
-- `full-page`
-- `popup`
-- `bottom-sheet`
-- `top-sheet`
-- `drawer`
-- `inline`
-
-Platform override destekleri:
-
-- `web`
-- `ios`
-- `android`
-
-View seçimi:
-
-- state view
-- transition view
-- rule-based view selection
-- platform override
-- dil/label seçimi
-
-Yan ürün geliştirirken view'dan alınması gereken mesaj:
-
-- vNext UI'yı dikte etmez,
-- ancak UI için yapılandırılabilir bir gösterim katmanı sunar.
+Key idea: **vNext does not dictate UX**—it emits configurable presentation payloads.
 
 ### 3.7 Function
 
-Function, workflow instance'ı okumak veya workflow ile etkileşmek için sistemsel API yüzeyidir.
+Functions are first-class endpoints for inspecting or interacting without leaking orchestration internals.
 
-Temel built-in function'lar:
+Built-ins include `state`, `data`, `view`.
 
-- `state`
-- `data`
-- `view`
+Benefits:
 
-Ne sağlarlar:
-
-- `state`: mevcut state, mümkün transition'lar, subflow korelasyonları
-- `data`: instance data, etag, extension datası
-- `view`: state/transition bazlı view içeriği
-
-Function'lar:
-
-- istemcinin runtime iç yapıyı bilmeden veri almasını sağlar,
-- long-polling ve ETag gibi senaryoları destekler,
-- authorization ve role bazlı görünürlüğe uyum sağlar.
+- clients stay decoupled from orchestration internals
+- polling/ETags
+- aligns with authorization/roles
 
 ### 3.8 Extension
 
-Extension, instance response'unu zenginleştiren yardımcı bileşendir.
+Extensions enrich runtime responses—not external endpoints themselves.
 
-Function ile farkı:
+Compared to Functions:
 
-- Function dış endpoint sunar.
-- Extension dış endpoint sunmaz.
-- Extension çıktısı `extensions` alanında response'a eklenir.
+- Function = dedicated endpoint path
+- Extension = merged into responses under `extensions`
 
-Extension tipleri:
+Types/scopes classify global vs selective attachment.
 
-- `1`: Global
-- `2`: GlobalAndRequested
-- `3`: DefinedFlows
-- `4`: DefinedFlowAndRequested
-
-Scope tipleri:
-
-- `1`: GetInstance
-- `2`: GetAllInstances / history benzeri okuma uçları
-- `3`: Everywhere
-
-Kullanım amacı:
-
-- harici bilgi ekleme
-- hesaplanmış veri ekleme
-- profil, limit, referans bilgi, session gibi zenginleştirme
+Purpose: enrichment (profiles, aggregates, lookups, computed fields).
 
 ### 3.9 Mapping
 
-Mapping, vNext'in veri dönüştürme katmanıdır. Task'a giden veriyi ve task'tan dönen veriyi runtime context ile bağlar.
+Mappings adapt data flowing into/out of tasks and transitions (`IMapping`, `ITimerMapping`, conditional/transition/subflow/subprocess mappings, etc.)
 
-Ana mapping türleri:
+Script context exposes body, headers, query, routing, instance and definition metadata, responses, metadata.
 
-- input mapping
-- output mapping
-- transition mapping
-- timer mapping
-- condition mapping
-- subflow mapping
-- subprocess mapping
-
-Kritik interface'ler:
-
-- `IMapping`
-- `ITimerMapping`
-- `ISubProcessMapping`
-- `ISubFlowMapping`
-- `IConditionMapping`
-- `ITransitionMapping`
-
-Script tarafında tipik çalışma context'i:
-
-- request body
-- headers
-- query parameters
-- route values
-- instance data
-- workflow definition
-- transition definition
-- task response'ları
-- metadata
-
-Script motoru Roslyn/C# tabanlıdır. Native C# ve encode edilmiş script kullanımı desteklenir.
+Engines use Roslyn/C# plus encoded scripts where applicable.
 
 ### 3.10 Error Boundary
 
-Error handling hiyerarşik çalışır:
+Handled hierarchically: task/state/global.
 
-- task seviyesi
-- state seviyesi
-- global workflow seviyesi
+Policies include abort/retry/rollback/ignore/log/notify with retry/backoff settings.
 
-Ana aksiyonlar:
+Important for modelling failure paths—not just happy paths.
 
-- `Abort`
-- `Retry`
-- `Rollback`
-- `Ignore`
-- `Notify`
-- `Log`
+### 3.11 Reference & Versioning
 
-Retry policy ile:
+Definitions link via `{ key, domain, version, flow }` refs across tasks, views, schemas, flows, subprocesses, extensions.
 
-- `maxRetries`
-- `initialDelay`
-- `backoffType`
-- `backoffMultiplier`
-- `maxDelay`
-- `useJitter`
+System flow tokens include `sys-flows`, `sys-views`, `sys-functions`, `sys-tasks`, `sys-extensions`, `sys-schemas`.
 
-tanımlanabilir.
+Semver strategies keep runtime separate from authoring.
 
-Yan ürün geliştirirken bu önemli çünkü vNext sadece "happy path" değil, hata ve retry akışını da model seviyesinde taşır.
+### 3.12 Instance & Persistence
 
-### 3.11 Reference ve Versioning
+Runtime executes instances, not mere definitions.
 
-vNext'te tekrar yerine referans kullanılır. Tanımlar birbirine doğrudan gömülmek yerine version'lı reference ile bağlanır.
+Important instance concepts: identifiers, versioning, etag, tags, payload, metadata, persisted history.
 
-Tam referans yapısı:
+Architecturally: master instance records plus auditable histories; optionally domain-split storage.
 
-```json
-{
-  "key": "customer-lookup",
-  "domain": "crm",
-  "version": "1.2.0",
-  "flow": "sys-tasks"
-}
-```
+---
 
-Kullanıldığı yerler:
+## 4. How Definitions Are Structured
 
-- task referansı
-- subflow referansı
-- function referansı
-- extension referansı
-- schema referansı
-- view referansı
-
-Sistemsel akışlar:
-
-- `sys-flows`
-- `sys-views`
-- `sys-functions`
-- `sys-tasks`
-- `sys-extensions`
-- `sys-schemas`
-
-Versioning yaklaşımı:
-
-- semver
-- explicit version referansı
-- version strategy ile latest/major/minor benzeri seçim
-
-Bu sayede runtime ve tanım yönetimi ayrışır.
-
-### 3.12 Instance ve Persistence
-
-Runtime'da çalışan şey tanım değil, `instance`'tır.
-
-Instance tarafında tipik kavramlar:
-
-- `id`
-- `key`
-- `flow`
-- `domain`
-- `flowVersion`
-- `etag`
-- `tags`
-- `attributes`
-- `metadata`
-- `data`
-- `extensions`
-
-Persistence modeli özetle:
-
-- workflow instance kayıtları master data tarafında tutulur,
-- transition/task/action/job geçmişi ayrı tablolarda izlenebilir,
-- domain bazlı veritabanı ayrımı bulunur.
-
-Bu yapı vNext'i tek bir workflow engine olmaktan çıkarıp çok domain'li enterprise runtime haline getirir.
-
-## 4. JSON Nasıl Oluşturulur?
-
-vNext'te çoğu tanım ortak bir zarf yapısı kullanır:
+Envelope:
 
 ```json
 {
@@ -507,15 +329,15 @@ vNext'te çoğu tanım ortak bir zarf yapısı kullanır:
 }
 ```
 
-Pratikte dikkat edilmesi gerekenler:
+Practical reminders:
 
-- `key`: benzersiz ve okunabilir olsun
-- `version`: semver olsun
-- `domain`: sahiplik alanını anlatsın
-- `flow`: bunun hangi sistem koleksiyonuna ait olduğunu göstersin
-- `attributes`: asıl işi burada tanımlarsın
+- `key`: readable unique id
+- `version`: semver
+- `domain`: ownership boundary
+- `flow`: which system collection owns the artifact
+- `attributes`: the actual definition body
 
-## 5. Minimal JSON İskeletleri
+## 5. Minimal JSON Skeletons
 
 ### 5.1 Minimal Workflow
 
@@ -558,7 +380,7 @@ Pratikte dikkat edilmesi gerekenler:
 }
 ```
 
-### 5.2 Transition İçinde Task Kullanımı
+### 5.2 Tasks Inside a Transition
 
 ```json
 {
@@ -650,128 +472,63 @@ Pratikte dikkat edilmesi gerekenler:
 }
 ```
 
-## 6. vNext Hangi Yapıları ve Feature'ları Destekliyor?
+## 6. Major Feature Areas
 
-### 6.1 Süreç Modelleme
+Summaries:
 
-- version'lı workflow
-- state machine
-- start transition
-- finish state
-- manual/auto/event/scheduled transition
-- shared transition
-- cancel flow
-- timeout
-- subflow
-- subprocess
-- parent-child correlation
+### 6.1 Process Modeling
+Versioned workflows, state machines, start/finish semantics, transitions, cancellations, timeouts, hierarchies.
 
-### 6.2 Orkestrasyon ve Entegrasyon
+### 6.2 Orchestration & Integration
+HTTP, Dapr invocation/pubsub, scripts, spawning flows, triggering transitions, querying instance data/lists, timers/conditions.
 
-- HTTP çağrıları
-- Dapr service invocation
-- Dapr pub/sub
-- script execution
-- başka workflow başlatma
-- doğrudan transition tetikleme
-- instance data okuma
-- instance listeleme / filtreleme
-- timer ve condition tabanlı otomasyon
+### 6.3 Data & Validation
+JSON Schema drafts, master/transition schemas, headers schema, camelCase payloads, mappings.
 
-### 6.3 Veri ve Doğrulama
+### 6.4 UI & Clients
+Stateful views, selectors, locales, overrides.
 
-- JSON Schema Draft 2020-12
-- master schema
-- transition schema
-- headers schema
-- field-level visibility
-- camelCase veri kullanım pratiği
-- mapping ile custom payload transform
+### 6.5 Runtime APIs
+Polling, data/view fetch, authorize endpoints, etag support, enrichment.
 
-### 6.4 UI ve Client Entegrasyonu
+### 6.6 Enterprise Capabilities
+Version strategies, domains, auditing, backoff, roles/queryRoles, nested error boundaries.
 
-- state view
-- transition view
-- rule-based view selection
-- Json/Html/Markdown/DeepLink/Http/URN view tipleri
-- display modları
-- platform override
-- localization/labels
+## 7. Product Roadmap Hints for Downstream Builders
 
-### 6.5 Runtime API Yetenekleri
+Likely tooling surfaces:
 
-- state polling
-- data fetch
-- view fetch
-- permissions/authorize endpoint'leri
-- ETag / conditional fetch
-- extension ile enriched response
+- workflow editors/generators,
+- validators for schema/view parity,
+- client SDKs,
+- monitoring dashboards / transition explorers,
+- diff/version inspectors,
+- task catalogue maintainers.
 
-### 6.6 Kurumsal Özellikler
+Guiding truths:
 
-- semver ve version strategy
-- domain bazlı ayrışma
-- ayrı veritabanı / schema yapıları
-- audit/history izleme
-- retry/backoff/jitter
-- role/queryRole bazlı yetkilendirme
-- hata boundary hiyerarşisi
+1. Treat everything as a state machine narrative.
+2. Anchor durable contracts on master schema.
+3. Prefer references over cloning definitions.
+4. Derive UX from views + schemas + states, not workflows alone.
+5. Place integration semantics in tasks + mappings.
+6. Consume data via Functions; decorate via Extensions.
 
-## 7. Yan Ürün Geliştirecek Biri İçin Yol Haritası
+## 8. Design Rules of Thumb
 
-vNext üzerinde yan ürün geliştirirken genelde şu giriş noktalarından biri kullanılır:
+- Keep flows purposeful and cohesive.
+- State names encode business milestones.
+- Transition names behave like verbs.
+- Reusable tasks beat one-off payloads.
+- Do not confuse extension vs function responsibilities.
+- Treat schema as the source of truth.
+- Keep subprocess vs subflow distinctions crisp.
+- Define error boundaries as locally as feasible with global fallback.
 
-- workflow JSON üretici/editörü
-- schema/view validator
-- runtime client SDK
-- instance monitor dashboard
-- transition execution paneli
-- workflow diff/version karşılaştırıcı
-- task kütüphanesi yöneticisi
-- extension/function katalog aracı
+## 9. Closing
 
-En kritik doğrular:
+vNext is a JSON-defined, versioned, stateful workflow runtime. Pillars:
 
-- Süreci state machine olarak düşün.
-- Kalıcı veri kontratını `master schema` üzerinden kur.
-- Tekrarlı gömme yerine `reference` kullan.
-- UI'ı workflow'dan değil, `view + state + schema` üçlüsünden türet.
-- Entegrasyon mantığını `task + mapping` ile taşı.
-- Okuma API'leri için `function`, response zenginleştirme için `extension` kullan.
+`workflow • state • transition • task • schema • view • function • extension • mapping • reference/versioning • instance persistence • error boundary`
 
-## 8. Kısa Tasarım Kuralları
-
-- Workflow'ları küçük ve anlamlı tut.
-- State isimleri business meaning taşısın.
-- Transition isimleri aksiyon fiili gibi olsun.
-- Task'ları tekrar kullanılabilir tasarla.
-- Aynı concern'ü function ve extension arasında karıştırma.
-- Schema'yı gerçeğin kaynağı kabul et.
-- Subflow ile subprocess farkını net koru: biri bağlı, biri bağımsız.
-- Error boundary tanımını en yakın seviyede çöz, global'i fallback olarak bırak.
-
-## 9. Sonuç
-
-vNext, JSON tabanlı, versiyonlu, stateful bir workflow runtime platformudur. Ana yapı taşları:
-
-- workflow
-- state
-- transition
-- task
-- schema
-- view
-- function
-- extension
-- mapping
-- reference/versioning
-- instance/persistence
-- error boundary
-
-Bir kişi bu dosyayı baz alarak:
-
-- vNext'in neyi çözdüğünü,
-- workflow JSON'un nasıl kurulduğunu,
-- hangi feature'ların desteklendiğini,
-- nereden genişletme yapılacağını
-
-anlayıp vNext için araç, entegrasyon, editör, SDK veya izleme ürünü geliştirmeye başlayabilir.
+Use this primer to bootstrap tooling for modeling, authoring, integrating, deploying, observing, or governing vNext-based systems.

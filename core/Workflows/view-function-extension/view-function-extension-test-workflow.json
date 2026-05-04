@@ -28,10 +28,6 @@
       {
         "language": "en-US",
         "label": "View, Function and Extension Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Gorunum Fonksiyon ve Uzantı Entegrasyon Testi"
       }
     ],
     "functions": [
@@ -80,10 +76,6 @@
         {
           "language": "en-US",
           "label": "Start View and Function Extension Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Gorunum Fonksiyon Uzantı Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -112,10 +104,6 @@
           {
             "language": "en-US",
             "label": "JSON View State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "JSON Gorunum Durumu"
           }
         ],
         "view": {
@@ -139,10 +127,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Multi View (WebPlatformRule)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Coklu Gorunume Otomatik Gecis (WebPlatformRule)"
               }
             ],
             "rule": {
@@ -161,10 +145,6 @@
               {
                 "language": "en-US",
                 "label": "Default Auto Fallback (AlwaysTrueRule)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Varsayilan Otomatik Geri Donus (AlwaysTrueRule)"
               }
             ],
             "rule": {
@@ -184,10 +164,6 @@
           {
             "language": "en-US",
             "label": "HTML View State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "HTML Gorunum Durumu"
           }
         ],
         "view": {
@@ -211,10 +187,6 @@
               {
                 "language": "en-US",
                 "label": "Continue to Wizard State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Sihirbaz Durumuna Devam"
               }
             ],
             "schema": null,
@@ -233,10 +205,6 @@
           {
             "language": "en-US",
             "label": "Wizard State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Sihirbaz Durumu"
           }
         ],
         "view": null,
@@ -253,10 +221,6 @@
               {
                 "language": "en-US",
                 "label": "Complete with Markdown View"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Markdown Gorunumu ile Tamamla"
               }
             ],
             "schema": null,
@@ -282,10 +246,6 @@
           {
             "language": "en-US",
             "label": "Completed State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi Durumu"
           }
         ],
         "view": null,

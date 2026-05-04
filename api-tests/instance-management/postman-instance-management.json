@@ -306,12 +306,13 @@
       "name": "TEST 2: List / filter / sort / pagination",
       "item": [
         {
-          "name": "Filter by category (finance)",
+          "name": "Filter by category (finance) — GraphQL / JSON filter",
           "request": {
             "method": "GET",
             "header": [],
+            "description": "GraphQL / JSON filter format (recommended by vnext-runtime docs).\nDecoded: filter={\"attributes\":{\"category\":{\"eq\":\"finance\"}}}",
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=attributes.category%20eq%20%27finance%27",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=%7B%22attributes%22%3A%7B%22category%22%3A%7B%22eq%22%3A%22finance%22%7D%7D%7D",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -326,7 +327,7 @@
               "query": [
                 {
                   "key": "filter",
-                  "value": "attributes.category eq 'finance'"
+                  "value": "{\"attributes\":{\"category\":{\"eq\":\"finance\"}}}"
                 }
               ]
             }
@@ -334,12 +335,13 @@
           "response": []
         },
         {
-          "name": "Filter by state key",
+          "name": "Filter by state key — GraphQL / JSON filter",
           "request": {
             "method": "GET",
             "header": [],
+            "description": "GraphQL / JSON filter format (recommended by vnext-runtime docs).\nDecoded: filter={\"currentState\":{\"eq\":\"active-state\"}}",
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=state%20eq%20%27active-state%27",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=%7B%22currentState%22%3A%7B%22eq%22%3A%22active-state%22%7D%7D",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -354,7 +356,7 @@
               "query": [
                 {
                   "key": "filter",
-                  "value": "state eq 'active-state'"
+                  "value": "{\"currentState\":{\"eq\":\"active-state\"}}"
                 }
               ]
             }
@@ -362,12 +364,13 @@
           "response": []
         },
         {
-          "name": "Filter by status (active)",
+          "name": "Filter by status (active) — GraphQL / JSON filter",
           "request": {
             "method": "GET",
             "header": [],
+            "description": "GraphQL / JSON filter format (recommended by vnext-runtime docs).\nDecoded: filter={\"status\":{\"eq\":\"A\"}}",
             "url": {
-              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=status%20eq%20%27A%27",
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=%7B%22status%22%3A%7B%22eq%22%3A%22A%22%7D%7D",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -382,7 +385,7 @@
               "query": [
                 {
                   "key": "filter",
-                  "value": "status eq 'A'"
+                  "value": "{\"status\":{\"eq\":\"A\"}}"
                 }
               ]
             }

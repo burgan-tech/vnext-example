@@ -20,10 +20,6 @@
       {
         "language": "en-US",
         "label": "SubFlow View Test - Grandchild Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akış Görünüm Testi - Torun Akış"
       }
     ],
     "functions": [],
@@ -46,10 +42,6 @@
         {
           "language": "en-US",
           "label": "Start Grandchild Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Torun Akışı Başlat"
         }
       ],
       "onExecutionTasks": [
@@ -78,10 +70,6 @@
           {
             "language": "en-US",
             "label": "Grandchild Workflow Active"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Akış Aktif"
           }
         ],
         "view": {
@@ -119,10 +107,6 @@
               {
                 "language": "en-US",
                 "label": "Enter Busy State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Meşgul Durumuna Geç"
               }
             ],
             "roles": [
@@ -156,10 +140,6 @@
           {
             "language": "en-US",
             "label": "Grandchild Busy - Processing"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Meşgul - İşleniyor"
           }
         ],
         "view": null,
@@ -190,10 +170,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Busy State (Triggered by SubProcess)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Meşgul Durumu Tamamla (Alt İşlem Tarafından Tetiklenir)"
               }
             ],
             "schema": null,
@@ -213,10 +189,6 @@
           {
             "language": "en-US",
             "label": "Grandchild After Busy State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Meşgul Sonrası"
           }
         ],
         "view": null,
@@ -233,10 +205,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Grandchild Workflow"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Torun Akışı Tamamla"
               }
             ],
             "schema": null,
@@ -270,10 +238,6 @@
           {
             "language": "en-US",
             "label": "Grandchild Workflow Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Akış Tamamlandı"
           }
         ],
         "view": null,

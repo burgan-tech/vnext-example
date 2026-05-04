@@ -16,10 +16,6 @@
       {
         "language": "en-US",
         "label": "Task Execution Target Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Gorev Calistirma Hedef Is Akisi"
       }
     ],
     "functions": [],
@@ -35,10 +31,6 @@
         {
           "language": "en-US",
           "label": "Start Target"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Hedefi Baslat"
         }
       ],
       "onExecutionTasks": []
@@ -53,10 +45,6 @@
           {
             "language": "en-US",
             "label": "Target Initial"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hedef Baslangic"
           }
         ],
         "view": null,
@@ -73,10 +61,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Target (manual / DirectTriggerTask)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Hedefi Tamamla (manuel / DirectTriggerTask)"
               }
             ],
             "onExecutionTasks": []
@@ -92,10 +76,6 @@
           {
             "language": "en-US",
             "label": "Target Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hedef Tamamlandi"
           }
         ],
         "view": null,

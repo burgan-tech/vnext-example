@@ -33,10 +33,6 @@
       {
         "language": "en-US",
         "label": "Dynamic Collection & Object Test Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Dinamik Koleksiyon ve Nesne Test İş Akışı"
       }
     ],
     "functions": [],
@@ -52,10 +48,6 @@
         {
           "language": "en-US",
           "label": "Start Collection & Object Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Koleksiyon ve Nesne Testini Başlat"
         }
       ],
       "onExecutionTasks": [
@@ -84,10 +76,6 @@
           {
             "language": "en-US",
             "label": "Test CreateObject, CreateList, SetProperty, ListAdd"
-          },
-          {
-            "language": "tr-TR",
-            "label": "CreateObject, CreateList, SetProperty, ListAdd Testi"
           }
         ],
         "view": null,
@@ -118,10 +106,6 @@
               {
                 "language": "en-US",
                 "label": "CreateObject / SetProperty Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "CreateObject / SetProperty Tamamlandı"
               }
             ],
             "schema": null,
@@ -144,10 +128,6 @@
           {
             "language": "en-US",
             "label": "Test GetList, AsList"
-          },
-          {
-            "language": "tr-TR",
-            "label": "GetList, AsList Testi"
           }
         ],
         "view": null,
@@ -178,10 +158,6 @@
               {
                 "language": "en-US",
                 "label": "GetList / AsList Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "GetList / AsList Tamamlandı"
               }
             ],
             "schema": null,
@@ -204,10 +180,6 @@
           {
             "language": "en-US",
             "label": "Test ListFilter, ListCount, ListAny"
-          },
-          {
-            "language": "tr-TR",
-            "label": "ListFilter, ListCount, ListAny Testi"
           }
         ],
         "view": null,
@@ -238,10 +210,6 @@
               {
                 "language": "en-US",
                 "label": "ListFilter / ListCount / ListAny Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "ListFilter / ListCount / ListAny Tamamlandı"
               }
             ],
             "schema": null,
@@ -264,10 +232,6 @@
           {
             "language": "en-US",
             "label": "Test ListFirst, ListLast"
-          },
-          {
-            "language": "tr-TR",
-            "label": "ListFirst, ListLast Testi"
           }
         ],
         "view": null,
@@ -298,10 +262,6 @@
               {
                 "language": "en-US",
                 "label": "ListFirst / ListLast Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "ListFirst / ListLast Tamamlandı"
               }
             ],
             "schema": null,
@@ -324,10 +284,6 @@
           {
             "language": "en-US",
             "label": "Test ListSelect"
-          },
-          {
-            "language": "tr-TR",
-            "label": "ListSelect Testi"
           }
         ],
         "view": null,
@@ -358,10 +314,6 @@
               {
                 "language": "en-US",
                 "label": "ListSelect Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "ListSelect Tamamlandı"
               }
             ],
             "schema": null,
@@ -384,10 +336,6 @@
           {
             "language": "en-US",
             "label": "Test ListAdd, ListRemove"
-          },
-          {
-            "language": "tr-TR",
-            "label": "ListAdd, ListRemove Testi"
           }
         ],
         "view": null,
@@ -418,10 +366,6 @@
               {
                 "language": "en-US",
                 "label": "ListAdd / ListRemove Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "ListAdd / ListRemove Tamamlandı"
               }
             ],
             "schema": null,
@@ -444,10 +388,6 @@
           {
             "language": "en-US",
             "label": "Test RemoveProperty, ToDictionary, HasProperty"
-          },
-          {
-            "language": "tr-TR",
-            "label": "RemoveProperty, ToDictionary, HasProperty Testi"
           }
         ],
         "view": null,
@@ -478,10 +418,6 @@
               {
                 "language": "en-US",
                 "label": "RemoveProperty / ToDictionary Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "RemoveProperty / ToDictionary Tamamlandı"
               }
             ],
             "schema": null,
@@ -504,10 +440,6 @@
           {
             "language": "en-US",
             "label": "All Tests Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tüm Testler Tamamlandı"
           }
         ],
         "view": null,

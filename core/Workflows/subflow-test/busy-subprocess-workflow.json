@@ -17,10 +17,6 @@
       {
         "language": "en-US",
         "label": "Busy State SubProcess Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Meşgul Durumu Alt İşlem Akışı"
       }
     ],
     "functions": [],
@@ -36,10 +32,6 @@
         {
           "language": "en-US",
           "label": "Start SubProcess"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Alt İşlemi Başlat"
         }
       ],
       "onExecutionTasks": [
@@ -68,10 +60,6 @@
           {
             "language": "en-US",
             "label": "Processing"
-          },
-          {
-            "language": "tr-TR",
-            "label": "İşleniyor"
           }
         ],
         "view": null,
@@ -88,10 +76,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Processing (Auto)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "İşlemi Tamamla (Otomatik)"
               }
             ],
             "schema": null,
@@ -114,10 +98,6 @@
           {
             "language": "en-US",
             "label": "Trigger Parent Workflow"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Üst Akışı Tetikle"
           }
         ],
         "view": null,
@@ -148,10 +128,6 @@
               {
                 "language": "en-US",
                 "label": "Finish SubProcess (Auto)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Alt İşlemi Bitir (Otomatik)"
               }
             ],
             "schema": null,
@@ -174,10 +150,6 @@
           {
             "language": "en-US",
             "label": "SubProcess Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt İşlem Tamamlandı"
           }
         ],
         "view": null,

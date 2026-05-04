@@ -5,8 +5,8 @@ using Xunit;
 namespace Core.IntegrationTests.Tests.TaskExecutionTestWorkflow;
 
 /// <summary>
-/// Instance <c>attributes</c> sözleşmesi: <c>api-tests/task-execution/task-execution.http</c> B1/B3 yorumları ile
-/// <c>core/Workflows/task-execution/src/.../*.csx</c> hizalıdır.
+/// Instance <c>attributes</c> contract aligned with <c>api-tests/task-execution/task-execution.http</c> B1/B3 comments and
+/// <c>core/Workflows/task-execution/src/.../*.csx</c>.
 /// </summary>
 internal static class TaskExecutionMainWorkflowInstanceDataAssertions
 {
@@ -14,15 +14,12 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
         "(task-execution-test-workflow mappings + task-execution.http B1 expected flags)";
 
     /// <summary>
-    /// Happy path tamamlandiginda: HTTP, script, timer-wait (Timer Task tip 9), start-flow,
-    /// get-instance-data, trigger, subprocess ve get-instances onEntry mapping bayraklari.
-    /// Notification task <c>mapping.type: G</c> kullandigi icin <c>taskResults.notification</c>
-    /// entegrasyon assert'ine dahil edilmez. Human Task (tip 5) runtime tarafindan kaldirilacak
-    /// gecici bir ozellik oldugu icin bu workflow'da kullanilmaz; happy path human onayi olmadan
-    /// dogrudan completed-state'e ulasir. timer-wait-state, scheduled transition
-    /// (<c>triggerType: 2</c>) + <c>ITimerMapping</c> ile 3 sn bekledigi icin
-    /// <c>timerStartedAt</c> attribute'u zorunludur ve test bunun uzerinden gercek bekleme
-    /// suresini dogrular.
+    /// On happy-path completion: HTTP, script, timer-wait (Timer type 9), start-flow,
+    /// get-instance-data, trigger, subprocess, get-instances onEntry mapping flags.
+    /// Notification task uses <c>mapping.type: G</c> so <c>taskResults.notification</c> is not asserted.
+    /// Human Task (type 5) is deprecated; not used — path reaches completed-state without human approval.
+    /// timer-wait-state uses scheduled transition (<c>triggerType: 2</c>) + <c>ITimerMapping</c> ~3s wait;
+    /// <c>timerStartedAt</c> is required and tests use it to verify real delay.
     /// </summary>
     public static void AssertHappyPathCompleted(JsonElement attributes)
     {
@@ -77,8 +74,7 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
             "completed",
             ContractHint
         );
-        // SubProcessTask (tip 14) gercekten yeni bir hedef instance acmali; SubProcessMapping
-        // OutputHandler'i runtime yanitindaki id alanini parent attributes.subprocessInstanceId'ye yazar.
+        // SubProcessTask must start a new target instance; SubProcessMapping maps runtime id to parent subprocessInstanceId.
         JsonElementAssertions.AssertPropertyNonEmptyString(
             attributes,
             "subprocessInstanceId",
@@ -100,22 +96,20 @@ internal static class TaskExecutionMainWorkflowInstanceDataAssertions
 }
 
 /// <summary>
-/// <c>extended-tasks-test-workflow</c> sonunda Dapr zinciri için <c>attributes</c> kontrolleri.
-/// Dapr Binding (tip 2) state ve task'i workflow'dan kaldirildi (bkz. integration-test-documentation.md
-/// "Test Edilmeyen Ozellikler" bolumu); zincir su an HTTP -> Service -> PubSub seklinde ilerler.
+/// <c>attributes</c> checks for <c>extended-tasks-test-workflow</c> Dapr chain at completion.
+/// Dapr Binding (type 2) state/task removed per integration-test-documentation "Untested Features";
+/// chain is HTTP -&gt; Service -&gt; PubSub.
 ///
-/// Skill vnext-workflow-creation §6.4 geregi her Dapr task'i icin sabit "completed = true" literal
-/// bayraginin yaninda, task'in gercekten calistigini kanitlayan ek bir alan da assert edilir:
-///   - daprHttp / daprService: mocklab yanitindan gelen <c>processId</c> (GUID) parent attributes'a
-///     yazilir; non-empty string olmasi mocklab'a gercekten ulasildiginin kanitidir.
-///   - daprPubSub: PubSub fire-and-forget oldugundan response body'sinde alan donmez; runtime
-///     <c>context.Body.isSuccess</c> bayragini doner ve mapping bunu <c>published</c> olarak
-///     parent attributes'a yazar; <c>published == true</c> task'in basarili publish ettiginin kanitidir.
+/// Per vnext-workflow-creation §6.4, each Dapr task asserts both literal <c>completed = true</c> and an
+/// observable proof field:
+///   - daprHttp / daprService: <c>processId</c> (GUID) from mocklab proves the call landed.
+///   - daprPubSub: fire-and-forget returns no payload; runtime exposes <c>context.Body.isSuccess</c>; mapping writes
+///     <c>published</c> on parent attributes; <c>published == true</c> proves successful publish.
 /// </summary>
 internal static class ExtendedTasksWorkflowInstanceDataAssertions
 {
     private const string ContractHint =
-        "(extended-tasks-test-workflow Dapr mappings + task-execution.http B3 yorumları)";
+        "(extended-tasks-test-workflow Dapr mappings + task-execution.http B3 comments)";
 
     public static void AssertDaprChainCompleted(JsonElement attributes)
     {
@@ -127,13 +121,12 @@ internal static class ExtendedTasksWorkflowInstanceDataAssertions
             "completed",
             ContractHint
         );
-        // Skill §6.4: mapping bayragi "completed=true" literal; gercek task yanitinin (mocklab GUID)
-        // parent attributes'a yansidigi processId ile kanitlanir.
+        // Skill §6.4: completed=true literal + mocklab GUID on parent proves real response handling.
         JsonElementAssertions.AssertNestedPropertyNonEmptyString(
             attributes,
             new[] { "taskResults", "daprHttp" },
             "processId",
-            $"daprHttp.processId mocklab yanitindan gelmeli {ContractHint}"
+            $"daprHttp.processId should come from mocklab response {ContractHint}"
         );
 
         JsonElementAssertions.AssertNestedPropertyTrue(
@@ -146,7 +139,7 @@ internal static class ExtendedTasksWorkflowInstanceDataAssertions
             attributes,
             new[] { "taskResults", "daprService" },
             "processId",
-            $"daprService.processId mocklab yanitindan gelmeli {ContractHint}"
+            $"daprService.processId should come from mocklab response {ContractHint}"
         );
 
         JsonElementAssertions.AssertNestedPropertyTrue(
@@ -155,13 +148,12 @@ internal static class ExtendedTasksWorkflowInstanceDataAssertions
             "completed",
             ContractHint
         );
-        // PubSub fire-and-forget: runtime context.Body.isSuccess'i mapping parent attributes'a
-        // "published" olarak yazar; true olmasi PubSub broker'a gercekten gonderildigin kanitidir.
+        // Fire-and-forget: runtime maps context.Body.isSuccess to parent "published".
         JsonElementAssertions.AssertNestedPropertyTrue(
             attributes,
             new[] { "taskResults", "daprPubSub" },
             "published",
-            $"daprPubSub.published runtime isSuccess bayragindan gelmeli {ContractHint}"
+            $"daprPubSub.published should reflect runtime isSuccess {ContractHint}"
         );
     }
 }

@@ -16,60 +16,48 @@
       {
         "language": "en-US",
         "label": "Select Account Type"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Hesap Türü Seçimi"
       }
     ],
     "display": "full-page",
     "content": {
       "type": "form",
       "title": {
-        "en-US": "Choose Your Account Type",
-        "tr-TR": "Hesap Türünüzü Seçin"
+        "en-US": "Choose Your Account Type"
       },
       "description": {
-        "en-US": "Select the type of account that best suits your needs.",
-        "tr-TR": "İhtiyaçlarınıza en uygun hesap türünü seçin."
+        "en-US": "Select the type of account that best suits your needs."
       },
       "fields": [
         {
           "key": "accountType",
           "type": "radio-group",
           "label": {
-            "en-US": "Account Type",
-            "tr-TR": "Hesap Türü"
+            "en-US": "Account Type"
           },
           "required": true,
           "options": [
             {
               "value": "demand-deposit",
               "label": {
-                "en-US": "Demand Deposit Account",
-                "tr-TR": "Vadesiz Mevduat Hesabı"
+                "en-US": "Demand Deposit Account"
               },
               "description": {
-                "en-US": "Access your money anytime with no minimum balance requirement",
-                "tr-TR": "Minimum bakiye şartı olmadan paranıza istediğiniz zaman erişin"
+                "en-US": "Access your money anytime with no minimum balance requirement"
               },
               "icon": "credit-card"
             },
             {
               "value": "savings",
               "label": {
-                "en-US": "Savings Account",
-                "tr-TR": "Tasarruf Hesabı"
+                "en-US": "Savings Account"
               },
               "description": {
-                "en-US": "Earn interest on your deposits with competitive rates",
-                "tr-TR": "Rekabetçi oranlarla mevduatınızdan faiz kazanın"
+                "en-US": "Earn interest on your deposits with competitive rates"
               },
               "icon": "piggy-bank",
               "disabled": true,
               "disabledReason": {
-                "en-US": "Coming soon",
-                "tr-TR": "Yakında"
+                "en-US": "Coming soon"
               }
             }
           ]
@@ -79,8 +67,7 @@
         {
           "key": "select-demand-deposit",
           "label": {
-            "en-US": "Continue",
-            "tr-TR": "Devam Et"
+            "en-US": "Continue"
           },
           "style": "primary",
           "action": "submit",

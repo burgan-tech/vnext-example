@@ -4,17 +4,17 @@
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
-  "tags": ["integration-test", "schema-data", "transition-schema"],
+  "tags": [
+    "integration-test",
+    "schema-data",
+    "transition-schema"
+  ],
   "attributes": {
     "type": "workflow",
     "labels": [
       {
         "language": "en-US",
         "label": "Confirm Transition Schema"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Onay Gecisi Semasi"
       }
     ],
     "schema": {
@@ -31,7 +31,10 @@
           "minLength": 1
         }
       },
-      "required": ["confirmed", "confirmedBy"],
+      "required": [
+        "confirmed",
+        "confirmedBy"
+      ],
       "additionalProperties": true
     }
   }

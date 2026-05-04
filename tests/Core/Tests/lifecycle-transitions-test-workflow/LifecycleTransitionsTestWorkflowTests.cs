@@ -5,15 +5,15 @@ using Core.IntegrationTests.Infrastructure;
 namespace Core.IntegrationTests.Tests.LifecycleTransitionsTestWorkflow;
 
 /*
-! Buglar:
+! Bugs:
 ! Cancel
 ! Exit
-! Reschedule (reschedule-timer sonrasi scheduled transition yeniden kurulmuyor; instance auto-passed-state'te kaliyor)
+! Reschedule (after reschedule-timer the scheduled transition is not re-armed; instance stays on auto-passed-state)
 */
 
 /// <summary>
 /// Integration tests aligned with <c>api-tests/lifecycle-transitions/lifecycle-transitions-test-workflow.http</c>.
-/// Paylaşılan API yardımcıları: <see cref="Core.IntegrationTests.Helpers"/>; bu workflow’a özel veri sözleşmesi:
+/// Shared API helpers: <see cref="Core.IntegrationTests.Helpers"/>; workflow-specific data contract:
 /// <see cref="LifecyclePassPathInstanceDataAssertions"/>.
 /// </summary>
 public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
@@ -67,12 +67,11 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
     }
 
     /// <summary>
-    /// Timer ile <c>pre-complete-state</c>'e ulaşan pass path'te instance verisinde, ilgili state'lerde tanımlı
-    /// <b>onEntry / onExit</b> (ve geçiş) script görevlerinin instance data'ya yazdığı alanların beklenen şekilde
-    /// dolduğunu doğrular. Böylece bu görevlerin fiilen çalıştığı veri sözleşmesi üzerinden garanti altına alınır.
+    /// On the pass path that reaches <c>pre-complete-state</c> via timer, verifies instance data fields written by
+    /// <b>onEntry / onExit</b> (and transition) script tasks match expectations — contract-level proof tasks ran.
     /// </summary>
     /// <remarks>
-    /// Alan adları <c>core/Workflows/lifecycle-transitions/src/*.csx</c> ile eşleşir; script gövdeleri değişirse bu test bilinçli olarak güncellenmelidir.
+    /// Field names match <c>core/Workflows/lifecycle-transitions/src/*.csx</c>; update this test deliberately if scripts change.
     /// </remarks>
     [Fact]
     public async Task PassPath_InstanceData_AfterPreCompleteViaTimer_ReflectsOnEntryOnExitScripts()
@@ -181,7 +180,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         Assert.Equal(id1, id2);
     }
 
-    // TODO: Bu test şu anda başarısız — runtime/platform tarafında cancel ile ilgili bug var; workflow tanımı doğru kabul ediliyor.
+    // TODO: Currently failing — cancel bug on runtime/platform side; workflow definition assumed correct.
     [Fact]
     public async Task CancelTransition_ReachesTerminatedState()
     {
@@ -200,7 +199,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         await _workflow.AssertStateAsync(instanceId, "terminated-state");
     }
 
-    // TODO: Bu test şu anda başarısız — runtime/platform tarafında exit ile ilgili bug var; workflow tanımı doğru kabul ediliyor.
+    // TODO: Currently failing — exit bug on runtime/platform side; workflow definition assumed correct.
     [Fact]
     public async Task ExitTransition_FromInitialize_SetsExitExecutedOnInstance()
     {
@@ -233,7 +232,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         );
     }
 
-    // TODO: Bu test şu anda başarısız — runtime/platform tarafında exit ile ilgili bug var; workflow tanımı doğru kabul ediliyor.
+    // TODO: Currently failing — exit bug on runtime/platform side; workflow definition assumed correct.
     [Fact]
     public async Task ExitTransition_FromPreComplete_SetsExitExecutedOnInstance()
     {
@@ -304,12 +303,12 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
         await _workflow.AssertStateAsync(instanceId, "pre-complete-state");
     }
 
-    // TODO / BUG: reschedule-timer çalışınca workflow tanımına göre scheduled-timer-transition yeniden kurulmalı (~6 sonra timer-triggered → pre-complete).
-    // Şu an runtime’da timer yeniden schedule olmuyor; instance sürekli auto-passed-state’te kalıyor — WaitForStateAsync(pre-complete) zaman aşımına düşer.
-    // Workflow JSON / reschedule-timer → auto-passed-state ($self) doğru kabul ediliyor; platform tarafı incelenmeli.
+    // TODO / BUG: After reschedule-timer the definition expects scheduled-timer-transition to be re-armed (~6s then timer-triggered → pre-complete).
+    // Runtime does not reschedule; instance stays on auto-passed-state — WaitForStateAsync(pre-complete) times out.
+    // Workflow JSON reschedule-timer → auto-passed-state ($self) assumed correct; platform needs investigation.
     /// <summary>
-    /// reschedule-timer: $self ile hâlâ auto-passed-state; ardından zamanlayıcı yeniden kurulmalı (ShortTimerMapping +6).
-    /// Beklenen: scheduled-timer-transition -> timer-triggered-state -> auto-to-pre-complete -> pre-complete-state.
+    /// reschedule-timer: stays on auto-passed-state via $self; timer should reschedule (ShortTimerMapping +6s).
+    /// Expected: scheduled-timer-transition -&gt; timer-triggered-state -&gt; auto-to-pre-complete -&gt; pre-complete-state.
     /// </summary>
     [Fact]
     public async Task RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState()
@@ -336,7 +335,7 @@ public class LifecycleTransitionsTestWorkflowTests : IntegrationTestBase
 
         await _workflow.AssertStateAsync(instanceId, "auto-passed-state");
 
-        // Yeniden kurulan timer ~6 sn; timer-triggered onEntries + auto gecis icin pay
+        // Rescheduled timer ~6s; slack for timer-triggered onEntries + auto transition
         await _workflow.WaitForStateAsync(
             instanceId,
             "pre-complete-state",

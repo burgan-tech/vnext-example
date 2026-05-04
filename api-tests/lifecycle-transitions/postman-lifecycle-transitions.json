@@ -1051,7 +1051,7 @@
                   "    pm.collectionVariables.set(\"scheduleCancelInstanceId\", jsonData.id);",
                   "    console.log(\"scheduleCancelInstanceId set to: \" + jsonData.id);",
                   "}",
-                  "pm.test('ScheduleCancel: start yanıtında id', function () {",
+                  "pm.test('ScheduleCancel: id in start response', function () {",
                   "    pm.expect(jsonData && jsonData.id).to.be.ok;",
                   "});"
                 ]

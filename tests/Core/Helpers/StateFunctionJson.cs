@@ -4,7 +4,7 @@ namespace Core.IntegrationTests.Helpers;
 
 /// <summary>
 /// Parses <c>GET .../functions/state</c> JSON for tests. Shape may evolve; extend with new branches if needed.
-/// State cevabında geçişler genelde <c>transitions[].name</c> ile listelenir; bkz. <see cref="TransitionsContainKey"/>.
+/// Transitions are usually listed as <c>transitions[].name</c>; see <see cref="TransitionsContainKey"/>.
 /// </summary>
 public static class StateFunctionJson
 {

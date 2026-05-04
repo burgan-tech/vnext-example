@@ -18,10 +18,6 @@
       {
         "language": "en-US",
         "label": "SubFlow Orchestration Child"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akis Orkestrasyon Cocuk"
       }
     ],
     "functions": [],
@@ -37,10 +33,6 @@
           {
             "language": "en-US",
             "label": "Shared Child Update ($self)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Paylasimli Child Guncelleme ($self)"
           }
         ],
         "availableIn": [
@@ -72,10 +64,6 @@
         {
           "language": "en-US",
           "label": "Cancel Child"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Child Iptal"
         }
       ]
     },
@@ -88,10 +76,6 @@
         {
           "language": "en-US",
           "label": "Update Parent Data from Child"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Child'dan Parent Data Guncelle"
         }
       ],
       "onExecutionTasks": [
@@ -119,10 +103,6 @@
         {
           "language": "en-US",
           "label": "Start Child"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Cocugu Baslat"
         }
       ]
     },
@@ -136,10 +116,6 @@
           {
             "language": "en-US",
             "label": "Child Initial"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Baslangic"
           }
         ],
         "view": null,
@@ -170,10 +146,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Child SubFlow State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Alt Akis Durumuna"
               }
             ],
             "rule": {
@@ -193,10 +165,6 @@
           {
             "language": "en-US",
             "label": "Child SubFlow State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Alt Akis Durumu"
           }
         ],
         "view": null,
@@ -225,10 +193,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Child Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Cocuk Tamamlandi"
               }
             ],
             "rule": {
@@ -248,10 +212,6 @@
           {
             "language": "en-US",
             "label": "Child Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Tamamlandi"
           }
         ],
         "view": null,
@@ -269,10 +229,6 @@
           {
             "language": "en-US",
             "label": "Child Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Iptal"
           }
         ],
         "view": null,

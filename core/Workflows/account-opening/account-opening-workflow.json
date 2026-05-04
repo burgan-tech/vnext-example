@@ -26,10 +26,6 @@
       {
         "language": "en-US",
         "label": "Digital Banking Account Opening Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Dijital Bankacılık Hesap Açılışı İş Akışı"
       }
     ],
     "functions": [
@@ -78,10 +74,6 @@
         {
           "language": "en-US",
           "label": "Initiate Account Opening"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Hesap Açılışını Başlat"
         }
       ],
       "schema": {
@@ -120,10 +112,6 @@
           {
             "language": "en-US",
             "label": "Account Type Selection"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Türü Seçimi"
           }
         ],
         "view": {
@@ -161,10 +149,6 @@
               {
                 "language": "en-US",
                 "label": "Select Demand Deposit Account"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Vadesiz Hesap Seç"
               }
             ],
             "schema": {
@@ -236,10 +220,6 @@
               {
                 "language": "en-US",
                 "label": "Execute SubProcess"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Sub Process Çalıştır"
               }
             ],
             "schema": null,
@@ -266,7 +246,7 @@
                 },
                 "mapping": {
                   "location": "./src/TriggerScheduledPaymentsMapping.csx",
-                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgpwdWJsaWMgY2xhc3MgVHJpZ2dlclNjaGVkdWxlZFBheW1lbnRzTWFwcGluZyA6U2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzdWJQcm9jZXNzVGFzayA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2s7CgogICAgICAgIGlmIChzdWJQcm9jZXNzVGFzayA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgfQoKICAgICAgICAvLyBDb25maWd1cmUgc3VicHJvY2VzcwogICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldERvbWFpbigiY29yZSIpOwogICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldEtleSgic2NoZWR1bGVkLXBheW1lbnRzIik7CiAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0VmVyc2lvbigiMS4wLjAiKTsKCiAgICAgICAgLy8gUHJlcGFyZSBzdWJwcm9jZXNzIGluaXRpYWxpemF0aW9uIGRhdGEKICAgICAgICAvLyBQYXNzIHJlbGV2YW50IGRhdGEgZnJvbSBhY2NvdW50LW9wZW5pbmcgd29ya2Zsb3cgdG8gc2NoZWR1bGVkLXBheW1lbnRzCiAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0Qm9keShuZXcKICAgICAgICB7CiAgICAgICAgICAgIHVzZXJJZCA9IDEsCiAgICAgICAgICAgIGFtb3VudCA9IDEyMDAwLAogICAgICAgICAgICBjdXJyZW5jeSA9ICJUTCIsCiAgICAgICAgICAgIGZyZXF1ZW5jeSA9ICJtb250aGx5IiwKICAgICAgICAgICAgc3RhcnREYXRlID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICBlbmREYXRlID0gIjIwMjYtMTAtMDFUMDk6MDI6MzguMjAxWiIsCiAgICAgICAgICAgIHBheW1lbnRNZXRob2RJZCA9ICIxIiwKICAgICAgICAgICAgZGVzY3JpcHRpb24gPSAiWCDDtmRlbWUiLAogICAgICAgICAgICByZWNpcGllbnRJZCA9ICIzMjQzMjQiLAogICAgICAgICAgICBpc0F1dG9SZXRyeSA9IGZhbHNlLAogICAgICAgICAgICBtYXhSZXRyaWVzID0gMwogICAgICAgIH0pOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEKICAgICAgICB9KTsKICAgIH0KCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHJlc3BvbnNlID0gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CgogICAgICAgIC8vIFN1YlByb2Nlc3MgaXMgZmlyZS1hbmQtZm9yZ2V0CiAgICAgICAgLy8gSnVzdCB0cmFjayB0aGF0IGl0IHdhcyBpbml0aWF0ZWQKICAgICAgCiAgICAgICAgICAgIHJlc3BvbnNlLkRhdGEgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgc2NoZWR1bGVkUGF5bWVudHNJbml0aWF0ZWQgPSB0cnVlLAogICAgICAgICAgICAgICAgaW5pdGlhdGVkQXQgPSBEYXRlVGltZS5VdGNOb3csCiAgICAgICAgICAgICAgICBzdGF0dXMgPSAiU0NIRURVTEVEX1BBWU1FTlRTX1NVQlBST0NFU1NfTEFVTkNIRUQiCiAgICAgICAgICAgIH07CgogICAgICAgIHJldHVybiByZXNwb25zZTsKICAgIH0KfQoK"
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgpwdWJsaWMgY2xhc3MgVHJpZ2dlclNjaGVkdWxlZFBheW1lbnRzTWFwcGluZyA6U2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzdWJQcm9jZXNzVGFzayA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2s7CgogICAgICAgIGlmIChzdWJQcm9jZXNzVGFzayA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgfQoKICAgICAgICAvLyBDb25maWd1cmUgc3VicHJvY2VzcwogICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldERvbWFpbigiY29yZSIpOwogICAgICAgIHN1YlByb2Nlc3NUYXNrLlNldEtleSgic2NoZWR1bGVkLXBheW1lbnRzIik7CiAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0VmVyc2lvbigiMS4wLjAiKTsKCiAgICAgICAgLy8gUHJlcGFyZSBzdWJwcm9jZXNzIGluaXRpYWxpemF0aW9uIGRhdGEKICAgICAgICAvLyBQYXNzIHJlbGV2YW50IGRhdGEgZnJvbSBhY2NvdW50LW9wZW5pbmcgd29ya2Zsb3cgdG8gc2NoZWR1bGVkLXBheW1lbnRzCiAgICAgICAgc3ViUHJvY2Vzc1Rhc2suU2V0Qm9keShuZXcKICAgICAgICB7CiAgICAgICAgICAgIHVzZXJJZCA9IDEsCiAgICAgICAgICAgIGFtb3VudCA9IDEyMDAwLAogICAgICAgICAgICBjdXJyZW5jeSA9ICJUTCIsCiAgICAgICAgICAgIGZyZXF1ZW5jeSA9ICJtb250aGx5IiwKICAgICAgICAgICAgc3RhcnREYXRlID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICBlbmREYXRlID0gIjIwMjYtMTAtMDFUMDk6MDI6MzguMjAxWiIsCiAgICAgICAgICAgIHBheW1lbnRNZXRob2RJZCA9ICIxIiwKICAgICAgICAgICAgZGVzY3JpcHRpb24gPSAiU2NoZWR1bGVkIHBheW1lbnQgYm9vdHN0cmFwIiwKICAgICAgICAgICAgcmVjaXBpZW50SWQgPSAiMzI0MzI0IiwKICAgICAgICAgICAgaXNBdXRvUmV0cnkgPSBmYWxzZSwKICAgICAgICAgICAgbWF4UmV0cmllcyA9IDMKICAgICAgICB9KTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhCiAgICAgICAgfSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciByZXNwb25zZSA9IG5ldyBTY3JpcHRSZXNwb25zZSgpOwoKICAgICAgICAvLyBTdWJQcm9jZXNzIGlzIGZpcmUtYW5kLWZvcmdldAogICAgICAgIC8vIEp1c3QgdHJhY2sgdGhhdCBpdCB3YXMgaW5pdGlhdGVkCiAgICAgIAogICAgICAgICAgICByZXNwb25zZS5EYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHNjaGVkdWxlZFBheW1lbnRzSW5pdGlhdGVkID0gdHJ1ZSwKICAgICAgICAgICAgICAgIGluaXRpYXRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LAogICAgICAgICAgICAgICAgc3RhdHVzID0gIlNDSEVEVUxFRF9QQVlNRU5UU19TVUJQUk9DRVNTX0xBVU5DSEVEIgogICAgICAgICAgICB9OwoKICAgICAgICByZXR1cm4gcmVzcG9uc2U7CiAgICB9Cn0KCg=="
                 }
               }
             ]
@@ -282,10 +262,6 @@
           {
             "language": "en-US",
             "label": "Account Details Input"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Bilgileri Girişi"
           }
         ],
         "view": {
@@ -331,10 +307,6 @@
               {
                 "language": "en-US",
                 "label": "Submit Account Details"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Hesap Bilgilerini Gönder"
               }
             ],
             "schema": {
@@ -368,10 +340,6 @@
           {
             "language": "en-US",
             "label": "Account Confirmation"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Onayı"
           }
         ],
         "queryRoles": [
@@ -417,10 +385,6 @@
               {
                 "language": "en-US",
                 "label": "Confirm Account Opening"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Hesap Açılışını Onayla"
               }
             ],
             "schema": {
@@ -454,10 +418,6 @@
           {
             "language": "en-US",
             "label": "Policy Validation"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Politika Doğrulama"
           }
         ],
         "view": {
@@ -497,10 +457,6 @@
               {
                 "language": "en-US",
                 "label": "Policies Passed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Politikalar Geçti"
               }
             ],
             "schema": null,
@@ -521,10 +477,6 @@
               {
                 "language": "en-US",
                 "label": "Policies Failed - Retry"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Politikalar Başarısız - Tekrar Dene"
               }
             ],
             "schema": null,
@@ -547,10 +499,6 @@
           {
             "language": "en-US",
             "label": "Account Creation"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Oluşturma"
           }
         ],
         "view": {
@@ -590,10 +538,6 @@
               {
                 "language": "en-US",
                 "label": "Account Created Successfully"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Hesap Başarıyla Oluşturuldu"
               }
             ],
             "schema": null,
@@ -614,10 +558,6 @@
               {
                 "language": "en-US",
                 "label": "Account Creation Failed - Retry"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Hesap Oluşturma Başarısız - Tekrar Dene"
               }
             ],
             "schema": null,
@@ -640,10 +580,6 @@
           {
             "language": "en-US",
             "label": "Account Opening Successful"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Açılışı Başarılı"
           }
         ],
         "view": {
@@ -669,10 +605,6 @@
           {
             "language": "en-US",
             "label": "Account Opening Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Açılışı İptal Edildi"
           }
         ],
         "view": null,
@@ -689,10 +621,6 @@
           {
             "language": "en-US",
             "label": "Account Opening Timeout"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hesap Açılışı Zaman Aşımına Uğradı"
           }
         ],
         "view": null,

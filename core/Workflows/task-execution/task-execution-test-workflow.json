@@ -25,10 +25,6 @@
       {
         "language": "en-US",
         "label": "Task Execution Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Gorev Calistirma Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -44,10 +40,6 @@
         {
           "language": "en-US",
           "label": "Start Task Execution Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Gorev Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -76,10 +68,6 @@
           {
             "language": "en-US",
             "label": "HTTP Task State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "HTTP Gorev Durumu"
           }
         ],
         "view": null,
@@ -110,10 +98,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Script Processing"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Script Isleme Otomatik Gecis"
               }
             ],
             "rule": {
@@ -133,10 +117,6 @@
           {
             "language": "en-US",
             "label": "Script Processing State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Script Isleme Durumu"
           }
         ],
         "view": null,
@@ -167,10 +147,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Timer Wait"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Zamanlayici Beklemeye Otomatik Gecis"
               }
             ],
             "rule": {
@@ -190,10 +166,6 @@
           {
             "language": "en-US",
             "label": "Timer Wait State (Timer Task type 9)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Zamanlayici Bekleme Durumu (Timer Task tip 9)"
           }
         ],
         "view": null,
@@ -224,10 +196,6 @@
               {
                 "language": "en-US",
                 "label": "Scheduled to Start Flow"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Zamanlanmis Flow Baslatma Gecisi"
               }
             ],
             "timer": {
@@ -247,10 +215,6 @@
           {
             "language": "en-US",
             "label": "Start Flow State (StartTask type 11)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Flow Baslatma Durumu (StartTask tip 11)"
           }
         ],
         "view": null,
@@ -281,10 +245,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Get Instance Data"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Instance Data Alma Otomatik Gecis"
               }
             ],
             "rule": {
@@ -304,10 +264,6 @@
           {
             "language": "en-US",
             "label": "Get Instance Data State (GetInstanceDataTask type 13)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Instance Data Alma Durumu (GetInstanceDataTask tip 13)"
           }
         ],
         "view": null,
@@ -338,10 +294,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Notification"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Bildirime Otomatik Gecis"
               }
             ],
             "rule": {
@@ -361,10 +313,6 @@
           {
             "language": "en-US",
             "label": "Notification Task"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Bildirim Gorevi"
           }
         ],
         "view": null,
@@ -394,10 +342,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Trigger Transition"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Trigger Transition'a Otomatik"
               }
             ],
             "rule": {
@@ -417,10 +361,6 @@
           {
             "language": "en-US",
             "label": "Trigger Transition Task"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Gecis Tetikleme Gorevi"
           }
         ],
         "view": null,
@@ -451,10 +391,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to SubProcess"
-              },
-              {
-                "language": "tr-TR",
-                "label": "SubProcess'e Otomatik"
               }
             ],
             "rule": {
@@ -474,10 +410,6 @@
           {
             "language": "en-US",
             "label": "SubProcess Task"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Surec Gorevi"
           }
         ],
         "view": null,
@@ -508,10 +440,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to GetInstances"
-              },
-              {
-                "language": "tr-TR",
-                "label": "GetInstances'a Otomatik"
               }
             ],
             "rule": {
@@ -531,10 +459,6 @@
           {
             "language": "en-US",
             "label": "GetInstances Task"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Instance Listesi Gorevi"
           }
         ],
         "view": null,
@@ -565,10 +489,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Tamamlandi Durumuna Otomatik"
               }
             ],
             "rule": {
@@ -588,10 +508,6 @@
           {
             "language": "en-US",
             "label": "Completed State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi Durumu"
           }
         ],
         "view": null,

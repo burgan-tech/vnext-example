@@ -4,7 +4,7 @@ using Xunit;
 namespace Core.IntegrationTests.Helpers;
 
 /// <summary>
-/// <see cref="JsonElement"/> üzerinde sık kullanılan test assertion'ları (ör. GetInstance <c>attributes</c>).
+/// Frequently used test assertions over <see cref="JsonElement"/> (e.g. GetInstance <c>attributes</c>).
 /// </summary>
 public static class JsonElementAssertions
 {
@@ -93,9 +93,9 @@ public static class JsonElementAssertions
     }
 
     /// <summary>
-    /// Nested object yolundaki string property'nin non-empty oldugunu dogrular.
-    /// Skill vnext-workflow-creation §6.4: task'in gercekten calistigi, yaniti parent attributes'a
-    /// non-empty deger olarak yansidiginda kanitlanir (sabit literal "completed = true" yetersiz).
+    /// Verifies that the nested string property is non-empty.
+    /// Skill vnext-workflow-creation §6.4: that the task actually ran is proven when the response
+    /// surfaces as a non-empty value on parent attributes (a literal <c>"completed": true</c> alone is insufficient).
     /// </summary>
     public static void AssertNestedPropertyNonEmptyString(
         JsonElement root,

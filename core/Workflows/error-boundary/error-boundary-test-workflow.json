@@ -31,10 +31,6 @@
       {
         "language": "en-US",
         "label": "Error Boundary Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Hata Sinir Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -61,10 +57,6 @@
         {
           "language": "en-US",
           "label": "Start Error Boundary Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Hata Sinir Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -93,10 +85,6 @@
           {
             "language": "en-US",
             "label": "Retry Test State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Yeniden Deneme Test Durumu"
           }
         ],
         "view": null,
@@ -140,10 +128,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Ignore Test"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Yoksayma Testine Otomatik Gecis"
               }
             ],
             "rule": {
@@ -163,10 +147,6 @@
           {
             "language": "en-US",
             "label": "Ignore Test State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Yoksayma Test Durumu"
           }
         ],
         "view": null,
@@ -224,10 +204,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Rollback from Ignore"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Ignore'dan Rollback'e Otomatik"
               }
             ],
             "rule": {
@@ -247,10 +223,6 @@
           {
             "language": "en-US",
             "label": "Rollback Action Test"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Rollback Action Testi"
           }
         ],
         "view": null,
@@ -303,10 +275,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Log from Rollback"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Rollback'den Log'a Otomatik"
               }
             ],
             "rule": {
@@ -326,10 +294,6 @@
           {
             "language": "en-US",
             "label": "Log Action Test"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Log Action Testi"
           }
         ],
         "view": null,
@@ -381,10 +345,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Completed from Log"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Log'dan Completed'a Otomatik"
               }
             ],
             "rule": {
@@ -404,10 +364,6 @@
           {
             "language": "en-US",
             "label": "Notify Action Test"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Notify Action Testi"
           }
         ],
         "view": null,
@@ -460,10 +416,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Completed from Notify"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Notify'dan Completed'a Otomatik"
               }
             ],
             "rule": {
@@ -483,10 +435,6 @@
           {
             "language": "en-US",
             "label": "Success Final"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Basari Son"
           }
         ],
         "view": null,
@@ -504,10 +452,6 @@
           {
             "language": "en-US",
             "label": "Error Final"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hata Son"
           }
         ],
         "view": null,

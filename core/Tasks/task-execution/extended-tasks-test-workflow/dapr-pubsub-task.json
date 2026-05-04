@@ -8,7 +8,7 @@
   "attributes": {
     "type": "4",
     "config": {
-      "pubSubName": "test-pubsub",
+      "pubSubName": "vnext-pubsub",
       "topic": "test-topic",
       "data": {
         "eventType": "IntegrationTest",

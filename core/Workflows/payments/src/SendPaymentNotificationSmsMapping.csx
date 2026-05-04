@@ -24,7 +24,7 @@ public class SendPaymentNotificationSmsMapping : IMapping
 
             // Determine message based on payment status
             var message = "";
-            var language = context.Instance?.Data?.language ?? "tr-TR";
+            var language = context.Instance?.Data?.language ?? "en-US";
 
             if (paymentResult?.success == true)
             {
@@ -34,7 +34,7 @@ public class SendPaymentNotificationSmsMapping : IMapping
                 }
                 else
                 {
-                    message = $"Ödeme başarılı! Miktar: {paymentResult?.amount} {paymentResult?.currency}. Referans: {paymentResult?.transactionId}";
+                    message = $"Payment successful! Amount: {paymentResult?.amount} {paymentResult?.currency}. Reference: {paymentResult?.transactionId}";
                 }
             }
             else
@@ -45,7 +45,7 @@ public class SendPaymentNotificationSmsMapping : IMapping
                 }
                 else
                 {
-                    message = $"Ödeme başarısız. Neden: {paymentResult?.errorMessage ?? "Bilinmeyen sebep"}. Lütfen ödeme bilgilerinizi kontrol edin.";
+                    message = $"Payment failed. Reason: {paymentResult?.errorMessage ?? "Unknown error"}. Please check your payment details.";
                 }
             }
 

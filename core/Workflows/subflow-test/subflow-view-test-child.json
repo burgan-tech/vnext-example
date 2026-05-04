@@ -27,10 +27,6 @@
       {
         "language": "en-US",
         "label": "SubFlow View Test - Child Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akış Görünüm Testi - Alt Akış"
       }
     ],
     "cancel": {
@@ -70,10 +66,6 @@
           {
             "language": "en-US",
             "label": "Child Shared Update (issue #425)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Akış Paylaşımlı Güncelleme (#425)"
           }
         ],
         "schema": null,
@@ -106,10 +98,6 @@
         {
           "language": "en-US",
           "label": "Start Child Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Alt Akışı Başlat"
         }
       ],
       "onExecutionTasks": [
@@ -138,10 +126,6 @@
           {
             "language": "en-US",
             "label": "Child Initial State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Akış Başlangıç Durumu"
           }
         ],
         "view": {
@@ -169,10 +153,6 @@
               {
                 "language": "en-US",
                 "label": "Start Grandchild SubFlow"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Torun Alt Akışı Başlat"
               }
             ],
             "roles": [
@@ -198,10 +178,6 @@
           {
             "language": "en-US",
             "label": "Waiting for Grandchild SubFlow"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Alt Akış Bekleniyor"
           }
         ],
         "view": null,
@@ -276,10 +252,6 @@
               {
                 "language": "en-US",
                 "label": "Grandchild SubFlow Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Torun Alt Akış Tamamlandı"
               }
             ],
             "schema": null,
@@ -302,10 +274,6 @@
           {
             "language": "en-US",
             "label": "After Grandchild SubFlow State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Torun Alt Akış Sonrası Durumu"
           }
         ],
         "view": {
@@ -333,10 +301,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Child Workflow"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Alt Akışı Tamamla"
               }
             ],
             "schema": null,
@@ -370,10 +334,6 @@
           {
             "language": "en-US",
             "label": "Child Workflow Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Akış Tamamlandı"
           }
         ],
         "view": null,
@@ -391,10 +351,6 @@
           {
             "language": "en-US",
             "label": "Child Workflow Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Çocuk Akış İptal Edildi"
           }
         ],
         "view": null,

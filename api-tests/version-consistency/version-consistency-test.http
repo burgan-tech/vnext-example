@@ -6,35 +6,35 @@
 ###############################################################################
 # VERSION CONSISTENCY TEST
 #
-# Bu test, workflow versiyonu degistiginde mevcut instance'larin kendi
-# versiyonlarinin akisindan devam ettigini dogrular.
+# Validates that when the workflow version changes, existing instances keep
+# following the flow pinned to their own definition version.
 #
-# ONKOŞUL: Sadece v1.0.0 publish edilmis olmali.
-# v2.0.0 HENUZ publish edilmemis olmali.
+# PREREQUISITE: Only v1.0.0 should be published.
+# v2.0.0 must NOT yet be published.
 #
-# ADIMLAR:
-#   1. v1.0.0 workflow'u publish et (version-consistency-test-workflow.json)
-#   2. Instance A'yi baslat (v1.0.0 uzerinde calisacak)
-#   3. Instance A'yi processing-state'e tasra (auto ile gider)
-#   4. v2.0.0 workflow'u publish et (version-consistency-test-workflow-v2.json)
-#   5. Instance B'yi baslat (v2.0.0 uzerinde calisacak)
-#   6. Instance B'yi processing-state'e birak
-#   7. Instance A: complete-processing → completed-state (v1 yolu, review YOK)
-#   8. Instance B: complete-processing → review-state (v2 yolu)
+# STEPS:
+#   1. Publish v1.0.0 workflow (version-consistency-test-workflow.json)
+#   2. Start instance A (runs on v1.0.0)
+#   3. Move instance A to processing-state (auto)
+#   4. Publish v2.0.0 workflow (version-consistency-test-workflow-v2.json)
+#   5. Start instance B (runs on v2.0.0)
+#   6. Leave instance B on processing-state
+#   7. Instance A: complete-processing → completed-state (v1 path, NO review)
+#   8. Instance B: complete-processing → review-state (v2 path)
 #   9. Instance B: approve-review → completed-state
-#  10. Her iki instance'in datasini karsilastir
+#  10. Compare data on both instances
 ###############################################################################
 
 ###############################################################################
-# ADIM 1: v1.0.0 PUBLISH EDILMIS OLMALI
-# → version-consistency-test-workflow.json dosyasini publish edin
+# STEP 1: v1.0.0 MUST BE PUBLISHED
+# → Publish version-consistency-test-workflow.json
 ###############################################################################
 
 ###############################################################################
-# ADIM 2: Instance A baslatma (v1.0.0 uzerinde)
+# STEP 2: Start instance A (v1.0.0 line)
 ###############################################################################
 
-### Instance A - Baslat (v1.0.0 akisinda calisacak)
+### Instance A - Start (pinned to v1.0.0)
 # @name createInstanceA
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -50,23 +50,23 @@ Content-Type: application/json
 @instanceAId = {{createInstanceA.response.body.$.id}}
 
 ###############################################################################
-# ADIM 3: Instance A state kontrolu (processing-state'te olmali)
+# STEP 3: Instance A state check (should be processing-state)
 ###############################################################################
 
-### Instance A - State kontrolu (processing-state bekleniyor)
+### Instance A - State check (expect processing-state)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/functions/state
 
 ###############################################################################
-# ADIM 4: v2.0.0 PUBLISH ET
-# → version-consistency-test-workflow-v2.json dosyasini publish edin
-# Instance A hala processing-state'te bekliyor.
+# STEP 4: Publish v2.0.0
+# → Publish version-consistency-test-workflow-v2.json
+# Instance A remains on processing-state.
 ###############################################################################
 
 ###############################################################################
-# ADIM 5: Instance B baslatma (v2.0.0 uzerinde calisacak)
+# STEP 5: Start instance B (v2.0.0 line)
 ###############################################################################
 
-### Instance B - Baslat (v2.0.0 akisinda calisacak)
+### Instance B - Start (pinned to v2.0.0)
 # @name createInstanceB
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -82,78 +82,78 @@ Content-Type: application/json
 @instanceBId = {{createInstanceB.response.body.$.id}}
 
 ###############################################################################
-# ADIM 6: Instance B state kontrolu (processing-state'te olmali)
+# STEP 6: Instance B state check (should be processing-state)
 ###############################################################################
 
-### Instance B - State kontrolu (processing-state bekleniyor)
+### Instance B - State check (expect processing-state)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/state
 
 ###############################################################################
-# ADIM 7: Instance A'yi tamamla
-# complete-processing → completed-state (v1 yolu, review-state YOK)
+# STEP 7: Complete instance A
+# complete-processing → completed-state (v1 path, NO review-state)
 ###############################################################################
 
-### Instance A - complete-processing (v1: dogrudan completed-state'e gitmeli)
+### Instance A - complete-processing (v1: should land on completed-state)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/transitions/complete-processing?sync=true
 Content-Type: application/json
 
 {}
 
-### Instance A - Final state kontrolu (completed-state bekleniyor)
+### Instance A - Final state (expect completed-state)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/functions/state
 
-### Instance A - Data kontrolu
-# BEKLENEN: v1Completed=true, reviewExecuted OLMAMALI
+### Instance A - Data check
+# EXPECTED: v1Completed=true; reviewExecuted must NOT appear
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/functions/data
 
 ###############################################################################
-# ADIM 8: Instance B'yi processing'den ilerlet
-# complete-processing → review-state (v2 yolu, ekstra state)
+# STEP 8: Advance instance B from processing
+# complete-processing → review-state (v2 extra state)
 ###############################################################################
 
-### Instance B - complete-processing (v2: review-state'e gitmeli)
+### Instance B - complete-processing (v2: expect review-state)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/transitions/complete-processing?sync=true
 Content-Type: application/json
 
 {}
 
-### Instance B - State kontrolu (review-state bekleniyor)
+### Instance B - State check (expect review-state)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/state
 
-### Instance B - Data kontrolu (reviewExecuted=true olmali)
+### Instance B - Data check (reviewExecuted=true)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/data
 
 ###############################################################################
-# ADIM 9: Instance B review'dan completed'a
+# STEP 9: Instance B review → completed
 ###############################################################################
 
-### Instance B - approve-review (v2: completed-state'e gitmeli)
+### Instance B - approve-review (v2: completed-state)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/transitions/approve-review?sync=true
 Content-Type: application/json
 
 {}
 
-### Instance B - Final state kontrolu (completed-state bekleniyor)
+### Instance B - Final state (expect completed-state)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/state
 
-### Instance B - Final data kontrolu
-# BEKLENEN: reviewExecuted=true, v2Completed=true, v1Completed OLMAMALI
+### Instance B - Final data
+# EXPECTED: reviewExecuted=true, v2Completed=true; v1Completed must NOT be set
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/data
 
 ###############################################################################
-# DOGRULAMA OZETI
+# VALIDATION SUMMARY
 #
 # Instance A (v1.0.0):
 #   - State: completed-state
 #   - Data: v1Completed=true, completedByVersion="1.0.0"
-#   - reviewExecuted OLMAMALI (v1'de review-state yok)
+#   - reviewExecuted must be absent (no review-state on v1)
 #
 # Instance B (v2.0.0):
 #   - State: completed-state
 #   - Data: reviewExecuted=true, v2Completed=true, completedByVersion="2.0.0"
-#   - v1Completed OLMAMALI (v2 yolunu izledi)
+#   - v1Completed must NOT be set (followed v2 path)
 #
-# BASARI KRITERI:
-#   v2 publish edildikten sonra bile Instance A, v1 akisini takip etti
-#   ve review-state'e ugramadan dogrudan completed'a gitti.
+# SUCCESS:
+#   After publishing v2, instance A still completes on the v1 path and reaches
+#   completed without passing through review-state.
 ###############################################################################

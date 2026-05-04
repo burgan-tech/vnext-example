@@ -17,10 +17,6 @@
       {
         "language": "en-US",
         "label": "SubProcess Flow Type Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Surec Akis Tipi Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -36,10 +32,6 @@
         {
           "language": "en-US",
           "label": "Start SubProcess Flow Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Alt Surec Akis Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -68,10 +60,6 @@
           {
             "language": "en-US",
             "label": "SubProcess Init State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Surec Baslangic Durumu"
           }
         ],
         "view": null,
@@ -102,10 +90,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to SubProcess Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Alt Surec Tamamlanmaya Otomatik Gecis"
               }
             ],
             "rule": {
@@ -125,10 +109,6 @@
           {
             "language": "en-US",
             "label": "SubProcess Completed (Final)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Alt Surec Tamamlandi (Final)"
           }
         ],
         "view": null,

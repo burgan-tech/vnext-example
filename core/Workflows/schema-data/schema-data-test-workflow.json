@@ -21,10 +21,6 @@
       {
         "language": "en-US",
         "label": "Schema & Data Management Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Schema ve Data Yonetimi Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -48,10 +44,6 @@
         {
           "language": "en-US",
           "label": "Update Instance Data (updateData $self)"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Instance Datasini Guncelle (updateData $self)"
         }
       ]
     },
@@ -64,10 +56,6 @@
         {
           "language": "en-US",
           "label": "Start Schema Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Schema Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -96,10 +84,6 @@
           {
             "language": "en-US",
             "label": "Data Initialized (Master Schema Active)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Data Baslatildi (Ana Schema Aktif)"
           }
         ],
         "view": null,
@@ -116,10 +100,6 @@
               {
                 "language": "en-US",
                 "label": "Confirm with Transition Schema"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Transition Schema ile Onayla"
               }
             ],
             "schema": {
@@ -154,10 +134,6 @@
               {
                 "language": "en-US",
                 "label": "Skip to No-Schema State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Schemasiz Duruma Atla"
               }
             ],
             "schema": null,
@@ -175,10 +151,6 @@
           {
             "language": "en-US",
             "label": "Schema Validated State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Schema Dogrulanmis Durum"
           }
         ],
         "view": null,
@@ -195,10 +167,6 @@
               {
                 "language": "en-US",
                 "label": "Move to No-Schema State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Schemasiz Duruma Gec"
               }
             ],
             "schema": null,
@@ -216,10 +184,6 @@
           {
             "language": "en-US",
             "label": "No Schema State (Free-form transitions)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Schemasiz Durum (Serbest gecisler)"
           }
         ],
         "view": null,
@@ -236,10 +200,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Schema Test"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Schema Testini Tamamla"
               }
             ],
             "schema": null,
@@ -257,10 +217,6 @@
           {
             "language": "en-US",
             "label": "Schema Test Completed (Final/Success)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Schema Testi Tamamlandi (Final/Basarili)"
           }
         ],
         "view": null,

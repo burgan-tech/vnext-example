@@ -74,14 +74,17 @@ Content-Type: application/json
 # TEST 2: List / filter / sort / pagination
 ###############################################################################
 
-### Filter by category (finance)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=attributes.category%20eq%20%27finance%27
+### Filter by category (finance) — GraphQL / JSON filter (recommended)
+### Decoded: filter={"attributes":{"category":{"eq":"finance"}}}
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=%7B%22attributes%22%3A%7B%22category%22%3A%7B%22eq%22%3A%22finance%22%7D%7D%7D
 
-### Filter by state key
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=state%20eq%20%27active-state%27
+### Filter by state key — GraphQL / JSON filter
+### Decoded: filter={"currentState":{"eq":"active-state"}}
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=%7B%22currentState%22%3A%7B%22eq%22%3A%22active-state%22%7D%7D
 
-### Filter by status (active)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=status%20eq%20%27A%27
+### Filter by status (active) — GraphQL / JSON filter
+### Decoded: filter={"status":{"eq":"A"}}
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?filter=%7B%22status%22%3A%7B%22eq%22%3A%22A%22%7D%7D
 
 ### Sort descending by createdAt
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?sort=-createdAt

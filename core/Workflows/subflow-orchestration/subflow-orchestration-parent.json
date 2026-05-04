@@ -18,10 +18,6 @@
       {
         "language": "en-US",
         "label": "SubFlow Orchestration Parent"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akis Orkestrasyon Ebeveyn"
       }
     ],
     "functions": [],
@@ -37,10 +33,6 @@
           {
             "language": "en-US",
             "label": "Shared Update Data"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Paylasimli Veri Guncelle"
           }
         ],
         "availableIn": [
@@ -72,10 +64,6 @@
         {
           "language": "en-US",
           "label": "Cancel Parent"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Ebeveyni Iptal Et"
         }
       ]
     },
@@ -88,10 +76,6 @@
         {
           "language": "en-US",
           "label": "Start Parent Orchestration"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Ebeveyn Orkestrasyonu Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -120,10 +104,6 @@
           {
             "language": "en-US",
             "label": "Parent Initial"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ebeveyn Baslangic"
           }
         ],
         "view": null,
@@ -140,10 +120,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Parent SubFlow State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Alt Akis Durumuna"
               }
             ],
             "rule": {
@@ -163,10 +139,6 @@
           {
             "language": "en-US",
             "label": "Parent SubFlow State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ebeveyn Alt Akis Durumu"
           }
         ],
         "view": null,
@@ -195,10 +167,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Parent Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Ebeveyn Tamamlandi"
               }
             ],
             "rule": {
@@ -218,10 +186,6 @@
           {
             "language": "en-US",
             "label": "Parent Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ebeveyn Tamamlandi"
           }
         ],
         "view": null,
@@ -239,10 +203,6 @@
           {
             "language": "en-US",
             "label": "Parent Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ebeveyn Iptal"
           }
         ],
         "view": null,

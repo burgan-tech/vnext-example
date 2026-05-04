@@ -7,17 +7,16 @@ namespace Core.IntegrationTests.Tests.TaskExecutionTestWorkflow;
 
 /*
 !BUGS:
-! 1. Dapr Pubsub'un context body'sinden dönen JSONELEMENT
-! yapının json serialize işleminde hata veriyor,
-!  dispose olmuş / uygun olmayan durumdaki JsonElement
+! 1. JsonElement from Dapr PubSub context.Body fails on JSON serialization:
+!    InvalidOperationException due to disposed or invalid object state.
  * System.InvalidOperationException: Operation is not valid due to the current state of the object.
  *  at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.GetMemberAndWriteJson(...)
  *  at BBT.Workflow.Tasks.Coordinator.TaskExecutionEngine.ExecuteCoreAsync(...):line 531
 */
 
 /// <summary>
-/// <c>api-tests/task-execution/task-execution.http</c> B1–B3 ve
-/// <c>doc/integration-test-documentation.md</c> Task Execution grubu ile hizalı integration testler.
+/// Integration tests aligned with <c>api-tests/task-execution/task-execution.http</c> B1–B3 and
+/// the Task Execution section of <c>doc/integration-test-documentation.md</c>.
 /// </summary>
 public class TaskExecutionTestWorkflowTests : IntegrationTestBase
 {
@@ -25,7 +24,7 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
     private const string TargetWorkflowKey = "task-target-workflow";
     private const string ExtendedWorkflowKey = "extended-tasks-test-workflow";
 
-    /// <summary>Ana zincir: Mocklab HTTP, subprocess, harici servisler — toleranslı bekleme.</summary>
+    /// <summary>Main chain: Mocklab HTTP, subprocess, external services — tolerant timeouts.</summary>
     private static readonly TimeSpan MainWorkflowStateTimeout = TimeSpan.FromMinutes(3);
 
     private static readonly TimeSpan ExtendedDaprTimeout = TimeSpan.FromMinutes(3);
@@ -55,10 +54,9 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             }
         );
 
-        // Workflow zinciri: http -> script -> timer-wait (3 sn) -> start-flow -> get-instance-data
+        // Flow: http -> script -> timer-wait (3s) -> start-flow -> get-instance-data
         // -> notification -> trigger-transition -> subprocess -> get-instances -> completed-state.
-        // Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu
-        // workflow'da kullanilmaz; happy path manuel onay olmadan dogrudan completed-state'e ulasir.
+        // Human Task (type 5) is deprecated in runtime; not used — happy path completes without manual approval.
         await _mainWorkflow.WaitForStateAsync(
             instanceId,
             "completed-state",
@@ -70,17 +68,16 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             headers: null
         );
         var status = StateFunctionJson.ExtractStatus(stateCompleted);
-        // Happy path bittiginde instance tamamlanmistir; GET .../functions/state govdesindeki status 'C' (Completed) olmalidir.
+        // On happy-path completion, GET .../functions/state must report status 'C' (Completed).
         Assert.Equal("C", status);
 
         var attrs = await GetAttributesAsync(MainWorkflowKey, instanceId);
         TaskExecutionMainWorkflowInstanceDataAssertions.AssertHappyPathCompleted(attrs);
 
-        // Timer Task (tip 9) gercekten beklemis mi? timer-wait-state'in scheduled transition'i
-        // ITimerMapping ile 3 sn sonra start-flow-state'e gecirir; eger sadece auto transition
-        // calissaydi completed-state'e ~yari saniyede ulasirdik. timerStartedAt parent attributes'unda
-        // yazildigi icin (TimerStartMapping) completed-state'e ulasilan ana kadar gecen sure 3 sn'den
-        // buyuk olmalidir. Toleransi 2.5 sn olarak aliyoruz; ust sinir koymuyoruz (CI yavasligi).
+        // Did Timer Task (type 9) actually wait? timer-wait-state scheduled transition + ITimerMapping
+        // advances to start-flow-state after ~3s; auto-only would reach completed-state in ~0.5s.
+        // timerStartedAt on parent attributes (TimerStartMapping) — elapsed time to completed-state should exceed 3s.
+        // Use 2.5s tolerance; no upper bound (slow CI).
         var timerStartedAtRaw = attrs.GetProperty("timerStartedAt").GetString()!;
         var timerStartedAt = DateTime.Parse(
             timerStartedAtRaw,
@@ -90,14 +87,13 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         var timerElapsed = DateTime.UtcNow - timerStartedAt;
         Assert.True(
             timerElapsed.TotalSeconds >= 2.5,
-            $"Timer Task (tip 9) should have delayed scheduled transition by ~3s; "
+            $"Timer Task (type 9) should delay scheduled transition by ~3s; "
                 + $"elapsed since timerStartedAt={timerStartedAtRaw} is only {timerElapsed.TotalSeconds:F2}s. "
-                + "Eger bu deger 3 sn'den kucukse scheduled transition timer'i devre disi kalmis olabilir."
+                + "If below 3s, the scheduled transition timer may be disabled."
         );
 
-        // StartFlow + DirectTrigger zincirinin sadece parent instance'a `startedInstanceId` yazmis olmasi yeterli degildir.
-        // Hedef workflow'un `functions/state` cagrisiyla; (1) StartTask yeni bir instance acti, (2) DirectTriggerTask
-        // hedefin manuel `manual-complete-target` gecisini gercekten tetikledi, dogrulanir.
+        // StartFlow + DirectTrigger: parent `startedInstanceId` alone is insufficient.
+        // Confirm via target `functions/state`: (1) StartTask opened new instance, (2) DirectTriggerTask fired manual `manual-complete-target`.
         var startedTargetId = attrs.GetProperty("startedInstanceId").GetString();
         Assert.False(
             string.IsNullOrWhiteSpace(startedTargetId),
@@ -114,11 +110,10 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         );
         Assert.Equal("C", StateFunctionJson.ExtractStatus(targetStateAfterTrigger));
 
-        // SubProcessTask (tip 14) ayri bir hedef instance acar (fire-and-forget).
-        // attributes.subprocessInstanceId, SubProcessMapping OutputHandler'inda runtime yanitindan yazilir;
-        // varligi ve hedef workflow GET functions/state cevabinin Active/Completed olmasi, subprocess'in
-        // gercekten baslatildigini kanitlar (sadece "completed" bayragi yetmez). Ayrica GetInstance ile
-        // hedef instance attributes'inda parentInstanceId/source/note alanlarinin yazildigini dogrulariz.
+        // SubProcessTask (type 14) starts a separate target instance (fire-and-forget).
+        // attributes.subprocessInstanceId from SubProcessMapping OutputHandler; presence + target GET functions/state
+        // Active/Completed proves startup (a "completed" flag alone is not enough). GetInstance checks
+        // parentInstanceId/source/note on the child.
         var subprocessInstanceId = attrs.GetProperty("subprocessInstanceId").GetString();
         Assert.False(
             string.IsNullOrWhiteSpace(subprocessInstanceId),
@@ -129,9 +124,7 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             subprocessInstanceId!,
             headers: null
         );
-        // Subprocess fire-and-forget oldugu icin tetiklemiyoruz; ya target-initial'da Active kalmali
-        // ya da runtime tarafindan otomatik Completed olmus olmali. Her iki durumda da instance'in
-        // gercekten yaratildigi GET 200 + gecerli state ile teyit edilir.
+        // Fire-and-forget — do not drive transitions; remain target-initial or auto-completed.
         var subprocessState = StateFunctionJson.ExtractStateName(subprocessStateBody);
         var subprocessStatus = StateFunctionJson.ExtractStatus(subprocessStateBody);
         Assert.True(
@@ -162,17 +155,13 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             "subprocess instance attributes.note (set via SubProcessTask body)"
         );
 
-        // SubProcess (tip 14) baslatildiginda parent instance'in `functions/state` cevabindaki
-        // `activeCorrelations` listesinde subprocess'e karsilik gelen bir correlation bulunur:
-        //  - `subFlowInstanceId` parent attributes'taki `subprocessInstanceId` ile birebir esit,
-        //  - `subFlowType` SubProcess kisa kodu olan "P".
-        // Bu, parent'in attributes'ina yazilan id'nin (mapping uretimi) yaninda runtime'in da
-        // sub-flow correlation'ini gercekten kaydettigini kanitlar; sadece "completed = true"
-        // bayragi yetmez (vnext-runtime/doc/tr/flow/function.md "Sub-flow Korelasyonlari" tablosu;
-        // vnext-tests-as-code skill "ActiveCorrelations ile SubProcess / SubFlow teyidi" bolumu).
-        // Not: Eger parent COMPLETED iken activeCorrelations bos donerse bu adim fail olur ve
-        // doğrulamayi parent subprocess'i baslattiktan hemen sonraki bir state snapshot'inda
-        // yapmaya tasimak gerekir; ilk fail durumunda hata mesaji bu durumu da belirtir.
+        // On SubProcess start, parent `functions/state` exposes `activeCorrelations`:
+        //  - subFlowInstanceId matches parent attributes subprocessInstanceId,
+        //  - subFlowType is SubProcess short code "P".
+        // Proves runtime correlation, not only mapping-produced id (vnext-runtime function.md sub-flow table;
+        // vnext-tests-as-code ActiveCorrelations section).
+        // If parent is COMPLETED and activeCorrelations is empty this fails — move assertion to an earlier snapshot
+        // taken while parent is still in subprocess-related state (error message mentions this).
         var correlationFound = StateFunctionJson.TryFindActiveCorrelationBySubFlowInstanceId(
             stateCompleted,
             subprocessInstanceId!,
@@ -181,16 +170,16 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
         var allCorrelations = StateFunctionJson.ExtractActiveCorrelations(stateCompleted);
         Assert.True(
             correlationFound,
-            $"parent functions/state.activeCorrelations icinde subFlowInstanceId == '{subprocessInstanceId}' olan correlation bulunmali; "
-                + $"toplam correlation sayisi = {allCorrelations.Count}. "
-                + "Eger 0 geldiyse parent COMPLETED'a ulastiginda runtime correlation'i listeden cikarmis olabilir; "
-                + "doğrulamayi parent subprocess-state'inde iken alinan bir snapshot'a tasimak gerekebilir."
+            $"parent functions/state.activeCorrelations must contain subFlowInstanceId == '{subprocessInstanceId}'; "
+                + $"total correlations = {allCorrelations.Count}. "
+                + "If zero, runtime may strip correlations once parent reaches COMPLETED; "
+                + "then assert from a snapshot taken while parent is still in subprocess-state."
         );
 
         var subFlowType = StateFunctionJson.ExtractSubFlowType(subprocessCorrelation);
         Assert.True(
             string.Equals(subFlowType, "P", StringComparison.Ordinal),
-            $"activeCorrelations[<subprocess>].subFlowType beklenen 'P' (SubProcess kisa kodu); actual = '{subFlowType ?? "<null>"}'."
+            $"activeCorrelations[<subprocess>].subFlowType expected 'P' (SubProcess); actual = '{subFlowType ?? "<null>"}'."
         );
     }
 
@@ -231,7 +220,7 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             headers: null
         );
         var targetStatus = StateFunctionJson.ExtractStatus(targetStateBody);
-        // Hedef workflow happy path sonunda state fonksiyonu status 'C' (Completed) olmalıdır.
+        // Target workflow happy path: state function status must be 'C' (Completed).
         Assert.Equal("C", targetStatus);
     }
 
@@ -259,7 +248,7 @@ public class TaskExecutionTestWorkflowTests : IntegrationTestBase
             headers: null
         );
         var extendedStatus = StateFunctionJson.ExtractStatus(extendedStateBody);
-        // Dapr zinciri happy path sonunda state fonksiyonu status 'C' (Completed) olmalıdır.
+        // Dapr chain happy path: state function status must be 'C' (Completed).
         Assert.Equal("C", extendedStatus);
 
         var attrs = await GetAttributesAsync(ExtendedWorkflowKey, instanceId);

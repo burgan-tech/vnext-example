@@ -30,7 +30,7 @@ Content-Type: application/json
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
 ### Adim 3: Manuel Transition - Move to Processing (ITransitionMapping + transition roles)
-### transition roles: yalnizca test-operator allow. State fonksiyonu (GET .../functions/state) transitions[] listesini role'e gore filtreler (v0.0.39+). PATCH cagrisinda ayni kuralla zorunlu red resmi dokümanda taahhüt edilmez.
+### transition roles: test-operator allow only. State function (GET .../functions/state) filters transitions[] by role (v0.0.39+). PATCH is not formally guaranteed to be denied by the same rule in docs.
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
 role: test-operator
@@ -335,8 +335,8 @@ role: test-viewer
 
 ### ============================================================
 ### TEST: QueryRoles ve Transition Roles
-### State-level queryRoles artık pre-complete-state üzerinde (processing-state auto geçişli, gözlemlenemez).
-### Akış: move -> auto-passed -> cancel-schedule-manually -> pre-complete -> authorize (processor OK, viewer deny)
+### State-level queryRoles is on pre-complete-state (processing-state auto-only, not observable).
+### Flow: move -> auto-passed -> cancel-schedule-manually -> pre-complete -> authorize (processor OK, viewer deny)
 ### ============================================================
 
 ### Adim 1: Workflow Baslat (Roles Test)

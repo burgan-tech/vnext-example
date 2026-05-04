@@ -7,26 +7,25 @@
 @mocklabBaseUrl = http://localhost:3002
 
 ###############################################################################
-# vNext Task execution — tek dosya (Postman koleksiyonu ile ayni bolum yapisi)
+# vNext task execution — single file (same section layout as Postman collection)
 #
-# BOLUM 1 — Ana zincir (task-execution-test-workflow): happy path
-# BOLUM 2 — Hedef workflow (task-target-workflow): happy path
-# BOLUM 3 — Dapr zinciri (extended-tasks-test-workflow): happy path
+# SECTION 1 — Main chain (task-execution-test-workflow): happy path
+# SECTION 2 — Target workflow (task-target-workflow): happy path
+# SECTION 3 — Dapr chain (extended-tasks-test-workflow): happy path
 ###############################################################################
 
 ###############################################################################
-# BOLUM 1 — Happy path: Ana task execution zinciri
-# HTTP -> Script -> Timer Wait (Timer Task tip 9, scheduled transition 3 sn)
-# -> Start Flow (11) -> Get Instance Data (13)
-# -> Notification (10, mapping.type G) -> TriggerTransition (12) -> SubProcess (14)
-# -> GetInstances (15) -> Completed (auto)
-# Condition Task (tip 8) tum auto transition rule'larinda (AlwaysTrueRule) dolayli olarak uretilir.
-# NOT: Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu
-# zincirden cikartildi; happy path manuel onay olmadan dogrudan completed-state'e ulasir.
+# SECTION 1 — Happy path: main task execution chain
+# HTTP → Script → Timer wait (Timer Task type 9, scheduled transition ~3s)
+# → Start Flow (11) → Get Instance Data (13)
+# → Notification (10, mapping.type G) → TriggerTransition (12) → SubProcess (14)
+# → GetInstances (15) → Completed (auto)
+# Condition Task (type 8) is produced indirectly for auto rules (AlwaysTrueRule).
+# NOTE: Human Task (type 5) is deprecated — removed from this chain; happy path completes without manual approval.
 # Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
 ###############################################################################
 
-### B1 — Adim 1: Ana workflow baslat (sync zincir completed-state'e ulasir)
+### B1 — Step 1: Start main workflow (sync runs chain to completed-state)
 # @name createTaskExecInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -39,43 +38,42 @@ Content-Type: application/json
 
 @taskExecInstanceId = {{createTaskExecInstance.response.body.$.id}}
 
-### B1 — Adim 2: Durum kontrol (completed-state, status: C)
+### B1 — Step 2: State check (completed-state, status: C)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
 
-### B1 — Adim 3: Instance data (notification / trigger / subprocess / getInstances bayraklari)
-# Beklenen: testId, httpTaskCompleted, scriptProcessed,
-# timerStartedAt (TimerStartMapping anligi - timer-wait-state'e girildigi an),
-# timerExpectedSeconds = 3 (TimerScheduleMapping bekleme suresi),
-# startFlowCompleted, startedInstanceId (StartTask sonucu hedef workflow id),
-# subprocessInstanceId (SubProcessTask sonucu hedef workflow id),
-# subprocessData (SubProcessTask context.Body.data anlık kopyası: id/instanceId/state vb.),
+### B1 — Step 3: Instance data (notification / trigger / subprocess / getInstances flags)
+# Expected: testId, httpTaskCompleted, scriptProcessed,
+# timerStartedAt (TimerStartMapping when entering timer-wait-state),
+# timerExpectedSeconds = 3 (TimerScheduleMapping duration),
+# startFlowCompleted, startedInstanceId (StartTask → target workflow id),
+# subprocessInstanceId (SubProcessTask → target workflow id),
+# subprocessData (point-in-time SubProcessTask context.Body.data: id/instanceId/state, …),
 # getInstanceDataCompleted, taskResults.triggerTransition.completed,
 # taskResults.subprocess.completed, taskResults.getInstances.completed
-# Not: completed-state'e ulasilana kadar gecen toplam sure >= 3 sn olmali; aksi halde
-# scheduled transition'in Timer Task'i devre disi olabilir.
+# Total elapsed until completed-state should be ≥ ~3s; otherwise the scheduled Timer path may not be exercised.
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
 
-### B1 — Adim 3a: StartTask ile baslatilan hedef instance functions/state (target-completed olmali)
-# startedInstanceId'yi B1 Adim 3 cikisindan kopyalayip asagidaki degiskene yapistir.
-# (Postman koleksiyonu bunu otomatik degisken olarak set eder.)
+### B1 — Step 3a: functions/state on instance started via StartTask (expect target-completed)
+# Paste startedInstanceId from B1 Step 3 into the variable below.
+# (Postman collection sets this automatically.)
 @taskExecStartedTargetId = REPLACE_WITH_startedInstanceId
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecStartedTargetId}}/functions/state
 
-### B1 — Adim 3b: SubProcessTask ile acilan hedef instance functions/state
-# Subprocess fire-and-forget'tir; state target-initial (Active) veya target-completed olabilir.
+### B1 — Step 3b: functions/state on subprocess target instance (SubProcessTask)
+# Subprocess is fire-and-forget; state may be target-initial (active) or target-completed.
 @taskExecSubprocessId = REPLACE_WITH_subprocessInstanceId
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}/functions/state
 
-### B1 — Adim 3c: SubProcessTask ile acilan hedef instance attributes
-# Beklenen: source = "task-execution-test", parentInstanceId = ana workflow instance id,
-# note alani SubProcessMapping InputHandler'da SetBody ile yazilmali.
+### B1 — Step 3c: Attributes on subprocess target instance (SubProcessTask)
+# Expected: source = "task-execution-test", parentInstanceId = main workflow instance id,
+# note set via SubProcessMapping InputHandler SetBody.
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}
 
 ###############################################################################
-# BOLUM 2 — Happy path: Hedef workflow (task-target-workflow) bagimsiz baslatma
+# SECTION 2 — Happy path: start target workflow (task-target-workflow) standalone
 ###############################################################################
 
-### B2 — Adim 1: Hedef workflow baslat
+### B2 — Step 1: Start target workflow
 # @name createTargetInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -88,22 +86,21 @@ Content-Type: application/json
 
 @targetInstanceId = {{createTargetInstance.response.body.$.id}}
 
-### B2 — Adim 2: Hedefde manuel gecis (DirectTriggerTask ile ayni anahtar: manual-complete-target)
+### B2 — Step 2: Manual transition on target (same key as DirectTriggerTask: manual-complete-target)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/transitions/manual-complete-target
 Content-Type: application/json
 
 {}
 
-### B2 — Adim 3: Hedef workflow durumu (target-completed olmali)
+### B2 — Step 3: Target workflow state (expect target-completed)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/functions/state
 
 ###############################################################################
-# BOLUM 3 — Happy path: Dapr task zinciri (extended-tasks-test-workflow, sadece dis servis)
-# Dapr HTTP (1) -> Dapr Service (3) -> Dapr Binding (2) ->
-# Dapr PubSub (4) -> completed-state (otomatik)
+# SECTION 3 — Happy path: Dapr-only chain (extended-tasks-test-workflow)
+# Dapr HTTP (1) → Dapr Service (3) → Dapr PubSub (4) → completed-state (auto)
 ###############################################################################
 
-### B3 — Adim 1: Workflow baslat (sync - tam zincir)
+### B3 — Step 1: Start workflow (sync — full chain)
 # @name createExtendedInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -118,15 +115,14 @@ Content-Type: application/json
 
 @extendedInstanceId = {{createExtendedInstance.response.body.$.id}}
 
-### B3 — Adim 2: Durum kontrol - completed-state olmali
+### B3 — Step 2: State check — expect completed-state
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}/functions/state
 
-### B3 — Adim 3: Instance - Dapr task sonuclari
+### B3 — Step 3: Instance payload — Dapr task results
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}
 
-### B3 — Beklenen sonuclar (yorum):
+### B3 — Expected (reference):
 ### - initCompleted: true
 ### - taskResults.daprHttp.completed: true
 ### - taskResults.daprService.completed: true
-### - taskResults.daprBinding.completed: true
-### - taskResults.daprPubSub.completed: true
+### - taskResults.daprPubSub.completed / published proofs (see integration tests §6.4)

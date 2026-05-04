@@ -35,10 +35,6 @@
       {
         "language": "en-US",
         "label": "Lifecycle & Transitions Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Yasam Dongusu ve Gecis Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -62,10 +58,6 @@
         {
           "language": "en-US",
           "label": "Cancel Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Is Akisini Iptal Et"
         }
       ]
     },
@@ -83,10 +75,6 @@
         {
           "language": "en-US",
           "label": "Exit Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Is Akisindan Cik"
         }
       ],
       "onExecutionTasks": [
@@ -114,10 +102,6 @@
         {
           "language": "en-US",
           "label": "Start Lifecycle Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Yasam Dongusu Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -146,10 +130,6 @@
           {
             "language": "en-US",
             "label": "Initialize State (Initial)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Baslangic Durumu"
           }
         ],
         "view": null,
@@ -166,10 +146,6 @@
               {
                 "language": "en-US",
                 "label": "Move to Processing (Manual + ITransitionMapping)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Isleme Gec (Manuel + ITransitionMapping)"
               }
             ],
             "roles": [
@@ -197,10 +173,6 @@
           {
             "language": "en-US",
             "label": "Processing State (Intermediate, onEntries + onExits)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Isleme Durumu (Ara Durum, onEntries + onExits)"
           }
         ],
         "view": null,
@@ -245,10 +217,6 @@
               {
                 "language": "en-US",
                 "label": "Auto Pass (testPath=pass)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Gecis (testPath=pass)"
               }
             ],
             "rule": {
@@ -266,10 +234,6 @@
               {
                 "language": "en-US",
                 "label": "Auto Fail (testPath=fail)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Basarisiz (testPath=fail)"
               }
             ],
             "rule": {
@@ -288,10 +252,6 @@
               {
                 "language": "en-US",
                 "label": "Default Auto (DefaultAutoFallbackRule + triggerKind:10)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Varsayilan Otomatik (DefaultAutoFallbackRule + triggerKind:10)"
               }
             ],
             "rule": {
@@ -311,10 +271,6 @@
           {
             "language": "en-US",
             "label": "Auto Passed State (Intermediate)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Otomatik Gecis Basarili Durumu"
           }
         ],
         "view": null,
@@ -331,10 +287,6 @@
               {
                 "language": "en-US",
                 "label": "Scheduled Timer (ITimerMapping, 6s)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Zamanlanmis Gecis (ITimerMapping, 6s)"
               }
             ],
             "timer": {
@@ -352,10 +304,6 @@
               {
                 "language": "en-US",
                 "label": "Cancel Schedule Manually"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Schedule Manuel Iptal"
               }
             ]
           },
@@ -368,10 +316,6 @@
               {
                 "language": "en-US",
                 "label": "Reschedule Timer"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Timer Yeniden Zamanla"
               }
             ]
           }
@@ -386,10 +330,6 @@
           {
             "language": "en-US",
             "label": "Timer Triggered State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Zamanlayici Tetiklenmis Durum"
           }
         ],
         "view": null,
@@ -420,10 +360,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Pre-Complete (AlwaysTrue)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik On-Tamamlama Gecisi"
               }
             ],
             "rule": {
@@ -443,10 +379,6 @@
           {
             "language": "en-US",
             "label": "Pre-Complete State (Manual to Finish)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlama Oncesi Durum"
           }
         ],
         "queryRoles": [
@@ -473,10 +405,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Workflow (Manual to Final)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Is Akisini Tamamla"
               }
             ],
             "schema": null,
@@ -494,10 +422,6 @@
           {
             "language": "en-US",
             "label": "Default Fallback State (triggerKind:10 target)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Varsayilan Geri Donus Durumu"
           }
         ],
         "view": null,
@@ -514,10 +438,6 @@
               {
                 "language": "en-US",
                 "label": "Fallback Auto Complete"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Geri Donus Otomatik Tamamlama"
               }
             ],
             "rule": {
@@ -537,10 +457,6 @@
           {
             "language": "en-US",
             "label": "Auto Failed State (Final/Error)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Otomatik Basarisiz Durumu (Final/Hata)"
           }
         ],
         "view": null,
@@ -558,10 +474,6 @@
           {
             "language": "en-US",
             "label": "Completed State (Final/Success)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi Durumu (Final/Basarili)"
           }
         ],
         "view": null,
@@ -579,10 +491,6 @@
           {
             "language": "en-US",
             "label": "Terminated State (Final/Terminated)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Sonlandirildi Durumu (Final/Sonlandirildi)"
           }
         ],
         "view": null,
