@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using VNext.Testing.Sdk.Client;
@@ -144,5 +145,54 @@ public sealed class WorkflowInstanceTestHelper
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         else
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    /// <summary>
+    /// Returns the <c>attributes</c> object from <c>GET .../instances/{id}</c>.
+    /// Fails the test when the response does not include an <c>attributes</c> property.
+    /// </summary>
+    public async Task<JsonElement> GetAttributesAsync(string instanceId)
+    {
+        var response = await _api.GetInstanceAsync(_workflowKey, instanceId);
+        Assert.True(
+            response.Body.TryGetProperty("attributes", out var attributes),
+            "GetInstance response should include 'attributes'."
+        );
+        return attributes;
+    }
+
+    /// <summary>
+    /// Calls <c>GET .../instances</c> with any subset of <c>filter</c> / <c>sort</c> / <c>page</c> /
+    /// <c>pageSize</c> query parameters and asserts HTTP 200 before returning the response body.
+    /// <paramref name="filterJson"/> is the GraphQL / JSON filter string expected by the runtime
+    /// (see <c>vnext-runtime</c> instance-filtering doc; e.g. <c>{"attributes":{"category":{"eq":"finance"}}}</c>).
+    /// </summary>
+    public async Task<JsonElement> ListInstancesAsync(
+        string? filterJson = null,
+        string? sort = null,
+        int? page = null,
+        int? pageSize = null,
+        Dictionary<string, string>? extraQuery = null
+    )
+    {
+        var qp = new Dictionary<string, string>();
+        if (!string.IsNullOrEmpty(filterJson))
+            qp["filter"] = filterJson;
+        if (!string.IsNullOrEmpty(sort))
+            qp["sort"] = sort;
+        if (page.HasValue)
+            qp["page"] = page.Value.ToString(CultureInfo.InvariantCulture);
+        if (pageSize.HasValue)
+            qp["pageSize"] = pageSize.Value.ToString(CultureInfo.InvariantCulture);
+
+        if (extraQuery is not null)
+        {
+            foreach (var kv in extraQuery)
+                qp[kv.Key] = kv.Value;
+        }
+
+        var response = await _api.ListInstancesAsync(_workflowKey, qp);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return response.Body;
     }
 }

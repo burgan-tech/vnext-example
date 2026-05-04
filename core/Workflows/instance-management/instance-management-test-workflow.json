@@ -25,7 +25,7 @@
       "versionStrategy": "Major",
       "timer": {
         "reset": "false",
-        "duration": "PT120S"
+        "duration": "PT80S"
       }
     },
     "labels": [

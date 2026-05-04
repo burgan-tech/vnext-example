@@ -78,6 +78,30 @@ public static class InstanceListJson
     }
 
     /// <summary>
+    /// Returns the zero-based position of the row whose <c>id</c> equals <paramref name="instanceId"/>,
+    /// or <c>-1</c> when not found. Useful for asserting sort order (e.g. <c>sort=-createdAt</c>).
+    /// </summary>
+    public static int IndexOfInstanceId(JsonElement body, string instanceId)
+    {
+        if (string.IsNullOrEmpty(instanceId))
+            return -1;
+
+        var items = ExtractItems(body);
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (
+                string.Equals(
+                    TryGetId(items[i]),
+                    instanceId,
+                    StringComparison.Ordinal
+                )
+            )
+                return i;
+        }
+        return -1;
+    }
+
+    /// <summary>
     /// Returns <c>attributes</c> object from an instance row, or null.
     /// </summary>
     public static JsonElement? TryGetAttributes(JsonElement instance)

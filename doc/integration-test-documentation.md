@@ -15,7 +15,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | 5 | View, Function & Extension | `view-function-extension-test-workflow` | View tipleri, display modlari, function, extension, wizard state, **features** referansi |
 | 6 | Schema & Data | `schema-data-test-workflow` | Master schema, transition schema, updateData, field roles |
 | 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
-| 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` | **Core (C)** ve **SubProcess (P)** workflow tipleri |
+| 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` + `flow-flow-test` + `subflow-flow-test` | **Core (C)**, **SubProcess (P)**, **Flow (F)** ve **SubFlow (S)** workflow tipleri |
 | 9 | Version Consistency | `version-consistency-test-workflow` (v1.0.0 + v2.0.0) | Workflow versiyon degisiminde mevcut instance'larin kendi versiyonlariyla devam etmesi |
 
 **Grup numaralari:** Eski **Grup 8 (Extended Tasks)** icerigi **Grup 3 (Task Execution)** altinda birlestirilmistir (`extended-tasks-test-workflow` artik Grup 3 kapsaminda). Matris ve tablolarda **G8 / Grup 8** = Flow Types, **G9 / Grup 9** = Version Consistency.
@@ -810,8 +810,10 @@ instance-management-test-workflow (F)
 **Workflow'lar:**
 - `core-flow-test` (type: C) - Core flow tipi
 - `subprocess-flow-test` (type: P) - SubProcess flow tipi
+- `flow-flow-test` (type: F) - Flow tipi
+- `subflow-flow-test` (type: S) - SubFlow tipi
 
-**Amac:** vNext'in destekledigi 4 farkli workflow tipinden (C, F, S, P) test edilmeyen **Core (C)** ve **SubProcess (P)** tiplerinin runtime tarafindan kabul edilip calistirilabildigini dogrular.
+**Amac:** vNext'in destekledigi 4 farkli workflow tipinden (C, F, S, P) her birinin runtime tarafindan kabul edilip calistirilabildigini dogrular. F ve S tipleri diger gruplarda kapsamli test edilir; burada yalnizca minimal smoke dogrulamasi yapilir.
 
 ### Agac Yapisi
 
@@ -845,6 +847,36 @@ subprocess-flow-test (P)
 │           └── rule: AlwaysTrueRule.csx
 │
 └── subprocess-completed (Final/Success, stateType:3, subType:1)
+
+flow-flow-test (F)
+│
+├── [startTransition] start-flow-flow-test → flow-init-state
+│   └── onExecutionTasks:
+│       └── flow-types-script-task + FlowInitMapping.csx
+│
+├── flow-init-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── flow-types-script-task + FlowInitMapping.csx
+│   └── Transitions:
+│       └── auto-flow-to-complete (Auto) → flow-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+└── flow-completed (Final/Success, stateType:3, subType:1)
+
+subflow-flow-test (S)
+│
+├── [startTransition] start-subflow-flow-test → subflow-init-state
+│   └── onExecutionTasks:
+│       └── flow-types-script-task + SubFlowInitMapping.csx
+│
+├── subflow-init-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── flow-types-script-task + SubFlowInitMapping.csx
+│   └── Transitions:
+│       └── auto-subflow-to-complete (Auto) → subflow-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+└── subflow-completed (Final/Success, stateType:3, subType:1)
 ```
 
 ### Test Edilen Ozellikler
@@ -853,7 +885,9 @@ subprocess-flow-test (P)
 |---------|-------------------|---------------|
 | Core flow tipi (type: C) | Minimal workflow publish ve calistirma | core-flow-test |
 | SubProcess flow tipi (type: P) | Minimal workflow publish ve calistirma | subprocess-flow-test |
-| Farkli flow tiplerinin runtime uyumlulugu | Tum 4 tip: C (G8), F (G1-G7, G9), S (G2), P (G8) | Tum gruplarda |
+| Flow tipi (type: F) | Minimal workflow publish ve calistirma | flow-flow-test |
+| SubFlow tipi (type: S) | Minimal workflow publish ve calistirma | subflow-flow-test |
+| Farkli flow tiplerinin runtime uyumlulugu | Tum 4 tip: C, F, S, P (hepsi G8'de minimal smoke; F/S ayrica G1-G7, G2, G9'da kapsamli) | Tum gruplarda |
 
 ### Kullanilan Bilesenler
 
@@ -862,6 +896,8 @@ subprocess-flow-test (P)
 | Task | `flow-types-script-task` (type:7) | Tasks/flow-types/flow-types-script-task.json |
 | CSX | CoreInitMapping | Workflows/flow-types/src/CoreInitMapping.csx |
 | CSX | SubProcessInitMapping | Workflows/flow-types/src/SubProcessInitMapping.csx |
+| CSX | FlowInitMapping | Workflows/flow-types/src/FlowInitMapping.csx |
+| CSX | SubFlowInitMapping | Workflows/flow-types/src/SubFlowInitMapping.csx |
 | CSX | AlwaysTrueRule | Workflows/flow-types/src/AlwaysTrueRule.csx |
 
 ### HTTP Test Dosyasi (`flow-types-test.http`)
@@ -870,6 +906,8 @@ subprocess-flow-test (P)
 |------|---------------|
 | Core flow | Core (C) tipi workflow baslatma ve state kontrolu |
 | SubProcess flow | SubProcess (P) tipi workflow baslatma ve state kontrolu |
+| Flow | Flow (F) tipi workflow baslatma ve state kontrolu |
+| SubFlow | SubFlow (S) tipi workflow baslatma ve state kontrolu |
 
 ---
 
