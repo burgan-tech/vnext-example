@@ -21,17 +21,20 @@ public class ListFirstLastMapping : ScriptBase, IMapping
             var items = GetList(data, "items");
 
             var first = ListFirst(items);
-            var firstActive = ListFirst(items, x => x.status == "active");
-            var firstInactive = ListFirst(items, x => x.status == "inactive");
-            var firstNotFound = ListFirst(items, x => x.status == "admin");
+            var firstActive = ListFirst(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
+            var firstInactive = ListFirst(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "inactive"));
+            var firstNotFound = ListFirst(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "admin"));
 
             var last = ListLast(items);
-            var lastActive = ListLast(items, x => x.status == "active");
+            var lastActive = ListLast(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
 
             var emptyFirst = ListFirst(CreateList());
             var emptyLast = ListLast(CreateList());
 
-            LogInformation($"First: {first?.name}, Last: {last?.name}");
+            var firstName = first != null ? GetPropertyValue(first, "name")?.ToString() : null;
+            var lastName = last != null ? GetPropertyValue(last, "name")?.ToString() : null;
+
+            LogInformation($"First: {firstName}, Last: {lastName}");
 
             dynamic result = new ExpandoObject();
 
@@ -50,20 +53,28 @@ public class ListFirstLastMapping : ScriptBase, IMapping
             if (HasProperty(data, "filterCountAnyResult"))
                 result.filterCountAnyResult = data.filterCountAnyResult;
 
+            var firstId = first != null ? GetPropertyValue(first, "id")?.ToString() : null;
+            var lastId = last != null ? GetPropertyValue(last, "id")?.ToString() : null;
+            var firstActiveId = firstActive != null ? GetPropertyValue(firstActive, "id")?.ToString() : null;
+            var firstActiveName = firstActive != null ? GetPropertyValue(firstActive, "name")?.ToString() : null;
+            var firstInactiveName = firstInactive != null ? GetPropertyValue(firstInactive, "name")?.ToString() : null;
+            var lastActiveId = lastActive != null ? GetPropertyValue(lastActive, "id")?.ToString() : null;
+            var lastActiveName = lastActive != null ? GetPropertyValue(lastActive, "name")?.ToString() : null;
+
             result.firstLastResult = new ExpandoObject();
             result.firstLastResult.success = true;
-            result.firstLastResult.firstName = (string)(first?.name ?? "null");
-            result.firstLastResult.lastName = (string)(last?.name ?? "null");
-            result.firstLastResult.firstActiveName = (string)(firstActive?.name ?? "null");
-            result.firstLastResult.firstInactiveName = (string)(firstInactive?.name ?? "null");
-            result.firstLastResult.lastActiveName = (string)(lastActive?.name ?? "null");
+            result.firstLastResult.firstName = firstName ?? "null";
+            result.firstLastResult.lastName = lastName ?? "null";
+            result.firstLastResult.firstActiveName = firstActiveName ?? "null";
+            result.firstLastResult.firstInactiveName = firstInactiveName ?? "null";
+            result.firstLastResult.lastActiveName = lastActiveName ?? "null";
             result.firstLastResult.firstNotFoundIsNull = firstNotFound == null;
             result.firstLastResult.emptyFirstIsNull = emptyFirst == null;
             result.firstLastResult.emptyLastIsNull = emptyLast == null;
-            result.firstLastResult.firstWorked = first?.id == "item-001";
-            result.firstLastResult.lastWorked = last?.id == "item-003";
-            result.firstLastResult.firstWithPredicateWorked = firstActive?.id == "item-001";
-            result.firstLastResult.lastWithPredicateWorked = lastActive?.id == "item-003";
+            result.firstLastResult.firstWorked = firstId == "item-001";
+            result.firstLastResult.lastWorked = lastId == "item-003";
+            result.firstLastResult.firstWithPredicateWorked = firstActiveId == "item-001";
+            result.firstLastResult.lastWithPredicateWorked = lastActiveId == "item-003";
 
             return Task.FromResult(new ScriptResponse { Data = result });
         }

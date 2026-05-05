@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
@@ -20,19 +22,21 @@ public class ListFilterCountAnyMapping : ScriptBase, IMapping
             var data = context.Instance.Data;
             var items = GetList(data, "items");
 
-            var activeItems = ListFilter(items, x => x.status == "active");
+            var activeItems = ListFilter(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
             var totalCount = ListCount(items);
-            var activeCount = ListCount(items, x => x.status == "active");
-            var inactiveCount = ListCount(items, x => x.status == "inactive");
+            var activeCount = ListCount(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
+            var inactiveCount = ListCount(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "inactive"));
             var hasItems = ListAny(items);
-            var hasActive = ListAny(items, x => x.status == "active");
-            var hasAdminRole = ListAny(items, x => x.status == "admin");
+            var hasActive = ListAny(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
+            var hasAdminRole = ListAny(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "admin"));
 
             var emptyList = CreateList();
             var emptyHasItems = ListAny(emptyList);
             var emptyCount = ListCount(emptyList);
 
-            LogInformation($"ListFilter: active={activeCount}, inactive={inactiveCount}, total={totalCount}");
+            LogInformation(
+                $"ListFilter: active={activeCount}, inactive={inactiveCount}, total={totalCount}"
+            );
 
             dynamic result = new ExpandoObject();
 
@@ -61,8 +65,10 @@ public class ListFilterCountAnyMapping : ScriptBase, IMapping
             result.filterCountAnyResult.emptyListHasItems = emptyHasItems;
             result.filterCountAnyResult.emptyListCount = emptyCount;
             result.filterCountAnyResult.filterWorked = activeItems.Count == 2;
-            result.filterCountAnyResult.countWorked = totalCount == 3 && activeCount == 2 && inactiveCount == 1;
-            result.filterCountAnyResult.anyWorked = hasItems && hasActive && !hasAdminRole && !emptyHasItems;
+            result.filterCountAnyResult.countWorked =
+                totalCount == 3 && activeCount == 2 && inactiveCount == 1;
+            result.filterCountAnyResult.anyWorked =
+                hasItems && hasActive && !hasAdminRole && !emptyHasItems;
 
             return Task.FromResult(new ScriptResponse { Data = result });
         }
@@ -71,6 +77,7 @@ public class ListFilterCountAnyMapping : ScriptBase, IMapping
             LogError($"ListFilter/Count/Any Test - Failed: {ex.Message}");
             dynamic errResult = new ExpandoObject();
             errResult.error = ex.Message;
+            errResult.errorStack = ex.StackTrace;
             return Task.FromResult(new ScriptResponse { Data = errResult });
         }
     }

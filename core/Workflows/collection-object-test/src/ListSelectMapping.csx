@@ -20,10 +20,13 @@ public class ListSelectMapping : ScriptBase, IMapping
             var data = context.Instance.Data;
             var items = GetList(data, "items");
 
-            var names = ListSelect<string>(items, x => (string)x.name);
-            var ages = ListSelect<int>(items, x => (int)x.age);
-            var labels = ListSelect<string>(items, x => $"{x.name} ({x.status})");
-            var emptyResult = ListSelect<string>(CreateList(), x => (string)x.name);
+            var names = ListSelect<string>(items, (Func<object, string>)(x => GetPropertyValue(x, "name")?.ToString()));
+            var ages = ListSelect<int>(items, (Func<object, int>)(x => {
+                var val = GetPropertyValue(x, "age");
+                return val != null ? Convert.ToInt32(val) : 0;
+            }));
+            var labels = ListSelect<string>(items, (Func<object, string>)(x => $"{GetPropertyValue(x, "name")} ({GetPropertyValue(x, "status")})"));
+            var emptyResult = ListSelect<string>(CreateList(), (Func<object, string>)(x => GetPropertyValue(x, "name")?.ToString()));
 
             LogInformation($"ListSelect: {names.Count} names, {ages.Count} ages");
 

@@ -31,11 +31,13 @@ public class ListAddRemoveMapping : ScriptBase, IMapping
             ListAdd(items, newItem);
             var countAfterAdd = ListCount(items);
 
-            var removedCount = ListRemove(items, x => x.status == "inactive");
+            var removedCount = ListRemove(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "inactive"));
             var countAfterRemove = ListCount(items);
-            var hasInactiveAfterRemove = ListAny(items, x => x.status == "inactive");
+            var hasInactiveAfterRemove = ListAny(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "inactive"));
 
-            LogInformation($"Add/Remove: before={countBefore}, afterAdd={countAfterAdd}, removed={removedCount}, afterRemove={countAfterRemove}");
+            LogInformation(
+                $"Add/Remove: before={countBefore}, afterAdd={countAfterAdd}, removed={removedCount}, afterRemove={countAfterRemove}"
+            );
 
             dynamic result = new ExpandoObject();
 

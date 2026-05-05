@@ -31,6 +31,7 @@ public class CollectionObjectTestWorkflowTests : IntegrationTestBase
         };
 
         var instanceId = await _wf.StartInstanceIdAsync(body);
+
         await _wf.WaitForStateAsync(instanceId, "test-completed-state", StateTimeout);
 
         var stateBody = await _wf.GetStateFunctionBodyAsync(instanceId, headers: null);
