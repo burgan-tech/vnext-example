@@ -162,6 +162,27 @@ public sealed class WorkflowInstanceTestHelper
     }
 
     /// <summary>
+    /// Calls a named instance function (<c>GET .../functions/{functionName}</c>) and returns the response body.
+    /// Useful for <c>view</c>, <c>data</c>, custom functions, etc.
+    /// </summary>
+    public async Task<JsonElement> CallFunctionAsync(
+        string instanceId,
+        string functionName,
+        Dictionary<string, string>? queryParams = null,
+        Dictionary<string, string>? headers = null
+    )
+    {
+        var response = await _api.CallInstanceFunctionAsync(
+            _workflowKey,
+            instanceId,
+            functionName,
+            queryParams,
+            headers
+        );
+        return response.Body;
+    }
+
+    /// <summary>
     /// Calls <c>GET .../instances</c> with any subset of <c>filter</c> / <c>sort</c> / <c>page</c> /
     /// <c>pageSize</c> query parameters and asserts HTTP 200 before returning the response body.
     /// <paramref name="filterJson"/> is the GraphQL / JSON filter string expected by the runtime

@@ -2,15 +2,14 @@
 @apiVersion = 1
 @domain = core
 @workflow = view-function-extension-test-workflow
-@mocklabBaseUrl = http://localhost:3002
 
 ###############################################################################
 # View, function, and extension integration tests.
-# Requires: API with MocklabBaseUrl for HTTP task in multi-task-function;
-# Mocklab seeded with GET /api/test/user-info (integration-test-collection).
+# Workflow path: view-test-state → (auto) multi-view-state → (manual)
+#   wizard-state → (manual) completed-state
 ###############################################################################
 
-### Start workflow (sync)
+### Step 1: Start workflow (sync) — lands on view-test-state, auto-transitions to multi-view-state
 # @name createVfeInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
@@ -23,20 +22,38 @@ Content-Type: application/json
 
 @vfeInstanceId = {{createVfeInstance.response.body.$.id}}
 
-### Get state (includes view href when state has a view)
+### Step 2: Get state — should be multi-view-state (auto-transition fires immediately)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state
 
-### Get view payload for current state (optional transitionKey; platform for rule-based clients)
+### Step 3: Get view payload (state-level HTML view on multi-view-state, optional platform filter)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/view?platform=web
 
-### Execute single-task function (instance-scoped)
+### Step 4: Execute single-task function (instance-scoped, script task)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/single-task-function
 
-### Execute multi-task function (script then HTTP; output handler aggregates)
+### Step 5: Execute multi-task function (two script tasks; output handler aggregates)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/multi-task-function
 
-### Instance data without extension filter (global-extension scope Everywhere may apply)
+### Step 6: Instance data without extension filter (global-extension scope Everywhere may apply)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data
 
-### Requested extensions via query (DefinedFlowAndRequested + on-demand)
+### Step 7: Requested extensions via query (DefinedFlowAndRequested + on-demand)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data?extensions=requested-extension,global-extension
+
+### Step 8: Transition to wizard-state (manual-to-wizard)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/transitions/manual-to-wizard
+Content-Type: application/json
+
+{}
+
+### Step 9: Verify wizard-state — stateType 5, at most 1 transition, transition has markdown-view
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state
+
+### Step 10: Complete workflow (complete-with-markdown-view transition)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/transitions/complete-with-markdown-view
+Content-Type: application/json
+
+{}
+
+### Step 11: Verify completed-state with status C
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state

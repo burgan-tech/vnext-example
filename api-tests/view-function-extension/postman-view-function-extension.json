@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "5422afe4-5655-4252-91ff-ecbbd776cb64",
     "name": "vNext Test - View Function Extension",
-    "description": "Auto-generated from view-function-extension-test-workflow.http.\nvNext workflow integration test collection for view-function-extension.",
+    "description": "Auto-generated from view-function-extension-test-workflow.http.\nvNext workflow integration test collection for view-function-extension.\nPath: view-test-state → (auto) multi-view-state → (manual) wizard-state → (manual) completed-state",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -25,16 +25,11 @@
       "key": "workflow",
       "value": "view-function-extension-test-workflow",
       "type": "string"
-    },
-    {
-      "key": "mocklabBaseUrl",
-      "value": "http://localhost:3002",
-      "type": "string"
     }
   ],
   "item": [
     {
-      "name": "Start workflow (sync)",
+      "name": "Step 1: Start workflow (sync)",
       "request": {
         "method": "POST",
         "header": [
@@ -93,7 +88,7 @@
       ]
     },
     {
-      "name": "Get state (includes view href when state has a view)",
+      "name": "Step 2: Get state (should be multi-view-state after auto-transition)",
       "request": {
         "method": "GET",
         "header": [],
@@ -118,7 +113,7 @@
       "response": []
     },
     {
-      "name": "Get view payload for current state (optional transitionKey; platform for rule-based clients)",
+      "name": "Step 3: Get view payload (HTML view on multi-view-state)",
       "request": {
         "method": "GET",
         "header": [],
@@ -149,7 +144,7 @@
       "response": []
     },
     {
-      "name": "Execute single-task function (instance-scoped)",
+      "name": "Step 4: Execute single-task function (instance-scoped, script task)",
       "request": {
         "method": "GET",
         "header": [],
@@ -174,7 +169,7 @@
       "response": []
     },
     {
-      "name": "Execute multi-task function (script then HTTP; output handler aggregates)",
+      "name": "Step 5: Execute multi-task function (two script tasks; output handler aggregates)",
       "request": {
         "method": "GET",
         "header": [],
@@ -199,7 +194,7 @@
       "response": []
     },
     {
-      "name": "Instance data without extension filter (global-extension scope Everywhere may apply)",
+      "name": "Step 6: Instance data without extension filter",
       "request": {
         "method": "GET",
         "header": [],
@@ -224,7 +219,7 @@
       "response": []
     },
     {
-      "name": "Requested extensions via query (DefinedFlowAndRequested + on-demand)",
+      "name": "Step 7: Requested extensions via query",
       "request": {
         "method": "GET",
         "header": [],
@@ -249,6 +244,136 @@
               "key": "extensions",
               "value": "requested-extension,global-extension"
             }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Step 8: Transition to wizard-state",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/transitions/manual-to-wizard",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "transitions",
+            "manual-to-wizard"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Step 9: Verify wizard-state (stateType 5, at most 1 transition)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "state"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Step 10: Complete workflow (complete-with-markdown-view)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/transitions/complete-with-markdown-view",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "transitions",
+            "complete-with-markdown-view"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Step 11: Verify completed-state with status C",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{vfeInstanceId}}",
+            "functions",
+            "state"
           ]
         }
       },
