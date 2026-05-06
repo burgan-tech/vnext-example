@@ -12,7 +12,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)**, **subFlow.overrides** (timeout, states.queryRoles, transitions.roles) |
 | 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
-| 5 | View, Function & Extension | `view-function-extension-test-workflow` | View tipleri, display modlari, function, extension, wizard state, **features** referansi |
+| 5 | View, Function & Extension (Comprehensive) | `view-function-extension-test-workflow` | 6 view tipi (JSON/HTML/MD/DeepLink/HTTP/URN), 6 display modu, 4 extension tipi (4 type × 3 scope), 3 function scope (I/F/D), wizard state, implicit global extension, `?extensions=` sorgusu, `functions/view` icerik dogrulamasi |
 | 6 | Schema & Data | `schema-data-test-workflow` | Master schema, transition schema, updateData, field roles |
 | 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
 | 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` + `flow-flow-test` + `subflow-flow-test` | **Core (C)**, **SubProcess (P)**, **Flow (F)** ve **SubFlow (S)** workflow tipleri |
@@ -29,10 +29,10 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 core/
 ├── Workflows/          (15 workflow - 13 mevcut + 2 yeni version-consistency)
 ├── Tasks/              (22 task - 21 mevcut + 1 yeni version-consistency; Dapr Binding task kaldirildi)
-├── Views/              (3 view)
+├── Views/              (6 view)
 ├── Schemas/            (2 schema)
-├── Functions/          (2 function)
-├── Extensions/         (2 extension)
+├── Functions/          (4 function — 2 instance, 1 workflow, 1 domain scope)
+├── Extensions/         (4 extension — 4 type, 3 scope)
 ├── etc/dapr/components/  (Dapr binding ve pubsub YAML)
 └── doc/
     └── integration-test-documentation.md
@@ -574,93 +574,156 @@ error-boundary-test-workflow (F)
 
 ---
 
-## Grup 5: View, Function & Extension
+## Grup 5: View, Function & Extension (Comprehensive)
 
 **Workflow:** `view-function-extension-test-workflow` (type: F)
 
-**Amac:** View tipleri, display modlari, function cagrilari, extension mekanizmasi, wizard state'i ve **features** referansini test eder.
+**Amac:** Tum 6 view icerik tipi (JSON/HTML/Markdown/DeepLink/HTTP/URN), tum 6 display modu (full-page/popup/bottom-sheet/top-sheet/drawer/inline), tum 4 extension tipi (Global/GlobalAndRequested/DefinedFlows/DefinedFlowAndRequested), tum 3 extension scope (GetInstance/GetAllInstances/Everywhere), tum 3 function scope (I/F/D), wizard state kisitlamasi, `features` referansi ve `functions/view` icerik dogrulamasini kapsamli olarak test eder.
 
-### Agac Yapisi
+**Not:** `vfe-global-extension` (Type 1, Scope 3) workflow `extensions` dizisinde **tanimli degildir** — Global extension tanimina gore acik referans olmadan tum flow'larda otomatik uygulanmalidir. Bu implicit davranis test icinde dogrulanir.
+
+### Agac Yapisi (7 state, lineer zincir)
 
 ```
 view-function-extension-test-workflow (F)
 │
 ├── [startTransition] start-view-function-extension-test
 │   └── onExecutionTasks:
-│       └── vfe-script-task + InitVfeMapping.csx
+│       └── vfe-script-task + InitVfeMapping.csx (vfeTestStarted=true)
 │
 ├── [functions]
-│   ├── single-task-function (scope: Instance)
+│   ├── vfe-single-task-function (scope: I — Instance)
 │   │   └── task: vfe-script-task + FunctionSingleTaskMapping.csx
-│   └── multi-task-function (scope: Instance)
-│       ├── onExecutionTasks:
-│       │   ├── order:1 vfe-script-task + FunctionMultiTask1Mapping.csx
-│       │   └── order:2 vfe-http-task + FunctionMultiTask2Mapping.csx
-│       └── output: FunctionOutputMapping.csx (IOutputHandler)
+│   │       (singleTaskFunction=true, executedAt)
+│   ├── vfe-multi-task-function (scope: I — Instance)
+│   │   ├── onExecutionTasks:
+│   │   │   ├── order:1 vfe-script-task + FunctionMultiTask1Mapping.csx
+│   │   │   └── order:2 vfe-script-task-2 + FunctionMultiTask2Mapping.csx
+│   │   └── output: FunctionOutputMapping.csx (IOutputHandler, aggregated=true)
+│   ├── vfe-workflow-function (scope: F — Workflow)
+│   │   └── task: vfe-script-task + VfeWorkflowFunctionMapping.csx
+│   │       (functionScope="F", workflowFunction=true)
+│   └── vfe-domain-function (scope: D — Domain/Global)
+│       └── task: vfe-script-task + VfeDomainFunctionMapping.csx
+│           (functionScope="D", domainFunction=true)
 │
-├── [features]
-│   └── global-extension (sys-extensions referansi — features array'inde)
+├── [extensions] (workflow dizisinde 3 tanesi; Type 1 implicit)
+│   ├── vfe-global-and-requested-extension (type:2, scope:1 GetInstance)
+│   ├── vfe-defined-flows-extension (type:3, scope:2 GetAllInstances)
+│   └── vfe-defined-flow-and-requested-extension (type:4, scope:1 GetInstance)
 │
-├── [extensions]
-│   ├── global-extension (type:1 Global, scope:3 Everywhere)
-│   │   └── task: vfe-script-task + GlobalExtensionMapping.csx
-│   └── requested-extension (type:4 DefinedFlowAndRequested, scope:1 GetInstance)
-│       └── task: vfe-script-task + RequestedExtensionMapping.csx
+├── [implicit — workflow'da referans edilmez]
+│   └── vfe-global-extension (type:1 Global, scope:3 Everywhere)
+│       → tum GET isteklerinde otomatik uygulanir
 │
 ├── view-test-state (Initial, stateType:1)
 │   ├── view: json-view (type:1 JSON, display: full-page)
 │   └── Transitions:
-│       ├── auto-to-multi-view (Auto, triggerType:1) → multi-view-state
-│       │   └── rule: WebPlatformRule.csx (IConditionMapping, platform kontrolu)
+│       ├── auto-to-html-view (Auto, triggerType:1) → html-view-state
+│       │   └── rule: WebPlatformRule.csx (IConditionMapping)
 │       └── default-auto-fallback (Auto, triggerType:1, triggerKind:10) → completed-state
-│           └── rule: AlwaysTrueRule.csx (fallback)
+│           └── rule: AlwaysTrueRule.csx
 │
-├── multi-view-state (Intermediate, stateType:2)
+├── html-view-state (Intermediate, stateType:2)
 │   ├── view: html-view (type:2 HTML, display: popup)
 │   └── Transitions:
-│       └── manual-to-wizard (Manual) → wizard-state
+│       └── go-to-markdown (Manual) → markdown-view-state
 │
-├── wizard-state (Wizard, stateType:5)
+├── markdown-view-state (Intermediate, stateType:2)
+│   ├── view: markdown-view (type:3 Markdown, display: bottom-sheet)
 │   └── Transitions:
-│       └── complete-with-markdown-view (Manual) → completed-state
-│           └── view: markdown-view (type:3 Markdown, display: bottom-sheet)
+│       └── go-to-deeplink (Manual) → deeplink-view-state
+│
+├── deeplink-view-state (Intermediate, stateType:2)
+│   ├── view: deeplink-view (type:4 DeepLink, display: top-sheet)
+│   │   └── content: {"href": "myapp://consent/approve?token=abc123"}
+│   └── Transitions:
+│       └── go-to-http (Manual) → http-view-state
+│
+├── http-view-state (Intermediate, stateType:2)
+│   ├── view: http-view (type:5 HTTP, display: drawer)
+│   │   └── content: {"href": "https://example.com/consent/form?id=xyz"}
+│   └── Transitions:
+│       └── go-to-urn-wizard (Manual) → urn-wizard-state
+│
+├── urn-wizard-state (Wizard, stateType:5)
+│   ├── view: urn-view (type:6 URN, display: inline)
+│   │   └── content: {"urn": "urn:openbanking:consent:approve:v1"}
+│   └── Transitions:
+│       └── complete-wizard (Manual) → completed-state
+│           (en fazla 1 transition — wizard kisitlamasi)
 │
 └── completed-state (Final/Success, stateType:3, subType:1)
 ```
 
-### Test Edilen Ozellikler
+### Test Edilen Ozellikler — View
 
 | Ozellik | Nasil Test Edilir | Ilgili Eleman |
 |---------|-------------------|---------------|
-| JSON View (type:1) | State'e JSON view baglama | json-view → view-test-state |
-| HTML View (type:2) | State'e HTML view baglama | html-view → multi-view-state |
-| Markdown View (type:3) | Transition'a view baglama | markdown-view → complete-with-markdown-view |
-| Display modlari | full-page, popup, bottom-sheet | 3 farkli view |
-| Wizard State (stateType:5) | En fazla 1 transition kisitlamasi | wizard-state |
-| Transition view | Transition uzerinde view gosterimi | complete-with-markdown-view |
-| IConditionMapping (transition rule) | Auto transition'da rule kullanimi | WebPlatformRule.csx |
-| triggerKind:10 (varsayilan fallback) | Complementary auto transitions | default-auto-fallback |
-| Single-task function | Tek task'li function tanimlama | single-task-function |
-| Multi-task function | Birden fazla task'li function | multi-task-function |
-| IOutputHandler | Function ciktisini birlestirme | FunctionOutputMapping.csx |
-| Global extension (type:1) | Tum isteklerde calisan extension | global-extension |
-| Requested extension (type:4) | Talep edildiginde calisan extension | requested-extension |
-| Extension scope | Everywhere vs GetInstance | scope:3 vs scope:1 |
-| **Features referansi** | features array'inde extension referansi | features: global-extension |
+| JSON View (type:1) | State view + `functions/view` content assertion | json-view → view-test-state |
+| HTML View (type:2) | State view + `functions/view` content non-empty | html-view → html-view-state |
+| Markdown View (type:3) | State view + `functions/view` content non-empty | markdown-view → markdown-view-state |
+| DeepLink View (type:4) | State view + `functions/view` content `href` assertion | deeplink-view → deeplink-view-state |
+| HTTP View (type:5) | State view + `functions/view` content `href` assertion | http-view → http-view-state |
+| URN View (type:6) | State view + `functions/view` content `urn` assertion | urn-view → urn-wizard-state |
+| Display: full-page | json-view | view-test-state |
+| Display: popup | html-view | html-view-state |
+| Display: bottom-sheet | markdown-view | markdown-view-state |
+| Display: top-sheet | deeplink-view | deeplink-view-state |
+| Display: drawer | http-view | http-view-state |
+| Display: inline | urn-view | urn-wizard-state |
+| Wizard state (stateType:5) | En fazla 1 transition kisitlamasi | urn-wizard-state |
+
+### Test Edilen Ozellikler — Extension
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Type 1 Global (scope:3 Everywhere) | Workflow `extensions`'da **tanimli degil**; `functions/data`'da implicit gozukme + `vfeExtensionType=global` marker | vfe-global-extension |
+| Type 1 Scope 3 — state response | `functions/state` yanitinda da extensions gorunuyor mu kontrolu (runtime davranisina bagli) | vfe-global-extension |
+| Type 2 GlobalAndRequested (scope:1 GetInstance) | Otomatik uygulanma + `?extensions=` query ile sorgulanabilirlik | vfe-global-and-requested-extension |
+| Type 3 DefinedFlows (scope:2 GetAllInstances) | Otomatik uygulanma + list instances yaniti zenginlestirme | vfe-defined-flows-extension |
+| Type 4 DefinedFlowAndRequested (scope:1 GetInstance) | `functions/data`'da **gorunMEMELI**; `?extensions=` ile sorgulaninca gorunMELI | vfe-defined-flow-and-requested-extension |
+| Extension type marker | Her extension'in `vfeExtensionType` alani assertion'i | Tum 4 extension mapping'i |
+
+### Test Edilen Ozellikler — Function
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Instance scope (I) — single task | `functions/{name}` cagrisi + `singleTaskFunction=true` marker | vfe-single-task-function |
+| Instance scope (I) — multi task + IOutputHandler | `functions/{name}` cagrisi + `aggregated=true` marker | vfe-multi-task-function + FunctionOutputMapping |
+| Workflow scope (F) | `workflows/{key}/functions/{name}` cagrisi + `functionScope="F"` marker | vfe-workflow-function |
+| Domain scope (D) | `functions/{name}` (domain-level) cagrisi + `functionScope="D"` marker | vfe-domain-function |
+
+### Test Edilen Ozellikler — Diger
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| IConditionMapping (auto transition rule) | WebPlatformRule ile otomatik gecis | view-test-state → html-view-state |
+| triggerKind:10 (varsayilan fallback) | Complementary auto transition | default-auto-fallback |
+| startTransition onExecutionTasks | Workflow baslatilirken `vfeTestStarted=true` set | InitVfeMapping.csx |
+| Happy path — status C | Tum state zincirinden gecip completed | 7 state lineer zincir |
 
 ### Kullanilan Bilesenler
 
 | Tip | Anahtar | Dosya |
 |-----|---------|-------|
 | Task | `vfe-script-task` (type:7) | Tasks/view-function-extension/vfe-script-task.json |
+| Task | `vfe-script-task-2` (type:7) | Tasks/view-function-extension/vfe-script-task-2.json |
 | Task | `vfe-http-task` (type:6) | Tasks/view-function-extension/vfe-http-task.json |
-| View | `json-view` | Views/view-function-extension/json-view.json |
-| View | `html-view` | Views/view-function-extension/html-view.json |
-| View | `markdown-view` | Views/view-function-extension/markdown-view.json |
-| Function | `single-task-function` | Functions/view-function-extension/single-task-function.json |
-| Function | `multi-task-function` | Functions/view-function-extension/multi-task-function.json |
-| Extension | `global-extension` | Extensions/view-function-extension/global-extension.json |
-| Extension | `requested-extension` | Extensions/view-function-extension/requested-extension.json |
+| View | `json-view` (type:1, display:full-page) | Views/view-function-extension/json-view.json |
+| View | `html-view` (type:2, display:popup) | Views/view-function-extension/html-view.json |
+| View | `markdown-view` (type:3, display:bottom-sheet) | Views/view-function-extension/markdown-view.json |
+| View | `deeplink-view` (type:4, display:top-sheet) | Views/view-function-extension/deeplink-view.json |
+| View | `http-view` (type:5, display:drawer) | Views/view-function-extension/http-view.json |
+| View | `urn-view` (type:6, display:inline) | Views/view-function-extension/urn-view.json |
+| Function | `vfe-single-task-function` (scope:I) | Functions/view-function-extension/vfe-single-task-function.json |
+| Function | `vfe-multi-task-function` (scope:I) | Functions/view-function-extension/vfe-multi-task-function.json |
+| Function | `vfe-workflow-function` (scope:F) | Functions/view-function-extension/vfe-workflow-function.json |
+| Function | `vfe-domain-function` (scope:D) | Functions/view-function-extension/vfe-domain-function.json |
+| Extension | `vfe-global-extension` (type:1, scope:3) | Extensions/view-function-extension/vfe-global-extension.json |
+| Extension | `vfe-global-and-requested-extension` (type:2, scope:1) | Extensions/view-function-extension/vfe-global-and-requested-extension.json |
+| Extension | `vfe-defined-flows-extension` (type:3, scope:2) | Extensions/view-function-extension/vfe-defined-flows-extension.json |
+| Extension | `vfe-defined-flow-and-requested-extension` (type:4, scope:1) | Extensions/view-function-extension/vfe-defined-flow-and-requested-extension.json |
 | CSX | InitVfeMapping | Workflows/view-function-extension/src/InitVfeMapping.csx |
 | CSX | WebPlatformRule | Workflows/view-function-extension/src/WebPlatformRule.csx |
 | CSX | AlwaysTrueRule | Workflows/view-function-extension/src/AlwaysTrueRule.csx |
@@ -668,8 +731,44 @@ view-function-extension-test-workflow (F)
 | CSX | FunctionMultiTask1Mapping | Functions/view-function-extension/src/FunctionMultiTask1Mapping.csx |
 | CSX | FunctionMultiTask2Mapping | Functions/view-function-extension/src/FunctionMultiTask2Mapping.csx |
 | CSX | FunctionOutputMapping | Functions/view-function-extension/src/FunctionOutputMapping.csx |
-| CSX | GlobalExtensionMapping | Extensions/view-function-extension/src/GlobalExtensionMapping.csx |
-| CSX | RequestedExtensionMapping | Extensions/view-function-extension/src/RequestedExtensionMapping.csx |
+| CSX | VfeWorkflowFunctionMapping | Functions/view-function-extension/src/VfeWorkflowFunctionMapping.csx |
+| CSX | VfeDomainFunctionMapping | Functions/view-function-extension/src/VfeDomainFunctionMapping.csx |
+| CSX | VfeGlobalExtensionMapping | Extensions/view-function-extension/src/VfeGlobalExtensionMapping.csx |
+| CSX | VfeGlobalAndRequestedExtensionMapping | Extensions/view-function-extension/src/VfeGlobalAndRequestedExtensionMapping.csx |
+| CSX | VfeDefinedFlowsExtensionMapping | Extensions/view-function-extension/src/VfeDefinedFlowsExtensionMapping.csx |
+| CSX | VfeDefinedFlowAndRequestedExtensionMapping | Extensions/view-function-extension/src/VfeDefinedFlowAndRequestedExtensionMapping.csx |
+
+### C# Integration Test Dosyasi
+
+`tests/Core/Tests/view-function-extension-test-workflow/ViewFunctionExtensionTestWorkflowTests.cs` — 18 `[Fact]` metodu:
+
+| Test | Kisa Aciklama |
+|------|---------------|
+| HappyPath_AllStateTransitions_ReachesCompletedWithStatusC | 7 state zinciri, status=C |
+| StartTransitionMapping_SetsVfeTestStarted | vfeTestStarted=true marker |
+| JsonViewState_Type1_FullPage_HasView | JSON view + content non-empty |
+| HtmlViewState_Type2_Popup_HasView | HTML view + content non-empty |
+| MarkdownViewState_Type3_BottomSheet_HasView | Markdown view + content non-empty |
+| DeeplinkViewState_Type4_TopSheet_HasView | DeepLink view + content href assertion |
+| HttpViewState_Type5_Drawer_HasView | HTTP view + content href assertion |
+| UrnWizardState_Type6_Inline_HasViewAndSingleTransition | URN view + content urn assertion + wizard 1 transition |
+| ViewFunction_ReturnsViewPayload | functions/view genel kontrol |
+| GlobalExtension_Type1_AppliesImplicitly | implicit gozukme + state response scope 3 |
+| GlobalAndRequestedExtension_Type2_AutoAppliesAndQueryable | otomatik + ?extensions= sorgu |
+| DefinedFlowsExtension_Type3_AutoAppliesOnDefinedFlow | otomatik uygulanma |
+| DefinedFlowAndRequestedExtension_Type4_OnlyAppearsWhenRequested | absent + requested |
+| DefinedFlowsExtension_Scope2_GetAllInstances_EnrichesListEndpoint | list enrichment |
+| SingleTaskFunction_InstanceScope_ReturnsResponse | singleTaskFunction=true |
+| MultiTaskFunction_InstanceScope_AggregatesResponses | aggregated=true |
+| WorkflowFunction_WorkflowScope_ReturnsResponse | functionScope="F" |
+| DomainFunction_DomainScope_ReturnsResponse | functionScope="D" |
+| AutoTransition_WebPlatformRule_ReachesHtmlViewState | auto transition smoke |
+
+### HTTP Test Dosyasi (`api-tests/view-function-extension/view-function-extension-test-workflow.http`)
+
+22 adimli akis: workflow baslatma, 6 state uzerinden gecis, 4 function cagrisi (instance, workflow, domain scope), 4 extension dogrulamasi (?extensions= sorgusu dahil), view endpoint'leri.
+
+### Postman Collection (`api-tests/view-function-extension/postman-view-function-extension.json`)
 
 ---
 
@@ -1264,11 +1363,17 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | **Notify action (action:4)** |  |  |  | X |  |  |  |  |  |  |
 | **timeoutPolicy (onTimeout)** |  |  |  | X |  |  |  |  |  |  |
 | **errorHandlerRule (errorTypes/errorCodes)** |  |  |  | X |  |  |  |  |  |  |
-| View (JSON/HTML/MD) |  |  |  |  | X |  |  |  |  |  |
-| Display modlari |  |  |  |  | X |  |  |  |  |  |
-| Function (single/multi) |  |  |  |  | X |  |  |  |  |  |
-| Extension (global/req) |  |  |  |  | X |  |  |  |  |  |
-| **Features referansi** |  |  |  |  | X |  |  |  |  |  |
+| View (6 tip: JSON/HTML/MD/DeepLink/HTTP/URN) |  |  |  |  | X |  |  |  |  |  |
+| Display modlari (6: full-page/popup/bottom-sheet/top-sheet/drawer/inline) |  |  |  |  | X |  |  |  |  |  |
+| `functions/view` icerik dogrulamasi (type, display, content) |  |  |  |  | X |  |  |  |  |  |
+| Function scope I (single + multi + IOutputHandler) |  |  |  |  | X |  |  |  |  |  |
+| Function scope F (workflow) |  |  |  |  | X |  |  |  |  |  |
+| Function scope D (domain/global) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 1 (Global, implicit, scope 3 Everywhere) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 2 (GlobalAndRequested, scope 1 GetInstance) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 3 (DefinedFlows, scope 2 GetAllInstances) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 4 (DefinedFlowAndRequested, scope 1 GetInstance) |  |  |  |  | X |  |  |  |  |  |
+| Extension `?extensions=` sorgu parametresi |  |  |  |  | X |  |  |  |  |  |
 | Workflow timeout |  |  |  |  |  |  | X |  |  |  |
 | Idempotent start | X |  |  |  |  |  | X |  |  |  |
 | Instance filtreleme |  |  | X |  |  |  | X |  |  |  |

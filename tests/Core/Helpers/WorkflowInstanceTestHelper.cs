@@ -162,6 +162,36 @@ public sealed class WorkflowInstanceTestHelper
     }
 
     /// <summary>
+    /// Returns the full response body from <c>GET .../instances/{id}</c>.
+    /// </summary>
+    public async Task<JsonElement> GetInstanceBodyAsync(string instanceId)
+    {
+        var response = await _api.GetInstanceAsync(_workflowKey, instanceId);
+        return response.Body;
+    }
+
+    /// <summary>
+    /// Returns the full response body from <c>GET .../instances/{id}?{query}</c> via raw path.
+    /// Useful for adding query parameters like <c>?extensions=...</c>.
+    /// </summary>
+    public async Task<JsonElement> GetInstanceRawAsync(
+        string instanceId,
+        Dictionary<string, string>? queryParams = null
+    )
+    {
+        var qs = queryParams != null
+            ? string.Join("&", queryParams.Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}"))
+            : "";
+        var path = $"/api/v{_apiVersion}/{_domain}/workflows/{Uri.EscapeDataString(_workflowKey)}/instances/{Uri.EscapeDataString(instanceId)}";
+        if (!string.IsNullOrEmpty(qs))
+            path += "?" + qs;
+
+        var response = await _api.GetRawAsync(path);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        return response.Body;
+    }
+
+    /// <summary>
     /// Calls a named instance function (<c>GET .../functions/{functionName}</c>) and returns the response body.
     /// Useful for <c>view</c>, <c>data</c>, custom functions, etc.
     /// </summary>
@@ -179,6 +209,25 @@ public sealed class WorkflowInstanceTestHelper
             queryParams,
             headers
         );
+        return response.Body;
+    }
+
+    /// <summary>
+    /// Calls a workflow-scoped function (<c>GET .../workflows/{workflowKey}/functions/{functionName}</c>).
+    /// </summary>
+    public async Task<JsonElement> CallWorkflowScopeFunctionAsync(
+        string functionName,
+        Dictionary<string, string>? queryParams = null,
+        Dictionary<string, string>? headers = null
+    )
+    {
+        var response = await _api.CallWorkflowFunctionAsync(
+            _workflowKey,
+            functionName,
+            queryParams,
+            headers
+        );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return response.Body;
     }
 

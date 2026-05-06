@@ -4,6 +4,7 @@
   "flowVersion": "1.0.0",
   "domain": "core",
   "version": "1.0.0",
+  "_comment": "vfe-global-extension (Type 1 Global, Scope 3 Everywhere) intentionally NOT referenced here. Type 1 extensions auto-run on every flow GET endpoint regardless of workflow registration; the integration test verifies this implicit behavior in GlobalExtension_AppliesImplicitly_WithoutWorkflowReference.",
   "tags": [
     "integration-test",
     "view",
@@ -12,14 +13,17 @@
     "json-view",
     "html-view",
     "markdown-view",
-    "rule-based-view",
+    "deeplink-view",
+    "http-view",
+    "urn-view",
     "display-modes",
-    "single-task-function",
-    "multi-task-function",
-    "output-handler",
-    "global-extension",
-    "requested-extension",
-    "features"
+    "vfe-single-task-function",
+    "vfe-multi-task-function",
+    "vfe-workflow-function",
+    "vfe-domain-function",
+    "vfe-global-and-requested-extension",
+    "vfe-defined-flows-extension",
+    "vfe-defined-flow-and-requested-extension"
   ],
   "attributes": {
     "type": "F",
@@ -27,40 +31,50 @@
     "labels": [
       {
         "language": "en-US",
-        "label": "View, Function and Extension Integration Test"
+        "label": "View, Function and Extension Comprehensive Integration Test"
       }
     ],
     "functions": [
       {
-        "key": "single-task-function",
+        "key": "vfe-single-task-function",
         "domain": "core",
         "version": "1.0.0",
         "flow": "sys-functions"
       },
       {
-        "key": "multi-task-function",
+        "key": "vfe-multi-task-function",
         "domain": "core",
         "version": "1.0.0",
         "flow": "sys-functions"
-      }
-    ],
-    "features": [
+      },
       {
-        "key": "global-extension",
+        "key": "vfe-workflow-function",
         "domain": "core",
         "version": "1.0.0",
-        "flow": "sys-extensions"
+        "flow": "sys-functions"
+      },
+      {
+        "key": "vfe-domain-function",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-functions"
       }
     ],
     "extensions": [
       {
-        "key": "global-extension",
+        "key": "vfe-global-and-requested-extension",
         "domain": "core",
         "version": "1.0.0",
         "flow": "sys-extensions"
       },
       {
-        "key": "requested-extension",
+        "key": "vfe-defined-flows-extension",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-extensions"
+      },
+      {
+        "key": "vfe-defined-flow-and-requested-extension",
         "domain": "core",
         "version": "1.0.0",
         "flow": "sys-extensions"
@@ -103,7 +117,7 @@
         "labels": [
           {
             "language": "en-US",
-            "label": "JSON View State"
+            "label": "JSON View State (type=1, display=full-page)"
           }
         ],
         "view": {
@@ -119,51 +133,40 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "auto-to-multi-view",
-            "target": "multi-view-state",
-            "triggerType": 1,
-            "versionStrategy": "Major",
-            "labels": [
-              {
-                "language": "en-US",
-                "label": "Auto to Multi View (WebPlatformRule)"
-              }
-            ],
-            "rule": {
-              "location": "./src/WebPlatformRule.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFdlYlBsYXRmb3JtUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBwbGF0Zm9ybSA9ICIiOwogICAgICAgIHZhciBoZWFkZXJzID0gY29udGV4dC5IZWFkZXJzOwogICAgICAgIGlmIChoZWFkZXJzICE9IG51bGwgJiYgSGFzUHJvcGVydHkoaGVhZGVycywgInBsYXRmb3JtIikpCiAgICAgICAgICAgIHBsYXRmb3JtID0gQ29udmVydC5Ub1N0cmluZyhoZWFkZXJzLnBsYXRmb3JtKSA/PyAiIjsKCiAgICAgICAgdmFyIGlzV2ViID0gc3RyaW5nLkVxdWFscyhwbGF0Zm9ybSwgIndlYiIsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbElnbm9yZUNhc2UpOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiV2ViUGxhdGZvcm1SdWxlOiBwbGF0Zm9ybT17cGxhdGZvcm19LCBpc1dlYj17aXNXZWJ9Iik7CgogICAgICAgIC8vIEludGVncmF0aW9uIHRlc3RzOiB0cmVhdCBhcyBzYXRpc2ZpZWQgc28gZmxvd3MgcGFzcyB3aXRob3V0IGEgY2xpZW50IGhlYWRlci4KICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
-            },
-            "onExecutionTasks": []
-          },
-          {
-            "key": "default-auto-fallback",
-            "target": "completed-state",
-            "triggerType": 1,
-            "triggerKind": 10,
+            "key": "continue-to-html",
+            "target": "html-view-state",
+            "triggerType": 0,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Default Auto Fallback (AlwaysTrueRule)"
+                "label": "Continue to HTML View State (transition view: json-view)"
               }
             ],
-            "rule": {
-              "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gdHJ1ZTsKICAgIH0KfQo="
+            "schema": null,
+            "view": {
+              "view": {
+                "key": "json-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": true
             },
+            "mapping": null,
             "onExecutionTasks": []
           }
         ]
       },
       {
-        "key": "multi-view-state",
+        "key": "html-view-state",
         "stateType": 2,
         "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
             "language": "en-US",
-            "label": "HTML View State"
+            "label": "HTML View State (type=2, display=popup)"
           }
         ],
         "view": {
@@ -179,14 +182,14 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "manual-to-wizard",
-            "target": "wizard-state",
+            "key": "to-markdown",
+            "target": "markdown-view-state",
             "triggerType": 0,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Continue to Wizard State"
+                "label": "Continue to Markdown View State"
               }
             ],
             "schema": null,
@@ -197,14 +200,178 @@
         ]
       },
       {
-        "key": "wizard-state",
+        "key": "markdown-view-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Markdown View State (type=3, display=bottom-sheet)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "markdown-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          }
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-deeplink",
+            "target": "deeplink-view-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Continue to Deeplink View State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "deeplink-view-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Deeplink View State (type=4, display=top-sheet)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "deeplink-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          }
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-http",
+            "target": "http-view-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Continue to HTTP View State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "http-view-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "HTTP View State (type=5, display=drawer)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "http-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          }
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-urn",
+            "target": "urn-view-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Continue to URN View State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "urn-view-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "URN View State (type=6, display=inline)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "urn-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          }
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-wizard",
+            "target": "wizard-step-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Continue to Wizard Step State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "wizard-step-state",
         "stateType": 5,
         "subType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
             "language": "en-US",
-            "label": "Wizard State"
+            "label": "Wizard Step State (stateType=5, transition view rendered)"
           }
         ],
         "view": null,
@@ -213,24 +380,25 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "complete-with-markdown-view",
+            "key": "complete",
             "target": "completed-state",
             "triggerType": 0,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Complete with Markdown View"
+                "label": "Complete Workflow"
               }
             ],
             "schema": null,
             "view": {
               "view": {
-                "key": "markdown-view",
+                "key": "json-view",
                 "domain": "core",
                 "version": "1.0.0",
                 "flow": "sys-views"
-              }
+              },
+              "loadData": true
             },
             "mapping": null,
             "onExecutionTasks": []

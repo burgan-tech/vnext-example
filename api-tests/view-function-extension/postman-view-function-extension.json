@@ -1,383 +1,558 @@
 {
   "info": {
-    "_postman_id": "5422afe4-5655-4252-91ff-ecbbd776cb64",
-    "name": "vNext Test - View Function Extension",
-    "description": "Auto-generated from view-function-extension-test-workflow.http.\nvNext workflow integration test collection for view-function-extension.\nPath: view-test-state → (auto) multi-view-state → (manual) wizard-state → (manual) completed-state",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "View-Function-Extension Integration Test",
+    "_postman_id": "vfe-comprehensive-test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Comprehensive integration test for view-function-extension-test-workflow.\nCovers 6 view types (JSON/HTML/Markdown/DeepLink/HTTP/URN), 6 display modes (full-page/popup/bottom-sheet/top-sheet/drawer/inline), 4 extension types (Global/GlobalAndRequested/DefinedFlows/DefinedFlowAndRequested), 3 extension scopes (GetInstance/GetAllInstances/Everywhere), 3 function scopes (Instance/Workflow/Domain), transition view rendering, and wizard state (stateType 5) behavior."
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:4201",
-      "type": "string"
-    },
-    {
-      "key": "apiVersion",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "domain",
-      "value": "core",
-      "type": "string"
-    },
-    {
-      "key": "workflow",
-      "value": "view-function-extension-test-workflow",
-      "type": "string"
-    }
+    { "key": "baseUrl", "value": "http://localhost:4201" },
+    { "key": "apiVersion", "value": "1" },
+    { "key": "domain", "value": "core" },
+    { "key": "workflow", "value": "view-function-extension-test-workflow" },
+    { "key": "instanceId", "value": "" }
   ],
   "item": [
     {
-      "name": "Step 1: Start workflow (sync)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "type": "text"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "start"
-          ],
-          "query": [
-            {
-              "key": "sync",
-              "value": "true"
-            }
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"key\": \"vfe-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"view-function-extension\"],\n  \"attributes\": {}\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      },
-      "response": [],
+      "name": "Step 1: Start Workflow Instance",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "var jsonData = pm.response.json();",
-              "if (jsonData && jsonData.id) {",
-              "    pm.collectionVariables.set(\"vfeInstanceId\", jsonData.id);",
-              "    console.log(\"vfeInstanceId set to: \" + jsonData.id);",
-              "}"
-            ]
+              "pm.collectionVariables.set('instanceId', jsonData.id);",
+              "pm.test('Instance started successfully', function() {",
+              "  pm.expect(jsonData.id).to.be.a('string');",
+              "  pm.expect(jsonData.id).to.not.be.empty;",
+              "});"
+            ],
+            "type": "text/javascript"
           }
         }
-      ]
-    },
-    {
-      "name": "Step 2: Get state (should be multi-view-state after auto-transition)",
+      ],
       "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "state"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 3: Get view payload (HTML view on multi-view-state)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/view?platform=web",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "view"
-          ],
-          "query": [
-            {
-              "key": "platform",
-              "value": "web"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 4: Execute single-task function (instance-scoped, script task)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/single-task-function",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "single-task-function"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 5: Execute multi-task function (two script tasks; output handler aggregates)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/multi-task-function",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "multi-task-function"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 6: Instance data without extension filter",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "data"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 7: Requested extensions via query",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/data?extensions=requested-extension,global-extension",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "data"
-          ],
-          "query": [
-            {
-              "key": "extensions",
-              "value": "requested-extension,global-extension"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 8: Transition to wizard-state",
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "type": "text"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/transitions/manual-to-wizard",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "transitions",
-            "manual-to-wizard"
-          ]
-        },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
+          "raw": "{\n  \"key\": \"vfe-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"view-function-extension\"],\n  \"attributes\": {}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"]
+        }
+      }
+    },
+    {
+      "name": "Step 2: Get State (view-test-state — JSON view)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is view-test-state (no auto transition)', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('view-test-state');",
+              "});"
+            ],
+            "type": "text/javascript"
           }
         }
-      },
-      "response": []
-    },
-    {
-      "name": "Step 9: Verify wizard-state (stateType 5, at most 1 transition)",
+      ],
       "request": {
         "method": "GET",
-        "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "state"
-          ]
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "Step 10: Complete workflow (complete-with-markdown-view)",
+      "name": "Step 3: Get View (view-test-state — type 1 JSON, full-page)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('View response is OK', function() {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "view"]
+        }
+      }
+    },
+    {
+      "name": "Step 4: Instance Data (extensions scope check)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Functions/data response is OK', function() {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/data",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "data"]
+        }
+      }
+    },
+    {
+      "name": "Step 5: Data with GlobalAndRequested extension (Type 2, Scope 1)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/data?extensions=vfe-global-and-requested-extension",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "data"],
+          "query": [
+            { "key": "extensions", "value": "vfe-global-and-requested-extension" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Step 6: Data with DefinedFlowAndRequested extension (Type 4, Scope 3)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/data?extensions=vfe-defined-flow-and-requested-extension",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "data"],
+          "query": [
+            { "key": "extensions", "value": "vfe-defined-flow-and-requested-extension" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Step 7: List Instances (Scope 2 GetAllInstances enrichment)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?pageSize=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances"],
+          "query": [
+            { "key": "pageSize", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Step 8: Single-Task Function (scope I)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/vfe-single-task-function",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "vfe-single-task-function"]
+        }
+      }
+    },
+    {
+      "name": "Step 9: Multi-Task Function (scope I)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/vfe-multi-task-function",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "vfe-multi-task-function"]
+        }
+      }
+    },
+    {
+      "name": "Step 10: Workflow-Scope Function (scope F) — may return 404",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/functions/vfe-workflow-function",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "functions", "vfe-workflow-function"]
+        }
+      }
+    },
+    {
+      "name": "Step 11: Domain-Scope Function (scope D) — may return empty",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/functions/vfe-domain-function",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "functions", "vfe-domain-function"]
+        }
+      }
+    },
+    {
+      "name": "Step 12: Transition continue-to-html (transition view: json-view)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Transition accepted', function() {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "type": "text"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
         "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/transitions/complete-with-markdown-view",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "transitions",
-            "complete-with-markdown-view"
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/continue-to-html",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "continue-to-html"]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "Step 11: Verify completed-state with status C",
+      "name": "Step 13: Get State (html-view-state)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is html-view-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('html-view-state');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{vfeInstanceId}}/functions/state",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v{{apiVersion}}",
-            "{{domain}}",
-            "workflows",
-            "{{workflow}}",
-            "instances",
-            "{{vfeInstanceId}}",
-            "functions",
-            "state"
-          ]
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Step 14: Get View (html — type 2, popup)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "view"]
+        }
+      }
+    },
+    {
+      "name": "Step 15: Transition to markdown-view-state",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/to-markdown",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "to-markdown"]
+        }
+      }
+    },
+    {
+      "name": "Step 16: Get State (markdown-view-state)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is markdown-view-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('markdown-view-state');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
+        }
+      }
+    },
+    {
+      "name": "Step 17: Get View (markdown — type 3, bottom-sheet)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "view"]
+        }
+      }
+    },
+    {
+      "name": "Step 18: Transition to deeplink-view-state",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/to-deeplink",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "to-deeplink"]
+        }
+      }
+    },
+    {
+      "name": "Step 19: Get State (deeplink-view-state)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is deeplink-view-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('deeplink-view-state');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
+        }
+      }
+    },
+    {
+      "name": "Step 20: Get View (deeplink — type 4, top-sheet)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "view"]
+        }
+      }
+    },
+    {
+      "name": "Step 21: Transition to http-view-state",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/to-http",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "to-http"]
+        }
+      }
+    },
+    {
+      "name": "Step 22: Get State (http-view-state)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is http-view-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('http-view-state');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
+        }
+      }
+    },
+    {
+      "name": "Step 23: Get View (http — type 5, drawer)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "view"]
+        }
+      }
+    },
+    {
+      "name": "Step 24: Transition to urn-view-state",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/to-urn",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "to-urn"]
+        }
+      }
+    },
+    {
+      "name": "Step 25: Get State (urn-view-state — intermediate, type 6 inline)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is urn-view-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('urn-view-state');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
+        }
+      }
+    },
+    {
+      "name": "Step 26: Get View (urn — type 6, inline) — may return 404",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "view"]
+        }
+      }
+    },
+    {
+      "name": "Step 27: Transition to wizard-step-state (stateType 5)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/to-wizard",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "to-wizard"]
+        }
+      }
+    },
+    {
+      "name": "Step 28: Get State (wizard-step-state — stateType 5, transition view)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('State is wizard-step-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('wizard-step-state');",
+              "});",
+              "pm.test('Wizard state has exactly 1 transition', function() {",
+              "  var transitions = jsonData.transitions || (jsonData.data && jsonData.data.transitions);",
+              "  pm.expect(transitions).to.be.an('array').with.lengthOf(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
+        }
+      }
+    },
+    {
+      "name": "Step 29: Complete Workflow",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/complete",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "transitions", "complete"]
+        }
+      }
+    },
+    {
+      "name": "Step 30: Get Final State (completed-state, status: C)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test('Instance is completed', function() {",
+              "  var status = jsonData.status || (jsonData.data && jsonData.data.status);",
+              "  pm.expect(status).to.eql('C');",
+              "});",
+              "pm.test('State is completed-state', function() {",
+              "  var state = jsonData.state || (jsonData.data && jsonData.data.state);",
+              "  pm.expect(state).to.eql('completed-state');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{instanceId}}", "functions", "state"]
+        }
+      }
     }
   ]
 }

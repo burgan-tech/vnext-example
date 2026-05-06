@@ -167,16 +167,28 @@
             "states": {
               "child-initial": {
                 "queryRoles": [
-                  { "role": "morph-idm.maker", "grant": "allow" },
-                  { "role": "morph-idm.viewer", "grant": "deny" }
+                  {
+                    "role": "morph-idm.maker",
+                    "grant": "allow"
+                  },
+                  {
+                    "role": "morph-idm.viewer",
+                    "grant": "deny"
+                  }
                 ]
               }
             },
             "transitions": {
               "auto-child-to-subflow": {
                 "roles": [
-                  { "role": "morph-idm.maker", "grant": "allow" },
-                  { "role": "morph-idm.viewer", "grant": "deny" }
+                  {
+                    "role": "morph-idm.maker",
+                    "grant": "allow"
+                  },
+                  {
+                    "role": "morph-idm.viewer",
+                    "grant": "deny"
+                  }
                 ]
               }
             }

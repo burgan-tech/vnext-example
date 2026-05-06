@@ -101,4 +101,103 @@ public static class VfeViewAssertions
             );
         }
     }
+
+    /// <summary>
+    /// Asserts a view function response has a specific type integer.
+    /// The view function response typically has a "type" field.
+    /// </summary>
+    public static void AssertViewType(JsonElement viewBody, int expectedType)
+    {
+        if (viewBody.TryGetProperty("type", out var typeEl))
+        {
+            Assert.Equal(expectedType, typeEl.GetInt32());
+        }
+    }
+
+    /// <summary>
+    /// Asserts a view function response has the expected display mode string.
+    /// </summary>
+    public static void AssertViewDisplay(JsonElement viewBody, string expectedDisplay)
+    {
+        if (viewBody.TryGetProperty("display", out var displayEl)
+            && displayEl.ValueKind == JsonValueKind.String)
+        {
+            Assert.Equal(expectedDisplay, displayEl.GetString());
+        }
+    }
+
+    /// <summary>
+    /// Asserts the view content is present and non-empty.
+    /// Runtime may return content as a string (HTML/Markdown) or as a parsed JSON object (type 1).
+    /// </summary>
+    public static void AssertViewContentIsNonEmptyString(JsonElement viewBody)
+    {
+        Assert.True(
+            viewBody.TryGetProperty("content", out var contentEl),
+            "View response should contain a 'content' property."
+        );
+
+        bool isNonEmpty = contentEl.ValueKind switch
+        {
+            JsonValueKind.String => !string.IsNullOrWhiteSpace(contentEl.GetString()),
+            JsonValueKind.Object => true,
+            JsonValueKind.Array => contentEl.GetArrayLength() > 0,
+            _ => false,
+        };
+
+        Assert.True(
+            isNonEmpty,
+            $"View content should be a non-empty string or object, but was {contentEl.ValueKind}."
+        );
+    }
+
+    /// <summary>
+    /// Asserts the view content contains an href property (for DeepLink/HTTP views).
+    /// Content may be returned as string (stringified JSON) or as an object.
+    /// </summary>
+    public static void AssertViewContentHasHref(JsonElement viewBody)
+    {
+        if (!viewBody.TryGetProperty("content", out var contentEl))
+            return;
+
+        if (contentEl.ValueKind == JsonValueKind.Object)
+        {
+            Assert.True(
+                contentEl.TryGetProperty("href", out var href)
+                    && href.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(href.GetString()),
+                "View content object should have a non-empty 'href' string."
+            );
+        }
+        else if (contentEl.ValueKind == JsonValueKind.String)
+        {
+            var contentStr = contentEl.GetString() ?? "";
+            Assert.Contains("href", contentStr);
+        }
+    }
+
+    /// <summary>
+    /// Asserts the view content contains a urn property (for URN views).
+    /// Content may be returned as string (stringified JSON) or as an object.
+    /// </summary>
+    public static void AssertViewContentHasUrn(JsonElement viewBody)
+    {
+        if (!viewBody.TryGetProperty("content", out var contentEl))
+            return;
+
+        if (contentEl.ValueKind == JsonValueKind.Object)
+        {
+            Assert.True(
+                contentEl.TryGetProperty("urn", out var urn)
+                    && urn.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(urn.GetString()),
+                "View content object should have a non-empty 'urn' string."
+            );
+        }
+        else if (contentEl.ValueKind == JsonValueKind.String)
+        {
+            var contentStr = contentEl.GetString() ?? "";
+            Assert.Contains("urn", contentStr);
+        }
+    }
 }

@@ -1,0 +1,31 @@
+{
+  "key": "vfe-defined-flow-and-requested-extension",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-extensions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "defined-flow-and-requested",
+    "type-4",
+    "scope-1"
+  ],
+  "attributes": {
+    "type": 4,
+    "scope": 1,
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "vfe-script-task",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/VfeDefinedFlowAndRequestedExtensionMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBWZmVEZWZpbmVkRmxvd0FuZFJlcXVlc3RlZEV4dGVuc2lvbk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQudmZlRXh0ZW5zaW9uVHlwZSA9ICJkZWZpbmVkRmxvd0FuZFJlcXVlc3RlZCI7CiAgICAgICAgcmVzdWx0LnZmZUV4dGVuc2lvblNjb3BlID0gImdldEluc3RhbmNlIjsKICAgICAgICByZXN1bHQuYXBwbGllZEF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "key": "vfe-workflow-function",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "workflow-function",
+    "scope-F"
+  ],
+  "attributes": {
+    "scope": "F",
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "vfe-script-task",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/VfeWorkflowFunctionMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBWZmVXb3JrZmxvd0Z1bmN0aW9uTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5mdW5jdGlvblNjb3BlID0gIkYiOwogICAgICAgIHJlc3VsdC53b3JrZmxvd0Z1bmN0aW9uID0gdHJ1ZTsKICAgICAgICByZXN1bHQuZXhlY3V0ZWRBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+      }
+    }
+  }
+}

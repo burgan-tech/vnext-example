@@ -12,6 +12,10 @@
   "attributes": {
     "type": 1,
     "display": "full-page",
+    "labels": [
+      { "language": "en-US", "label": "JSON View" },
+      { "language": "tr-TR", "label": "JSON Görünüm" }
+    ],
     "content": "{\"title\":\"JSON View Test\",\"fields\":[{\"key\":\"status\",\"label\":\"Status\"}]}"
   }
 }

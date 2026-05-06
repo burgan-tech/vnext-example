@@ -1,5 +1,5 @@
 {
-  "key": "multi-task-function",
+  "key": "vfe-multi-task-function",
   "version": "1.0.0",
   "domain": "core",
   "flow": "sys-functions",
@@ -7,7 +7,8 @@
   "tags": [
     "integration-test",
     "view-function-extension",
-    "multi-task-function"
+    "multi-task-function",
+    "scope-I"
   ],
   "attributes": {
     "scope": "I",

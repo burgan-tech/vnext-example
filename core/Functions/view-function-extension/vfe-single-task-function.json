@@ -1,5 +1,5 @@
 {
-  "key": "single-task-function",
+  "key": "vfe-single-task-function",
   "version": "1.0.0",
   "domain": "core",
   "flow": "sys-functions",
@@ -7,7 +7,8 @@
   "tags": [
     "integration-test",
     "view-function-extension",
-    "single-task-function"
+    "single-task-function",
+    "scope-I"
   ],
   "attributes": {
     "scope": "I",

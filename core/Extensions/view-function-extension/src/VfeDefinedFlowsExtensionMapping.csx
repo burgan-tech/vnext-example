@@ -1,8 +1,9 @@
+using System;
 using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 
-public class RequestedExtensionMapping : ScriptBase, IMapping
+public class VfeDefinedFlowsExtensionMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -12,8 +13,9 @@ public class RequestedExtensionMapping : ScriptBase, IMapping
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
         dynamic result = new ExpandoObject();
-        result.extensionType = "requested";
-        result.onDemand = true;
+        result.vfeExtensionType = "definedFlows";
+        result.vfeExtensionScope = "getAllInstances";
+        result.appliedAt = DateTime.UtcNow.ToString("o");
         return Task.FromResult(new ScriptResponse { Data = result });
     }
 }
