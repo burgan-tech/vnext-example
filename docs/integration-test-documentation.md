@@ -13,7 +13,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
 | 5 | View, Function & Extension (Comprehensive) | `view-function-extension-test-workflow` | 6 view tipi (JSON/HTML/MD/DeepLink/HTTP/URN), 6 display modu, 4 extension tipi (4 type × 3 scope), 3 function scope (I/F/D), wizard state, implicit global extension, `?extensions=` sorgusu, `functions/view` icerik dogrulamasi |
-| 6 | Schema & Data | `schema-data-test-workflow` | Master schema, transition schema, updateData, field roles |
+| 6 | Schema Validation | `schema-validation-test-workflow` | Master + start + transition + cancel + exit + updateData schema, field roles, SubFlow updateData |
 | 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
 | 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` + `flow-flow-test` + `subflow-flow-test` | **Core (C)**, **SubProcess (P)**, **Flow (F)** ve **SubFlow (S)** workflow tipleri |
 | 9 | Version Consistency | `version-consistency-test-workflow` (v1.0.0 + v2.0.0) | Workflow versiyon degisiminde mevcut instance'larin kendi versiyonlariyla devam etmesi |
@@ -772,76 +772,136 @@ view-function-extension-test-workflow (F)
 
 ---
 
-## Grup 6: Schema & Data Management
+## Grup 6: Schema Validation
 
-**Workflow:** `schema-data-test-workflow` (type: F)
+**Workflow:** `schema-validation-test-workflow` (type: F)
 
-**Amac:** Master schema, transition schema validasyonu, updateData ($self) mekanizmasi ve field roles ozelliklerini test eder.
+**Amac:** Tum schema baglama noktalarini (master, startTransition, manual transition, cancel, exit, updateData) ve field roles ozelliklerini test eder.
 
 **Note (field roles vs. transition roles):** Here **field roles** are **field visibility** on the master schema (e.g. role-based field filtering in `GET .../functions/data`). The transition **`roles`** field on **`lifecycle-transitions`** in **Group 1** is the **`transitions[]` listing filter for `GET .../functions/state`**; the two mechanisms differ.
 
 ### Agac Yapisi
 
 ```
-schema-data-test-workflow (F)
+schema-validation-test-workflow (F)
 │
-├── [startTransition] start-schema-test
+├── [startTransition] start-schema-validation-test
+│   ├── schema: schema-validation-start (required: orderId, customerName, amount, currency)
 │   └── onExecutionTasks:
-│       └── schema-data-script-task + SchemaInitMapping.csx
+│       └── schema-validation-script-task + SchemaInitMapping.csx
 │
 ├── [workflow-level schema]
-│   └── schema-data-master (master schema)
+│   └── schema-validation-master (master schema)
 │       ├── required: orderId, customerName, amount, currency
 │       ├── enum: currency (TRY, USD, EUR)
 │       └── roles: internalNote (admin:allow, customer:deny), auditLog (auditor:allow)
 │
-├── [updateData]
-│   └── update-instance-data (Manual, target: $self)
+├── [cancel] cancel-with-schema
+│   ├── schema: schema-validation-cancel (required: cancelReason min5, cancelledBy)
+│   ├── target: cancelled-state
+│   └── availableIn: data-initialized, schema-validated-state, no-schema-state, subflow-state
+│
+├── [exit] exit-with-schema
+│   ├── schema: schema-validation-exit (required: exitReason, exitCode enum)
+│   ├── target: exited-state
+│   └── availableIn: data-initialized, schema-validated-state, no-schema-state, subflow-state
+│
+├── [updateData] update-with-schema (CHILD workflow'da tanimli — schema-validation-subflow-child)
+│   ├── schema: schema-validation-update-data (required: notes min3)
+│   ├── target: $self (parent instance data guncellenir)
+│   └── tetikleme: parent instance SubFlow state'te iken parent ID uzerinden cagrilir
 │
 ├── data-initialized (Initial, stateType:1)
 │   └── Transitions:
-│       ├── confirm-with-schema (Manual) → schema-validated-state
-│       │   ├── schema: schema-data-confirm-transition
-│       │   │   └── required: confirmed (boolean), confirmedBy (string)
-│       │   └── onExecutionTasks:
-│       │       └── schema-data-script-task + ConfirmMapping.csx
+│       ├── confirm-with-schema (Manual, schema: schema-validation-confirm-transition) → schema-validated-state
 │       └── skip-to-no-schema (Manual) → no-schema-state
 │
 ├── schema-validated-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── schema-validation-script-task + ConfirmExecutionMapping.csx
 │   └── Transitions:
-│       └── to-no-schema (Manual) → no-schema-state
+│       ├── to-no-schema (Manual) → no-schema-state
+│       └── enter-subflow (Manual) → subflow-state
+│
+├── subflow-state (SubFlow, stateType:4)
+│   ├── subFlow.process: schema-validation-subflow-child (type S)
+│   └── Transitions:
+│       └── subflow-complete (Manual) → completed-state
 │
 ├── no-schema-state (Intermediate, stateType:2)
 │   └── Transitions:
-│       └── complete-schema-test (Manual) → completed-state
+│       └── complete-schema-validation-test (Manual) → completed-state
 │
-└── completed-state (Final/Success, stateType:3, subType:1)
+├── completed-state (Final/Success, stateType:3, subType:1)
+├── cancelled-state (Final/Cancelled, stateType:3, subType:2)
+└── exited-state (Final/Exit, stateType:3, subType:3)
 ```
 
 ### Test Edilen Ozellikler
 
 | Ozellik | Nasil Test Edilir | Ilgili Eleman |
 |---------|-------------------|---------------|
-| Master schema (workflow-level) | Workflow attributes.schema ile tanimlama | schema-data-master |
-| Transition schema | Transition'a schema baglama | schema-data-confirm-transition |
-| Schema validasyonu | Gecerli data ile transition | confirm-with-schema |
-| Schema sessiz reddi | Gecersiz data gonderildiginde state degismez | HTTP test: eksik required alan gonderme |
-| updateData ($self) | State degistirmeden data guncelleme | update-instance-data |
+| Master schema (workflow-level) | Workflow attributes.schema ile tanimlama | schema-validation-master |
+| Start transition schema | startTransition.schema ile baslangic payload dogrulama | schema-validation-start |
+| Transition schema (manual) | Transition'a schema baglama, required + type dogrulama | schema-validation-confirm-transition |
+| Cancel transition schema | attributes.cancel.schema ile iptal payload dogrulama | schema-validation-cancel |
+| Exit transition schema | attributes.exit.schema ile cikis payload dogrulama | schema-validation-exit |
+| UpdateData transition schema (SubFlow) | Child workflow'un `attributes.updateData.schema` ile parent data guncelleme dogrulama (child'da tanimli, parent ID uzerinden tetiklenir) | schema-validation-update-data (child: schema-validation-subflow-child) |
+| Schema sessiz reddi | Gecersiz data gonderildiginde state degismez | HTTP test: eksik required alan / tip uyumsuzlugu |
 | Field roles (master schema alan gorunurlugu) | Alan bazli data gorunurlugu | internalNote (admin/customer), auditLog (auditor) |
-| JSON Schema Draft 2020-12 | Schema standardi uyumu | Her iki schema dosyasi |
-| Required alan kontrolu | Zorunlu alanlarin validasyonu | orderId, customerName, amount, currency |
-| Enum validation | Allowed value-set check | currency: TRY, USD, EUR |
-| ETag | Instance data versiyonlama (HTTP test) | HTTP test dosyasinda |
+| JSON Schema Draft 2020-12 | Schema standardi uyumu | Tum schema dosyalari |
+| Required alan kontrolu | Zorunlu alanlarin validasyonu | orderId, customerName, amount, currency, cancelReason, notes |
+| Enum validation | Allowed value-set check | currency: TRY/USD/EUR, exitCode: success/failure/timeout |
+| SubFlow state + updateData | SubFlow icinde updateData ile parent data guncelleme (eTag degisimi + notes alani yazimi) | subflow-state + schema-validation-subflow-child (updateData child'da tanimli) |
 
 ### Kullanilan Bilesenler
 
 | Tip | Anahtar | Dosya |
 |-----|---------|-------|
-| Task | `schema-data-script-task` (type:7) | Tasks/schema-data/schema-data-script-task.json |
-| Schema | `schema-data-master` | Schemas/schema-data/schema-data-master.json |
-| Schema | `schema-data-confirm-transition` | Schemas/schema-data/schema-data-confirm-transition.json |
-| CSX | SchemaInitMapping | Workflows/schema-data/src/SchemaInitMapping.csx |
-| CSX | ConfirmMapping | Workflows/schema-data/src/ConfirmMapping.csx |
+| Workflow | `schema-validation-test-workflow` (type:F) | Workflows/schema-validation/schema-validation-test-workflow.json |
+| Workflow | `schema-validation-subflow-child` (type:S) | Workflows/schema-validation/schema-validation-subflow-child.json |
+| Task | `schema-validation-script-task` (type:7) | Tasks/schema-validation/schema-validation-script-task.json |
+| Schema | `schema-validation-master` | Schemas/schema-validation/schema-validation-master.json |
+| Schema | `schema-validation-start` | Schemas/schema-validation/schema-validation-start.json |
+| Schema | `schema-validation-confirm-transition` | Schemas/schema-validation/schema-validation-confirm-transition.json |
+| Schema | `schema-validation-cancel` | Schemas/schema-validation/schema-validation-cancel.json |
+| Schema | `schema-validation-exit` | Schemas/schema-validation/schema-validation-exit.json |
+| Schema | `schema-validation-update-data` | Schemas/schema-validation/schema-validation-update-data.json |
+| CSX | SchemaInitMapping | Workflows/schema-validation/src/SchemaInitMapping.csx |
+| CSX | ConfirmExecutionMapping | Workflows/schema-validation/src/ConfirmExecutionMapping.csx |
+
+### C# Integration Test Dosyalari
+
+| Dosya | Rol |
+|-------|-----|
+| `tests/Core/Tests/schema-validation-test-workflow/SchemaValidationTestWorkflowTests.cs` | [Fact] test metotlari (18 test) |
+| `tests/Core/Tests/schema-validation-test-workflow/SchemaValidationScenarioActions.cs` | Akis adimlari (start, confirm, skip, complete, cancel, exit, enter-subflow, updateData) |
+| `tests/Core/Tests/schema-validation-test-workflow/SchemaValidationInstanceDataAssertions.cs` | Instance data assertion helper |
+
+### C# Test Senaryolari
+
+| Test Metodu | Ne Test Eder |
+|-------------|-------------|
+| `HappyPath_FullChain_CompletesWithStatusC` | Tam zincir: start → confirm → to-no-schema → complete → status C |
+| `StartTransition_SetsInitializedStatus` | SchemaInitMapping: orderId, customerName, amount, currency, status=initialized |
+| `ConfirmTransition_WithValidSchema_MovesToSchemaValidatedState` | Transition schema gecerli data ile gecis |
+| `ConfirmTransition_WithPartialData_DoesNotTransition` | Eksik required alanla (confirmedBy yok) confirm reddedilir |
+| `FieldRoles_AdminRole_SeesInternalNote` | admin rolu internalNote gorur |
+| `FieldRoles_CustomerRole_DoesNotSeeInternalNote` | customer rolu internalNote goremez |
+| `FieldRoles_AuditorRole_SeesAuditLog` | auditor rolu auditLog gorur |
+| `FieldRoles_NoRole_DoesNotSeeRoleRestrictedFields` | rol yok — internalNote ve auditLog gizli |
+| `NoSchemaTransition_AcceptsAnyBody` | Schema olmayan transition herhangi body kabul eder |
+| `MasterSchema_RejectsInstanceWithInvalidEnum` | Master/start schema gecersiz enum (JPY) ile baslatma reddedilir |
+| `StartTransitionSchema_RejectsMissingRequiredFields` | Start schema eksik required alanlarla baslatma reddedilir |
+| `StartTransitionSchema_AcceptsValidPayload` | Start schema gecerli payload ile basarili gecis |
+| `ConfirmTransition_WithInvalidSchemaPayload_DoesNotChangeState` | Transition schema tip uyumsuzlugu ile sessiz red |
+| `ConfirmTransition_WithMissingRequiredField_DoesNotChangeState` | Transition schema eksik required alan ile sessiz red |
+| `CancelTransition_WithValidSchemaPayload_MovesToCancelled` | Cancel schema gecerli payload ile cancelled-state |
+| `CancelTransition_WithMissingCancelReason_DoesNotCancel` | Cancel schema eksik cancelReason ile sessiz red |
+| `ExitTransition_WithValidSchemaPayload_MovesToExited` | Exit schema gecerli payload ile exited-state |
+| `ExitTransition_WithInvalidExitCodeEnum_DoesNotExit` | Exit schema gecersiz enum ile sessiz red |
+| `UpdateData_InSubflow_WithValidSchema_UpdatesAttributes` | SubFlow'da updateData gecerli payload ile parent data guncellenir: eTag degisir + `notes` alani parent attributes'a yazilir |
+| `UpdateData_InSubflow_WithMissingNotes_DoesNotUpdate` | SubFlow'da updateData eksik notes ile schema sessiz reddeder: eTag degismez + gecersiz alan parent'a yazilmaz |
 
 ---
 
@@ -1313,7 +1373,7 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | State tipleri (1/2/3) | X | X | X | X | X | X | X | X | X | X |
 | State alt tipleri (1/2/3) | X | X |  | X |  |  | X |  |  | X |
 | **State alt tipleri (4/5/6)** |  |  |  |  |  |  | X |  |  |  |
-| SubFlow state (4) |  | X |  |  |  |  |  |  |  |  |
+| SubFlow state (4) |  | X |  |  |  | X |  |  |  |  |
 | Wizard state (5) |  |  |  |  | X |  |  |  |  |  |
 | Manuel transition (0) | X | X |  |  | X | X | X |  | X |  |
 | Otomatik transition (1) | X | X | X | X | X |  |  | X | X | X |
@@ -1339,8 +1399,8 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | **Trigger Transition Task (12)** |  |  | X |  |  |  |  |  |  |  |
 | **SubProcess Task (14)** |  |  | X |  |  |  |  |  |  |  |
 | **Get Instances Task (15)** |  |  | X |  |  |  |  |  |  |  |
-| Cancel transition | X | X |  |  |  |  |  |  |  |  |
-| **Exit transition (`attributes.exit`)** | X |  |  |  |  |  |  |  |  |  |
+| Cancel transition | X | X |  |  |  | X |  |  |  |  |
+| **Exit transition (`attributes.exit`)** | X |  |  |  |  | X |  |  |  |  |
 | **Schedule cancel (manuel)** | X |  |  |  |  |  |  |  |  |  |
 | **Timer reschedule (self-loop)** | X |  |  |  |  |  |  |  |  |  |
 | Shared transitions ($self) |  | X |  |  |  |  |  |  |  |  |
@@ -1348,9 +1408,13 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | **SubFlow cancel final states (child/grandchild)** |  | X |  |  |  |  |  |  |  |  |
 | **Effective state (/functions/state, nested)** |  | X |  |  |  |  |  |  |  |  |
 | updateData ($self) |  | X |  |  |  | X |  |  |  |  |
-| **UpdateData (SubFlow context)** |  | X |  |  |  |  |  |  |  |  |
+| **UpdateData (SubFlow context)** |  | X |  |  |  | X |  |  |  |  |
 | Master schema |  |  |  |  |  | X |  |  |  |  |
+| **Start transition schema** |  |  |  |  |  | X |  |  |  |  |
 | Transition schema |  |  |  |  |  | X |  |  |  |  |
+| **Cancel transition schema** |  |  |  |  |  | X |  |  |  |  |
+| **Exit transition schema** |  |  |  |  |  | X |  |  |  |  |
+| **UpdateData transition schema** |  |  |  |  |  | X |  |  |  |  |
 | Field roles (master schema) |  |  |  |  |  | X |  |  |  |  |
 | **queryRoles (workflow/state)** | X |  |  |  |  |  |  |  |  |  |
 | **Transition roles (state fn. list filter)** | X |  |  |  |  |  |  |  |  |  |

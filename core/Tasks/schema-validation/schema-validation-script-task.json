@@ -1,10 +1,10 @@
 {
-  "key": "schema-data-script-task",
+  "key": "schema-validation-script-task",
   "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
-  "tags": ["integration-test", "schema-data", "script"],
+  "tags": ["integration-test", "schema-validation", "schema", "script"],
   "attributes": {
     "type": "7",
     "config": {}

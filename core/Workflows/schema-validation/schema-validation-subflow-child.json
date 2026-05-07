@@ -1,0 +1,107 @@
+{
+  "key": "schema-validation-subflow-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": ["integration-test", "schema-validation", "subflow", "child"],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schema Validation SubFlow Child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "updateData": {
+      "key": "update-with-schema",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "schema": {
+        "key": "schema-validation-update-data",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Parent Data with Schema"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "startTransition": {
+      "key": "start-subflow-child",
+      "target": "subflow-child-active",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start SubFlow Child"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "subflow-child-active",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow Child Active"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-subflow-child",
+            "target": "subflow-child-completed",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete SubFlow Child"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "subflow-child-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow Child Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "key": "schema-validation-update-data",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-validation",
+    "schema",
+    "update-data-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schema Validation UpdateData Transition Schema"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://core.burgan.com/schemas/schema-validation-update-data",
+      "title": "UpdateData Transition Payload Schema",
+      "type": "object",
+      "required": [
+        "notes"
+      ],
+      "properties": {
+        "notes": {
+          "type": "string",
+          "minLength": 3
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

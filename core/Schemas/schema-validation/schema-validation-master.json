@@ -1,12 +1,13 @@
 {
-  "key": "schema-data-master",
+  "key": "schema-validation-master",
   "version": "1.0.0",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
   "tags": [
     "integration-test",
-    "schema-data",
+    "schema-validation",
+    "schema",
     "master-schema",
     "field-roles"
   ],
@@ -15,13 +16,13 @@
     "labels": [
       {
         "language": "en-US",
-        "label": "Schema Data Test Master Schema"
+        "label": "Schema Validation Test Master Schema"
       }
     ],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://core.burgan.com/schemas/schema-data-master",
-      "title": "Schema Data Test Master Schema",
+      "$id": "https://core.burgan.com/schemas/schema-validation-master",
+      "title": "Schema Validation Test Master Schema",
       "type": "object",
       "properties": {
         "orderId": {
@@ -68,6 +69,12 @@
               "grant": "allow"
             }
           ]
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "confirmedBy": {
+          "type": "string"
         },
         "updatedAt": {
           "type": "string",

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
 
-public class ConfirmMapping : ScriptBase, IMapping
+public class ConfirmExecutionMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -14,6 +14,12 @@ public class ConfirmMapping : ScriptBase, IMapping
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
         var data = context.Instance.Data;
+
+        var hasConfirmed = HasProperty(data, "confirmed");
+        var hasConfirmedBy = HasProperty(data, "confirmedBy");
+        var hasOrderId = HasProperty(data, "orderId");
+        var hasInternalNote = HasProperty(data, "internalNote");
+        LogInformation($"ConfirmExecutionMapping: hasConfirmed={hasConfirmed}, hasConfirmedBy={hasConfirmedBy}, hasOrderId={hasOrderId}, hasInternalNote={hasInternalNote}");
 
         dynamic result = new ExpandoObject();
 
@@ -29,15 +35,16 @@ public class ConfirmMapping : ScriptBase, IMapping
             result.internalNote = data.internalNote;
         if (HasProperty(data, "auditLog"))
             result.auditLog = data.auditLog;
-        if (HasProperty(data, "confirmed"))
-            result.confirmed = data.confirmed;
-        if (HasProperty(data, "confirmedBy"))
-            result.confirmedBy = data.confirmedBy;
+
+        result.confirmed = HasProperty(data, "confirmed") ? data.confirmed : true;
+        result.confirmedBy = HasProperty(data, "confirmedBy")
+            ? data.confirmedBy
+            : "system-confirmed";
 
         result.status = "confirmed";
         result.updatedAt = DateTime.UtcNow.ToString("o");
 
-        LogInformation($"ConfirmMapping: confirmed by {result.confirmedBy}");
+        LogInformation($"ConfirmExecutionMapping executed, status=confirmed, confirmedBy={result.confirmedBy}");
 
         return Task.FromResult(new ScriptResponse { Data = result });
     }

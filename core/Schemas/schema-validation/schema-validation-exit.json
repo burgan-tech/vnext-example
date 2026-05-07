@@ -1,0 +1,43 @@
+{
+  "key": "schema-validation-exit",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-validation",
+    "schema",
+    "exit-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schema Validation Exit Transition Schema"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://core.burgan.com/schemas/schema-validation-exit",
+      "title": "Exit Transition Payload Schema",
+      "type": "object",
+      "required": [
+        "exitReason",
+        "exitCode"
+      ],
+      "properties": {
+        "exitReason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exitCode": {
+          "type": "string",
+          "enum": ["success", "failure", "timeout"]
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

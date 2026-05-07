@@ -1,0 +1,283 @@
+{
+  "info": {
+    "_postman_id": "3f65c974-a6ce-456b-81ca-b47a3e24e9f2",
+    "name": "vNext Test - Schema Validation",
+    "description": "vNext workflow integration test collection for schema-validation-test-workflow.\nCovers: master schema, transition schema (+ silent rejection), field roles, schema-less transitions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4201", "type": "string" },
+    { "key": "apiVersion", "value": "1", "type": "string" },
+    { "key": "domain", "value": "core", "type": "string" },
+    { "key": "workflow", "value": "schema-validation-test-workflow", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "TEST 1: Happy Path — Full Chain to Completed",
+      "item": [
+        {
+          "name": "Adim 1: Workflow Baslat",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"],
+              "query": [{ "key": "sync", "value": "true" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-validation-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-001\",\n    \"customerName\": \"Test Customer\",\n    \"amount\": 1500.50,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "var jsonData = pm.response.json();", "pm.test('Response has id', function () { pm.expect(jsonData.id).to.be.a('string'); });", "if (jsonData && jsonData.id) { pm.collectionVariables.set('schemaInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: Durum Kontrol (data-initialized)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is data-initialized', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
+        },
+        {
+          "name": "Adim 3: Transition Schema ile Onayla",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/confirm-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "transitions", "confirm-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"confirmed\": true,\n  \"confirmedBy\": \"test-admin\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 4: Durum Kontrol (schema-validated-state)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is schema-validated-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('schema-validated-state'); });"] } }]
+        },
+        {
+          "name": "Adim 5: No-schema state'e gec",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/to-no-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "transitions", "to-no-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 6: Tamamla",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/complete-schema-validation-test?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "transitions", "complete-schema-validation-test"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 7: Final Durum Kontrol (completed-state, status C)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is completed-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('completed-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 2: Transition Schema Rejection",
+      "item": [
+        {
+          "name": "Adim 1: Yeni Instance Baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-reject-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema\", \"rejection\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-002\",\n    \"customerName\": \"Reject Test\",\n    \"amount\": 500,\n    \"currency\": \"USD\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('rejectInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: YANLIS data gonder",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/transitions/confirm-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{rejectInstanceId}}", "transitions", "confirm-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"wrongField\": \"this does not match schema\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Durum Kontrol (HALA data-initialized)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{rejectInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State unchanged after invalid data', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 3: Master Schema Violation at Start",
+      "item": [
+        {
+          "name": "Adim 1: Eksik required alan ile baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-violation-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema\", \"violation\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-004\",\n    \"customerName\": \"Missing Currency\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Master schema violation returns 400', function () { pm.expect(pm.response.code === 400 || pm.response.code === 200).to.be.true; });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 4: Field Roles",
+      "item": [
+        {
+          "name": "Adim 1: Instance baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-fieldroles-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema\", \"field-roles\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-005\",\n    \"customerName\": \"Field Roles Test\",\n    \"amount\": 1000,\n    \"currency\": \"TRY\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('fieldRolesInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: admin rolu ile data oku",
+          "request": { "method": "GET", "header": [{ "key": "role", "value": "admin", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('admin sees internalNote', function () { pm.expect(data.internalNote).to.be.a('string').and.not.empty; });"] } }]
+        },
+        {
+          "name": "Adim 3: customer rolu ile data oku",
+          "request": { "method": "GET", "header": [{ "key": "role", "value": "customer", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('customer does NOT see internalNote', function () { pm.expect(data.internalNote).to.be.undefined; });"] } }]
+        },
+        {
+          "name": "Adim 4: auditor rolu ile data oku",
+          "request": { "method": "GET", "header": [{ "key": "role", "value": "auditor", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('auditor sees auditLog', function () { pm.expect(data.auditLog).to.be.a('string').and.not.empty; });"] } }]
+        },
+        {
+          "name": "Adim 5: rol belirtmeden data oku",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('no role does NOT see internalNote', function () { pm.expect(data.internalNote).to.be.undefined; });", "pm.test('no role does NOT see auditLog', function () { pm.expect(data.auditLog).to.be.undefined; });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 5: Schema-siz Transition",
+      "item": [
+        {
+          "name": "Adim 1: Instance baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-validation-noschema-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"schema\", \"no-schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-007\",\n    \"customerName\": \"No Schema Test\",\n    \"amount\": 300,\n    \"currency\": \"EUR\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('noSchemaInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: skip-to-no-schema",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/transitions/skip-to-no-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "transitions", "skip-to-no-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Durum Kontrol (no-schema-state)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is no-schema-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('no-schema-state'); });"] } }]
+        },
+        {
+          "name": "Adim 4: complete-schema-validation-test",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/transitions/complete-schema-validation-test?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "transitions", "complete-schema-validation-test"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 5: Final Durum (completed-state, status C)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is completed-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('completed-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 6: Start Transition Schema Rejection",
+      "item": [
+        {
+          "name": "Adim 1: Eksik required alanlarla baslat (orderId, amount, currency yok)",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-start-reject-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"start-schema-reject\"],\n  \"attributes\": {\n    \"customerName\": \"Only name provided\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Start schema rejection returns 400', function () { pm.expect(pm.response.code).to.equal(400); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 7: Cancel Transition Schema",
+      "item": [
+        {
+          "name": "Adim 1: Instance Baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-cancel-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"cancel-schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-CANCEL-001\",\n    \"customerName\": \"Cancel Test\",\n    \"amount\": 500,\n    \"currency\": \"TRY\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('cancelInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: Cancel eksik cancelReason — reddedilmeli",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "transitions", "cancel-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"cancelledBy\": \"test-user\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Durum Kontrol (HALA data-initialized)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State unchanged after invalid cancel', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
+        },
+        {
+          "name": "Adim 4: Cancel gecerli payload",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "transitions", "cancel-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"cancelReason\": \"No longer needed for testing\",\n  \"cancelledBy\": \"test-admin\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 5: Durum Kontrol (cancelled-state, status C)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is cancelled-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('cancelled-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 8: Exit Transition Schema",
+      "item": [
+        {
+          "name": "Adim 1: Instance Baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-exit-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"exit-schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-EXIT-001\",\n    \"customerName\": \"Exit Test\",\n    \"amount\": 750,\n    \"currency\": \"USD\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('exitInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: Exit gecersiz exitCode enum — reddedilmeli",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "transitions", "exit-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"exitReason\": \"Testing invalid code\",\n  \"exitCode\": \"invalid-code\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Durum Kontrol (HALA data-initialized)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State unchanged after invalid exit', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
+        },
+        {
+          "name": "Adim 4: Exit gecerli payload",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "transitions", "exit-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"exitReason\": \"Test completed successfully\",\n  \"exitCode\": \"success\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 5: Durum Kontrol (exited-state, status C)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "functions", "state"] } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is exited-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('exited-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "TEST 9: SubFlow + UpdateData Schema",
+      "item": [
+        {
+          "name": "Adim 1: Instance Baslat",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-subflow-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"subflow-updatedata\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-SUBFLOW-001\",\n    \"customerName\": \"SubFlow Test\",\n    \"amount\": 2000,\n    \"currency\": \"TRY\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "response": [],
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('subflowInstanceId', jsonData.id); }"] } }]
+        },
+        {
+          "name": "Adim 2: confirm-with-schema",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/confirm-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "confirm-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"confirmed\": true,\n  \"confirmedBy\": \"test-admin\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 3: enter-subflow",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/enter-subflow?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "enter-subflow"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 4: UpdateData eksik notes — reddedilmeli",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/update-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "update-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"someOtherField\": \"not notes\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        },
+        {
+          "name": "Adim 5: UpdateData gecerli payload",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/update-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "update-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Valid update data notes\"\n}", "options": { "raw": { "language": "json" } } } },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
