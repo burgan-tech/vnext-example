@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b383d938-352a-4425-a364-3e3f27ce9306",
     "name": "vNext Test - Error Boundary",
-    "description": "Auto-generated from error-boundary-test-workflow.http.\nvNext workflow integration test collection for error-boundary.",
+    "description": "error-boundary-test-workflow (core, flow error-boundary-test-workflow / sys-flows).\n\n**Akış (otomatik geçişler):**\ninit-state → task-retry-state → task-ignore-state → task-log-state → priority-rules-state → state-level-test-state → notify-test-state → [notify-redirect] → rollback-test-state → [rollback-redirect] → global-abort-test-state → **Fault (status F)** — workflow geneli errorBoundary Abort (0).\n\n**Task-level örnekleri:** Retry+Ignore, Ignore, Log-only, öncelikli Ignore / Abort fallback, Notify (transition), Rollback (transition). **State-level:** state errorBoundary + Ignore.\n**Global:** global-abort-test-state içindeki hata → Abort.\n\nTüm görevler **error-script-task** (script); bu koleksiyonda **HTTP/Mockoon/Mocklab gerekmez**. `task-retry-state` retryPolicy PT1S×backoff içerir — `sync=true` ile başlatırsanız yanıt birkaç saniye sürebilir.\n\n**C# testleri:** `tests/Core/Tests/error-boundary-test-workflow/ErrorBoundaryTestWorkflowTests.cs` — milestone için GET instance `attributes` doğrulaması; tam akış sonunda fault beklenir.\n\n**functions/data / attributes ile uyumlu bayraklar (CSX):** errorTestStarted, testId; retryHandled; errorIgnored; logHandled; priorityRuleApplied; stateLevelHandled; notify-test sonrası notifyExecuted, notifyAt; rollback-test sonrası rollbackExecuted, rollbackAt.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -27,14 +27,14 @@
       "type": "string"
     },
     {
-      "key": "mocklabBaseUrl",
-      "value": "http://localhost:3002",
+      "key": "errorBoundaryInstanceId",
+      "value": "",
       "type": "string"
     }
   ],
   "item": [
     {
-      "name": "Adim 1: Workflow baslat (sync; HTTP task retries may add delay)",
+      "name": "1) Instance başlat (sync — retry gecikmesi olabilir)",
       "request": {
         "method": "POST",
         "header": [
@@ -46,9 +46,7 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
-          "host": [
-            "{{baseUrl}}"
-          ],
+          "host": ["{{baseUrl}}"],
           "path": [
             "api",
             "v{{apiVersion}}",
@@ -67,13 +65,14 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"key\": \"error-boundary-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"error-boundary\"],\n  \"attributes\": {}\n}",
+          "raw": "{\n  \"key\": \"error-boundary-postman-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"error-boundary\", \"postman\"],\n  \"attributes\": {}\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        }
+        },
+        "description": "`start-error-test` → **init-state**. İlk görev InitErrorTestMapping (errorTestStarted, testId). Sonraki state’ler tamamen otomatik."
       },
       "response": [],
       "event": [
@@ -83,9 +82,12 @@
             "type": "text/javascript",
             "exec": [
               "var jsonData = pm.response.json();",
+              "pm.test(\"Start 200 ve id var\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(jsonData).to.have.property(\"id\");",
+              "});",
               "if (jsonData && jsonData.id) {",
               "    pm.collectionVariables.set(\"errorBoundaryInstanceId\", jsonData.id);",
-              "    console.log(\"errorBoundaryInstanceId set to: \" + jsonData.id);",
               "}"
             ]
           }
@@ -93,15 +95,13 @@
       ]
     },
     {
-      "name": "Adim 2: Durum (notify-test-state uzerinden completed-state beklenir; global abort veya basarisizlikta error-final)",
+      "name": "2) State (long-poll / anlık)",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{errorBoundaryInstanceId}}/functions/state",
-          "host": [
-            "{{baseUrl}}"
-          ],
+          "host": ["{{baseUrl}}"],
           "path": [
             "api",
             "v{{apiVersion}}",
@@ -113,20 +113,19 @@
             "functions",
             "state"
           ]
-        }
+        },
+        "description": "Tipik sonuç: **state** ≈ `global-abort-test-state`, **status** = `F`. Ara durumlar çok hızlı geçebilir (task-retry-state … notify-test-state)."
       },
       "response": []
     },
     {
-      "name": "Adim 3: Instance data (errorTestStarted, httpErrorHandled, errorIgnored, rollbackExecuted, rollbackAt, logOnlyExecuted, notifyExecuted, notifyAt)",
+      "name": "3) Instance data (functions/data)",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{errorBoundaryInstanceId}}/functions/data",
-          "host": [
-            "{{baseUrl}}"
-          ],
+          "host": ["{{baseUrl}}"],
           "path": [
             "api",
             "v{{apiVersion}}",
@@ -138,9 +137,83 @@
             "functions",
             "data"
           ]
-        }
+        },
+        "description": "Response gövdesinde instance verisi (çoğu kurulumda `data` alt nesnesi). Örnek alanlar: errorTestStarted, testId, retryHandled, errorIgnored, logHandled, priorityRuleApplied, stateLevelHandled; notifyExecuted, notifyAt; rollbackExecuted, rollbackAt. Fault sonrası tam görünürlük ortama göre değişebilir — ara milestone için state/data tekrar çağrılabilir."
       },
       "response": []
+    },
+    {
+      "name": "4) Instance envelope (GET instance — opsiyonel)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{errorBoundaryInstanceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "{{errorBoundaryInstanceId}}"
+          ]
+        },
+        "description": "metadata.currentState / metadata.status ve `attributes` ile instance özeti (runtime sürümüne bağlı)."
+      },
+      "response": []
+    },
+    {
+      "name": "1b) Instance başlat (async — start hemen döner)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start",
+          "host": ["{{baseUrl}}"],
+          "path": [
+            "api",
+            "v{{apiVersion}}",
+            "{{domain}}",
+            "workflows",
+            "{{workflow}}",
+            "instances",
+            "start"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"key\": \"error-boundary-async-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"error-boundary\", \"postman-async\"],\n  \"attributes\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "`sync` query yok; akış arka planda ilerler. Ardından **2) State** ile poll edin."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.id) {",
+              "    pm.collectionVariables.set(\"errorBoundaryInstanceId\", jsonData.id);",
+              "}"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

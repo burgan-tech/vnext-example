@@ -4,7 +4,11 @@
   "flowVersion": "1.0.0",
   "domain": "core",
   "version": "1.0.0",
-  "tags": ["integration-test", "flow-types", "core"],
+  "tags": [
+    "integration-test",
+    "flow-types",
+    "core"
+  ],
   "attributes": {
     "type": "C",
     "timeout": null,

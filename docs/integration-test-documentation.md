@@ -470,106 +470,59 @@ extended-tasks-test-workflow (F)
 
 **Amac:** Hata yonetimi mekanizmasini (error boundary) task, state ve workflow seviyelerinde test eder; **Rollback (action:2)**, **Log (action:5)**, **Notify (action:4)**, **Abort (action:0)** ve ilgili aksiyonlari priority / errorTypes / errorCodes ile kapsar. **`errorBoundary.onTimeout` workflow taniminda yer almaz ve integration test ile dogrulanmaz** — runtime dokumantasyonunda da henuz implemente edilmedigi belirtilmistir; bkz. dokuman sonu.
 
-### Agac Yapisi
+### Agac Yapisi (ozet — tam tanim `error-boundary-test-workflow.json`)
+
+Tum state gecisleri script task (`error-script-task`) ile; HTTP task bu workflow'da kullanilmaz.
 
 ```
 error-boundary-test-workflow (F)
 │
-├── [startTransition] start-error-boundary-test
-│   └── onExecutionTasks:
-│       └── error-script-task + InitErrorTestMapping.csx
-│
-├── [workflow-level errorBoundary]
-│   └── onError: action:0 (Abort), wildcard fallback (transition yok — schema kisiti)
-│   (onTimeout tanimi YOK — test kapsami disi, bkz. dokuman sonu)
-│
-├── retry-test-state (Initial, stateType:1)
-│   ├── onEntries:
-│   │   └── error-http-task (type:6) + ErrorHttpMapping.csx
-│   │       └── [task-level errorBoundary]
-│   │           └── onError: action:1 (Retry), priority:10
-│   │               └── retryPolicy: maxRetries:2, initialDelay:PT2S, backoffType:0
-│   └── Transitions:
-│       └── auto-to-ignore-test (Auto) → ignore-test-state
-│           └── rule: AlwaysTrueRule.csx
-│
-├── ignore-test-state (Intermediate, stateType:2)
-│   ├── [state-level errorBoundary]
-│   │   └── onError: action:3 (Ignore), priority:10, errorTypes:["System.InvalidOperationException"], errorCodes:["*"]
-│   ├── onEntries:
-│   │   ├── order:1 error-script-task + ThrowErrorMapping.csx (kasitli hata firlatir)
-│   │   └── order:2 error-script-task + IgnoreErrorMapping.csx (hata yoksayildiktan sonra calisir)
-│   └── Transitions:
-│       └── auto-to-rollback-from-ignore (Auto) → rollback-test-state
-│           └── rule: AlwaysTrueRule.csx
-│
-├── rollback-test-state (Intermediate, stateType:2)
-│   ├── [state-level errorBoundary]
-│   │   └── onError: action:2 (Rollback), priority:10
-│   ├── onEntries:
-│   │   ├── order:1 error-script-task + ThrowErrorMapping.csx
-│   │   └── order:2 error-script-task + RollbackMapping.csx (IMapping)
-│   └── Transitions:
-│       └── auto-to-log-from-rollback (Auto) → log-test-state
-│           └── rule: AlwaysTrueRule.csx
-│
-├── log-test-state (Intermediate, stateType:2)
-│   ├── [state-level errorBoundary]
-│   │   └── onError: action:5 (Log), priority:10
-│   ├── onEntries:
-│   │   ├── order:1 error-script-task + ThrowErrorMapping.csx
-│   │   └── order:2 error-script-task + LogOnlyMapping.csx
-│   └── Transitions:
-│       └── auto-to-completed-from-log (Auto) → notify-test-state
-│           └── rule: AlwaysTrueRule.csx
-│
-├── notify-test-state (Intermediate, stateType:2)
-│   ├── [state-level errorBoundary]
-│   │   └── onError: action:4 (Notify), priority:10, transition:"auto-to-completed-from-notify"
-│   ├── onEntries:
-│   │   ├── order:1 error-script-task + ThrowErrorMapping.csx
-│   │   └── order:2 error-script-task + NotifyMapping.csx (IMapping)
-│   └── Transitions:
-│       └── auto-to-completed-from-notify (Auto) → completed-state
-│           └── rule: AlwaysTrueRule.csx
-│
-├── completed-state (Final/Success, stateType:3, subType:1)
-└── error-final (Final/Error, stateType:3, subType:2)
+├── [workflow-level errorBoundary] onError: action:0 (Abort), errorCodes:["*"]
+├── [startTransition] → init-state
+├── init-state → InitErrorTestMapping → auto → task-retry-state
+├── task-retry-state → RetryThrowMapping (attempt sayaci + UTC damgalari) + [Retry→Ignore fallback] + RetryConfirmMapping → auto → task-ignore-state
+├── task-ignore-state → ThrowErrorMapping + IgnoreErrorMapping → auto → task-log-state
+├── task-log-state → ThrowErrorMapping + [Log logOnly] + LogOnlyMapping → auto → priority-rules-state
+├── priority-rules-state → ThrowErrorMapping + [Ignore InvalidOperationException → wildcard Log] + PriorityConfirmMapping → auto → state-level-test-state
+├── state-level-test-state → [state Ignore boundary] + ThrowErrorMapping + StateLevelConfirmMapping → auto → notify-test-state
+├── notify-test-state → task Notify boundary (`transition`: notify-redirect) → rollback-test-state
+├── rollback-test-state → task Rollback boundary (`transition`: rollback-redirect) → global-abort-test-state
+├── global-abort-test-state → ThrowErrorMapping → workflow Abort → instance Faulted (`completed-state` tasarlanan akista ulasilmaz)
+└── completed-state (final Success wiring — otomatik gecis pratikte ulasilmaz)
 ```
+
+(`errorBoundary.onTimeout` tanimi YOK — test kapsami disi, bkz. dokuman sonu.)
 
 ### Test Edilen Ozellikler
 
 | Ozellik | Nasil Test Edilir | Ilgili Eleman |
 |---------|-------------------|---------------|
-| Task-level error boundary | Task onEntries'de errorBoundary | retry-test-state onEntries |
-| State-level error boundary | State uzerinde errorBoundary | ignore-test-state, rollback-test-state, log-test-state |
-| Workflow-level error boundary | Workflow attributes'da errorBoundary | attributes.errorBoundary |
-| Retry action (action:1) | HTTP task hata alinca yeniden dene | retry-test-state task errorBoundary |
-| Retry policy | maxRetries, initialDelay, backoffType | retryPolicy yapisi |
-| Ignore action (action:3) | Script hata firlatinca yoksay | ignore-test-state errorBoundary |
-| **Rollback action (action:2)** | State errorBoundary rollback | rollback-test-state |
-| **Log action (action:5)** | Hata loglama; siradaki task ile devam | log-test-state |
-| **Notify action (action:4)** | Hata bildirim ve transition tetikleme | notify-test-state errorBoundary |
-| Abort action (action:0) | Global wildcard fallback (transition kullanilmaz; instance Faulted) | workflow errorBoundary |
-| **errorTypes / errorCodes** | Kural bazli eslestirme | priority-rules-state ve diger boundary kurallari |
-| Priority siralama | Dusuk priority once calisir | task:10, state:10, workflow:100 |
-| Hata sonrasi devam | Ignore sonrasi siradaki task calisir | IgnoreErrorMapping (order:2) |
-| Rollback sonrasi zincir | rollback-test-state tamamlaninca log-test-state | auto-to-log-from-rollback |
-| Log sonrasi basari finali | log-test-state tamamlaninca completed-state | auto-to-completed-from-log |
+| Task-level error boundary | Task `onEntries` icinde `errorBoundary` | task-retry / ignore / log / priority / notify / rollback state tasklari |
+| State-level error boundary | State `errorBoundary` | state-level-test-state |
+| Workflow-level error boundary | Workflow `attributes.errorBoundary` | global Abort |
+| Retry action (action:1) | Script task hatasinda yeniden dene | task-retry-state task boundary |
+| Retry policy | maxRetries, initialDelay, backoffType | `retryPolicy` |
+| Ignore action (action:3) | Hatayi yoksayip devam | task-ignore, priority-rules (tip eslestirmesi), state-level |
+| **Rollback action (action:2)** | Task boundary + `transition` redirect | rollback-test-state |
+| **Log action (action:5)** | logOnly / siradaki task | task-log-state, priority wildcard fallback |
+| **Notify action (action:4)** | Task boundary + `transition` redirect | notify-test-state |
+| Abort action (action:0) | Son hatada workflow boundary | global-abort-test-state sonrasi Faulted |
+| **errorTypes** | Kural bazli eslestirme | priority-rules-state (`InvalidOperationException` vs `*`) |
+| Priority siralama | Dusuk `priority` once | priority-rules-state ve diger kurallar |
 
 ### Kullanilan Bilesenler
 
 | Tip | Anahtar | Dosya |
 |-----|---------|-------|
-| Task | `error-http-task` (type:6) | Tasks/error-boundary/error-http-task.json |
 | Task | `error-script-task` (type:7) | Tasks/error-boundary/error-script-task.json |
 | CSX | InitErrorTestMapping | Workflows/error-boundary/src/InitErrorTestMapping.csx |
-| CSX | ErrorHttpMapping | Workflows/error-boundary/src/ErrorHttpMapping.csx |
+| CSX | RetryThrowMapping | Workflows/error-boundary/src/RetryThrowMapping.csx |
 | CSX | ThrowErrorMapping | Workflows/error-boundary/src/ThrowErrorMapping.csx |
+| CSX | RetryConfirmMapping | Workflows/error-boundary/src/RetryConfirmMapping.csx |
 | CSX | IgnoreErrorMapping | Workflows/error-boundary/src/IgnoreErrorMapping.csx |
-| CSX | **RollbackMapping** | Workflows/error-boundary/src/RollbackMapping.csx |
 | CSX | LogOnlyMapping | Workflows/error-boundary/src/LogOnlyMapping.csx |
-| CSX | **NotifyMapping** | Workflows/error-boundary/src/NotifyMapping.csx |
+| CSX | PriorityConfirmMapping | Workflows/error-boundary/src/PriorityConfirmMapping.csx |
+| CSX | StateLevelConfirmMapping | Workflows/error-boundary/src/StateLevelConfirmMapping.csx |
 | CSX | AlwaysTrueRule | Workflows/error-boundary/src/AlwaysTrueRule.csx |
 
 **Workflow tag'leri (ozet):** `rollback`, `log-action`, `notify`, `abort`, `priority`, `error-types`, `error-codes` dahil; tam liste `error-boundary-test-workflow.json` icindedir.
