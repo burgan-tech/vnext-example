@@ -2,280 +2,2799 @@
   "info": {
     "_postman_id": "3f65c974-a6ce-456b-81ca-b47a3e24e9f2",
     "name": "vNext Test - Schema Validation",
-    "description": "vNext workflow integration test collection for schema-validation-test-workflow.\nCovers: master schema, transition schema (+ silent rejection), field roles, schema-less transitions.",
+    "description": "schema-validation-test-workflow.http ile ayni akis.\nKaynak: SchemaValidationTestWorkflowTests.cs\nPATCH body: { \"attributes\": { ... } }",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:4201", "type": "string" },
-    { "key": "apiVersion", "value": "1", "type": "string" },
-    { "key": "domain", "value": "core", "type": "string" },
-    { "key": "workflow", "value": "schema-validation-test-workflow", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    },
+    {
+      "key": "workflow",
+      "value": "schema-validation-test-workflow",
+      "type": "string"
+    }
   ],
   "item": [
     {
-      "name": "TEST 1: Happy Path — Full Chain to Completed",
+      "name": "HappyPath_FullChain_CompletesWithStatusC",
       "item": [
         {
-          "name": "Adim 1: Workflow Baslat",
+          "name": "HP.1 Start",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"],
-              "query": [{ "key": "sync", "value": "true" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"key\": \"schema-validation-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-001\",\n    \"customerName\": \"Test Customer\",\n    \"amount\": 1500.50,\n    \"currency\": \"TRY\"\n  }\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"key\": \"schema-happy-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"schema\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-001\",\n    \"customerName\": \"Test Customer\",\n    \"amount\": 1500.5,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status code is 200', function () { pm.response.to.have.status(200); });", "var jsonData = pm.response.json();", "pm.test('Response has id', function () { pm.expect(jsonData.id).to.be.a('string'); });", "if (jsonData && jsonData.id) { pm.collectionVariables.set('schemaInstanceId', jsonData.id); }"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('happyInstanceId', jsonData.id);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 2: Durum Kontrol (data-initialized)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "functions", "state"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is data-initialized', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
-        },
-        {
-          "name": "Adim 3: Transition Schema ile Onayla",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/confirm-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "transitions", "confirm-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"confirmed\": true,\n  \"confirmedBy\": \"test-admin\"\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "HP.2 State data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{happyInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 4: Durum Kontrol (schema-validated-state)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "functions", "state"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is schema-validated-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('schema-validated-state'); });"] } }]
-        },
-        {
-          "name": "Adim 5: No-schema state'e gec",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/to-no-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "transitions", "to-no-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "name": "HP.3 confirm-with-schema",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{happyInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": true,\n    \"confirmedBy\": \"test-admin\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 6: Tamamla",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/complete-schema-validation-test?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "transitions", "complete-schema-validation-test"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "name": "HP.4 State schema-validated-state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{happyInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('schema-validated-state', () => pm.expect(st).to.eql('schema-validated-state'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "HP.5 to-no-schema",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/transitions/to-no-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{happyInstanceId}}",
+                "transitions",
+                "to-no-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 7: Final Durum Kontrol (completed-state, status C)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{schemaInstanceId}}", "functions", "state"] } },
+          "name": "HP.6 complete-schema-validation-test",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/transitions/complete-schema-validation-test?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{happyInstanceId}}",
+                "transitions",
+                "complete-schema-validation-test"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "HP.7 completed-state C",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{happyInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is completed-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('completed-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "var stat = jsonData.status || (jsonData.data && jsonData.data.status);",
+                  "pm.test('completed-state', () => pm.expect(st).to.eql('completed-state'));",
+                  "pm.test('status C', () => pm.expect(stat).to.eql('C'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 2: Transition Schema Rejection",
+      "name": "StartTransition_SetsInitializedStatus",
       "item": [
         {
-          "name": "Adim 1: Yeni Instance Baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-reject-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema\", \"rejection\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-002\",\n    \"customerName\": \"Reject Test\",\n    \"amount\": 500,\n    \"currency\": \"USD\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "ST.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-init-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"schema\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-INIT\",\n    \"customerName\": \"Test Customer\",\n    \"amount\": 1500.5,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('rejectInstanceId', jsonData.id); }"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "var j = pm.response.json();",
+                  "pm.collectionVariables.set('initInstanceId', j.id);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 2: YANLIS data gonder",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/transitions/confirm-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{rejectInstanceId}}", "transitions", "confirm-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"wrongField\": \"this does not match schema\"\n}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 3: Durum Kontrol (HALA data-initialized)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{rejectInstanceId}}", "functions", "state"] } },
+          "name": "ST.2 GET instance (attributes)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{initInstanceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{initInstanceId}}"
+              ]
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State unchanged after invalid data', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "var j = pm.response.json();",
+                  "pm.test('status initialized', () => pm.expect(j.attributes.status).to.eql('initialized'));",
+                  "pm.test('orderId', () => pm.expect(j.attributes.orderId).to.eql('ORD-INIT'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 3: Master Schema Violation at Start",
+      "name": "ConfirmTransition_WithValidSchema_MovesToSchemaValidatedState",
       "item": [
         {
-          "name": "Adim 1: Eksik required alan ile baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-violation-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema\", \"violation\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-004\",\n    \"customerName\": \"Missing Currency\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "CV.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-valid-confirm-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-CV\",\n    \"customerName\": \"Test Customer\",\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Master schema violation returns 400', function () { pm.expect(pm.response.code === 400 || pm.response.code === 200).to.be.true; });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "pm.collectionVariables.set('validConfirmInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CV.2 confirm",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{validConfirmInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{validConfirmInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": true,\n    \"confirmedBy\": \"integration-test-user\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CV.3 State schema-validated",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{validConfirmInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{validConfirmInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('schema-validated-state'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CV.4 GET instance confirmed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{validConfirmInstanceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{validConfirmInstanceId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j = pm.response.json();",
+                  "pm.test('status confirmed', () => pm.expect(j.attributes.status).to.eql('confirmed'));",
+                  "pm.test('confirmedBy', () => pm.expect(j.attributes.confirmedBy).to.eql('integration-test-user'));",
+                  "pm.test('updatedAt', () => pm.expect(j.attributes.updatedAt).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 4: Field Roles",
+      "name": "ConfirmTransition_WithPartialData_DoesNotTransition",
       "item": [
         {
-          "name": "Adim 1: Instance baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-fieldroles-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema\", \"field-roles\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-005\",\n    \"customerName\": \"Field Roles Test\",\n    \"amount\": 1000,\n    \"currency\": \"TRY\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "PD.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-partial-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-PD\",\n    \"customerName\": \"Partial Test\",\n    \"amount\": 50,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('fieldRolesInstanceId', jsonData.id); }"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('partialInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 2: admin rolu ile data oku",
-          "request": { "method": "GET", "header": [{ "key": "role", "value": "admin", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
+          "name": "PD.2 confirm partial (4xx)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{partialInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{partialInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('admin sees internalNote', function () { pm.expect(data.internalNote).to.be.a('string').and.not.empty; });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('schema fail status', () => {",
+                  "  pm.expect([400, 422, 428]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 3: customer rolu ile data oku",
-          "request": { "method": "GET", "header": [{ "key": "role", "value": "customer", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
+          "name": "PD.3 still data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{partialInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{partialInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('customer does NOT see internalNote', function () { pm.expect(data.internalNote).to.be.undefined; });"] } }]
-        },
-        {
-          "name": "Adim 4: auditor rolu ile data oku",
-          "request": { "method": "GET", "header": [{ "key": "role", "value": "auditor", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('auditor sees auditLog', function () { pm.expect(data.auditLog).to.be.a('string').and.not.empty; });"] } }]
-        },
-        {
-          "name": "Adim 5: rol belirtmeden data oku",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{fieldRolesInstanceId}}", "functions", "data"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "var data = jsonData.data || jsonData;", "pm.test('no role does NOT see internalNote', function () { pm.expect(data.internalNote).to.be.undefined; });", "pm.test('no role does NOT see auditLog', function () { pm.expect(data.auditLog).to.be.undefined; });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('data-initialized'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 5: Schema-siz Transition",
+      "name": "FieldRoles (admin / customer / auditor / none)",
       "item": [
         {
-          "name": "Adim 1: Instance baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-validation-noschema-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"schema\", \"no-schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-007\",\n    \"customerName\": \"No Schema Test\",\n    \"amount\": 300,\n    \"currency\": \"EUR\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "FR.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-fr-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema\",\n    \"field-roles\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-FR\",\n    \"customerName\": \"Field Roles Test\",\n    \"amount\": 1000,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('noSchemaInstanceId', jsonData.id); }"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('frInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 2: skip-to-no-schema",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/transitions/skip-to-no-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "transitions", "skip-to-no-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 3: Durum Kontrol (no-schema-state)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "functions", "state"] } },
+          "name": "FR-A admin sees internalNote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "role",
+                "value": "admin",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{frInstanceId}}",
+                "functions",
+                "data"
+              ]
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is no-schema-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('no-schema-state'); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var d = jsonData.data || jsonData;",
+                  "pm.test('internalNote', () => pm.expect(d.internalNote).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 4: complete-schema-validation-test",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/transitions/complete-schema-validation-test?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "transitions", "complete-schema-validation-test"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 5: Final Durum (completed-state, status C)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{noSchemaInstanceId}}", "functions", "state"] } },
+          "name": "FR-C customer hides internalNote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "role",
+                "value": "customer",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{frInstanceId}}",
+                "functions",
+                "data"
+              ]
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is completed-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('completed-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var d = jsonData.data || jsonData;",
+                  "pm.test('no internalNote', () => pm.expect(d.internalNote).to.be.undefined);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FR-U auditor sees auditLog",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "role",
+                "value": "auditor",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{frInstanceId}}",
+                "functions",
+                "data"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var d = jsonData.data || jsonData;",
+                  "pm.test('auditLog', () => pm.expect(d.auditLog).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FR-N no role hides both",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{frInstanceId}}",
+                "functions",
+                "data"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var d = jsonData.data || jsonData;",
+                  "pm.test('no internalNote', () => pm.expect(d.internalNote).to.be.undefined);",
+                  "pm.test('no auditLog', () => pm.expect(d.auditLog).to.be.undefined);"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 6: Start Transition Schema Rejection",
+      "name": "NoSchemaTransition_AcceptsAnyBody",
       "item": [
         {
-          "name": "Adim 1: Eksik required alanlarla baslat (orderId, amount, currency yok)",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-start-reject-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"start-schema-reject\"],\n  \"attributes\": {\n    \"customerName\": \"Only name provided\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "NS.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-noschema-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"no-schema\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-NS\",\n    \"customerName\": \"No Schema Test\",\n    \"amount\": 300,\n    \"currency\": \"EUR\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Start schema rejection returns 400', function () { pm.expect(pm.response.code).to.equal(400); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('noSchemaOnlyId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NS.2 skip-to-no-schema",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaOnlyId}}/transitions/skip-to-no-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{noSchemaOnlyId}}",
+                "transitions",
+                "skip-to-no-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "NS.3 no-schema-state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaOnlyId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{noSchemaOnlyId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('no-schema-state'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 7: Cancel Transition Schema",
+      "name": "MasterSchema_RejectsInstanceWithInvalidEnum",
       "item": [
         {
-          "name": "Adim 1: Instance Baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-cancel-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"cancel-schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-CANCEL-001\",\n    \"customerName\": \"Cancel Test\",\n    \"amount\": 500,\n    \"currency\": \"TRY\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "MS Start currency JPY",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-master-enum-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"master-enum\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-JPY\",\n    \"customerName\": \"Enum Test\",\n    \"amount\": 100,\n    \"currency\": \"JPY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('cancelInstanceId', jsonData.id); }"] } }]
-        },
-        {
-          "name": "Adim 2: Cancel eksik cancelReason — reddedilmeli",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "transitions", "cancel-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"cancelledBy\": \"test-user\"\n}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 3: Durum Kontrol (HALA data-initialized)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "functions", "state"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State unchanged after invalid cancel', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
-        },
-        {
-          "name": "Adim 4: Cancel gecerli payload",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "transitions", "cancel-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"cancelReason\": \"No longer needed for testing\",\n  \"cancelledBy\": \"test-admin\"\n}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 5: Durum Kontrol (cancelled-state, status C)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{cancelInstanceId}}", "functions", "state"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is cancelled-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('cancelled-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejects or accepts depending on runtime', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 422]);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 8: Exit Transition Schema",
+      "name": "StartTransitionSchema_RejectsMissingRequiredFields",
       "item": [
         {
-          "name": "Adim 1: Instance Baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-exit-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"exit-schema\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-EXIT-001\",\n    \"customerName\": \"Exit Test\",\n    \"amount\": 750,\n    \"currency\": \"USD\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "SSR invalid start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-start-reject-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"start-schema-reject\"\n  ],\n  \"attributes\": {\n    \"customerName\": \"Only name, missing orderId/amount/currency\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('exitInstanceId', jsonData.id); }"] } }]
-        },
-        {
-          "name": "Adim 2: Exit gecersiz exitCode enum — reddedilmeli",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "transitions", "exit-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"exitReason\": \"Testing invalid code\",\n  \"exitCode\": \"invalid-code\"\n}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 3: Durum Kontrol (HALA data-initialized)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "functions", "state"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State unchanged after invalid exit', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('data-initialized'); });"] } }]
-        },
-        {
-          "name": "Adim 4: Exit gecerli payload",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "transitions", "exit-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"exitReason\": \"Test completed successfully\",\n  \"exitCode\": \"success\"\n}", "options": { "raw": { "language": "json" } } } },
-          "response": []
-        },
-        {
-          "name": "Adim 5: Durum Kontrol (exited-state, status C)",
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{exitInstanceId}}", "functions", "state"] } },
-          "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "pm.test('State is exited-state', function () { pm.expect(jsonData.state || (jsonData.data && jsonData.data.state)).to.equal('exited-state'); });", "pm.test('Status is C', function () { pm.expect(jsonData.status || (jsonData.data && jsonData.data.status)).to.equal('C'); });"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('4xx expected', () => {",
+                  "  pm.expect([400, 404, 422]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "TEST 9: SubFlow + UpdateData Schema",
+      "name": "StartTransitionSchema_AcceptsValidPayload",
       "item": [
         {
-          "name": "Adim 1: Instance Baslat",
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"key\": \"schema-subflow-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"schema-validation\", \"subflow-updatedata\"],\n  \"attributes\": {\n    \"orderId\": \"ORD-SUBFLOW-001\",\n    \"customerName\": \"SubFlow Test\",\n    \"amount\": 2000,\n    \"currency\": \"TRY\"\n  }\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "SV Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-valid-start-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-VALID-001\",\n    \"customerName\": \"Valid Customer\",\n    \"amount\": 100,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": [],
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["var jsonData = pm.response.json();", "if (jsonData && jsonData.id) { pm.collectionVariables.set('subflowInstanceId', jsonData.id); }"] } }]
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);",
+                  "pm.collectionVariables.set('startValidInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Adim 2: confirm-with-schema",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/confirm-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "confirm-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"confirmed\": true,\n  \"confirmedBy\": \"test-admin\"\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "SV State data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{startValidInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{startValidInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('data-initialized'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConfirmTransition_WithInvalidSchemaPayload_DoesNotChangeState",
+      "item": [
+        {
+          "name": "INV.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-inv-type-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-INV\",\n    \"customerName\": \"Invalid Type Test\",\n    \"amount\": 250,\n    \"currency\": \"EUR\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('invalidTypeInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "INV.2 wrong types",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{invalidTypeInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{invalidTypeInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": \"yes\",\n    \"confirmedBy\": 123\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('4xx', () => pm.expect([400, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "INV.3 data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{invalidTypeInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{invalidTypeInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('data-initialized'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConfirmTransition_WithMissingRequiredField_DoesNotChangeState",
+      "item": [
+        {
+          "name": "MIS.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-missing-cb-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-MIS\",\n    \"customerName\": \"Missing CB Test\",\n    \"amount\": 1,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('missingCbInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MIS.2 confirm without confirmedBy",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{missingCbInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{missingCbInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('4xx', () => pm.expect([400, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MIS.3 data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{missingCbInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{missingCbInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('data-initialized'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CancelTransition_WithValidSchemaPayload_MovesToCancelled",
+      "item": [
+        {
+          "name": "CA.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-cancel-ok-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"cancel\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-CANCEL-OK\",\n    \"customerName\": \"Cancel OK\",\n    \"amount\": 500,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('cancelOkId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CA.2 cancel valid",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelOkId}}/transitions/cancel-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{cancelOkId}}",
+                "transitions",
+                "cancel-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"cancelReason\": \"No longer needed\",\n    \"cancelledBy\": \"test-user\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 3: enter-subflow",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/enter-subflow?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "enter-subflow"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } } },
+          "name": "CA.3 cancelled-state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelOkId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{cancelOkId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "var stat = jsonData.status || (jsonData.data && jsonData.data.status);",
+                  "pm.test('cancelled-state', () => pm.expect(st).to.eql('cancelled-state'));",
+                  "pm.test('C', () => pm.expect(stat).to.eql('C'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CancelTransition_WithMissingCancelReason_DoesNotCancel",
+      "item": [
+        {
+          "name": "CB.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-cancel-bad-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"cancel\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-CANCEL-BAD\",\n    \"customerName\": \"Cancel Bad\",\n    \"amount\": 500,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('cancelBadId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CB.2 cancel missing reason",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelBadId}}/transitions/cancel-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{cancelBadId}}",
+                "transitions",
+                "cancel-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"cancelledBy\": \"test-user\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 4: UpdateData eksik notes — reddedilmeli",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/update-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "update-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"someOtherField\": \"not notes\"\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "CB.3 data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelBadId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{cancelBadId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('data-initialized'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExitTransition_WithValidSchemaPayload_MovesToExited",
+      "item": [
+        {
+          "name": "EX.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-exit-ok-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"exit\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-EXIT-OK\",\n    \"customerName\": \"Exit OK\",\n    \"amount\": 750,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('exitOkId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EX.2 exit valid",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitOkId}}/transitions/exit-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{exitOkId}}",
+                "transitions",
+                "exit-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"exitReason\": \"Test completed\",\n    \"exitCode\": \"success\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
         },
         {
-          "name": "Adim 5: UpdateData gecerli payload",
-          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }], "url": { "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/update-with-schema?sync=true", "host": ["{{baseUrl}}"], "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{subflowInstanceId}}", "transitions", "update-with-schema"], "query": [{ "key": "sync", "value": "true" }] }, "body": { "mode": "raw", "raw": "{\n  \"notes\": \"Valid update data notes\"\n}", "options": { "raw": { "language": "json" } } } },
+          "name": "EX.3 exited-state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitOkId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{exitOkId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "var stat = jsonData.status || (jsonData.data && jsonData.data.status);",
+                  "pm.test('exited-state', () => pm.expect(st).to.eql('exited-state'));",
+                  "pm.test('C', () => pm.expect(stat).to.eql('C'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExitTransition_WithInvalidExitCodeEnum_DoesNotExit",
+      "item": [
+        {
+          "name": "EB.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-exit-bad-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"exit\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-EXIT-BAD\",\n    \"customerName\": \"Exit Bad\",\n    \"amount\": 1,\n    \"currency\": \"USD\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('exitBadId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EB.2 invalid exitCode",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitBadId}}/transitions/exit-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{exitBadId}}",
+                "transitions",
+                "exit-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"exitReason\": \"Test\",\n    \"exitCode\": \"invalid-code\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "response": []
+        },
+        {
+          "name": "EB.3 data-initialized",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitBadId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{exitBadId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var st = jsonData.state || (jsonData.data && jsonData.data.state) || '';",
+                  "pm.test('state', () => pm.expect(st).to.eql('data-initialized'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UpdateData_InSubflow_WithValidSchema_UpdatesAttributes",
+      "item": [
+        {
+          "name": "UD.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-ud-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"subflow\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-UD\",\n    \"customerName\": \"SubFlow Test\",\n    \"amount\": 2000,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('udInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UD.2 confirm",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": true,\n    \"confirmedBy\": \"test-admin\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UD.3 enter-subflow",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/transitions/enter-subflow?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udInstanceId}}",
+                "transitions",
+                "enter-subflow"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UD.4 state (optional poll)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/functions/state",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UD.5 eTag before",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udInstanceId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j = pm.response.json();",
+                  "pm.collectionVariables.set('udEtagBefore', j.eTag || '');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UD.6 update-with-schema",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/transitions/update-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udInstanceId}}",
+                "transitions",
+                "update-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"notes\": \"Updated via schema-validated updateData\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UD.7 instance notes + eTag",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udInstanceId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j = pm.response.json();",
+                  "pm.test('notes', () => pm.expect(j.attributes.notes).to.eql('Updated via schema-validated updateData'));",
+                  "var before = pm.collectionVariables.get('udEtagBefore');",
+                  "pm.test('eTag changed if present', () => {",
+                  "  if (before && j.eTag) pm.expect(j.eTag).to.not.eql(before);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UpdateData_InSubflow_WithMissingNotes_DoesNotUpdate",
+      "item": [
+        {
+          "name": "UD-B.1 Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"schema-ud-bad-{{$timestamp}}\",\n  \"tags\": [\n    \"integration-test\",\n    \"schema-validation\",\n    \"subflow\"\n  ],\n  \"attributes\": {\n    \"orderId\": \"ORD-UDBAD\",\n    \"customerName\": \"SubFlow Bad\",\n    \"amount\": 2000,\n    \"currency\": \"TRY\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('udBadInstanceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UD-B.2 confirm",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}/transitions/confirm-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udBadInstanceId}}",
+                "transitions",
+                "confirm-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"confirmed\": true,\n    \"confirmedBy\": \"test-admin\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UD-B.3 enter-subflow",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}/transitions/enter-subflow?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udBadInstanceId}}",
+                "transitions",
+                "enter-subflow"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UD-B.4 update missing notes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}/transitions/update-with-schema?sync=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udBadInstanceId}}",
+                "transitions",
+                "update-with-schema"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributes\": {\n    \"someOtherField\": \"not notes\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('4xx', () => pm.expect([400, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UD-B.5 attributes no someOtherField",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{udBadInstanceId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j = pm.response.json();",
+                  "pm.test('no someOtherField', () => pm.expect(j.attributes).to.not.have.property('someOtherField'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

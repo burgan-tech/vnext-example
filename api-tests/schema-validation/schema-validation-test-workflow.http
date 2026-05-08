@@ -4,18 +4,37 @@
 @workflow = schema-validation-test-workflow
 
 ###############################################################################
-# TEST 1: Happy Path — Master Schema + Transition Schema + Completion
-# Tests: master schema active, transition schema enforcement,
-#        onExecutionTasks with mapping, full chain to status C
+# schema-validation-test-workflow — API manual / REST Client tests
+#
+# Kaynak: tests/Core/Tests/schema-validation-test-workflow/SchemaValidationTestWorkflowTests.cs
+# Yardimci: SchemaValidationScenarioActions.cs, SchemaValidationInstanceDataAssertions.cs
+#
+# GECIS BODY: Tum PATCH isteklerinde gecis payload'u { "attributes": { ... } } zarfinda
+#             olmali (C# WorkflowInstanceTestHelper / RunTransitionAsync ile ayni).
+#
+# BEKLENTILER (runtime surumune gore):
+# - Bazi schema ihlalleri: HTTP 4xx + mesajda "schema validation failed" (C# HttpRequestException).
+# - Bazi eski "sessiz red" senaryolari: 200 ama state degismez — dokumantasyona bakin.
+#
+# Alan adlari (Initialized): orderId, customerName, amount, currency, status="initialized"
+# (Initialized tam teyit: GET .../instances/{id} → attributes)
 ###############################################################################
 
-### Adim 1: Workflow Baslat (master schema required alanlarla)
-# @name createSchemaInstance
+
+# =============================================================================
+# [Fact] HappyPath_FullChain_CompletesWithStatusC
+# Senaryo: SchemaValidationScenarioActions.RunFullHappyPathAsync
+#   start → confirm-with-schema → to-no-schema → complete-schema-validation-test
+# Son: completed-state, status C
+# =============================================================================
+
+### HP.1 Baslat (gecerli master + start schema)
+# @name happyStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-validation-{{$timestamp}}",
+  "key": "schema-happy-{{$timestamp}}",
   "tags": ["integration-test", "schema-validation", "schema"],
   "attributes": {
     "orderId": "ORD-001",
@@ -25,17 +44,13 @@ Content-Type: application/json
   }
 }
 
-@schemaInstanceId = {{createSchemaInstance.response.body.$.id}}
+@happyInstanceId = {{happyStart.response.body.$.id}}
 
-### Adim 2: Durum Kontrol (data-initialized olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state
+### HP.2 State: data-initialized
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/functions/state
 
-### Adim 3: Instance Data Kontrol (SchemaInitMapping sonrasi)
-# status="initialized", internalNote, auditLog alanlari olmali
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/data
-
-### Adim 4: Transition Schema ile Onayla (dogru data)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/confirm-with-schema?sync=true
+### HP.3 confirm-with-schema (ConfirmWithSchemaAsync → confirmedBy default "test-admin")
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/transitions/confirm-with-schema?sync=true
 Content-Type: application/json
 
 {
@@ -45,63 +60,119 @@ Content-Type: application/json
   }
 }
 
-### Adim 5: Durum Kontrol (schema-validated-state olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state
+### HP.4 State: schema-validated-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/functions/state
 
-### Adim 6: No-schema state'e gec
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/to-no-schema?sync=true
+### HP.5 to-no-schema
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/transitions/to-no-schema?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 7: Tamamla
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/transitions/complete-schema-validation-test?sync=true
+### HP.6 complete-schema-validation-test
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/transitions/complete-schema-validation-test?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 8: Final Durum Kontrol (completed-state, status: C olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{schemaInstanceId}}/functions/state
+### HP.7 Final: completed-state, status C
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{happyInstanceId}}/functions/state
 
-###############################################################################
-# TEST 2: Transition Schema Rejection (Sessiz Red)
-# Tests: yanlis data gonderilirse transition 200 doner ama state DEGISMEZ
-###############################################################################
 
-### Adim 1: Yeni Instance Baslat
-# @name createRejectInstance
+# =============================================================================
+# [Fact] StartTransition_SetsInitializedStatus
+# Teyit: GET instance → attributes icinde status="initialized", orderId, amount, currency
+# =============================================================================
+
+### ST.1 Baslat
+# @name initStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-reject-test-{{$timestamp}}",
-  "tags": ["integration-test", "schema", "rejection"],
+  "key": "schema-init-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "schema"],
   "attributes": {
-    "orderId": "ORD-002",
-    "customerName": "Reject Test",
-    "amount": 500,
+    "orderId": "ORD-INIT",
+    "customerName": "Test Customer",
+    "amount": 1500.50,
+    "currency": "TRY"
+  }
+}
+
+@initInstanceId = {{initStart.response.body.$.id}}
+
+### ST.2 Instance (attributes tam JSON — SchemaValidationInstanceDataAssertions ile uyumlu)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{initInstanceId}}
+
+
+# =============================================================================
+# [Fact] ConfirmTransition_WithValidSchema_MovesToSchemaValidatedState
+# confirmedBy: "integration-test-user" (test dosyasindaki gibi)
+# =============================================================================
+
+### CV.1 Baslat
+# @name validConfirmStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-valid-confirm-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation"],
+  "attributes": {
+    "orderId": "ORD-CV",
+    "customerName": "Test Customer",
+    "amount": 100,
     "currency": "USD"
   }
 }
 
-@rejectInstanceId = {{createRejectInstance.response.body.$.id}}
+@validConfirmInstanceId = {{validConfirmStart.response.body.$.id}}
 
-### Adim 2: Transition Schema ile YANLIS data gonder (confirmed ve confirmedBy required)
-# Bu 200 donecek ama state DEGISMEMELI (sessiz red)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/transitions/confirm-with-schema?sync=true
+### CV.2 confirm-with-schema (gecerli)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{validConfirmInstanceId}}/transitions/confirm-with-schema?sync=true
 Content-Type: application/json
 
 {
   "attributes": {
-    "wrongField": "this does not match schema"
+    "confirmed": true,
+    "confirmedBy": "integration-test-user"
   }
 }
 
-### Adim 3: Durum Kontrol (HALA data-initialized olmali - state degismemeli)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/functions/state
+### CV.3 State: schema-validated-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{validConfirmInstanceId}}/functions/state
 
-### Adim 4: Eksik required alan ile dene (confirmedBy yok)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/transitions/confirm-with-schema?sync=true
+### CV.4 attributes: status confirmed, confirmedBy, updatedAt (istege bagli teyit)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{validConfirmInstanceId}}
+
+
+# =============================================================================
+# [Fact] ConfirmTransition_WithPartialData_DoesNotTransition
+# Body: { "attributes": { "confirmed": true } } — confirmedBy eksik
+# Beklenti: HTTP 4xx; mesajda "schema validation failed"; state data-initialized kalir
+# =============================================================================
+
+### PD.1 Baslat
+# @name partialStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-partial-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation"],
+  "attributes": {
+    "orderId": "ORD-PD",
+    "customerName": "Partial Test",
+    "amount": 50,
+    "currency": "USD"
+  }
+}
+
+@partialInstanceId = {{partialStart.response.body.$.id}}
+
+### PD.2 confirm — sadece confirmed (4xx beklenir)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{partialInstanceId}}/transitions/confirm-with-schema?sync=true
 Content-Type: application/json
 
 {
@@ -110,113 +181,123 @@ Content-Type: application/json
   }
 }
 
-### Adim 5: Durum Kontrol (HALA data-initialized olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rejectInstanceId}}/functions/state
+### PD.3 State hala data olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{partialInstanceId}}/functions/state
 
-###############################################################################
-# TEST 3: Master Schema Violation at Start
-# Tests: master schema zorunlu alan eksik olunca baslatma basarisiz olmali
-###############################################################################
 
-### Adim 1: Eksik required alan ile baslat (currency ve amount yok)
+# =============================================================================
+# [Fact] FieldRoles_AdminRole_SeesInternalNote
+# =============================================================================
+
+### FR-A.1 Baslat
+# @name frAdminStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-violation-test-{{$timestamp}}",
-  "tags": ["integration-test", "schema", "violation"],
-  "attributes": {
-    "orderId": "ORD-004",
-    "customerName": "Missing Currency"
-  }
-}
-
-###############################################################################
-# TEST 4: Field Roles — Master Schema alan bazli gorunurluk
-# Tests: role header'a gore internalNote ve auditLog filtrelenir
-###############################################################################
-
-### Adim 1: Instance baslat (field roles testi icin)
-# @name createFieldRolesInstance
-POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
-Content-Type: application/json
-
-{
-  "key": "schema-fieldroles-test-{{$timestamp}}",
+  "key": "schema-fr-{{$timestamp}}",
   "tags": ["integration-test", "schema", "field-roles"],
   "attributes": {
-    "orderId": "ORD-005",
+    "orderId": "ORD-FR",
     "customerName": "Field Roles Test",
     "amount": 1000,
     "currency": "TRY"
   }
 }
 
-@fieldRolesInstanceId = {{createFieldRolesInstance.response.body.$.id}}
+@frInstanceId = {{frAdminStart.response.body.$.id}}
 
-### Adim 2: admin rolu ile data oku — internalNote GORUNMELI
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data
+### FR-A.2 GET data, role: admin — internalNote string ve dolu olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data
 role: admin
 
-### Adim 3: customer rolu ile data oku — internalNote GORUNMEMELI
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data
+
+# =============================================================================
+# [Fact] FieldRoles_CustomerRole_DoesNotSeeInternalNote
+# =============================================================================
+
+### FR-C. GET data, role: customer — internalNote OLMAMALI
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data
 role: customer
 
-### Adim 4: auditor rolu ile data oku — auditLog GORUNMELI
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data
+
+# =============================================================================
+# [Fact] FieldRoles_AuditorRole_SeesAuditLog
+# =============================================================================
+
+### FR-U. GET data, role: auditor — auditLog string ve dolu olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data
 role: auditor
 
-### Adim 5: rol belirtmeden data oku — internalNote ve auditLog GORUNMEMELI
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{fieldRolesInstanceId}}/functions/data
 
-###############################################################################
-# TEST 5: Schema-siz Transition (Serbest gecis)
-# Tests: schema olmayan transition herhangi body kabul eder
-###############################################################################
+# =============================================================================
+# [Fact] FieldRoles_NoRole_DoesNotSeeRoleRestrictedFields
+# =============================================================================
 
-### Adim 1: Instance baslat
-# @name createNoSchemaInstance
+### FR-N. GET data, role yok — internalNote ve auditLog OLMAMALI
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{frInstanceId}}/functions/data
+
+
+# =============================================================================
+# [Fact] NoSchemaTransition_AcceptsAnyBody
+# Sadece skip-to-no-schema → no-schema-state (complete yok)
+# =============================================================================
+
+### NS.1 Baslat
+# @name noSchemaStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-validation-noschema-{{$timestamp}}",
-  "tags": ["integration-test", "schema-validation", "schema", "no-schema"],
+  "key": "schema-noschema-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "no-schema"],
   "attributes": {
-    "orderId": "ORD-007",
+    "orderId": "ORD-NS",
     "customerName": "No Schema Test",
     "amount": 300,
     "currency": "EUR"
   }
 }
 
-@noSchemaInstanceId = {{createNoSchemaInstance.response.body.$.id}}
+@noSchemaOnlyId = {{noSchemaStart.response.body.$.id}}
 
-### Adim 2: skip-to-no-schema (schema yok, bos body ile gecis yapilabilmeli)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/transitions/skip-to-no-schema?sync=true
+### NS.2 skip-to-no-schema (bos body)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaOnlyId}}/transitions/skip-to-no-schema?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 3: Durum Kontrol (no-schema-state olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/functions/state
+### NS.3 State: no-schema-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaOnlyId}}/functions/state
 
-### Adim 4: complete-schema-validation-test ile tamamla
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/transitions/complete-schema-validation-test?sync=true
+
+# =============================================================================
+# [Fact] MasterSchema_RejectsInstanceWithInvalidEnum
+# currency: JPY (master enum disinda) — baslatma 4xx beklenir (runtime reddederse)
+# =============================================================================
+
+### MS. Gecersiz enum ile baslat (4xx beklenir)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
-{}
+{
+  "key": "schema-master-enum-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "master-enum"],
+  "attributes": {
+    "orderId": "ORD-JPY",
+    "customerName": "Enum Test",
+    "amount": 100,
+    "currency": "JPY"
+  }
+}
 
-### Adim 5: Final Durum (completed-state, status: C)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{noSchemaInstanceId}}/functions/state
 
-###############################################################################
-# TEST 6: Start Transition Schema Rejection
-# Tests: startTransition.schema zorunlu alan eksik olunca baslatma reddedilmeli
-###############################################################################
+# =============================================================================
+# [Fact] StartTransitionSchema_RejectsMissingRequiredFields
+# attributes: sadece customerName (orderId, amount, currency yok)
+# =============================================================================
 
-### Adim 1: Eksik required alan ile baslat (orderId, amount, currency yok)
-# startTransition schema: required = orderId, customerName, amount, currency
+### SSR. Eksik required ile baslat (4xx beklenir)
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
@@ -224,35 +305,63 @@ Content-Type: application/json
   "key": "schema-start-reject-{{$timestamp}}",
   "tags": ["integration-test", "schema-validation", "start-schema-reject"],
   "attributes": {
-    "customerName": "Only name provided"
+    "customerName": "Only name, missing orderId/amount/currency"
   }
 }
 
-###############################################################################
-# TEST 7: Manual Transition Schema Silent Rejection (confirm-with-schema)
-# Tests: schema required alanlar eksik olunca transition 200 doner ama state degismez
-###############################################################################
 
-### Adim 1: Yeni Instance Baslat
-# @name createManualSchemaRejectInstance
+# =============================================================================
+# [Fact] StartTransitionSchema_AcceptsValidPayload
+# orderId: ORD-VALID-001, USD 100
+# =============================================================================
+
+### SV. Gecerli start
+# @name startValidPayload
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-manual-reject-{{$timestamp}}",
-  "tags": ["integration-test", "schema-validation", "manual-schema-reject"],
+  "key": "schema-valid-start-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation"],
   "attributes": {
-    "orderId": "ORD-MANUAL-001",
-    "customerName": "Manual Schema Test",
+    "orderId": "ORD-VALID-001",
+    "customerName": "Valid Customer",
+    "amount": 100.0,
+    "currency": "USD"
+  }
+}
+
+@startValidInstanceId = {{startValidPayload.response.body.$.id}}
+
+### SV. State: data-initialized
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{startValidInstanceId}}/functions/state
+
+
+# =============================================================================
+# [Fact] ConfirmTransition_WithInvalidSchemaPayload_DoesNotChangeState
+# confirmed string + confirmedBy number — 4xx, state data-initialized
+# =============================================================================
+
+### INV.1 Baslat
+# @name invalidTypeStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-inv-type-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation"],
+  "attributes": {
+    "orderId": "ORD-INV",
+    "customerName": "Invalid Type Test",
     "amount": 250,
     "currency": "EUR"
   }
 }
 
-@manualRejectInstanceId = {{createManualSchemaRejectInstance.response.body.$.id}}
+@invalidTypeInstanceId = {{invalidTypeStart.response.body.$.id}}
 
-### Adim 2: Type mismatch ile dene (confirmed: "yes" string, confirmedBy: 123 number)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{manualRejectInstanceId}}/transitions/confirm-with-schema?sync=true
+### INV.2 confirm — tip uyumsuzlugu (4xx beklenir)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{invalidTypeInstanceId}}/transitions/confirm-with-schema?sync=true
 Content-Type: application/json
 
 {
@@ -262,34 +371,110 @@ Content-Type: application/json
   }
 }
 
-### Adim 3: Durum Kontrol (HALA data-initialized olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{manualRejectInstanceId}}/functions/state
+### INV.3 State: data-initialized
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{invalidTypeInstanceId}}/functions/state
 
-###############################################################################
-# TEST 8: Cancel Transition Schema (happy + invalid)
-# Tests: cancel schema ile gecerli/gecersiz payload testi
-###############################################################################
 
-### Adim 1: Instance Baslat
-# @name createCancelInstance
+# =============================================================================
+# [Fact] ConfirmTransition_WithMissingRequiredField_DoesNotChangeState
+# [Fact] ConfirmTransition_WithPartialData_DoesNotTransition ile ayni payload;
+# ayri instance ile tekrarlanabilir
+# =============================================================================
+
+### MIS.1 Baslat
+# @name missingFieldStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-cancel-{{$timestamp}}",
-  "tags": ["integration-test", "schema-validation", "cancel-schema"],
+  "key": "schema-missing-cb-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation"],
   "attributes": {
-    "orderId": "ORD-CANCEL-001",
-    "customerName": "Cancel Test",
+    "orderId": "ORD-MIS",
+    "customerName": "Missing CB Test",
+    "amount": 1,
+    "currency": "USD"
+  }
+}
+
+@missingCbInstanceId = {{missingFieldStart.response.body.$.id}}
+
+### MIS.2 confirmed true, confirmedBy yok (4xx beklenir)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{missingCbInstanceId}}/transitions/confirm-with-schema?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "confirmed": true
+  }
+}
+
+### MIS.3 State: data-initialized
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{missingCbInstanceId}}/functions/state
+
+
+# =============================================================================
+# [Fact] CancelTransition_WithValidSchemaPayload_MovesToCancelled
+# Once eksik cancel denemesi olmadan TEMIZ instance ile tam cancel (C# sirasinda once invalid sonra valid olabilir; burada ayri instance)
+# =============================================================================
+
+### CA.1 Yeni instance
+# @name cancelOkStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-cancel-ok-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "cancel"],
+  "attributes": {
+    "orderId": "ORD-CANCEL-OK",
+    "customerName": "Cancel OK",
     "amount": 500,
     "currency": "TRY"
   }
 }
 
-@cancelInstanceId = {{createCancelInstance.response.body.$.id}}
+@cancelOkId = {{cancelOkStart.response.body.$.id}}
 
-### Adim 2: Cancel ile EKSIK required alan (cancelReason yok) — reddedilmeli
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-with-schema?sync=true
+### CA.2 cancel gecerli (C# ile ayni metinler)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelOkId}}/transitions/cancel-with-schema?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "cancelReason": "No longer needed",
+    "cancelledBy": "test-user"
+  }
+}
+
+### CA.3 cancelled-state, C
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelOkId}}/functions/state
+
+
+# =============================================================================
+# [Fact] CancelTransition_WithMissingCancelReason_DoesNotCancel
+# =============================================================================
+
+### CB.1 Baslat
+# @name cancelBadStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-cancel-bad-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "cancel"],
+  "attributes": {
+    "orderId": "ORD-CANCEL-BAD",
+    "customerName": "Cancel Bad",
+    "amount": 500,
+    "currency": "TRY"
+  }
+}
+
+@cancelBadId = {{cancelBadStart.response.body.$.id}}
+
+### CB.2 cancelReason yok (sessiz red veya 200; state data-initialized kalmali)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelBadId}}/transitions/cancel-with-schema?sync=true
 Content-Type: application/json
 
 {
@@ -298,100 +483,111 @@ Content-Type: application/json
   }
 }
 
-### Adim 3: Durum Kontrol (HALA data-initialized olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state
+### CB.3 State: data-initialized
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelBadId}}/functions/state
 
-### Adim 4: Cancel ile GECERLI payload
-# @name cancelWithValidPayload
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/transitions/cancel-with-schema?sync=true
-Content-Type: application/json
 
-{
-  "attributes": {
-    "cancelReason": "No longer needed for testing",
-    "cancelledBy": "test-admin"
-  }
-}
+# =============================================================================
+# [Fact] ExitTransition_WithValidSchemaPayload_MovesToExited
+# =============================================================================
 
-### Adim 5: Durum Kontrol (cancelled-state, status: C olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{cancelInstanceId}}/functions/state
-
-###############################################################################
-# TEST 9: Exit Transition Schema (happy + invalid)
-# Tests: exit schema ile gecerli/gecersiz payload testi
-###############################################################################
-
-### Adim 1: Instance Baslat
-# @name createExitInstance
+### EX.1 Baslat
+# @name exitOkStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-exit-{{$timestamp}}",
-  "tags": ["integration-test", "schema-validation", "exit-schema"],
+  "key": "schema-exit-ok-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "exit"],
   "attributes": {
-    "orderId": "ORD-EXIT-001",
-    "customerName": "Exit Test",
+    "orderId": "ORD-EXIT-OK",
+    "customerName": "Exit OK",
     "amount": 750,
     "currency": "USD"
   }
 }
 
-@exitInstanceId = {{createExitInstance.response.body.$.id}}
+@exitOkId = {{exitOkStart.response.body.$.id}}
 
-### Adim 2: Exit ile GECERSIZ exitCode enum (invalid-code) — reddedilmeli
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-with-schema?sync=true
+### EX.2 exit gecerli (C# ile uyumlu)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitOkId}}/transitions/exit-with-schema?sync=true
 Content-Type: application/json
 
 {
   "attributes": {
-    "exitReason": "Testing invalid code",
-    "exitCode": "invalid-code"
-  }
-}
-
-### Adim 3: Durum Kontrol (HALA data-initialized olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state
-
-### Adim 4: Exit ile GECERLI payload
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-with-schema?sync=true
-Content-Type: application/json
-
-{
-  "attributes": {
-    "exitReason": "Test completed successfully",
+    "exitReason": "Test completed",
     "exitCode": "success"
   }
 }
 
-### Adim 5: Durum Kontrol (exited-state, status: C olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/functions/state
+### EX.3 exited-state, C
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitOkId}}/functions/state
 
-###############################################################################
-# TEST 10: SubFlow + UpdateData Schema (happy + invalid)
-# Tests: SubFlow state'te updateData schema validasyonu
-###############################################################################
 
-### Adim 1: Instance Baslat
-# @name createSubflowInstance
+# =============================================================================
+# [Fact] ExitTransition_WithInvalidExitCodeEnum_DoesNotExit
+# =============================================================================
+
+### EB.1 Baslat
+# @name exitBadStart
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "schema-subflow-{{$timestamp}}",
-  "tags": ["integration-test", "schema-validation", "subflow-updatedata"],
+  "key": "schema-exit-bad-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "exit"],
   "attributes": {
-    "orderId": "ORD-SUBFLOW-001",
+    "orderId": "ORD-EXIT-BAD",
+    "customerName": "Exit Bad",
+    "amount": 1,
+    "currency": "USD"
+  }
+}
+
+@exitBadId = {{exitBadStart.response.body.$.id}}
+
+### EB.2 exitCode invalid-code
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitBadId}}/transitions/exit-with-schema?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "exitReason": "Test",
+    "exitCode": "invalid-code"
+  }
+}
+
+### EB.3 State: data-initialized
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitBadId}}/functions/state
+
+
+# =============================================================================
+# [Fact] UpdateData_InSubflow_WithValidSchema_UpdatesAttributes
+# confirm → enter-subflow → (bekleme gerekebilir) → update-with-schema notes
+# C# notes metni: "Updated via schema-validated updateData"
+# Son: GET instance — eTag degisimi ve attributes.notes teyit
+# =============================================================================
+
+### UD.1 Baslat
+# @name udStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-ud-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "subflow"],
+  "attributes": {
+    "orderId": "ORD-UD",
     "customerName": "SubFlow Test",
     "amount": 2000,
     "currency": "TRY"
   }
 }
 
-@subflowInstanceId = {{createSubflowInstance.response.body.$.id}}
+@udInstanceId = {{udStart.response.body.$.id}}
 
-### Adim 2: confirm-with-schema ile gecis
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/confirm-with-schema?sync=true
+### UD.2 confirm-with-schema
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/transitions/confirm-with-schema?sync=true
 Content-Type: application/json
 
 {
@@ -401,17 +597,74 @@ Content-Type: application/json
   }
 }
 
-### Adim 3: SubFlow state'e gec
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/enter-subflow?sync=true
+### UD.3 enter-subflow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/transitions/enter-subflow?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 4: Durum Kontrol (subflow-state olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/functions/state
+### UD.4 (istege bagli) effective state — child aktif olana kadar bekleyin
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/functions/state
 
-### Adim 5: UpdateData ile EKSIK required alan (notes yok) — reddedilmeli
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/update-with-schema?sync=true
+### UD.5 eTag once (istege bagli)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}
+
+### UD.6 update-with-schema — C# ile ayni notes
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}/transitions/update-with-schema?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "notes": "Updated via schema-validated updateData"
+  }
+}
+
+### UD.7 eTag sonra + attributes.notes
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udInstanceId}}
+
+
+# =============================================================================
+# [Fact] UpdateData_InSubflow_WithMissingNotes_DoesNotUpdate
+# someOtherField — 4xx beklenir; parent attributes'ta someOtherField OLMAMALI
+# =============================================================================
+
+### UD-B.1 Baslat
+# @name udBadStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "schema-ud-bad-{{$timestamp}}",
+  "tags": ["integration-test", "schema-validation", "subflow"],
+  "attributes": {
+    "orderId": "ORD-UDBAD",
+    "customerName": "SubFlow Bad",
+    "amount": 2000,
+    "currency": "TRY"
+  }
+}
+
+@udBadInstanceId = {{udBadStart.response.body.$.id}}
+
+### UD-B.2 confirm
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}/transitions/confirm-with-schema?sync=true
+Content-Type: application/json
+
+{
+  "attributes": {
+    "confirmed": true,
+    "confirmedBy": "test-admin"
+  }
+}
+
+### UD-B.3 enter-subflow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}/transitions/enter-subflow?sync=true
+Content-Type: application/json
+
+{}
+
+### UD-B.4 update — notes yok (4xx beklenir)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}/transitions/update-with-schema?sync=true
 Content-Type: application/json
 
 {
@@ -420,18 +673,5 @@ Content-Type: application/json
   }
 }
 
-### Adim 6: Durum Kontrol (hala subflow-state olmali, eTag degismemeli)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/functions/state
-
-### Adim 7: UpdateData ile GECERLI payload (notes min 3 karakter)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}/transitions/update-with-schema?sync=true
-Content-Type: application/json
-
-{
-  "attributes": {
-    "notes": "Valid update data notes"
-  }
-}
-
-### Adim 8: Instance Body Kontrol (eTag degismis olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{subflowInstanceId}}
+### UD-B.5 instance attributes — someOtherField olmamali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{udBadInstanceId}}
