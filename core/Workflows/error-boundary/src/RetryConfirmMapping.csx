@@ -3,7 +3,7 @@ using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 
-public class LogOnlyMapping : ScriptBase, IMapping
+public class RetryConfirmMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -17,10 +17,8 @@ public class LogOnlyMapping : ScriptBase, IMapping
         if (HasProperty(data, "testId")) result.testId = data.testId;
         if (HasProperty(data, "errorTestStarted")) result.errorTestStarted = data.errorTestStarted;
         if (HasProperty(data, "startedAt")) result.startedAt = data.startedAt;
-        if (HasProperty(data, "retryHandled")) result.retryHandled = data.retryHandled;
-        if (HasProperty(data, "errorIgnored")) result.errorIgnored = data.errorIgnored;
-        result.logHandled = true;
-        LogInformation("LogOnlyMapping: log-only action confirmed, flow continues");
+        result.retryHandled = true;
+        LogInformation("RetryConfirmMapping: retry boundary exhausted + ignore fallback confirmed");
         return Task.FromResult(new ScriptResponse { Data = result });
     }
 }

@@ -11,7 +11,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
 | 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)**, **subFlow.overrides** (timeout, states.queryRoles, transitions.roles) |
 | 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
-| 4 | Error Boundary | `error-boundary-test-workflow` | Retry, Ignore, **Rollback**, **Log**, **Notify** (action:4) aksiyonlari, retry policy, priority, **timeoutPolicy** (onTimeout), **errorHandlerRule** (errorTypes/errorCodes) |
+| 4 | Error Boundary | `error-boundary-test-workflow` | Task/state/global errorBoundary; Retry/Ignore/Log/Rollback/Notify/Abort; retry policy; priority; errorTypes/errorCodes. **`errorBoundary.onTimeout` bu flow'da test edilmez** (bkz. dokuman sonu: Test Edilmeyen Ozellikler) |
 | 5 | View, Function & Extension (Comprehensive) | `view-function-extension-test-workflow` | 6 view tipi (JSON/HTML/MD/DeepLink/HTTP/URN), 6 display modu, 4 extension tipi (4 type × 3 scope), 3 function scope (I/F/D), wizard state, implicit global extension, `?extensions=` sorgusu, `functions/view` icerik dogrulamasi |
 | 6 | Schema Validation | `schema-validation-test-workflow` | Master + start + transition + cancel + exit + updateData schema, field roles, SubFlow updateData |
 | 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
@@ -462,9 +462,13 @@ extended-tasks-test-workflow (F)
 
 **C# integration tests:** `tests/Core/Tests/task-execution-test-workflow/` (`TaskExecutionTestWorkflowTests`, `TaskExecutionInstanceDataAssertions`) — B1/B2/B3 happy paths, instance data contract on the main workflow, and extended Dapr `taskResults` flags.
 
+---
+
+## Grup 4: Error Boundary
+
 **Workflow:** `error-boundary-test-workflow` (type: F)
 
-**Amac:** Hata yonetimi mekanizmasini (error boundary) task, state ve workflow seviyelerinde test eder; **Rollback (action:2)**, **Log (action:5)** ve **Notify (action:4)** aksiyonlari ile zincirlenmis senaryoyu kapsar. Ayrica **timeoutPolicy** (onTimeout) ve **gelismis errorHandlerRule** (errorTypes/errorCodes filtreleme) ozelliklerini icerir.
+**Amac:** Hata yonetimi mekanizmasini (error boundary) task, state ve workflow seviyelerinde test eder; **Rollback (action:2)**, **Log (action:5)**, **Notify (action:4)**, **Abort (action:0)** ve ilgili aksiyonlari priority / errorTypes / errorCodes ile kapsar. **`errorBoundary.onTimeout` workflow taniminda yer almaz ve integration test ile dogrulanmaz** — runtime dokumantasyonunda da henuz implemente edilmedigi belirtilmistir; bkz. dokuman sonu.
 
 ### Agac Yapisi
 
@@ -476,8 +480,8 @@ error-boundary-test-workflow (F)
 │       └── error-script-task + InitErrorTestMapping.csx
 │
 ├── [workflow-level errorBoundary]
-│   ├── onError: action:0 (Abort), priority:100
-│   └── onTimeout: action:3 (Ignore)
+│   └── onError: action:0 (Abort), wildcard fallback (transition yok — schema kisiti)
+│   (onTimeout tanimi YOK — test kapsami disi, bkz. dokuman sonu)
 │
 ├── retry-test-state (Initial, stateType:1)
 │   ├── onEntries:
@@ -546,10 +550,8 @@ error-boundary-test-workflow (F)
 | **Rollback action (action:2)** | State errorBoundary rollback | rollback-test-state |
 | **Log action (action:5)** | Hata loglama; siradaki task ile devam | log-test-state |
 | **Notify action (action:4)** | Hata bildirim ve transition tetikleme | notify-test-state errorBoundary |
-| Abort action (action:0) | En son calisacak global yakalama | workflow errorBoundary |
-| **timeoutPolicy (onTimeout)** | Timeout durumunda action:3 (Ignore) | workflow errorBoundary.onTimeout |
-| **errorHandlerRule (errorTypes)** | Hata tipine gore filtreleme | ignore-test-state: System.InvalidOperationException |
-| **errorHandlerRule (errorCodes)** | Hata koduna gore filtreleme | ignore-test-state: errorCodes:["*"] |
+| Abort action (action:0) | Global wildcard fallback (transition kullanilmaz; instance Faulted) | workflow errorBoundary |
+| **errorTypes / errorCodes** | Kural bazli eslestirme | priority-rules-state ve diger boundary kurallari |
 | Priority siralama | Dusuk priority once calisir | task:10, state:10, workflow:100 |
 | Hata sonrasi devam | Ignore sonrasi siradaki task calisir | IgnoreErrorMapping (order:2) |
 | Rollback sonrasi zincir | rollback-test-state tamamlaninca log-test-state | auto-to-log-from-rollback |
@@ -570,7 +572,7 @@ error-boundary-test-workflow (F)
 | CSX | **NotifyMapping** | Workflows/error-boundary/src/NotifyMapping.csx |
 | CSX | AlwaysTrueRule | Workflows/error-boundary/src/AlwaysTrueRule.csx |
 
-**Workflow tag'leri (ozet):** `rollback`, `log-action`, `notify`, `notify-action`, `timeout-policy`, `error-types`, `error-codes` dahil; tam liste `error-boundary-test-workflow.json` icindedir.
+**Workflow tag'leri (ozet):** `rollback`, `log-action`, `notify`, `abort`, `priority`, `error-types`, `error-codes` dahil; tam liste `error-boundary-test-workflow.json` icindedir.
 
 ---
 
@@ -1425,8 +1427,7 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | **Rollback (action:2)** |  |  |  | X |  |  |  |  |  |  |
 | **Log action (action:5, state)** |  |  |  | X |  |  |  |  |  |  |
 | **Notify action (action:4)** |  |  |  | X |  |  |  |  |  |  |
-| **timeoutPolicy (onTimeout)** |  |  |  | X |  |  |  |  |  |  |
-| **errorHandlerRule (errorTypes/errorCodes)** |  |  |  | X |  |  |  |  |  |  |
+| **errorBoundary errorTypes / errorCodes** |  |  |  | X |  |  |  |  |  |  |
 | View (6 tip: JSON/HTML/MD/DeepLink/HTTP/URN) |  |  |  |  | X |  |  |  |  |  |
 | Display modlari (6: full-page/popup/bottom-sheet/top-sheet/drawer/inline) |  |  |  |  | X |  |  |  |  |  |
 | `functions/view` icerik dogrulamasi (type, display, content) |  |  |  |  | X |  |  |  |  |  |
@@ -1496,9 +1497,21 @@ Bu bolum, runtime tarafindan desteklenen ancak `vnext-example` integration test 
 - **Iliskili ama farkli ozellik:** `instance-management-test-workflow` icindeki `human-state` (subType 6) Human **Task** tipi degil, **state alt tipi**dir. Bu state, runtime'in `subType` enum'unu test eder ve Human Task tip 5'in kaldirilma kararindan **etkilenmez**.
 - **Eklenmek istenirse:** Runtime'da Human Task ozelligi kalici olarak destekleneceginin teyidi alindiginda; ayri bir `human-task-test-workflow` ve `human-task` (tip 5) JSON tanimi olusturulup Mocklab veya gercek bir human-task hub uctan uca testle entegre edilmelidir. Su an icin **eklenmemelidir**.
 
+### 3. Error Boundary — `onTimeout` (timeout yapisi)
+
+- **Konum:** `error-boundary-test-workflow.json` — **`errorBoundary.onTimeout` alani tanimlanmaz**; integration test workflow'u bu yapilandirmayi **dogrulamaz**.
+- **Runtime dokumantasyonu:** `vnext-runtime/doc/tr/flow/error-boundary.md` dosyasinda `onTimeout` ozelliginin semada bulundugu ancak **henuz implemente edilmedigi** belirtilmistir.
+- **Iliski:** Workflow veya instance duzeyinde **zaman asimi** (`attributes.timeout` vb.) **Grup 7 (Instance Management)** ve baska workflow'larda ayri kavram olarak test edilebilir; bu, **error boundary `onTimeout`** ile ayni sey degildir.
+- **Eklenmek istenirse:** Runtime'da `errorBoundary.onTimeout` destegi netlestikten sonra `error-boundary-test-workflow` (veya ayri bir workflow) ile dedicated senaryo eklenmeli; simdilik bu dokuman ve ozellik matrisi bu ozelligi **Grup 4 kapsaminda test edilmiyor** olarak isaretler.
+
 ### Ozet Tablo
 
 | Ozellik | Tip / Konum | Durum | Gerekce |
 |---------|-------------|-------|---------|
 | Dapr Binding Task | Task tipi 2, `extended-tasks-test-workflow` | **Kaldirildi (state + task + mapping silindi)** | Runtime kapsamindaki kararsizlik; mocklab/Dapr binding entegrasyonu uctan uca dogrulanamiyor |
 | Human Task | Task tipi 5, daha once `task-execution-test-workflow` zincirinde | **Kaldirildi / yeni testlere eklenmez** | Runtime tarafindan kaldirilacak gecici ozellik; sadece state subType 6 (Human) korunur |
+| **Error Boundary `onTimeout`** | `attributes.errorBoundary.onTimeout`, Grup 4 workflow | **Test edilmiyor** | Runtime'da henuz implemente edilmemis (semada var); `error-boundary-test-workflow` icinde tanim yok — bkz. **§3** yukarida |
+
+---
+
+**Not (dokuman sonu):** Grup 4 `error-boundary-test-workflow` **error boundary `onTimeout`** yapisini icermez ve integration testleri bunu dogrulamaz; ayrinti **Test Edilmeyen Ozellikler → §3** ve Ozet Tablo'daki ilgili satirda ozetlenmistir.

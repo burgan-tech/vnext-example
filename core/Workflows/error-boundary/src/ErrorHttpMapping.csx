@@ -11,8 +11,16 @@ public class ErrorHttpMapping : ScriptBase, IMapping
     {
         var httpTask = (task as HttpTask)!;
         var data = context.Instance.Data;
-        string baseUrl = GetConfigValue("MocklabBaseUrl");
-        httpTask.Url = httpTask.Url.Replace("{MocklabBaseUrl}", baseUrl);
+        string baseUrl = null;
+        try { baseUrl = GetConfigValue("MocklabBaseUrl"); } catch { }
+        if (!string.IsNullOrEmpty(baseUrl))
+        {
+            httpTask.Url = baseUrl + "/api/test/error-endpoint";
+        }
+        else
+        {
+            httpTask.Url = "http://mocklab:5000/api/test/error-endpoint";
+        }
         var body = new
         {
             source = "error-boundary-test",

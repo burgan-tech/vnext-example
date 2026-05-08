@@ -16,9 +16,10 @@ public class IgnoreErrorMapping : ScriptBase, IMapping
         dynamic result = new ExpandoObject();
         if (HasProperty(data, "testId")) result.testId = data.testId;
         if (HasProperty(data, "errorTestStarted")) result.errorTestStarted = data.errorTestStarted;
-        if (HasProperty(data, "httpErrorHandled")) result.httpErrorHandled = data.httpErrorHandled;
+        if (HasProperty(data, "startedAt")) result.startedAt = data.startedAt;
+        if (HasProperty(data, "retryHandled")) result.retryHandled = data.retryHandled;
         result.errorIgnored = true;
-        LogInformation("IgnoreErrorMapping: continuation after ignore policy");
+        LogInformation("IgnoreErrorMapping: error was ignored, continuation confirmed");
         return Task.FromResult(new ScriptResponse { Data = result });
     }
 }

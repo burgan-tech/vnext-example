@@ -11,6 +11,6 @@ public class ThrowErrorMapping : ScriptBase, IMapping
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
-        throw new Exception("Intentional test error for error boundary");
+        throw new InvalidOperationException("Intentional test error for error boundary");
     }
 }
