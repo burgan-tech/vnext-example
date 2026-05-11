@@ -9,7 +9,7 @@ Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikler
 | # | Grup | Workflow | Test Edilen Ana Ozellikler |
 |---|------|----------|---------------------------|
 | 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
-| 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)**, **subFlow.overrides** (timeout, states.queryRoles, transitions.roles) |
+| 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition (availableIn dogrulamasi)**, **shared transition disallowed state testi**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)**, **subFlow.overrides** (timeout, states.queryRoles, transitions.roles) |
 | 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
 | 4 | Error Boundary | `error-boundary-test-workflow` | Task/state/global errorBoundary; Retry/Ignore/Log/Rollback/Notify/Abort; retry policy; priority; errorTypes/errorCodes. **`errorBoundary.onTimeout` bu flow'da test edilmez** (bkz. dokuman sonu: Test Edilmeyen Ozellikler) |
 | 5 | View, Function & Extension (Comprehensive) | `view-function-extension-test-workflow` | 6 view tipi (JSON/HTML/MD/DeepLink/HTTP/URN), 6 display modu, 4 extension tipi (4 type × 3 scope), 3 function scope (I/F/D), wizard state, implicit global extension, `?extensions=` sorgusu, `functions/view` icerik dogrulamasi |
@@ -187,7 +187,7 @@ lifecycle-transitions-test-workflow (F)
 - `subflow-orchestration-child` (type: S) - Alt flow
 - `subflow-orchestration-grandchild` (type: S) - Torun flow
 
-**Amac:** Parent-child-grandchild SubFlow zincirini, parent seviyesindeki shared transition'lari, **child workflow uzerindeki shared transition'u**, **cancel cascade** (parent iptalinde alt akislarda **child-cancelled** / **grandchild-cancelled** final state'leri), **`/functions/state` uzerinden effective state** gorunurlugunu, **updateData transition** (SubFlow'dan parent data guncelleme) ozelligini ve **`subFlow.overrides`** mekanizmasini (parent'tan child workflow'a timeout, state `queryRoles` ve transition `roles` override etme) test eder.
+**Amac:** Parent-child-grandchild SubFlow zincirini, parent seviyesindeki shared transition'lari, **child workflow uzerindeki shared transition'u (availableIn dogrulamasi dahil)**, **shared transition'in availableIn disinda kalan state'te reddedilmesini**, **cancel cascade** (parent iptalinde alt akislarda **child-cancelled** / **grandchild-cancelled** final state'leri), **`/functions/state` uzerinden effective state** gorunurlugunu, **updateData transition** (SubFlow'dan parent data guncelleme) ozelligini ve **`subFlow.overrides`** mekanizmasini (parent'tan child workflow'a timeout, state `queryRoles` ve transition `roles` override etme) test eder.
 
 ### Agac Yapisi
 
@@ -201,10 +201,10 @@ subflow-orchestration-parent (F)
 ├── [cancel] cancel-parent → parent-cancelled
 │
 ├── [sharedTransitions]
-│   └── shared-update-data (Manual, target:$self)
-│       ├── availableIn: ["parent-subflow-state"]
-│       └── onExecutionTasks:
-│           └── subflow-script-task + ParentSharedUpdateMapping.csx
+│   └── shared-common-transition (Manual, target:$self)
+    │       ├── availableIn: ["parent-subflow-state"]
+    │       └── onExecutionTasks:
+    │           └── subflow-script-task + ParentSharedCommonTransitionMapping.csx
 │
 ├── parent-initial (Initial, stateType:1)
 │   └── Transitions:
@@ -218,7 +218,7 @@ subflow-orchestration-parent (F)
 │   │   └── overrides:
 │   │       ├── timeout: child-push-timeout → child-cancelled (PT15M, OnEntry)
 │   │       ├── states.child-initial.queryRoles: [morph-idm.maker=allow, morph-idm.viewer=deny]
-│   │       └── transitions.auto-child-to-subflow.roles: [morph-idm.maker=allow, morph-idm.viewer=deny]
+│   │       └── transitions.auto-child-to-manual.roles: [morph-idm.maker=allow, morph-idm.viewer=deny]
 │   └── Transitions:
 │       └── auto-parent-to-completed (Auto) → parent-completed
 │           └── rule: AlwaysTrueRule.csx
@@ -235,10 +235,10 @@ subflow-orchestration-parent (F)
     │       └── subflow-script-task + UpdateParentDataMapping.csx (IMapping)
     │
     ├── [sharedTransitions]
-    │   └── shared-child-update (Manual, target:$self)
-    │       ├── availableIn: ["child-subflow-state"]
+    │   └── shared-child-mark (Manual, target:$self)
+    │       ├── availableIn: ["child-manual-state"]
     │       └── onExecutionTasks:
-    │           └── subflow-script-task + ChildSharedUpdateMapping.csx (IMapping)
+    │           └── subflow-script-task + ChildSharedMarkMapping.csx (IMapping)
     │
     ├── [startTransition] start-subflow-orchestration-child → child-initial
     │
@@ -246,8 +246,12 @@ subflow-orchestration-parent (F)
     │   ├── onEntries:
     │   │   └── subflow-script-task + ChildStartMapping.csx
     │   └── Transitions:
-    │       └── auto-child-to-subflow (Auto) → child-subflow-state
+    │       └── auto-child-to-manual (Auto) → child-manual-state
     │           └── rule: AlwaysTrueRule.csx
+    │
+    ├── child-manual-state (Intermediate, stateType:2)
+    │   └── Transitions:
+    │       └── proceed-to-subflow (Manual) → child-subflow-state
     │
     ├── child-subflow-state (SubFlow, stateType:4)
     │   ├── subFlow: type "S"
@@ -287,28 +291,31 @@ subflow-orchestration-parent (F)
 | SubFlow tipi (type: S) | Child ve grandchild workflow tipleri | subflow-orchestration-child/grandchild |
 | 3 seviye zincirleme (parent→child→grandchild) | Ic ice SubFlow cagrilari | Tum 3 workflow |
 | ISubFlowMapping | SubFlow'a data gonderme/alma | ParentToChildSubFlowMapping, ChildToGrandchildSubFlowMapping |
-| Shared transitions ($self) — parent | State degistirmeden data guncelleme | shared-update-data |
-| **Shared transitions ($self) — child** | Child tanimindaki paylasimli gecis; **availableIn: child-subflow-state** | shared-child-update, ChildSharedUpdateMapping.csx |
-| availableIn kisitlamasi | Shared transition sadece belirli state'lerde | parent: parent-subflow-state; child: child-subflow-state |
+| Shared transitions ($self) — parent | State degistirmeden data guncelleme | shared-common-transition |
+| **Shared transitions ($self) — child** | Child tanimindaki paylasimli gecis; **availableIn: child-manual-state** | shared-child-mark, ChildSharedMarkMapping.csx |
+| availableIn kisitlamasi | Shared transition sadece belirli state'lerde | parent: parent-subflow-state; child: child-manual-state |
+|| **Shared transition disallowed state** | availableIn'de bulunmayan state'te shared transition reddedilir | shared-child-mark child-subflow-state'te (availableIn'de yok) |
+|| Manuel transition (child icinde) | Child subflow'unda kullanici tetikli gecis | proceed-to-subflow (child-manual-state → child-subflow-state) |
 | Cancel transition — parent | Parent iptal | cancel-parent → parent-cancelled |
 | **Cancel hedefleri — child / grandchild** | Alt akislarda iptal final state | cancel-child → **child-cancelled**; cancel-grandchild → **grandchild-cancelled** |
 | **Cancel cascade** | Parent iptalinde ic ice sonlandirma | HTTP: cancel-parent senaryosu |
 | **Effective state** | `/functions/state` ile en derin aktif alt akis durumu (or. grandchild-initial) | HTTP Test 4 |
 | **UpdateData transition (SubFlow)** | Child'dan parent instance datasini guncelleme ($self) | update-parent-data, UpdateParentDataMapping.csx |
-| Manuel transition (SubFlow icinde) | Grandchild'da kullanici tetikli tamamlama | complete-grandchild |
+| Manuel transition (grandchild icinde) | Grandchild'da kullanici tetikli tamamlama | complete-grandchild |
 | **subFlow.overrides.timeout** | Parent'tan child'a timeout override (PT15M, OnEntry, → child-cancelled) | parent-subflow-state.subFlow.overrides.timeout |
 | **subFlow.overrides.states.queryRoles** | Parent'tan child-initial state'inin queryRoles'unu ezme | parent-subflow-state.subFlow.overrides.states.child-initial |
-| **subFlow.overrides.transitions.roles** | Parent'tan auto-child-to-subflow transition'inin roles'unu ezme | parent-subflow-state.subFlow.overrides.transitions.auto-child-to-subflow |
+| **subFlow.overrides.transitions.roles** | Parent'tan auto-child-to-manual transition'inin roles'unu ezme | parent-subflow-state.subFlow.overrides.transitions.auto-child-to-manual |
 
 ### HTTP Test Dosyasi (`subflow-orchestration.http`)
 
 | Test | Kisa Aciklama |
 |------|---------------|
-| TEST 1 Happy path | Grandchild tamamlama, parent-completed ve data bayraklari |
-| **TEST 2 Cancel cascade** | Parent cancel; alt akislarin sonlanmasi ve parent-cancelled |
-| **TEST 3 Child shared transition** | Parent instance URL uzerinden **shared-child-update**; `childSharedUpdateExecuted` |
-| **TEST 4 Effective state** | nested calisma sirasinda effectiveState / metadata |
-| **TEST 5 UpdateData SubFlow** | Child updateData tetikleme; parent data'da `childUpdatedParent` kontrolu |
+| TEST 1 Happy path | proceed-to-subflow + grandchild tamamlama, parent-completed ve data bayraklari |
+| **TEST 2 Cancel cascade** | proceed-to-subflow sonrasi parent cancel; alt akislarin sonlanmasi ve parent-cancelled |
+| **TEST 3 Shared transition (allowed state)** | child-manual-state'te **shared-child-mark** tetikleme; `childSharedMarkExecuted` dogrulamasi |
+| **TEST 4 Effective state** | proceed-to-subflow sonrasi nested calisma sirasinda effectiveState / metadata |
+| **TEST 5 UpdateData SubFlow** | proceed-to-subflow sonrasi child updateData tetikleme; parent data'da `childUpdatedParent` kontrolu |
+| **TEST 6 Shared transition (disallowed state)** | child-subflow-state'te (availableIn'de yok) **shared-child-mark** tetikleme; reddedilmeli, state degismemeli |
 
 ### Kullanilan Bilesenler
 
@@ -317,10 +324,10 @@ subflow-orchestration-parent (F)
 | Task | `subflow-script-task` | Tasks/subflow-orchestration/subflow-script-task.json |
 | CSX | ParentStartMapping | Workflows/subflow-orchestration/src/ParentStartMapping.csx |
 | CSX | ParentToChildSubFlowMapping | Workflows/subflow-orchestration/src/ParentToChildSubFlowMapping.csx |
-| CSX | ParentSharedUpdateMapping | Workflows/subflow-orchestration/src/ParentSharedUpdateMapping.csx |
+| CSX | ParentSharedCommonTransitionMapping | Workflows/subflow-orchestration/src/ParentSharedCommonTransitionMapping.csx |
 | CSX | ChildStartMapping | Workflows/subflow-orchestration/src/ChildStartMapping.csx |
 | CSX | ChildToGrandchildSubFlowMapping | Workflows/subflow-orchestration/src/ChildToGrandchildSubFlowMapping.csx |
-| CSX | **ChildSharedUpdateMapping** | Workflows/subflow-orchestration/src/ChildSharedUpdateMapping.csx |
+| CSX | **ChildSharedMarkMapping** | Workflows/subflow-orchestration/src/ChildSharedMarkMapping.csx |
 | CSX | **UpdateParentDataMapping** | Workflows/subflow-orchestration/src/UpdateParentDataMapping.csx |
 | CSX | GrandchildStartMapping | Workflows/subflow-orchestration/src/GrandchildStartMapping.csx |
 | CSX | GrandchildCompleteMapping | Workflows/subflow-orchestration/src/GrandchildCompleteMapping.csx |
@@ -1359,7 +1366,8 @@ Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutun
 | **Schedule cancel (manuel)** | X |  |  |  |  |  |  |  |  |  |
 | **Timer reschedule (self-loop)** | X |  |  |  |  |  |  |  |  |  |
 | Shared transitions ($self) |  | X |  |  |  |  |  |  |  |  |
-| **Child-level shared transition** |  | X |  |  |  |  |  |  |  |  |
+| **Child-level shared transition (availableIn)** |  | X |  |  |  |  |  |  |  |  |
+|| **Shared transition disallowed state** |  | X |  |  |  |  |  |  |  |  |
 | **SubFlow cancel final states (child/grandchild)** |  | X |  |  |  |  |  |  |  |  |
 | **Effective state (/functions/state, nested)** |  | X |  |  |  |  |  |  |  |  |
 | updateData ($self) |  | X |  |  |  | X |  |  |  |  |

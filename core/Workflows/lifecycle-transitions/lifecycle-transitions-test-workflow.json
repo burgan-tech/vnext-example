@@ -52,8 +52,6 @@
       "target": "terminated-state",
       "triggerType": 0,
       "versionStrategy": "Major",
-      "onExecutionTasks": [],
-      "availableIn": [],
       "labels": [
         {
           "language": "en-US",

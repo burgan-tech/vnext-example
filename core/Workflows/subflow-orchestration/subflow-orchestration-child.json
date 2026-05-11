@@ -1,242 +1,310 @@
 {
-  "key": "subflow-orchestration-child",
-  "flow": "sys-flows",
-  "flowVersion": "1.0.0",
-  "domain": "core",
-  "version": "1.0.0",
-  "tags": [
-    "integration-test",
-    "subflow-orchestration",
-    "child",
-    "subflow",
-    "update-data"
-  ],
-  "attributes": {
-    "type": "S",
-    "timeout": null,
-    "labels": [
-      {
-        "language": "en-US",
-        "label": "SubFlow Orchestration Child"
-      }
-    ],
-    "functions": [],
-    "features": [],
-    "extensions": [],
-    "sharedTransitions": [
-      {
-        "key": "shared-child-update",
-        "target": "$self",
-        "triggerType": 0,
-        "versionStrategy": "Minor",
-        "labels": [
-          {
-            "language": "en-US",
-            "label": "Shared Child Update ($self)"
-          }
-        ],
-        "availableIn": [
-          "child-subflow-state"
-        ],
-        "onExecutionTasks": [
-          {
-            "order": 1,
-            "task": {
-              "key": "subflow-script-task",
-              "domain": "core",
-              "version": "1.0.0",
-              "flow": "sys-tasks"
-            },
-            "mapping": {
-              "location": "./src/ChildSharedUpdateMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIENoaWxkU2hhcmVkVXBkYXRlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSBkYXRhLmNoaWxkU3RhcnRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImdyYW5kY2hpbGRDb21wbGV0ZWQiKSkgcmVzdWx0LmdyYW5kY2hpbGRDb21wbGV0ZWQgPSBkYXRhLmdyYW5kY2hpbGRDb21wbGV0ZWQ7CiAgICAgICAgcmVzdWx0LmNoaWxkU2hhcmVkVXBkYXRlRXhlY3V0ZWQgPSB0cnVlOwogICAgICAgIHJlc3VsdC5jaGlsZFNoYXJlZFVwZGF0ZUF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkU2hhcmVkVXBkYXRlTWFwcGluZyBjb21wbGV0ZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
-            }
-          }
-        ]
-      }
-    ],
-    "cancel": {
-      "key": "cancel-child",
-      "target": "child-cancelled",
-      "triggerType": 0,
-      "versionStrategy": "Major",
-      "labels": [
-        {
-          "language": "en-US",
-          "label": "Cancel Child"
-        }
-      ]
-    },
-    "updateData": {
-      "key": "update-parent-data",
-      "target": "$self",
-      "triggerType": 0,
-      "versionStrategy": "Minor",
-      "labels": [
-        {
-          "language": "en-US",
-          "label": "Update Parent Data from Child"
-        }
-      ],
-      "onExecutionTasks": [
-        {
-          "order": 1,
-          "task": {
-            "key": "subflow-script-task",
-            "domain": "core",
-            "version": "1.0.0",
-            "flow": "sys-tasks"
-          },
-          "mapping": {
-            "location": "./src/UpdateParentDataMapping.csx",
-            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFVwZGF0ZVBhcmVudERhdGFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CgogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSBkYXRhLmNoaWxkU3RhcnRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImdyYW5kY2hpbGRGaW5pc2hlZCIpKQogICAgICAgICAgICByZXN1bHQuZ3JhbmRjaGlsZEZpbmlzaGVkID0gZGF0YS5ncmFuZGNoaWxkRmluaXNoZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjaGlsZFNoYXJlZFVwZGF0ZUV4ZWN1dGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5jaGlsZFNoYXJlZFVwZGF0ZUV4ZWN1dGVkID0gZGF0YS5jaGlsZFNoYXJlZFVwZGF0ZUV4ZWN1dGVkOwoKICAgICAgICByZXN1bHQuY2hpbGRVcGRhdGVkUGFyZW50ID0gdHJ1ZTsKICAgICAgICByZXN1bHQudXBkYXRlUGFyZW50QXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlVwZGF0ZVBhcmVudERhdGFNYXBwaW5nIGNvbXBsZXRlZCAtIHVwZGF0ZURhdGEgZnJvbSBjaGlsZCB0byBwYXJlbnQiKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
-          }
-        }
-      ]
-    },
-    "startTransition": {
-      "key": "start-subflow-orchestration-child",
-      "target": "child-initial",
-      "triggerType": 0,
-      "versionStrategy": "Major",
-      "labels": [
-        {
-          "language": "en-US",
-          "label": "Start Child"
-        }
-      ]
-    },
-    "states": [
-      {
-        "key": "child-initial",
-        "stateType": 1,
-        "subType": 0,
-        "versionStrategy": "Major",
-        "labels": [
-          {
-            "language": "en-US",
-            "label": "Child Initial"
-          }
-        ],
-        "view": null,
-        "subFlow": null,
-        "onEntries": [
-          {
-            "order": 1,
-            "task": {
-              "key": "subflow-script-task",
-              "domain": "core",
-              "version": "1.0.0",
-              "flow": "sys-tasks"
-            },
-            "mapping": {
-              "location": "./src/ChildStartMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBDaGlsZFN0YXJ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSB0cnVlOwogICAgICAgIGlmIChkYXRhICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInBhcmVudERhdGEiKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmVzdWx0LnBhcmVudERhdGEgPSBkYXRhLnBhcmVudERhdGE7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDaGlsZFN0YXJ0TWFwcGluZzogY2hpbGRTdGFydGVkIHNldCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
-            }
-          }
-        ],
-        "onExits": [],
-        "transitions": [
-          {
-            "key": "auto-child-to-subflow",
-            "target": "child-subflow-state",
-            "triggerType": 1,
-            "versionStrategy": "Minor",
-            "labels": [
-              {
-                "language": "en-US",
-                "label": "Auto to Child SubFlow State"
-              }
-            ],
-            "rule": {
-              "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
-            },
-            "onExecutionTasks": []
-          }
-        ]
-      },
-      {
-        "key": "child-subflow-state",
-        "stateType": 4,
-        "subType": 0,
-        "versionStrategy": "Minor",
-        "labels": [
-          {
-            "language": "en-US",
-            "label": "Child SubFlow State"
-          }
-        ],
-        "view": null,
-        "subFlow": {
-          "type": "S",
-          "process": {
-            "key": "subflow-orchestration-grandchild",
-            "domain": "core",
-            "version": "1.0.0",
-            "flow": "sys-flows"
-          },
-          "mapping": {
-            "location": "./src/ChildToGrandchildSubFlowMapping.csx",
-            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIENoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyBnY0lucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJwYXJlbnREYXRhIikpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGdjSW5wdXQucGFyZW50RGF0YSA9IGRhdGEucGFyZW50RGF0YTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBnY0lucHV0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgICAgICB9CiAgICAgICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGdjSW5wdXQuY2hpbGRTdGFydGVkID0gZGF0YS5jaGlsZFN0YXJ0ZWQ7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmc6IHByZXBhcmVkIGdyYW5kY2hpbGQgaW5wdXQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBnY0lucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgZHluYW1pYyBtZXJnZWQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KW1lcmdlZDsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBpbnN0KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0YXJnZXRba3YuS2V5XSA9IGt2LlZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIGlmIChib2R5ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gYm9keSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGFyZ2V0W2t2LktleV0gPSBrdi5WYWx1ZTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICB0YXJnZXRbImdyYW5kY2hpbGRDb21wbGV0ZWQiXSA9IHRydWU7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmc6IG1lcmdlZCBncmFuZGNoaWxkIG91dHB1dCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG1lcmdlZCB9KTsKICAgIH0KfQo="
-          }
-        },
-        "onEntries": [],
-        "onExits": [],
-        "transitions": [
-          {
-            "key": "auto-child-to-completed",
-            "target": "child-completed",
-            "triggerType": 1,
-            "versionStrategy": "Minor",
-            "labels": [
-              {
-                "language": "en-US",
-                "label": "Auto to Child Completed"
-              }
-            ],
-            "rule": {
-              "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
-            },
-            "onExecutionTasks": []
-          }
-        ]
-      },
-      {
-        "key": "child-completed",
-        "stateType": 3,
-        "subType": 1,
-        "versionStrategy": "Major",
-        "labels": [
-          {
-            "language": "en-US",
-            "label": "Child Completed"
-          }
-        ],
-        "view": null,
-        "subFlow": null,
-        "onEntries": [],
-        "onExits": [],
-        "transitions": []
-      },
-      {
-        "key": "child-cancelled",
-        "stateType": 3,
-        "subType": 3,
-        "versionStrategy": "Major",
-        "labels": [
-          {
-            "language": "en-US",
-            "label": "Child Cancelled"
-          }
-        ],
-        "view": null,
-        "subFlow": null,
-        "onEntries": [],
-        "onExits": [],
-        "transitions": []
-      }
-    ]
-  }
+    "key":  "subflow-orchestration-child",
+    "flow":  "sys-flows",
+    "flowVersion":  "1.0.0",
+    "domain":  "core",
+    "version":  "1.0.0",
+    "tags":  [
+                 "integration-test",
+                 "subflow-orchestration",
+                 "child",
+                 "subflow",
+                 "shared-transitions"
+             ],
+    "attributes":  {
+                       "type":  "S",
+                       "timeout":  null,
+                       "labels":  [
+                                      {
+                                          "language":  "en-US",
+                                          "label":  "SubFlow Orchestration Child"
+                                      }
+                                  ],
+                       "functions":  [
+
+                                     ],
+                       "features":  [
+
+                                    ],
+                       "extensions":  [
+
+                                      ],
+                       "sharedTransitions":  [
+                                                 {
+                                                     "key":  "shared-child-mark",
+                                                     "target":  "$self",
+                                                     "triggerType":  0,
+                                                     "versionStrategy":  "Minor",
+                                                     "labels":  [
+                                                                    {
+                                                                        "language":  "en-US",
+                                                                        "label":  "Shared Child Mark ($self)"
+                                                                    }
+                                                                ],
+                                                     "availableIn":  [
+                                                                         "child-manual-state"
+                                                                     ],
+                                                     "onExecutionTasks":  [
+                                                                              {
+                                                                                  "order":  1,
+                                                                                  "task":  {
+                                                                                               "key":  "subflow-script-task",
+                                                                                               "domain":  "core",
+                                                                                               "version":  "1.0.0",
+                                                                                               "flow":  "sys-tasks"
+                                                                                           },
+                                                                                  "mapping":  {
+                                                                                                  "location":  "./src/ChildSharedMarkMapping.csx",
+                                                                                                  "code":  "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIENoaWxkU2hhcmVkTWFya01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImNoaWxkU3RhcnRlZCIpKSByZXN1bHQuY2hpbGRTdGFydGVkID0gZGF0YS5jaGlsZFN0YXJ0ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJwYXJlbnREYXRhIikpIHJlc3VsdC5wYXJlbnREYXRhID0gZGF0YS5wYXJlbnREYXRhOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpIHJlc3VsdC50ZXN0SWQgPSBkYXRhLnRlc3RJZDsKICAgICAgICByZXN1bHQuY2hpbGRTaGFyZWRNYXJrRXhlY3V0ZWQgPSB0cnVlOwogICAgICAgIHJlc3VsdC5jaGlsZFNoYXJlZE1hcmtBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDaGlsZFNoYXJlZE1hcmtNYXBwaW5nIGNvbXBsZXRlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+                                                                                              }
+                                                                              }
+                                                                          ]
+                                                 }
+                                             ],
+                       "cancel":  {
+                                      "key":  "cancel-child",
+                                      "target":  "child-cancelled",
+                                      "triggerType":  0,
+                                      "versionStrategy":  "Major",
+                                      "labels":  [
+                                                     {
+                                                         "language":  "en-US",
+                                                         "label":  "Cancel Child"
+                                                     }
+                                                 ]
+                                  },
+                       "updateData":  {
+                                          "key":  "update-parent-data",
+                                          "target":  "$self",
+                                          "triggerType":  0,
+                                          "versionStrategy":  "Minor",
+                                          "labels":  [
+                                                         {
+                                                             "language":  "en-US",
+                                                             "label":  "Update Parent Data from Child"
+                                                         }
+                                                     ],
+                                          "availableIn":  [
+
+                                                          ],
+                                          "onExecutionTasks":  [
+                                                                   {
+                                                                       "order":  1,
+                                                                       "task":  {
+                                                                                    "key":  "subflow-script-task",
+                                                                                    "domain":  "core",
+                                                                                    "version":  "1.0.0",
+                                                                                    "flow":  "sys-tasks"
+                                                                                },
+                                                                       "mapping":  {
+                                                                                       "location":  "./src/UpdateParentDataMapping.csx",
+                                                                                       "code":  "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFVwZGF0ZVBhcmVudERhdGFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CgogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSBkYXRhLmNoaWxkU3RhcnRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImdyYW5kY2hpbGRGaW5pc2hlZCIpKQogICAgICAgICAgICByZXN1bHQuZ3JhbmRjaGlsZEZpbmlzaGVkID0gZGF0YS5ncmFuZGNoaWxkRmluaXNoZWQ7CgogICAgICAgIHJlc3VsdC5jaGlsZFVwZGF0ZWRQYXJlbnQgPSB0cnVlOwogICAgICAgIHJlc3VsdC51cGRhdGVQYXJlbnRBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigiVXBkYXRlUGFyZW50RGF0YU1hcHBpbmcgY29tcGxldGVkIC0gdXBkYXRlRGF0YSBmcm9tIGNoaWxkIHRvIHBhcmVudCIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                                                                                   }
+                                                                   }
+                                                               ]
+                                      },
+                       "startTransition":  {
+                                               "key":  "start-subflow-orchestration-child",
+                                               "target":  "child-initial",
+                                               "triggerType":  0,
+                                               "versionStrategy":  "Major",
+                                               "labels":  [
+                                                              {
+                                                                  "language":  "en-US",
+                                                                  "label":  "Start Child"
+                                                              }
+                                                          ]
+                                           },
+                       "states":  [
+                                      {
+                                          "key":  "child-initial",
+                                          "stateType":  1,
+                                          "subType":  0,
+                                          "versionStrategy":  "Major",
+                                          "labels":  [
+                                                         {
+                                                             "language":  "en-US",
+                                                             "label":  "Child Initial"
+                                                         }
+                                                     ],
+                                          "view":  null,
+                                          "subFlow":  null,
+                                          "onEntries":  [
+                                                            {
+                                                                "order":  1,
+                                                                "task":  {
+                                                                             "key":  "subflow-script-task",
+                                                                             "domain":  "core",
+                                                                             "version":  "1.0.0",
+                                                                             "flow":  "sys-tasks"
+                                                                         },
+                                                                "mapping":  {
+                                                                                "location":  "./src/ChildStartMapping.csx",
+                                                                                "code":  "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBDaGlsZFN0YXJ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSB0cnVlOwogICAgICAgIGlmIChkYXRhICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInBhcmVudERhdGEiKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmVzdWx0LnBhcmVudERhdGEgPSBkYXRhLnBhcmVudERhdGE7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0SWQiKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmVzdWx0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDaGlsZFN0YXJ0TWFwcGluZzogY2hpbGRTdGFydGVkIHNldCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+                                                                            }
+                                                            }
+                                                        ],
+                                          "onExits":  [
+
+                                                      ],
+                                          "transitions":  [
+                                                              {
+                                                                  "key":  "auto-child-to-manual",
+                                                                  "target":  "child-manual-state",
+                                                                  "triggerType":  1,
+                                                                  "versionStrategy":  "Minor",
+                                                                  "labels":  [
+                                                                                 {
+                                                                                     "language":  "en-US",
+                                                                                     "label":  "Auto to Child Manual State"
+                                                                                 }
+                                                                             ],
+                                                                  "rule":  {
+                                                                               "location":  "./src/AlwaysTrueRule.csx",
+                                                                               "code":  "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+                                                                           },
+                                                                  "onExecutionTasks":  [
+
+                                                                                       ]
+                                                              }
+                                                          ]
+                                      },
+                                      {
+                                          "key":  "child-manual-state",
+                                          "stateType":  2,
+                                          "subType":  0,
+                                          "versionStrategy":  "Minor",
+                                          "labels":  [
+                                                         {
+                                                             "language":  "en-US",
+                                                             "label":  "Child Manual State"
+                                                         }
+                                                     ],
+                                          "view":  null,
+                                          "subFlow":  null,
+                                          "onEntries":  [
+
+                                                        ],
+                                          "onExits":  [
+
+                                                      ],
+                                          "transitions":  [
+                                                              {
+                                                                  "key":  "proceed-to-subflow",
+                                                                  "target":  "child-subflow-state",
+                                                                  "triggerType":  0,
+                                                                  "versionStrategy":  "Minor",
+                                                                  "labels":  [
+                                                                                 {
+                                                                                     "language":  "en-US",
+                                                                                     "label":  "Proceed to SubFlow"
+                                                                                 }
+                                                                             ],
+                                                                  "onExecutionTasks":  [
+
+                                                                                       ]
+                                                              }
+                                                          ]
+                                      },
+                                      {
+                                          "key":  "child-subflow-state",
+                                          "stateType":  4,
+                                          "subType":  0,
+                                          "versionStrategy":  "Minor",
+                                          "labels":  [
+                                                         {
+                                                             "language":  "en-US",
+                                                             "label":  "Child SubFlow State"
+                                                         }
+                                                     ],
+                                          "view":  null,
+                                          "subFlow":  {
+                                                          "type":  "S",
+                                                          "process":  {
+                                                                          "key":  "subflow-orchestration-grandchild",
+                                                                          "domain":  "core",
+                                                                          "version":  "1.0.0",
+                                                                          "flow":  "sys-flows"
+                                                                      },
+                                                          "mapping":  {
+                                                                          "location":  "./src/ChildToGrandchildSubFlowMapping.csx",
+                                                                          "code":  "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIENoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyBnY0lucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJwYXJlbnREYXRhIikpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGdjSW5wdXQucGFyZW50RGF0YSA9IGRhdGEucGFyZW50RGF0YTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInRlc3RJZCIpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBnY0lucHV0LnRlc3RJZCA9IGRhdGEudGVzdElkOwogICAgICAgICAgICB9CiAgICAgICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGdjSW5wdXQuY2hpbGRTdGFydGVkID0gZGF0YS5jaGlsZFN0YXJ0ZWQ7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmc6IHByZXBhcmVkIGdyYW5kY2hpbGQgaW5wdXQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBnY0lucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgZHluYW1pYyBtZXJnZWQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KW1lcmdlZDsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBpbnN0KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0YXJnZXRba3YuS2V5XSA9IGt2LlZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIGlmIChib2R5ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gYm9keSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGFyZ2V0W2t2LktleV0gPSBrdi5WYWx1ZTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICB0YXJnZXRbImdyYW5kY2hpbGRDb21wbGV0ZWQiXSA9IHRydWU7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkVG9HcmFuZGNoaWxkU3ViRmxvd01hcHBpbmc6IG1lcmdlZCBncmFuZGNoaWxkIG91dHB1dCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG1lcmdlZCB9KTsKICAgIH0KfQo="
+                                                                      }
+                                                      },
+                                          "onEntries":  [
+
+                                                        ],
+                                          "onExits":  [
+
+                                                      ],
+                                          "transitions":  [
+                                                              {
+                                                                  "key":  "auto-child-to-completed",
+                                                                  "target":  "child-completed",
+                                                                  "triggerType":  1,
+                                                                  "versionStrategy":  "Minor",
+                                                                  "labels":  [
+                                                                                 {
+                                                                                     "language":  "en-US",
+                                                                                     "label":  "Auto to Child Completed"
+                                                                                 }
+                                                                             ],
+                                                                  "rule":  {
+                                                                               "location":  "./src/AlwaysTrueRule.csx",
+                                                                               "code":  "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+                                                                           },
+                                                                  "onExecutionTasks":  [
+
+                                                                                       ]
+                                                              }
+                                                          ]
+                                      },
+                                      {
+                                          "key":  "child-completed",
+                                          "stateType":  3,
+                                          "subType":  1,
+                                          "versionStrategy":  "Major",
+                                          "labels":  [
+                                                         {
+                                                             "language":  "en-US",
+                                                             "label":  "Child Completed"
+                                                         }
+                                                     ],
+                                          "view":  null,
+                                          "subFlow":  null,
+                                          "onEntries":  [
+
+                                                        ],
+                                          "onExits":  [
+
+                                                      ],
+                                          "transitions":  [
+
+                                                          ]
+                                      },
+                                      {
+                                          "key":  "child-cancelled",
+                                          "stateType":  3,
+                                          "subType":  3,
+                                          "versionStrategy":  "Major",
+                                          "labels":  [
+                                                         {
+                                                             "language":  "en-US",
+                                                             "label":  "Child Cancelled"
+                                                         }
+                                                     ],
+                                          "view":  null,
+                                          "subFlow":  null,
+                                          "onEntries":  [
+
+                                                        ],
+                                          "onExits":  [
+
+                                                      ],
+                                          "transitions":  [
+
+                                                          ]
+                                      }
+                                  ]
+                   }
 }

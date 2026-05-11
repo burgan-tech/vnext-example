@@ -20,8 +20,6 @@ public class UpdateParentDataMapping : ScriptBase, IMapping
             result.childStarted = data.childStarted;
         if (HasProperty(data, "grandchildFinished"))
             result.grandchildFinished = data.grandchildFinished;
-        if (HasProperty(data, "childSharedUpdateExecuted"))
-            result.childSharedUpdateExecuted = data.childSharedUpdateExecuted;
 
         result.childUpdatedParent = true;
         result.updateParentAt = DateTime.UtcNow.ToString("o");

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
 
-public class ParentSharedUpdateMapping : ScriptBase, IMapping
+public class ParentSharedCommonTransitionMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -23,8 +23,10 @@ public class ParentSharedUpdateMapping : ScriptBase, IMapping
                 target[kv.Key] = kv.Value;
             }
         }
-        target["sharedUpdateExecuted"] = true;
-        LogInformation("ParentSharedUpdateMapping: merged instance data with sharedUpdateExecuted");
+        target["sharedCommonTransitionExecuted"] = true;
+        LogInformation(
+            "ParentSharedCommonTransitionMapping: merged instance data with sharedCommonTransitionExecuted"
+        );
         return Task.FromResult(new ScriptResponse { Data = result });
     }
 }

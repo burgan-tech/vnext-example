@@ -1,24 +1,36 @@
 {
   "nodePos": {
     "parent-initial": {
-      "x": 496,
-      "y": 240
+      "x": 640,
+      "y": 160
     },
     "parent-subflow-state": {
-      "x": 940,
-      "y": 480
+      "x": 970,
+      "y": 490
     },
     "parent-completed": {
       "x": 1348,
       "y": 240
     },
     "parent-cancelled": {
-      "x": 100,
-      "y": 100
+      "x": 270,
+      "y": 430
     },
     "__start__": {
-      "x": 100,
-      "y": 240
+      "x": 710,
+      "y": -130
+    },
+    "__wf_shared_shared-update-data__": {
+      "x": 480,
+      "y": 610
+    },
+    "__wf_cancel__": {
+      "x": 350,
+      "y": 300
+    },
+    "__wf_shared_shared-common-transition__": {
+      "x": 570,
+      "y": 570
     }
   }
 }
