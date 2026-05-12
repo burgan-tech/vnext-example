@@ -1,0 +1,40 @@
+{
+  "nodePos": {
+    "__start__": {
+      "x": 90,
+      "y": 30
+    },
+    "child-initial": {
+      "x": 50,
+      "y": 210
+    },
+    "child-subflow-state": {
+      "x": -40,
+      "y": 470
+    },
+    "child-completed": {
+      "x": 30,
+      "y": 740
+    },
+    "child-cancelled": {
+      "x": -280,
+      "y": 220
+    },
+    "__wf_updateData__": {
+      "x": 280,
+      "y": 100
+    },
+    "__wf_cancel__": {
+      "x": -200,
+      "y": 55
+    },
+    "__wf_shared_shared-child-update__": {
+      "x": -370,
+      "y": 520
+    },
+    "child-manual-state": {
+      "x": -380,
+      "y": 490
+    }
+  }
+}

@@ -41,3 +41,41 @@ Content-Type: application/json
 
 ### Adim 4: SubProcess State Kontrol
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/subprocess-flow-test/instances/{{subProcessInstanceId}}/functions/state
+
+### ===== FLOW TYPE (F) TEST =====
+
+### Adim 5: Flow (F) Baslat
+# @name startFlow
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/flow-flow-test/instances/start
+Content-Type: application/json
+
+{
+  "key": "flow-test-{{$timestamp}}",
+  "tags": ["test", "flow-type"],
+  "attributes": {}
+}
+
+### Flow Instance ID yakala
+@flowInstanceId = {{startFlow.response.body.$.id}}
+
+### Adim 6: Flow State Kontrol (auto transition ile flow-completed'a gecmis olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/flow-flow-test/instances/{{flowInstanceId}}/functions/state
+
+### ===== SUBFLOW TYPE (S) TEST =====
+
+### Adim 7: SubFlow (S) Baslat
+# @name startSubFlow
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/subflow-flow-test/instances/start
+Content-Type: application/json
+
+{
+  "key": "subflow-test-{{$timestamp}}",
+  "tags": ["test", "subflow-type"],
+  "attributes": {}
+}
+
+### SubFlow Instance ID yakala
+@subFlowInstanceId = {{startSubFlow.response.body.$.id}}
+
+### Adim 8: SubFlow State Kontrol (auto transition ile subflow-completed'a gecmis olmali)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/subflow-flow-test/instances/{{subFlowInstanceId}}/functions/state

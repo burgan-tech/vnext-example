@@ -1,0 +1,17 @@
+{
+  "key": "get-instances-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["integration-test", "task-execution", "get-instances"],
+  "attributes": {
+    "type": "15",
+    "config": {
+      "domain": "core",
+      "flow": "task-target-workflow",
+      "page": 1,
+      "pageSize": 10
+    }
+  }
+}

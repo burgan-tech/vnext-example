@@ -29,7 +29,8 @@ public class ProcessEntryMapping : ScriptBase, IMapping
         result.processEntryExecuted = true;
         result.processedAt = DateTime.UtcNow.ToString("o");
 
-        LogInformation($"ProcessEntryMapping executed, testPath={result.testPath}");
+        var testPathForLog = HasProperty(result, "testPath") ? result.testPath?.ToString() : "(null)";
+        LogInformation("ProcessEntryMapping executed, testPath=" + testPathForLog);
 
         return Task.FromResult(new ScriptResponse { Data = result });
     }

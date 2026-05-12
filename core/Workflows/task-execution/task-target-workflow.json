@@ -16,10 +16,6 @@
       {
         "language": "en-US",
         "label": "Task Execution Target Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Gorev Calistirma Hedef Is Akisi"
       }
     ],
     "functions": [],
@@ -35,10 +31,6 @@
         {
           "language": "en-US",
           "label": "Start Target"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Hedefi Baslat"
         }
       ],
       "onExecutionTasks": []
@@ -53,10 +45,6 @@
           {
             "language": "en-US",
             "label": "Target Initial"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hedef Baslangic"
           }
         ],
         "view": null,
@@ -65,24 +53,16 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "auto-complete-target",
+            "key": "manual-complete-target",
             "target": "target-completed",
-            "triggerType": 1,
+            "triggerType": 0,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Auto Complete Target"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Tamamla"
+                "label": "Complete Target (manual / DirectTriggerTask)"
               }
             ],
-            "rule": {
-              "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
-            },
             "onExecutionTasks": []
           }
         ]
@@ -96,10 +76,6 @@
           {
             "language": "en-US",
             "label": "Target Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Hedef Tamamlandi"
           }
         ],
         "view": null,

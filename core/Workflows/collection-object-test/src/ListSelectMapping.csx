@@ -1,13 +1,9 @@
 using System;
+using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
-using BBT.Workflow.Scripting.Functions;
 
-/// <summary>
-/// Tests: ListSelect&lt;TResult&gt;()
-/// Projects list items into different types: string, int, object
-/// </summary>
 public class ListSelectMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
@@ -21,54 +17,59 @@ public class ListSelectMapping : ScriptBase, IMapping
         {
             LogInformation("ListSelect Test - Starting");
 
-            object instanceData = context.Instance?.Data;
-            var items = GetList(instanceData, "items");
+            var data = context.Instance.Data;
+            var items = GetList(data, "items");
 
-            // Test ListSelect<string>() - extract names
-            var names = ListSelect<string>(items, x => (string)x.name);
+            var names = ListSelect<string>(items, (Func<object, string>)(x => GetPropertyValue(x, "name")?.ToString()));
+            var ages = ListSelect<int>(items, (Func<object, int>)(x => {
+                var val = GetPropertyValue(x, "age");
+                return val != null ? Convert.ToInt32(val) : 0;
+            }));
+            var labels = ListSelect<string>(items, (Func<object, string>)(x => $"{GetPropertyValue(x, "name")} ({GetPropertyValue(x, "status")})"));
+            var emptyResult = ListSelect<string>(CreateList(), (Func<object, string>)(x => GetPropertyValue(x, "name")?.ToString()));
 
-            // Test ListSelect<int>() - extract ages
-            var ages = ListSelect<int>(items, x => (int)x.age);
+            LogInformation($"ListSelect: {names.Count} names, {ages.Count} ages");
 
-            // Test ListSelect<string>() with transformation
-            var labels = ListSelect<string>(items, x => $"{x.name} ({x.status})");
+            dynamic result = new ExpandoObject();
 
-            // Test ListSelect on empty list - should return empty list
-            var emptyResult = ListSelect<string>(CreateList(), x => (string)x.name);
+            if (HasProperty(data, "testId"))
+                result.testId = data.testId;
+            if (HasProperty(data, "startedAt"))
+                result.startedAt = data.startedAt;
+            if (HasProperty(data, "items"))
+                result.items = data.items;
+            if (HasProperty(data, "metadata"))
+                result.metadata = data.metadata;
+            if (HasProperty(data, "createAndSetResult"))
+                result.createAndSetResult = data.createAndSetResult;
+            if (HasProperty(data, "getListResult"))
+                result.getListResult = data.getListResult;
+            if (HasProperty(data, "filterCountAnyResult"))
+                result.filterCountAnyResult = data.filterCountAnyResult;
+            if (HasProperty(data, "firstLastResult"))
+                result.firstLastResult = data.firstLastResult;
 
-            LogInformation("ListSelect: {0} names, {1} ages", args: new object[] { names.Count, ages.Count });
+            result.listSelectResult = new ExpandoObject();
+            result.listSelectResult.success = true;
+            result.listSelectResult.names = names;
+            result.listSelectResult.ages = ages;
+            result.listSelectResult.labels = labels;
+            result.listSelectResult.namesCount = names.Count;
+            result.listSelectResult.agesCount = ages.Count;
+            result.listSelectResult.emptySelectCount = emptyResult.Count;
+            result.listSelectResult.selectStringWorked = names.Count == 3 && names[0] == "Alice";
+            result.listSelectResult.selectIntWorked = ages.Count == 3 && ages[0] == 30;
+            result.listSelectResult.selectTransformWorked = labels.Count == 3;
+            result.listSelectResult.emptySelectWorked = emptyResult.Count == 0;
 
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "list-select-success",
-                Data = new
-                {
-                    listSelectResult = new
-                    {
-                        success = true,
-                        names = names,
-                        ages = ages,
-                        labels = labels,
-                        namesCount = names.Count,
-                        agesCount = ages.Count,
-                        emptySelectCount = emptyResult.Count,
-                        selectStringWorked = names.Count == 3 && names[0] == "Alice",
-                        selectIntWorked = ages.Count == 3 && ages[0] == 30,
-                        selectTransformWorked = labels.Count == 3,
-                        emptySelectWorked = emptyResult.Count == 0
-                    }
-                },
-                Tags = new[] { "collection-object-test", "list-select", "success" }
-            });
+            return Task.FromResult(new ScriptResponse { Data = result });
         }
         catch (Exception ex)
         {
-            LogError("ListSelect Test - Failed: {0}", args: new object[] { ex.Message });
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "list-select-error",
-                Data = new { error = ex.Message }
-            });
+            LogError($"ListSelect Test - Failed: {ex.Message}");
+            dynamic errResult = new ExpandoObject();
+            errResult.error = ex.Message;
+            return Task.FromResult(new ScriptResponse { Data = errResult });
         }
     }
 }

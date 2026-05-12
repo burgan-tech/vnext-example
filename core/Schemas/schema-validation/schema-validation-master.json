@@ -1,0 +1,93 @@
+{
+  "key": "schema-validation-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-validation",
+    "schema",
+    "master-schema",
+    "field-roles"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schema Validation Test Master Schema"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://core.burgan.com/schemas/schema-validation-master",
+      "title": "Schema Validation Test Master Schema",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "customerName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "TRY",
+            "USD",
+            "EUR"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "internalNote": {
+          "type": "string",
+          "roles": [
+            {
+              "role": "admin",
+              "grant": "allow"
+            },
+            {
+              "role": "customer",
+              "grant": "deny"
+            }
+          ]
+        },
+        "auditLog": {
+          "type": "string",
+          "roles": [
+            {
+              "role": "auditor",
+              "grant": "allow"
+            }
+          ]
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "confirmedBy": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "orderId",
+        "customerName",
+        "amount",
+        "currency"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

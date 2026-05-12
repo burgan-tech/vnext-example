@@ -2,8 +2,9 @@ using System;
 using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
+using BBT.Workflow.Definitions;
 
-public class FunctionMultiTask1Mapping : ScriptBase, IMapping
+public class FunctionMultiTask1Mapping : IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {

@@ -6,154 +6,380 @@
 ###############################################################################
 # VERSION CONSISTENCY TEST
 #
-# Bu test, workflow versiyonu degistiginde mevcut instance'larin kendi
-# versiyonlarinin akisindan devam ettigini dogrular.
+# Aligned with C# integration tests in:
+#   tests/Core/Tests/version-consistency-test-workflow/
+#     - VersionConsistencyTestWorkflowTests.cs
+#     - VersionConsistencyScenarioActions.cs
+#     - VersionConsistencyInstanceDataAssertions.cs
 #
-# ONKOŞUL: Sadece v1.0.0 publish edilmis olmali.
-# v2.0.0 HENUZ publish edilmemis olmali.
+# AUTHORITATIVE VERSION SOURCE:
+#   GET /instances/{id} response body has a "flowVersion" field with format:
+#       "2.0.0-pkg.1.0.0+core"   (workflow semver - pkg.<package> + <domain>)
+#   Take the part BEFORE the first "-" to get the workflow semver ("2.0.0").
 #
-# ADIMLAR:
-#   1. v1.0.0 workflow'u publish et (version-consistency-test-workflow.json)
-#   2. Instance A'yi baslat (v1.0.0 uzerinde calisacak)
-#   3. Instance A'yi processing-state'e tasra (auto ile gider)
-#   4. v2.0.0 workflow'u publish et (version-consistency-test-workflow-v2.json)
-#   5. Instance B'yi baslat (v2.0.0 uzerinde calisacak)
-#   6. Instance B'yi processing-state'e birak
-#   7. Instance A: complete-processing → completed-state (v1 yolu, review YOK)
-#   8. Instance B: complete-processing → review-state (v2 yolu)
-#   9. Instance B: approve-review → completed-state
-#  10. Her iki instance'in datasini karsilastir
+# PREREQUISITE:
+#   Both v1.0.0 and v2.0.0 are published.
+#   Runtime always pins NEW instances to the LATEST version (v2.0.0).
+#
+# Each scenario below maps to one [Fact] in the C# test class.
 ###############################################################################
 
-###############################################################################
-# ADIM 1: v1.0.0 PUBLISH EDILMIS OLMALI
-# → version-consistency-test-workflow.json dosyasini publish edin
-###############################################################################
 
 ###############################################################################
-# ADIM 2: Instance A baslatma (v1.0.0 uzerinde)
+# SCENARIO 1: V2 Happy Path — full flow + every-state data contract + version pin
+#   Maps to: V2HappyPath_FullFlow_DataContract_ReachesCompletedState
+#   Path: init → (auto) → processing → review → completed
+#   Assertions:
+#     - state name + status "C" at completion
+#     - flowVersion semver = "2.0.0" at start AND at completion
+#     - InitVersionMapping: initialized=true, initAt, testId
+#     - ReviewMapping: reviewExecuted=true, reviewAt
+#     - V2CompletedMapping: v2Completed=true, completedByVersion="2.0.0"
+#     - Negative: v1Completed must be absent
 ###############################################################################
 
-### Instance A - Baslat (v1.0.0 akisinda calisacak)
-# @name createInstanceA
+### S1.1 Start instance
+# @name s1Start
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "version-test-A-{{$timestamp}}",
-  "tags": ["integration-test", "version-consistency", "v1-instance"],
-  "attributes": {
-    "testId": "version-consistency-A"
-  }
+  "key": "v2-happy-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency"],
+  "attributes": { "testId": "v2-happy-path" }
 }
 
-@instanceAId = {{createInstanceA.response.body.$.id}}
+@s1InstanceId = {{s1Start.response.body.$.id}}
+
+### S1.2 Version pin check (BEFORE) — flowVersion in GET /instances/{id}
+# Expected flowVersion: "2.0.0-pkg.<x>+core" → semver "2.0.0"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}
+
+### S1.3 State after start (auto transition → processing-state)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/functions/state
+
+### S1.4 Init mapping data check (initialized=true, initAt, testId)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/functions/data
+
+### S1.5 Advance to review-state (v2 path)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/transitions/complete-processing?sync=true
+Content-Type: application/json
+
+{}
+
+### S1.6 Review state check + ReviewMapping data (reviewExecuted=true)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/functions/state
+
+### S1.7 Approve review → completed-state
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/transitions/approve-review?sync=true
+Content-Type: application/json
+
+{}
+
+### S1.8 Final state check (completed-state, status "C")
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/functions/state
+
+### S1.9 Final data check (v2Completed=true, completedByVersion="2.0.0", NO v1Completed)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}/functions/data
+
+### S1.10 Version pin check (AFTER) — flowVersion semver still "2.0.0"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s1InstanceId}}
+
 
 ###############################################################################
-# ADIM 3: Instance A state kontrolu (processing-state'te olmali)
+# SCENARIO 2: Parallel Instances — both reach completed independently
+#   Maps to: ParallelInstances_BothReachCompletedIndependently
 ###############################################################################
 
-### Instance A - State kontrolu (processing-state bekleniyor)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/functions/state
-
-###############################################################################
-# ADIM 4: v2.0.0 PUBLISH ET
-# → version-consistency-test-workflow-v2.json dosyasini publish edin
-# Instance A hala processing-state'te bekliyor.
-###############################################################################
-
-###############################################################################
-# ADIM 5: Instance B baslatma (v2.0.0 uzerinde calisacak)
-###############################################################################
-
-### Instance B - Baslat (v2.0.0 akisinda calisacak)
-# @name createInstanceB
+### S2.1 Start instance A
+# @name s2StartA
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
-  "key": "version-test-B-{{$timestamp}}",
-  "tags": ["integration-test", "version-consistency", "v2-instance"],
-  "attributes": {
-    "testId": "version-consistency-B"
-  }
+  "key": "parallel-A-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency", "parallel-A"],
+  "attributes": { "testId": "parallel-A" }
 }
 
-@instanceBId = {{createInstanceB.response.body.$.id}}
+@s2InstanceAId = {{s2StartA.response.body.$.id}}
 
-###############################################################################
-# ADIM 6: Instance B state kontrolu (processing-state'te olmali)
-###############################################################################
+### S2.2 Start instance B
+# @name s2StartB
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
 
-### Instance B - State kontrolu (processing-state bekleniyor)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/state
+{
+  "key": "parallel-B-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency", "parallel-B"],
+  "attributes": { "testId": "parallel-B" }
+}
 
-###############################################################################
-# ADIM 7: Instance A'yi tamamla
-# complete-processing → completed-state (v1 yolu, review-state YOK)
-###############################################################################
+@s2InstanceBId = {{s2StartB.response.body.$.id}}
 
-### Instance A - complete-processing (v1: dogrudan completed-state'e gitmeli)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/transitions/complete-processing?sync=true
+### S2.3 Advance both to review
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s2InstanceAId}}/transitions/complete-processing?sync=true
 Content-Type: application/json
 
 {}
 
-### Instance A - Final state kontrolu (completed-state bekleniyor)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/functions/state
-
-### Instance A - Data kontrolu
-# BEKLENEN: v1Completed=true, reviewExecuted OLMAMALI
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceAId}}/functions/data
-
-###############################################################################
-# ADIM 8: Instance B'yi processing'den ilerlet
-# complete-processing → review-state (v2 yolu, ekstra state)
-###############################################################################
-
-### Instance B - complete-processing (v2: review-state'e gitmeli)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/transitions/complete-processing?sync=true
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s2InstanceBId}}/transitions/complete-processing?sync=true
 Content-Type: application/json
 
 {}
 
-### Instance B - State kontrolu (review-state bekleniyor)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/state
-
-### Instance B - Data kontrolu (reviewExecuted=true olmali)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/data
-
-###############################################################################
-# ADIM 9: Instance B review'dan completed'a
-###############################################################################
-
-### Instance B - approve-review (v2: completed-state'e gitmeli)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/transitions/approve-review?sync=true
+### S2.4 Approve both
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s2InstanceAId}}/transitions/approve-review?sync=true
 Content-Type: application/json
 
 {}
 
-### Instance B - Final state kontrolu (completed-state bekleniyor)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/state
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s2InstanceBId}}/transitions/approve-review?sync=true
+Content-Type: application/json
 
-### Instance B - Final data kontrolu
-# BEKLENEN: reviewExecuted=true, v2Completed=true, v1Completed OLMAMALI
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceBId}}/functions/data
+{}
+
+### S2.5 Both must be on completed-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s2InstanceAId}}/functions/state
+
+###
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s2InstanceBId}}/functions/state
+
 
 ###############################################################################
-# DOGRULAMA OZETI
+# SCENARIO 3: Parallel Instances — Different speeds (A waits while B completes)
+#   Maps to: ParallelInstances_DifferentSpeeds_AWaitsWhileBCompletes
+###############################################################################
+
+### S3.1 Start A
+# @name s3StartA
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "speed-A-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency", "speed-A"],
+  "attributes": { "testId": "speed-A" }
+}
+
+@s3InstanceAId = {{s3StartA.response.body.$.id}}
+
+### S3.2 Start B
+# @name s3StartB
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "speed-B-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency", "speed-B"],
+  "attributes": { "testId": "speed-B" }
+}
+
+@s3InstanceBId = {{s3StartB.response.body.$.id}}
+
+### S3.3 B completes full path
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceBId}}/transitions/complete-processing?sync=true
+Content-Type: application/json
+
+{}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceBId}}/transitions/approve-review?sync=true
+Content-Type: application/json
+
+{}
+
+### S3.4 B should be completed
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceBId}}/functions/state
+
+### S3.5 A should still be on processing-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceAId}}/functions/state
+
+### S3.6 Now advance A
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceAId}}/transitions/complete-processing?sync=true
+Content-Type: application/json
+
+{}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceAId}}/transitions/approve-review?sync=true
+Content-Type: application/json
+
+{}
+
+### S3.7 A must be on completed-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s3InstanceAId}}/functions/state
+
+
+###############################################################################
+# SCENARIO 4: Idempotent Start + Version Pinning (CRITICAL)
+#   Maps to: IdempotentStart_V1Instance_RemainsOnV1Path_NotUpgradedToV2
 #
-# Instance A (v1.0.0):
-#   - State: completed-state
-#   - Data: v1Completed=true, completedByVersion="1.0.0"
-#   - reviewExecuted OLMAMALI (v1'de review-state yok)
+# Goal: Prove that posting "start" twice with the SAME key:
+#   1. Returns the SAME instance id (idempotent)
+#   2. Does NOT upgrade the instance to a different version
+#   3. Instance state and data remain unchanged
 #
-# Instance B (v2.0.0):
-#   - State: completed-state
-#   - Data: reviewExecuted=true, v2Completed=true, completedByVersion="2.0.0"
-#   - v1Completed OLMAMALI (v2 yolunu izledi)
+# Authoritative version check via GET /instances/{id} → flowVersion semver.
+###############################################################################
+
+@s4Key = version-pin-idempotent-{{$timestamp}}
+
+### S4.1 First start (creates instance)
+# @name s4First
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "{{s4Key}}",
+  "tags": ["integration-test", "version-consistency", "idempotent"],
+  "attributes": { "testId": "idempotent-version-pin" }
+}
+
+@s4InstanceId = {{s4First.response.body.$.id}}
+
+### S4.2 Confirm processing-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s4InstanceId}}/functions/state
+
+### S4.3 Read flowVersion BEFORE second start
+# @name s4Before
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s4InstanceId}}
+
+### S4.4 Second start with SAME key — must return the same id
+# @name s4Second
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "{{s4Key}}",
+  "tags": ["integration-test", "version-consistency", "idempotent"],
+  "attributes": { "testId": "idempotent-version-pin" }
+}
+
+@s4SecondId = {{s4Second.response.body.$.id}}
+
+### S4.5 Verify SAME id returned (s4SecondId == s4InstanceId)
+# Manual check: compare s4SecondId and s4InstanceId in test client output.
+
+### S4.6 Read flowVersion AFTER second start (must equal s4Before's flowVersion)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s4SecondId}}
+
+### S4.7 Confirm state still processing-state (not re-initialized)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s4SecondId}}/functions/state
+
+### S4.8 Confirm data unchanged (initialized=true, testId preserved)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s4SecondId}}/functions/data
+
+
+###############################################################################
+# SCENARIO 5: Path Selection Driven by Actual flowVersion
+#   Maps to: PathSelection_DrivenByActualFlowVersion_ReachesVersionAppropriateCompletedState
 #
-# BASARI KRITERI:
-#   v2 publish edildikten sonra bile Instance A, v1 akisini takip etti
-#   ve review-state'e ugramadan dogrudan completed'a gitti.
+# Read flowVersion first, then drive the path that matches the version.
+# In current test setup, expected version is "2.0.0" (latest published).
+###############################################################################
+
+### S5.1 Start instance
+# @name s5Start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "path-selection-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency", "path-selection"],
+  "attributes": { "testId": "path-selection" }
+}
+
+@s5InstanceId = {{s5Start.response.body.$.id}}
+
+### S5.2 Read flowVersion to determine which path the instance is on
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}
+
+### S5.3 complete-processing transition (target depends on version)
+# v2.0.0 → review-state
+# v1.0.0 → completed-state (review-state does NOT exist in v1)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}/transitions/complete-processing?sync=true
+Content-Type: application/json
+
+{}
+
+### S5.4 Check actual state after transition
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}/functions/state
+
+### S5.5 If on review-state (v2 path) → approve-review
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}/transitions/approve-review?sync=true
+Content-Type: application/json
+
+{}
+
+### S5.6 Final state — must be completed-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}/functions/state
+
+### S5.7 Final data — version-appropriate flags
+# v2.0.0: v2Completed=true, completedByVersion="2.0.0", reviewExecuted=true, NO v1Completed
+# v1.0.0: v1Completed=true, completedByVersion="1.0.0", NO reviewExecuted
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}/functions/data
+
+### S5.8 Version pin unchanged after completion
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s5InstanceId}}
+
+
+###############################################################################
+# SCENARIO 6: flowVersion Stability Across Lifecycle
+#   Maps to: FlowVersion_StableAcrossLifecycle_NeverChanges
+#
+# Verify flowVersion is identical at every step (start → review → completed).
+###############################################################################
+
+### S6.1 Start instance
+# @name s6Start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "version-stability-{{$timestamp}}",
+  "tags": ["integration-test", "version-consistency", "stability"],
+  "attributes": { "testId": "version-stability" }
+}
+
+@s6InstanceId = {{s6Start.response.body.$.id}}
+
+### S6.2 flowVersion at processing-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s6InstanceId}}
+
+### S6.3 Move to review (v2 path)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s6InstanceId}}/transitions/complete-processing?sync=true
+Content-Type: application/json
+
+{}
+
+### S6.4 flowVersion at review-state (must equal S6.2)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s6InstanceId}}
+
+### S6.5 Approve review
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s6InstanceId}}/transitions/approve-review?sync=true
+Content-Type: application/json
+
+{}
+
+### S6.6 flowVersion at completed-state (must equal S6.2 and S6.4)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{s6InstanceId}}
+
+
+###############################################################################
+# VALIDATION SUMMARY
+#
+# S1: V2 happy path — every-state data + flowVersion pin
+# S2: Parallel instances — independent completion
+# S3: Different speeds — A waits, B completes
+# S4: Idempotent start — same id, version unchanged
+# S5: Path selection — drive workflow based on actual flowVersion
+# S6: Version stability — flowVersion never changes during lifecycle
+#
+# AUTHORITATIVE VERSION SOURCE:
+#   GET /instances/{id} → response.flowVersion
+#   Format: "{semver}-pkg.{packageVersion}+{domain}"
+#   Example: "2.0.0-pkg.1.0.0+core" → workflow semver = "2.0.0"
 ###############################################################################

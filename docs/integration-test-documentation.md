@@ -1,0 +1,1478 @@
+# vNext Runtime Integration Test Documentation
+
+Bu dokuman, `core` projesindeki tum integration test workflow'larini, icerdikleri bilesenleri ve her birinin hangi vNext ozelliklerini test ettigini detayli olarak aciklar.
+
+---
+
+## Genel Bakis
+
+| # | Grup | Workflow | Test Edilen Ana Ozellikler |
+|---|------|----------|---------------------------|
+| 1 | Lifecycle & Transitions | `lifecycle-transitions-test-workflow` | State tipleri, transition tipleri, on-entries/exits, timer, cancel, **exit** (`attributes.exit`), **schedule iptal / timer reschedule**, **queryRoles** ve **transition `roles` (yalnizca state fonksiyonu listeleme filtresi)** |
+| 2 | SubFlow & SubProcess | `subflow-orchestration-parent` + child + grandchild | Parent-child-grandchild zinciri, parent shared transitions, **child shared transition (availableIn dogrulamasi)**, **shared transition disallowed state testi**, **cancel cascade** (child/grandchild **cancelled** final state'leri), **effective state**, **updateData (SubFlow)**, **subFlow.overrides** (timeout, states.queryRoles, transitions.roles) |
+| 3 | Task Execution | `task-execution-test-workflow` + `task-target-workflow` + `extended-tasks-test-workflow` | HTTP/Script/StartFlow/GetInstanceData/Notification/TriggerTransition/SubProcess/GetInstances; Dapr HTTP/Service/PubSub (`extended-tasks-test-workflow`); Mocklab + Dapr YAML |
+| 4 | Error Boundary | `error-boundary-test-workflow` | Task/state/global errorBoundary; Retry/Ignore/Log/Rollback/Notify/Abort; retry policy; priority; errorTypes/errorCodes. **`errorBoundary.onTimeout` bu flow'da test edilmez** (bkz. dokuman sonu: Test Edilmeyen Ozellikler) |
+| 5 | View, Function & Extension (Comprehensive) | `view-function-extension-test-workflow` | 6 view tipi (JSON/HTML/MD/DeepLink/HTTP/URN), 6 display modu, 4 extension tipi (4 type × 3 scope), 3 function scope (I/F/D), wizard state, implicit global extension, `?extensions=` sorgusu, `functions/view` icerik dogrulamasi |
+| 6 | Schema Validation | `schema-validation-test-workflow` | Master + start + transition + cancel + exit + updateData schema, field roles, SubFlow updateData |
+| 7 | Instance Management | `instance-management-test-workflow` | Filtering, pagination, sorting, timeout, idempotent start, **subType 4/5/6** (suspended/busy/human) |
+| 8 | Flow Types | `core-flow-test` + `subprocess-flow-test` + `flow-flow-test` + `subflow-flow-test` | **Core (C)**, **SubProcess (P)**, **Flow (F)** ve **SubFlow (S)** workflow tipleri |
+| 9 | Version Consistency | `version-consistency-test-workflow` (v1.0.0 + v2.0.0) | Workflow versiyon degisiminde mevcut instance'larin kendi versiyonlariyla devam etmesi |
+| 10 | Dynamic Collection & Object | `collection-object-test-workflow` | ScriptBase dinamik koleksiyon/nesne API'leri (CreateObject, CreateList, SetProperty, GetList, AsList, ListFilter, ListCount, ListAny, ListFirst, ListLast, ListSelect, ListAdd, ListRemove, RemoveProperty, ToDictionary, HasProperty) |
+
+**Grup numaralari:** Eski **Grup 8 (Extended Tasks)** icerigi **Grup 3 (Task Execution)** altinda birlestirilmistir (`extended-tasks-test-workflow` artik Grup 3 kapsaminda). Matris ve tablolarda **G8 / Grup 8** = Flow Types, **G9 / Grup 9** = Version Consistency.
+
+---
+
+## Bilesen Envanteri
+
+```
+core/
+├── Workflows/          (15 workflow - 13 mevcut + 2 yeni version-consistency)
+├── Tasks/              (22 task - 21 mevcut + 1 yeni version-consistency; Dapr Binding task kaldirildi)
+├── Views/              (6 view)
+├── Schemas/            (2 schema)
+├── Functions/          (4 function — 2 instance, 1 workflow, 1 domain scope)
+├── Extensions/         (4 extension — 4 type, 3 scope)
+├── etc/dapr/components/  (Dapr binding ve pubsub YAML)
+└── doc/
+    └── integration-test-documentation.md
+```
+
+---
+
+## Grup 1: Lifecycle & Transitions
+
+**Workflow:** `lifecycle-transitions-test-workflow` (type: F)
+
+**Amac:** Workflow yasam dongusu ve tum transition tiplerini test eder; ayrica **exit transition**, **zamanlayici schedule yonetimi** (manuel iptal ve **self-loop reschedule** — hedef olarak mevcut state anahtari `auto-passed-state`; `$self` ile ayni davranis), **workflow/state queryRoles** ve **`GET .../functions/state` icinde transition listesinin role gore filtrelenmesi** senaryolarini kapsar.
+
+**Important (transition `roles`):** In the runtime model, transition `roles` (allow/deny) are **not a hard PATCH gate that blocks invoking the transition**; they primarily **filter the `transitions[]` list in the state-function response** for the caller role header. A client not on the allow list may **omit** that transition from UI/API lists; documented behaviour **does not** mean the transition is **always rejected** via the API. (**Separate mechanism:** **`authorize?queryRoles=...`** for querying workflow/instance data.)
+
+**C# testleri:** `StateFunction_*` testleri, ilgili **role header** ile state sorgulandiginda `transitions[]` icinde beklenen anahtarin **listelenip listelenmedigini** dogrular.
+
+### Agac Yapisi
+
+```
+lifecycle-transitions-test-workflow (F)
+│
+├── [workflow-level queryRoles]
+│   └── test-viewer → allow
+│
+├── [startTransition] start-lifecycle-test
+│   └── onExecutionTasks:
+│       └── script-task + InitializeDataMapping.csx
+│
+├── [cancel] cancel-workflow → terminated-state
+│
+├── [attributes.exit] exit-workflow → terminated-state
+│   ├── triggerType: 0 (Manual)
+│   ├── availableIn: initialize-state, processing-state, pre-complete-state
+│   └── onExecutionTasks:
+│       └── script-task + ExitMapping.csx (IMapping)
+│
+├── initialize-state (Initial, stateType:1)
+│   └── Transitions:
+│       └── move-to-processing (Manual, triggerType:0) → processing-state
+│           ├── mapping: ProcessTransitionMapping.csx (ITransitionMapping)
+│           └── roles: test-operator (allow) — state `transitions[]` filtresi; PATCH zorunlu red degil
+│
+├── processing-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + ProcessEntryMapping.csx
+│   ├── onExits:
+│   │   └── script-task + ProcessExitMapping.csx
+│   └── Transitions:
+│       ├── auto-pass-transition (Auto, triggerType:1) → auto-passed-state
+│       │   └── rule: TestPathPassRule.csx (testPath=="pass")
+│       ├── auto-fail-transition (Auto, triggerType:1) → auto-failed-state
+│       │   └── rule: TestPathFailRule.csx (testPath=="fail")
+│       └── default-auto-transition (Auto, triggerType:1, triggerKind:10) → default-fallback-state
+│           └── rule: AlwaysTrueRule.csx (varsayilan fallback)
+│
+├── auto-passed-state (Intermediate, stateType:2)
+│   └── Transitions:
+│       ├── scheduled-timer-transition (Scheduled, triggerType:2) → timer-triggered-state
+│       │   └── timer: ShortTimerMapping.csx (ITimerMapping, 6 saniye)
+│       ├── cancel-schedule-manually (Manual, triggerType:0) → pre-complete-state
+│       │   └── (zamanlayici schedule'ini manuel transition ile iptal senaryosu)
+│       └── reschedule-timer (Manual, triggerType:0, target: auto-passed-state)
+│           └── (same-state self-loop; reschedule timer — use explicit state key rather than `$self` in definition validation)
+│
+├── timer-triggered-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── script-task + TimerEntryMapping.csx
+│   └── Transitions:
+│       └── auto-to-pre-complete (Auto, triggerType:1) → pre-complete-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── pre-complete-state (Intermediate, stateType:2)
+│   ├── queryRoles: test-processor (allow), test-viewer (deny)
+│   └── Transitions:
+│       └── complete-workflow (Manual, triggerType:0) → completed-state
+│           └── roles: test-approver (allow), test-operator (deny) — listeleme filtresi; deny PATCH'i garanti etmez
+│
+├── default-fallback-state (Intermediate, stateType:2)
+│   └── Transitions:
+│       └── fallback-to-complete (Auto, triggerType:1) → completed-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── auto-failed-state (Final/Error, stateType:3, subType:2)
+├── completed-state (Final/Success, stateType:3, subType:1)
+└── terminated-state (Final/Terminated, stateType:3, subType:3)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| State tipleri (Initial/Intermediate/Final) | 3 farkli stateType kullanilir | Tum state'ler |
+| State alt tipleri (Success/Error/Terminated) | subType 1, 2, 3 kullanilir | auto-failed, completed, terminated |
+| Manuel transition (triggerType:0) | Kullanici tetikli gecisler | move-to-processing, complete-workflow, cancel-schedule-manually, reschedule-timer |
+| Otomatik transition (triggerType:1) | Rule bazli otomatik gecisler | auto-pass, auto-fail |
+| Tamamlayici kurallar (complementary rules) | Ayni state'te zit kosullu auto transitions | TestPathPassRule + TestPathFailRule |
+| Varsayilan otomatik gecis (triggerKind:10) | Hicbir rule eslesmezse fallback | default-auto-transition |
+| Zamanlanmis transition (triggerType:2) | Timer ile gecis | scheduled-timer-transition |
+| ITimerMapping | Timer suresi belirleme | ShortTimerMapping.csx |
+| ITransitionMapping | Transition sirasinda data donusumu | ProcessTransitionMapping.csx |
+| IConditionMapping | Kosul degerlendirme | TestPathPassRule, TestPathFailRule, AlwaysTrueRule |
+| onEntries | State girisinde task calistirma | processing-state, timer-triggered-state |
+| onExits | State cikisinda task calistirma | processing-state |
+| startTransition onExecutionTasks | Workflow baslatilirken task calistirma | InitializeDataMapping.csx |
+| Cancel transition | Workflow iptal mekanizmasi | cancel-workflow → terminated-state |
+| **Exit transition (`attributes.exit`)** | Belirli state'lerde cikis; hedef terminated; IMapping ile exitExecuted | exit-workflow, ExitMapping.csx |
+| **Schedule iptal (manuel)** | auto-passed-state'ten manuel gecisle timer beklemeden pre-complete | cancel-schedule-manually |
+| **Timer reschedule (self-loop)** | Ayni state'e manuel gecis ile zamanlayici reschedule | reschedule-timer → **auto-passed-state**; sonra yeniden kurulan `scheduled-timer-transition` (~6s) → timer-triggered → auto → pre-complete |
+| **queryRoles (workflow)** | authorize endpoint ile workflow datasi sorgu yetkisi | attributes.queryRoles, test-viewer |
+| **queryRoles (state)** | State bazli allow/deny override | **pre-complete-state** queryRoles (`processing-state` auto gecisli; testte cancel-schedule ile pre-complete) |
+| **Transition `roles`** | **Filter `transitions[]` in `GET .../functions/state`** by role (v0.0.39+); **no** guaranteed PATCH denial solely from deny on that list | move-to-processing, complete-workflow; xUnit: `StateFunction_WithTestOperatorRole_*` / `StateFunction_WithTestViewerRole_*` |
+| Version strategy (Major/Minor/Patch) | Farkli versiyonlama stratejileri | Cesitli transitions |
+| Idempotent start | Ayni key ile tekrar baslatma | HTTP test dosyasinda |
+
+### HTTP Test Dosyasi (`lifecycle-transitions-test-workflow.http`)
+
+| Senaryo | Kisa Aciklama |
+|---------|---------------|
+| Happy / Fail / Default path | Mevcut lifecycle akislari |
+| Idempotent start | Ayni key ile tekrar baslatma |
+| Cancel | cancel-workflow → terminated-state |
+| **Exit** | initialize-state'ten exit-workflow; terminated-state ve `exitExecuted` |
+| **Schedule cancel** | auto-passed-state'te cancel-schedule-manually → pre-complete-state |
+| **Reschedule** | reschedule-timer ile kisa sure `auto-passed-state`; yeniden kurulan ~6s timer sonrasi `timer-triggered-state` → auto → **pre-complete-state** (xUnit: `RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState`) |
+| **QueryRoles / transition listesi** | **authorize:** `/functions/authorize?queryRoles=true&role=...` (datasi sorgu). **State listesi:** `GET .../functions/state` + role header ile **move-to-processing** gorunurlugu (allow/omit). **pre-complete-state:** cancel-schedule ile; queryRoles'ta test-processor allow / test-viewer deny |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `script-task` | Tasks/lifecycle-transitions/script-task.json |
+| CSX | InitializeDataMapping | Workflows/lifecycle-transitions/src/InitializeDataMapping.csx |
+| CSX | ExitMapping | Workflows/lifecycle-transitions/src/ExitMapping.csx |
+| CSX | ProcessTransitionMapping | Workflows/lifecycle-transitions/src/ProcessTransitionMapping.csx |
+| CSX | ProcessEntryMapping | Workflows/lifecycle-transitions/src/ProcessEntryMapping.csx |
+| CSX | ProcessExitMapping | Workflows/lifecycle-transitions/src/ProcessExitMapping.csx |
+| CSX | TestPathPassRule | Workflows/lifecycle-transitions/src/TestPathPassRule.csx |
+| CSX | TestPathFailRule | Workflows/lifecycle-transitions/src/TestPathFailRule.csx |
+| CSX | AlwaysTrueRule | Workflows/lifecycle-transitions/src/AlwaysTrueRule.csx |
+| CSX | ShortTimerMapping | Workflows/lifecycle-transitions/src/ShortTimerMapping.csx |
+| CSX | TimerEntryMapping | Workflows/lifecycle-transitions/src/TimerEntryMapping.csx |
+
+**Workflow tag'leri (ozet):** `exit-transition`, `schedule-cancel`, `schedule-reschedule`, `query-roles`, `transition-roles` dahil olmak uzere lifecycle ile ilgili tum tag'ler `lifecycle-transitions-test-workflow.json` icinde tanimlidir.
+
+---
+
+## Grup 2: SubFlow & SubProcess Orchestration
+
+**Workflow'lar:**
+- `subflow-orchestration-parent` (type: F) - Ana flow
+- `subflow-orchestration-child` (type: S) - Alt flow
+- `subflow-orchestration-grandchild` (type: S) - Torun flow
+
+**Amac:** Parent-child-grandchild SubFlow zincirini, parent seviyesindeki shared transition'lari, **child workflow uzerindeki shared transition'u (availableIn dogrulamasi dahil)**, **shared transition'in availableIn disinda kalan state'te reddedilmesini**, **cancel cascade** (parent iptalinde alt akislarda **child-cancelled** / **grandchild-cancelled** final state'leri), **`/functions/state` uzerinden effective state** gorunurlugunu, **updateData transition** (SubFlow'dan parent data guncelleme) ozelligini ve **`subFlow.overrides`** mekanizmasini (parent'tan child workflow'a timeout, state `queryRoles` ve transition `roles` override etme) test eder.
+
+### Agac Yapisi
+
+```
+subflow-orchestration-parent (F)
+│
+├── [startTransition] start-subflow-orchestration-parent
+│   └── onExecutionTasks:
+│       └── subflow-script-task + ParentStartMapping.csx
+│
+├── [cancel] cancel-parent → parent-cancelled
+│
+├── [sharedTransitions]
+│   └── shared-common-transition (Manual, target:$self)
+    │       ├── availableIn: ["parent-subflow-state"]
+    │       └── onExecutionTasks:
+    │           └── subflow-script-task + ParentSharedCommonTransitionMapping.csx
+│
+├── parent-initial (Initial, stateType:1)
+│   └── Transitions:
+│       └── auto-parent-to-subflow (Auto) → parent-subflow-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── parent-subflow-state (SubFlow, stateType:4)
+│   ├── subFlow: type "S"
+│   │   ├── process: subflow-orchestration-child
+│   │   ├── mapping: ParentToChildSubFlowMapping.csx (ISubFlowMapping)
+│   │   └── overrides:
+│   │       ├── timeout: child-push-timeout → child-cancelled (PT15M, OnEntry)
+│   │       ├── states.child-initial.queryRoles: [morph-idm.maker=allow, morph-idm.viewer=deny]
+│   │       └── transitions.auto-child-to-manual.roles: [morph-idm.maker=allow, morph-idm.viewer=deny]
+│   └── Transitions:
+│       └── auto-parent-to-completed (Auto) → parent-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+├── parent-completed (Final/Success, stateType:3, subType:1)
+└── parent-cancelled (Final/Terminated, stateType:3, subType:3)
+
+    subflow-orchestration-child (S)
+    │
+    ├── [cancel] cancel-child → child-cancelled
+    │
+    ├── [updateData] update-parent-data (Manual, target:$self)
+    │   └── onExecutionTasks:
+    │       └── subflow-script-task + UpdateParentDataMapping.csx (IMapping)
+    │
+    ├── [sharedTransitions]
+    │   └── shared-child-mark (Manual, target:$self)
+    │       ├── availableIn: ["child-manual-state"]
+    │       └── onExecutionTasks:
+    │           └── subflow-script-task + ChildSharedMarkMapping.csx (IMapping)
+    │
+    ├── [startTransition] start-subflow-orchestration-child → child-initial
+    │
+    ├── child-initial (Initial, stateType:1)
+    │   ├── onEntries:
+    │   │   └── subflow-script-task + ChildStartMapping.csx
+    │   └── Transitions:
+    │       └── auto-child-to-manual (Auto) → child-manual-state
+    │           └── rule: AlwaysTrueRule.csx
+    │
+    ├── child-manual-state (Intermediate, stateType:2)
+    │   └── Transitions:
+    │       └── proceed-to-subflow (Manual) → child-subflow-state
+    │
+    ├── child-subflow-state (SubFlow, stateType:4)
+    │   ├── subFlow: type "S"
+    │   │   ├── process: subflow-orchestration-grandchild
+    │   │   └── mapping: ChildToGrandchildSubFlowMapping.csx (ISubFlowMapping)
+    │   └── Transitions:
+    │       └── auto-child-to-completed (Auto) → child-completed
+    │           └── rule: AlwaysTrueRule.csx
+    │
+    ├── child-completed (Final/Success, stateType:3, subType:1)
+    └── child-cancelled (Final/Terminated, stateType:3, subType:3)
+
+        subflow-orchestration-grandchild (S)
+        │
+        ├── [cancel] cancel-grandchild → grandchild-cancelled
+        │
+        ├── [startTransition] start-subflow-orchestration-grandchild → grandchild-initial
+        │
+        ├── grandchild-initial (Initial, stateType:1)
+        │   ├── onEntries:
+        │   │   └── subflow-script-task + GrandchildStartMapping.csx
+        │   └── Transitions:
+        │       └── complete-grandchild (Manual) → grandchild-completed
+        │
+        ├── grandchild-completed (Final/Success, stateType:3, subType:1)
+        │   └── onEntries:
+        │       └── subflow-script-task + GrandchildCompleteMapping.csx
+        │
+        └── grandchild-cancelled (Final/Terminated, stateType:3, subType:3)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| SubFlow state (stateType:4) | Parent ve child'da SubFlow state | parent-subflow-state, child-subflow-state |
+| SubFlow tipi (type: S) | Child ve grandchild workflow tipleri | subflow-orchestration-child/grandchild |
+| 3 seviye zincirleme (parent→child→grandchild) | Ic ice SubFlow cagrilari | Tum 3 workflow |
+| ISubFlowMapping | SubFlow'a data gonderme/alma | ParentToChildSubFlowMapping, ChildToGrandchildSubFlowMapping |
+| Shared transitions ($self) — parent | State degistirmeden data guncelleme | shared-common-transition |
+| **Shared transitions ($self) — child** | Child tanimindaki paylasimli gecis; **availableIn: child-manual-state** | shared-child-mark, ChildSharedMarkMapping.csx |
+| availableIn kisitlamasi | Shared transition sadece belirli state'lerde | parent: parent-subflow-state; child: child-manual-state |
+|| **Shared transition disallowed state** | availableIn'de bulunmayan state'te shared transition reddedilir | shared-child-mark child-subflow-state'te (availableIn'de yok) |
+|| Manuel transition (child icinde) | Child subflow'unda kullanici tetikli gecis | proceed-to-subflow (child-manual-state → child-subflow-state) |
+| Cancel transition — parent | Parent iptal | cancel-parent → parent-cancelled |
+| **Cancel hedefleri — child / grandchild** | Alt akislarda iptal final state | cancel-child → **child-cancelled**; cancel-grandchild → **grandchild-cancelled** |
+| **Cancel cascade** | Parent iptalinde ic ice sonlandirma | HTTP: cancel-parent senaryosu |
+| **Effective state** | `/functions/state` ile en derin aktif alt akis durumu (or. grandchild-initial) | HTTP Test 4 |
+| **UpdateData transition (SubFlow)** | Child'dan parent instance datasini guncelleme ($self) | update-parent-data, UpdateParentDataMapping.csx |
+| Manuel transition (grandchild icinde) | Grandchild'da kullanici tetikli tamamlama | complete-grandchild |
+| **subFlow.overrides.timeout** | Parent'tan child'a timeout override (PT15M, OnEntry, → child-cancelled) | parent-subflow-state.subFlow.overrides.timeout |
+| **subFlow.overrides.states.queryRoles** | Parent'tan child-initial state'inin queryRoles'unu ezme | parent-subflow-state.subFlow.overrides.states.child-initial |
+| **subFlow.overrides.transitions.roles** | Parent'tan auto-child-to-manual transition'inin roles'unu ezme | parent-subflow-state.subFlow.overrides.transitions.auto-child-to-manual |
+
+### HTTP Test Dosyasi (`subflow-orchestration.http`)
+
+| Test | Kisa Aciklama |
+|------|---------------|
+| TEST 1 Happy path | proceed-to-subflow + grandchild tamamlama, parent-completed ve data bayraklari |
+| **TEST 2 Cancel cascade** | proceed-to-subflow sonrasi parent cancel; alt akislarin sonlanmasi ve parent-cancelled |
+| **TEST 3 Shared transition (allowed state)** | child-manual-state'te **shared-child-mark** tetikleme; `childSharedMarkExecuted` dogrulamasi |
+| **TEST 4 Effective state** | proceed-to-subflow sonrasi nested calisma sirasinda effectiveState / metadata |
+| **TEST 5 UpdateData SubFlow** | proceed-to-subflow sonrasi child updateData tetikleme; parent data'da `childUpdatedParent` kontrolu |
+| **TEST 6 Shared transition (disallowed state)** | child-subflow-state'te (availableIn'de yok) **shared-child-mark** tetikleme; reddedilmeli, state degismemeli |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `subflow-script-task` | Tasks/subflow-orchestration/subflow-script-task.json |
+| CSX | ParentStartMapping | Workflows/subflow-orchestration/src/ParentStartMapping.csx |
+| CSX | ParentToChildSubFlowMapping | Workflows/subflow-orchestration/src/ParentToChildSubFlowMapping.csx |
+| CSX | ParentSharedCommonTransitionMapping | Workflows/subflow-orchestration/src/ParentSharedCommonTransitionMapping.csx |
+| CSX | ChildStartMapping | Workflows/subflow-orchestration/src/ChildStartMapping.csx |
+| CSX | ChildToGrandchildSubFlowMapping | Workflows/subflow-orchestration/src/ChildToGrandchildSubFlowMapping.csx |
+| CSX | **ChildSharedMarkMapping** | Workflows/subflow-orchestration/src/ChildSharedMarkMapping.csx |
+| CSX | **UpdateParentDataMapping** | Workflows/subflow-orchestration/src/UpdateParentDataMapping.csx |
+| CSX | GrandchildStartMapping | Workflows/subflow-orchestration/src/GrandchildStartMapping.csx |
+| CSX | GrandchildCompleteMapping | Workflows/subflow-orchestration/src/GrandchildCompleteMapping.csx |
+| CSX | AlwaysTrueRule | Workflows/subflow-orchestration/src/AlwaysTrueRule.csx |
+
+---
+
+## Grup 3: Task Execution (runtime gorevleri + Dapr dis servis)
+
+**Workflow'lar:**
+- `task-execution-test-workflow` (type: F) — Ana test workflow'u (HTTP, Script, Timer Wait, StartFlow, GetInstanceData, Notification, TriggerTransition, SubProcess, GetInstances → completed). Human Task (tip 5) runtime tarafindan kaldirilacak gecici bir ozellik oldugu icin bu zincirden cikartildi.
+- `task-target-workflow` (type: F) — StartFlow / GetInstanceData / TriggerTransition / SubProcess / GetInstances icin hedef
+- `extended-tasks-test-workflow` (type: F) — **Dapr-only** outbound calls: HTTP invoke, Service, PubSub (single chain; HTTP test: `api-tests/task-execution/task-execution.http` **Section 3**). **Note:** Dapr Binding (type 2) was removed from test scope (see **Untested Features** at end of file).
+
+**Amac:** Tum **runtime-ici** gorev tipleri ile **Dapr tabanli** gorev tiplerini ayri workflow'larda dogrular; task siralama (`onEntries` order), `context.Body.data`, scheduled transition (Timer Task tip 9), auto transition (Condition Task tip 8) ve Dapr bilesen YAML (`etc/dapr/components/`) ile uyumu kapsar.
+
+**CSX klasorleri:** `Workflows/task-execution/src/task-execution-test-workflow/` (`task-execution-test-workflow.json` mapping'leri), `.../src/extended-tasks-test-workflow/` (`extended-tasks-test-workflow.json`), `.../src/shared/AlwaysTrueRule.csx` (otomatik gecis kurallari; `task-target-workflow` dahil).
+
+**Task JSON klasorleri:** `Tasks/task-execution/task-execution-test-workflow/` (ana workflow + hedef workflow'un kullandigi task'lar), `Tasks/task-execution/extended-tasks-test-workflow/` (Dapr task'lari).
+
+### Agac Yapisi — `task-execution-test-workflow` (F)
+
+```
+task-execution-test-workflow (F)
+│
+├── [startTransition] start-task-execution
+│   └── onExecutionTasks:
+│       └── task-exec-script-task + InitTaskTestMapping.csx
+│
+├── http-task-state (Initial, stateType:1)
+│   ├── onEntries: http-process-task (type:6) + HttpProcessMapping.csx
+│   └── Transitions: auto-to-script-processing → script-processing-state
+│
+├── script-processing-state
+│   ├── onEntries: task-exec-script-task (type:7) + ScriptProcessMapping.csx
+│   └── Transitions: auto-to-timer-wait → timer-wait-state
+│
+├── timer-wait-state  (Timer Task tip 9 testi)
+│   ├── onEntries: task-exec-script-task + TimerStartMapping.csx
+│   │              (timerStartedAt, timerExpectedSeconds=3 yazar)
+│   └── Transitions: scheduled-to-start-flow → start-flow-state
+│       (triggerType: 2 + ITimerMapping (TimerScheduleMapping.csx, 3 sn) →
+│        runtime arka planda Timer Task uretir; testler timerStartedAt'tan
+│        gecen sureye bakarak gercek beklemeyi dogrular)
+│
+├── start-flow-state
+│   ├── onEntries: start-flow-task (type:11) + StartFlowMapping.csx
+│   └── Transitions: auto-to-get-instance-data → get-instance-data-state
+│
+├── get-instance-data-state
+│   ├── onEntries: get-instance-data-task (type:13) + GetInstanceDataMapping.csx
+│   └── Transitions: auto-to-notification → notification-state
+│
+├── notification-state
+│   ├── onEntries: notification-task (type:10) + mapping.type G
+│   └── Transitions: auto-to-trigger-transition → trigger-transition-state
+│
+├── trigger-transition-state
+│   ├── onEntries: trigger-transition-task (type:12) + TriggerTransitionMapping.csx
+│   └── Transitions: auto-to-subprocess → subprocess-state
+│
+├── subprocess-state
+│   ├── onEntries: subprocess-task (type:14) + SubProcessMapping.csx
+│   └── Transitions: auto-to-get-instances → get-instances-state
+│
+├── get-instances-state
+│   ├── onEntries: get-instances-task (type:15) + GetInstancesMapping.csx
+│   └── Transitions: auto-to-completed → completed-state
+│
+└── completed-state (Final/Success, stateType:3, subType:1)
+
+task-target-workflow (F)
+│
+├── [startTransition] start-target → target-initial
+├── target-initial — manual-complete-target → target-completed
+└── target-completed
+```
+
+### Agac Yapisi — `extended-tasks-test-workflow` (F, sadece Dapr)
+
+```
+extended-tasks-test-workflow (F)
+│
+├── [startTransition] start-extended-tasks → init-state
+│
+├── init-state (Initial)
+│   ├── onEntries: script-task (Tasks/lifecycle-transitions/script-task.json) + InitExtendedTaskMapping.csx
+│   └── Transitions: auto-to-dapr-http → dapr-http-state
+│
+├── dapr-http-state → dapr-service-state → dapr-pubsub-state
+│   (sirasiyla type 1, 3, 4 Dapr task'leri + Dapr*Mapping.csx)
+│   (Dapr Binding (tip 2) state'i ve task'i kaldirildi — bkz. Test Edilmeyen Ozellikler)
+│
+└── completed-state (Final; pubsub sonrasi otomatik tamamlanma)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| HTTP Task (type:6) | Mocklab HTTP | http-process-task + HttpProcessMapping |
+| Script Task (type:7) | C# script data | task-exec-script-task + ScriptProcessMapping |
+| **Condition Task (type:8)** | Sistem gorevi — `triggerType: 1` (auto) + `IConditionMapping` rule calistirilirken runtime tarafindan otomatik uretilir; manuel JSON ile tanimlanmaz. Tum `auto-to-*` gecislerinde `AlwaysTrueRule.csx` calisir → her auto transition icin Condition Task ortaya cikar. | Tum auto transition'lar (`script-processing-state`, `start-flow-state`, `get-instance-data-state`, `notification-state`, `trigger-transition-state`, `subprocess-state`, `get-instances-state`) + `shared/AlwaysTrueRule.csx` |
+| **Timer Task (type:9)** | Sistem gorevi — `triggerType: 2` (scheduled) + `ITimerMapping` calistirilirken runtime tarafindan otomatik uretilir; manuel JSON ile tanimlanmaz. `timer-wait-state` cikis transition'i `scheduled-to-start-flow` 3 sn bekler; testler parent attributes.timerStartedAt ile (DateTime.UtcNow - timerStartedAt) >= ~2.5 sn olarak gercek beklemeyi dogrular. | timer-wait-state + TimerStartMapping (anlik mark) + TimerScheduleMapping (scheduled timer 3 sn) |
+| StartFlow Task (type:11) | Hedef workflow baslatma + hedef instance teyidi (`startedInstanceId` + GET state) | start-flow-task + StartFlowMapping (SetBody parentInstanceId/source/note) |
+| GetInstanceData Task (type:13) | Baska instance datasi | get-instance-data-task + GetInstanceDataMapping |
+| Notification Task (type:10) | Platform mapping G (script yok) | notification-task + mapping `{ "type": "G" }` |
+| TriggerTransition Task (type:12) | Hedef instance + manuel gecis | trigger-transition-task + TriggerTransitionMapping (SetInstance + `manual-complete-target`) |
+| SubProcess Task (type:14) | Alt surec baslatma + hedef instance teyidi (`subprocessInstanceId` + `subprocessData` yanit ozeti + GET state/attributes) | subprocess-task + SubProcessMapping (SetBody parentInstanceId/source/note; OutputHandler `subprocessData` = `context.Body.data` alanlari) |
+| GetInstances Task (type:15) | Instance listesi | get-instances-task + GetInstancesMapping |
+| Dapr HTTP (1) / Service (3) / PubSub (4) | Sidecar + YAML; **task gercekten calisti** kaniti (skill §6.4): HTTP/Service icin mocklab yanitindan donen `processId` parent attributes'a yazilir ve testte non-empty string assert edilir; PubSub icin runtime `context.Body.isSuccess` `published` olarak yazilir ve `true` assert edilir. **PubSub bileseni** task JSON'da `pubSubName: "{DaprPubSubName}"` placeholder; `DaprPubSubMapping.InputHandler` `GetConfigValue("DaprPubSubName")` ile Vault'tan okuyup `SetPubSubName(...)` ile override eder (varsayilan: `vnext-pubsub` Redis sistem bileseni). | `extended-tasks-test-workflow` + dapr-*-task; assertion'lar `ExtendedTasksWorkflowInstanceDataAssertions.AssertDaprChainCompleted` |
+| HttpTask / StartTask / GetInstanceDataTask cast | InputHandler | Ilgili mapping.csx |
+| context.Body.data | Task yaniti | OutputHandler'lar |
+| GetConfigValue | MocklabBaseUrl | HttpProcessMapping |
+| Task siralama | onEntries order | Tum state'ler |
+| Hedef workflow yasam dongusu | StartFlow + GetInstanceData + TriggerTransition + SubProcess hedefleri | task-target-workflow (ortak hedef) |
+
+### Kullanilan Bilesenler (ozet)
+
+| Tip | Anahtar | Tip Kodu | Dosya |
+|-----|---------|----------|-------|
+| Task | `http-process-task` | 6 | Tasks/task-execution/task-execution-test-workflow/http-process-task.json |
+| Task | `task-exec-script-task` | 7 | Tasks/task-execution/task-execution-test-workflow/task-exec-script-task.json |
+| Task | `start-flow-task` | 11 | Tasks/task-execution/task-execution-test-workflow/start-flow-task.json |
+| Task | `get-instance-data-task` | 13 | Tasks/task-execution/task-execution-test-workflow/get-instance-data-task.json |
+| Task | `notification-task` | 10 | Tasks/task-execution/task-execution-test-workflow/notification-task.json |
+| Task | `trigger-transition-task` | 12 | Tasks/task-execution/task-execution-test-workflow/trigger-transition-task.json |
+| Task | `subprocess-task` | 14 | Tasks/task-execution/task-execution-test-workflow/subprocess-task.json |
+| Task | `get-instances-task` | 15 | Tasks/task-execution/task-execution-test-workflow/get-instances-task.json |
+| Task | `dapr-http-task` | 1 | Tasks/task-execution/extended-tasks-test-workflow/dapr-http-task.json |
+| Task | `dapr-service-task` | 3 | Tasks/task-execution/extended-tasks-test-workflow/dapr-service-task.json |
+| Task | `dapr-pubsub-task` | 4 | Tasks/task-execution/extended-tasks-test-workflow/dapr-pubsub-task.json |
+| Task | `script-task` (paylasimli) | 7 | Tasks/lifecycle-transitions/script-task.json |
+| CSX | `task-execution-test-workflow` mapping'leri | `Workflows/task-execution/src/task-execution-test-workflow/*.csx` |
+| CSX | `extended-tasks-test-workflow` mapping'leri | `Workflows/task-execution/src/extended-tasks-test-workflow/*.csx` |
+| CSX | Ortak auto-transition rule | `Workflows/task-execution/src/shared/AlwaysTrueRule.csx` |
+
+**HTTP / Postman:** `api-tests/task-execution/task-execution.http` (Sections 1–3, happy path). Postman: `postman-task-execution-collection.json` (same three sections).
+
+**C# integration tests:** `tests/Core/Tests/task-execution-test-workflow/` (`TaskExecutionTestWorkflowTests`, `TaskExecutionInstanceDataAssertions`) — B1/B2/B3 happy paths, instance data contract on the main workflow, and extended Dapr `taskResults` flags.
+
+---
+
+## Grup 4: Error Boundary
+
+**Workflow:** `error-boundary-test-workflow` (type: F)
+
+**Amac:** Hata yonetimi mekanizmasini (error boundary) task, state ve workflow seviyelerinde test eder; **Rollback (action:2)**, **Log (action:5)**, **Notify (action:4)**, **Abort (action:0)** ve ilgili aksiyonlari priority / errorTypes / errorCodes ile kapsar. **`errorBoundary.onTimeout` workflow taniminda yer almaz ve integration test ile dogrulanmaz** — runtime dokumantasyonunda da henuz implemente edilmedigi belirtilmistir; bkz. dokuman sonu.
+
+### Agac Yapisi (ozet — tam tanim `error-boundary-test-workflow.json`)
+
+Tum state gecisleri script task (`error-script-task`) ile; HTTP task bu workflow'da kullanilmaz.
+
+```
+error-boundary-test-workflow (F)
+│
+├── [workflow-level errorBoundary] onError: action:0 (Abort), errorCodes:["*"]
+├── [startTransition] → init-state
+├── init-state → InitErrorTestMapping → auto → task-retry-state
+├── task-retry-state → RetryThrowMapping (attempt sayaci + UTC damgalari) + [Retry→Ignore fallback] + RetryConfirmMapping → auto → task-ignore-state
+├── task-ignore-state → ThrowErrorMapping + IgnoreErrorMapping → auto → task-log-state
+├── task-log-state → ThrowErrorMapping + [Log logOnly] + LogOnlyMapping → auto → priority-rules-state
+├── priority-rules-state → ThrowErrorMapping + [Ignore InvalidOperationException → wildcard Log] + PriorityConfirmMapping → auto → state-level-test-state
+├── state-level-test-state → [state Ignore boundary] + ThrowErrorMapping + StateLevelConfirmMapping → auto → notify-test-state
+├── notify-test-state → task Notify boundary (`transition`: notify-redirect) → rollback-test-state
+├── rollback-test-state → task Rollback boundary (`transition`: rollback-redirect) → global-abort-test-state
+├── global-abort-test-state → ThrowErrorMapping → workflow Abort → instance Faulted (`completed-state` tasarlanan akista ulasilmaz)
+└── completed-state (final Success wiring — otomatik gecis pratikte ulasilmaz)
+```
+
+(`errorBoundary.onTimeout` tanimi YOK — test kapsami disi, bkz. dokuman sonu.)
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Task-level error boundary | Task `onEntries` icinde `errorBoundary` | task-retry / ignore / log / priority / notify / rollback state tasklari |
+| State-level error boundary | State `errorBoundary` | state-level-test-state |
+| Workflow-level error boundary | Workflow `attributes.errorBoundary` | global Abort |
+| Retry action (action:1) | Script task hatasinda yeniden dene | task-retry-state task boundary |
+| Retry policy | maxRetries, initialDelay, backoffType | `retryPolicy` |
+| Ignore action (action:3) | Hatayi yoksayip devam | task-ignore, priority-rules (tip eslestirmesi), state-level |
+| **Rollback action (action:2)** | Task boundary + `transition` redirect | rollback-test-state |
+| **Log action (action:5)** | logOnly / siradaki task | task-log-state, priority wildcard fallback |
+| **Notify action (action:4)** | Task boundary + `transition` redirect | notify-test-state |
+| Abort action (action:0) | Son hatada workflow boundary | global-abort-test-state sonrasi Faulted |
+| **errorTypes** | Kural bazli eslestirme | priority-rules-state (`InvalidOperationException` vs `*`) |
+| Priority siralama | Dusuk `priority` once | priority-rules-state ve diger kurallar |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `error-script-task` (type:7) | Tasks/error-boundary/error-script-task.json |
+| CSX | InitErrorTestMapping | Workflows/error-boundary/src/InitErrorTestMapping.csx |
+| CSX | RetryThrowMapping | Workflows/error-boundary/src/RetryThrowMapping.csx |
+| CSX | ThrowErrorMapping | Workflows/error-boundary/src/ThrowErrorMapping.csx |
+| CSX | RetryConfirmMapping | Workflows/error-boundary/src/RetryConfirmMapping.csx |
+| CSX | IgnoreErrorMapping | Workflows/error-boundary/src/IgnoreErrorMapping.csx |
+| CSX | LogOnlyMapping | Workflows/error-boundary/src/LogOnlyMapping.csx |
+| CSX | PriorityConfirmMapping | Workflows/error-boundary/src/PriorityConfirmMapping.csx |
+| CSX | StateLevelConfirmMapping | Workflows/error-boundary/src/StateLevelConfirmMapping.csx |
+| CSX | AlwaysTrueRule | Workflows/error-boundary/src/AlwaysTrueRule.csx |
+
+**Workflow tag'leri (ozet):** `rollback`, `log-action`, `notify`, `abort`, `priority`, `error-types`, `error-codes` dahil; tam liste `error-boundary-test-workflow.json` icindedir.
+
+---
+
+## Grup 5: View, Function & Extension (Comprehensive)
+
+**Workflow:** `view-function-extension-test-workflow` (type: F)
+
+**Amac:** Tum 6 view icerik tipi (JSON/HTML/Markdown/DeepLink/HTTP/URN), tum 6 display modu (full-page/popup/bottom-sheet/top-sheet/drawer/inline), tum 4 extension tipi (Global/GlobalAndRequested/DefinedFlows/DefinedFlowAndRequested), tum 3 extension scope (GetInstance/GetAllInstances/Everywhere), tum 3 function scope (I/F/D), wizard state kisitlamasi, `features` referansi ve `functions/view` icerik dogrulamasini kapsamli olarak test eder.
+
+**Not:** `vfe-global-extension` (Type 1, Scope 3) workflow `extensions` dizisinde **tanimli degildir** — Global extension tanimina gore acik referans olmadan tum flow'larda otomatik uygulanmalidir. Bu implicit davranis test icinde dogrulanir.
+
+### Agac Yapisi (7 state, lineer zincir)
+
+```
+view-function-extension-test-workflow (F)
+│
+├── [startTransition] start-view-function-extension-test
+│   └── onExecutionTasks:
+│       └── vfe-script-task + InitVfeMapping.csx (vfeTestStarted=true)
+│
+├── [functions]
+│   ├── vfe-single-task-function (scope: I — Instance)
+│   │   └── task: vfe-script-task + FunctionSingleTaskMapping.csx
+│   │       (singleTaskFunction=true, executedAt)
+│   ├── vfe-multi-task-function (scope: I — Instance)
+│   │   ├── onExecutionTasks:
+│   │   │   ├── order:1 vfe-script-task + FunctionMultiTask1Mapping.csx
+│   │   │   └── order:2 vfe-script-task-2 + FunctionMultiTask2Mapping.csx
+│   │   └── output: FunctionOutputMapping.csx (IOutputHandler, aggregated=true)
+│   ├── vfe-workflow-function (scope: F — Workflow)
+│   │   └── task: vfe-script-task + VfeWorkflowFunctionMapping.csx
+│   │       (functionScope="F", workflowFunction=true)
+│   └── vfe-domain-function (scope: D — Domain/Global)
+│       └── task: vfe-script-task + VfeDomainFunctionMapping.csx
+│           (functionScope="D", domainFunction=true)
+│
+├── [extensions] (workflow dizisinde 3 tanesi; Type 1 implicit)
+│   ├── vfe-global-and-requested-extension (type:2, scope:1 GetInstance)
+│   ├── vfe-defined-flows-extension (type:3, scope:2 GetAllInstances)
+│   └── vfe-defined-flow-and-requested-extension (type:4, scope:1 GetInstance)
+│
+├── [implicit — workflow'da referans edilmez]
+│   └── vfe-global-extension (type:1 Global, scope:3 Everywhere)
+│       → tum GET isteklerinde otomatik uygulanir
+│
+├── view-test-state (Initial, stateType:1)
+│   ├── view: json-view (type:1 JSON, display: full-page)
+│   └── Transitions:
+│       ├── auto-to-html-view (Auto, triggerType:1) → html-view-state
+│       │   └── rule: WebPlatformRule.csx (IConditionMapping)
+│       └── default-auto-fallback (Auto, triggerType:1, triggerKind:10) → completed-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── html-view-state (Intermediate, stateType:2)
+│   ├── view: html-view (type:2 HTML, display: popup)
+│   └── Transitions:
+│       └── go-to-markdown (Manual) → markdown-view-state
+│
+├── markdown-view-state (Intermediate, stateType:2)
+│   ├── view: markdown-view (type:3 Markdown, display: bottom-sheet)
+│   └── Transitions:
+│       └── go-to-deeplink (Manual) → deeplink-view-state
+│
+├── deeplink-view-state (Intermediate, stateType:2)
+│   ├── view: deeplink-view (type:4 DeepLink, display: top-sheet)
+│   │   └── content: {"href": "myapp://consent/approve?token=abc123"}
+│   └── Transitions:
+│       └── go-to-http (Manual) → http-view-state
+│
+├── http-view-state (Intermediate, stateType:2)
+│   ├── view: http-view (type:5 HTTP, display: drawer)
+│   │   └── content: {"href": "https://example.com/consent/form?id=xyz"}
+│   └── Transitions:
+│       └── go-to-urn-wizard (Manual) → urn-wizard-state
+│
+├── urn-wizard-state (Wizard, stateType:5)
+│   ├── view: urn-view (type:6 URN, display: inline)
+│   │   └── content: {"urn": "urn:openbanking:consent:approve:v1"}
+│   └── Transitions:
+│       └── complete-wizard (Manual) → completed-state
+│           (en fazla 1 transition — wizard kisitlamasi)
+│
+└── completed-state (Final/Success, stateType:3, subType:1)
+```
+
+### Test Edilen Ozellikler — View
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| JSON View (type:1) | State view + `functions/view` content assertion | json-view → view-test-state |
+| HTML View (type:2) | State view + `functions/view` content non-empty | html-view → html-view-state |
+| Markdown View (type:3) | State view + `functions/view` content non-empty | markdown-view → markdown-view-state |
+| DeepLink View (type:4) | State view + `functions/view` content `href` assertion | deeplink-view → deeplink-view-state |
+| HTTP View (type:5) | State view + `functions/view` content `href` assertion | http-view → http-view-state |
+| URN View (type:6) | State view + `functions/view` content `urn` assertion | urn-view → urn-wizard-state |
+| Display: full-page | json-view | view-test-state |
+| Display: popup | html-view | html-view-state |
+| Display: bottom-sheet | markdown-view | markdown-view-state |
+| Display: top-sheet | deeplink-view | deeplink-view-state |
+| Display: drawer | http-view | http-view-state |
+| Display: inline | urn-view | urn-wizard-state |
+| Wizard state (stateType:5) | En fazla 1 transition kisitlamasi | urn-wizard-state |
+
+### Test Edilen Ozellikler — Extension
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Type 1 Global (scope:3 Everywhere) | Workflow `extensions`'da **tanimli degil**; `functions/data`'da implicit gozukme + `vfeExtensionType=global` marker | vfe-global-extension |
+| Type 1 Scope 3 — state response | `functions/state` yanitinda da extensions gorunuyor mu kontrolu (runtime davranisina bagli) | vfe-global-extension |
+| Type 2 GlobalAndRequested (scope:1 GetInstance) | Otomatik uygulanma + `?extensions=` query ile sorgulanabilirlik | vfe-global-and-requested-extension |
+| Type 3 DefinedFlows (scope:2 GetAllInstances) | Otomatik uygulanma + list instances yaniti zenginlestirme | vfe-defined-flows-extension |
+| Type 4 DefinedFlowAndRequested (scope:1 GetInstance) | `functions/data`'da **gorunMEMELI**; `?extensions=` ile sorgulaninca gorunMELI | vfe-defined-flow-and-requested-extension |
+| Extension type marker | Her extension'in `vfeExtensionType` alani assertion'i | Tum 4 extension mapping'i |
+
+### Test Edilen Ozellikler — Function
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Instance scope (I) — single task | `functions/{name}` cagrisi + `singleTaskFunction=true` marker | vfe-single-task-function |
+| Instance scope (I) — multi task + IOutputHandler | `functions/{name}` cagrisi + `aggregated=true` marker | vfe-multi-task-function + FunctionOutputMapping |
+| Workflow scope (F) | `workflows/{key}/functions/{name}` cagrisi + `functionScope="F"` marker | vfe-workflow-function |
+| Domain scope (D) | `functions/{name}` (domain-level) cagrisi + `functionScope="D"` marker | vfe-domain-function |
+
+### Test Edilen Ozellikler — Diger
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| IConditionMapping (auto transition rule) | WebPlatformRule ile otomatik gecis | view-test-state → html-view-state |
+| triggerKind:10 (varsayilan fallback) | Complementary auto transition | default-auto-fallback |
+| startTransition onExecutionTasks | Workflow baslatilirken `vfeTestStarted=true` set | InitVfeMapping.csx |
+| Happy path — status C | Tum state zincirinden gecip completed | 7 state lineer zincir |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `vfe-script-task` (type:7) | Tasks/view-function-extension/vfe-script-task.json |
+| Task | `vfe-script-task-2` (type:7) | Tasks/view-function-extension/vfe-script-task-2.json |
+| Task | `vfe-http-task` (type:6) | Tasks/view-function-extension/vfe-http-task.json |
+| View | `json-view` (type:1, display:full-page) | Views/view-function-extension/json-view.json |
+| View | `html-view` (type:2, display:popup) | Views/view-function-extension/html-view.json |
+| View | `markdown-view` (type:3, display:bottom-sheet) | Views/view-function-extension/markdown-view.json |
+| View | `deeplink-view` (type:4, display:top-sheet) | Views/view-function-extension/deeplink-view.json |
+| View | `http-view` (type:5, display:drawer) | Views/view-function-extension/http-view.json |
+| View | `urn-view` (type:6, display:inline) | Views/view-function-extension/urn-view.json |
+| Function | `vfe-single-task-function` (scope:I) | Functions/view-function-extension/vfe-single-task-function.json |
+| Function | `vfe-multi-task-function` (scope:I) | Functions/view-function-extension/vfe-multi-task-function.json |
+| Function | `vfe-workflow-function` (scope:F) | Functions/view-function-extension/vfe-workflow-function.json |
+| Function | `vfe-domain-function` (scope:D) | Functions/view-function-extension/vfe-domain-function.json |
+| Extension | `vfe-global-extension` (type:1, scope:3) | Extensions/view-function-extension/vfe-global-extension.json |
+| Extension | `vfe-global-and-requested-extension` (type:2, scope:1) | Extensions/view-function-extension/vfe-global-and-requested-extension.json |
+| Extension | `vfe-defined-flows-extension` (type:3, scope:2) | Extensions/view-function-extension/vfe-defined-flows-extension.json |
+| Extension | `vfe-defined-flow-and-requested-extension` (type:4, scope:1) | Extensions/view-function-extension/vfe-defined-flow-and-requested-extension.json |
+| CSX | InitVfeMapping | Workflows/view-function-extension/src/InitVfeMapping.csx |
+| CSX | WebPlatformRule | Workflows/view-function-extension/src/WebPlatformRule.csx |
+| CSX | AlwaysTrueRule | Workflows/view-function-extension/src/AlwaysTrueRule.csx |
+| CSX | FunctionSingleTaskMapping | Functions/view-function-extension/src/FunctionSingleTaskMapping.csx |
+| CSX | FunctionMultiTask1Mapping | Functions/view-function-extension/src/FunctionMultiTask1Mapping.csx |
+| CSX | FunctionMultiTask2Mapping | Functions/view-function-extension/src/FunctionMultiTask2Mapping.csx |
+| CSX | FunctionOutputMapping | Functions/view-function-extension/src/FunctionOutputMapping.csx |
+| CSX | VfeWorkflowFunctionMapping | Functions/view-function-extension/src/VfeWorkflowFunctionMapping.csx |
+| CSX | VfeDomainFunctionMapping | Functions/view-function-extension/src/VfeDomainFunctionMapping.csx |
+| CSX | VfeGlobalExtensionMapping | Extensions/view-function-extension/src/VfeGlobalExtensionMapping.csx |
+| CSX | VfeGlobalAndRequestedExtensionMapping | Extensions/view-function-extension/src/VfeGlobalAndRequestedExtensionMapping.csx |
+| CSX | VfeDefinedFlowsExtensionMapping | Extensions/view-function-extension/src/VfeDefinedFlowsExtensionMapping.csx |
+| CSX | VfeDefinedFlowAndRequestedExtensionMapping | Extensions/view-function-extension/src/VfeDefinedFlowAndRequestedExtensionMapping.csx |
+
+### C# Integration Test Dosyasi
+
+`tests/Core/Tests/view-function-extension-test-workflow/ViewFunctionExtensionTestWorkflowTests.cs` — 18 `[Fact]` metodu:
+
+| Test | Kisa Aciklama |
+|------|---------------|
+| HappyPath_AllStateTransitions_ReachesCompletedWithStatusC | 7 state zinciri, status=C |
+| StartTransitionMapping_SetsVfeTestStarted | vfeTestStarted=true marker |
+| JsonViewState_Type1_FullPage_HasView | JSON view + content non-empty |
+| HtmlViewState_Type2_Popup_HasView | HTML view + content non-empty |
+| MarkdownViewState_Type3_BottomSheet_HasView | Markdown view + content non-empty |
+| DeeplinkViewState_Type4_TopSheet_HasView | DeepLink view + content href assertion |
+| HttpViewState_Type5_Drawer_HasView | HTTP view + content href assertion |
+| UrnWizardState_Type6_Inline_HasViewAndSingleTransition | URN view + content urn assertion + wizard 1 transition |
+| ViewFunction_ReturnsViewPayload | functions/view genel kontrol |
+| GlobalExtension_Type1_AppliesImplicitly | implicit gozukme + state response scope 3 |
+| GlobalAndRequestedExtension_Type2_AutoAppliesAndQueryable | otomatik + ?extensions= sorgu |
+| DefinedFlowsExtension_Type3_AutoAppliesOnDefinedFlow | otomatik uygulanma |
+| DefinedFlowAndRequestedExtension_Type4_OnlyAppearsWhenRequested | absent + requested |
+| DefinedFlowsExtension_Scope2_GetAllInstances_EnrichesListEndpoint | list enrichment |
+| SingleTaskFunction_InstanceScope_ReturnsResponse | singleTaskFunction=true |
+| MultiTaskFunction_InstanceScope_AggregatesResponses | aggregated=true |
+| WorkflowFunction_WorkflowScope_ReturnsResponse | functionScope="F" |
+| DomainFunction_DomainScope_ReturnsResponse | functionScope="D" |
+| AutoTransition_WebPlatformRule_ReachesHtmlViewState | auto transition smoke |
+
+### HTTP Test Dosyasi (`api-tests/view-function-extension/view-function-extension-test-workflow.http`)
+
+22 adimli akis: workflow baslatma, 6 state uzerinden gecis, 4 function cagrisi (instance, workflow, domain scope), 4 extension dogrulamasi (?extensions= sorgusu dahil), view endpoint'leri.
+
+### Postman Collection (`api-tests/view-function-extension/postman-view-function-extension.json`)
+
+---
+
+## Grup 6: Schema Validation
+
+**Workflow:** `schema-validation-test-workflow` (type: F)
+
+**Amac:** Tum schema baglama noktalarini (master, startTransition, manual transition, cancel, exit, updateData) ve field roles ozelliklerini test eder.
+
+**Note (field roles vs. transition roles):** Here **field roles** are **field visibility** on the master schema (e.g. role-based field filtering in `GET .../functions/data`). The transition **`roles`** field on **`lifecycle-transitions`** in **Group 1** is the **`transitions[]` listing filter for `GET .../functions/state`**; the two mechanisms differ.
+
+### Agac Yapisi
+
+```
+schema-validation-test-workflow (F)
+│
+├── [startTransition] start-schema-validation-test
+│   ├── schema: schema-validation-start (required: orderId, customerName, amount, currency)
+│   └── onExecutionTasks:
+│       └── schema-validation-script-task + SchemaInitMapping.csx
+│
+├── [workflow-level schema]
+│   └── schema-validation-master (master schema)
+│       ├── required: orderId, customerName, amount, currency
+│       ├── enum: currency (TRY, USD, EUR)
+│       └── roles: internalNote (admin:allow, customer:deny), auditLog (auditor:allow)
+│
+├── [cancel] cancel-with-schema
+│   ├── schema: schema-validation-cancel (required: cancelReason min5, cancelledBy)
+│   ├── target: cancelled-state
+│   └── availableIn: data-initialized, schema-validated-state, no-schema-state, subflow-state
+│
+├── [exit] exit-with-schema
+│   ├── schema: schema-validation-exit (required: exitReason, exitCode enum)
+│   ├── target: exited-state
+│   └── availableIn: data-initialized, schema-validated-state, no-schema-state, subflow-state
+│
+├── [updateData] update-with-schema (CHILD workflow'da tanimli — schema-validation-subflow-child)
+│   ├── schema: schema-validation-update-data (required: notes min3)
+│   ├── target: $self (parent instance data guncellenir)
+│   └── tetikleme: parent instance SubFlow state'te iken parent ID uzerinden cagrilir
+│
+├── data-initialized (Initial, stateType:1)
+│   └── Transitions:
+│       ├── confirm-with-schema (Manual, schema: schema-validation-confirm-transition) → schema-validated-state
+│       └── skip-to-no-schema (Manual) → no-schema-state
+│
+├── schema-validated-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── schema-validation-script-task + ConfirmExecutionMapping.csx
+│   └── Transitions:
+│       ├── to-no-schema (Manual) → no-schema-state
+│       └── enter-subflow (Manual) → subflow-state
+│
+├── subflow-state (SubFlow, stateType:4)
+│   ├── subFlow.process: schema-validation-subflow-child (type S)
+│   └── Transitions:
+│       └── subflow-complete (Manual) → completed-state
+│
+├── no-schema-state (Intermediate, stateType:2)
+│   └── Transitions:
+│       └── complete-schema-validation-test (Manual) → completed-state
+│
+├── completed-state (Final/Success, stateType:3, subType:1)
+├── cancelled-state (Final/Cancelled, stateType:3, subType:2)
+└── exited-state (Final/Exit, stateType:3, subType:3)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Master schema (workflow-level) | Workflow attributes.schema ile tanimlama | schema-validation-master |
+| Start transition schema | startTransition.schema ile baslangic payload dogrulama | schema-validation-start |
+| Transition schema (manual) | Transition'a schema baglama, required + type dogrulama | schema-validation-confirm-transition |
+| Cancel transition schema | attributes.cancel.schema ile iptal payload dogrulama | schema-validation-cancel |
+| Exit transition schema | attributes.exit.schema ile cikis payload dogrulama | schema-validation-exit |
+| UpdateData transition schema (SubFlow) | Child workflow'un `attributes.updateData.schema` ile parent data guncelleme dogrulama (child'da tanimli, parent ID uzerinden tetiklenir) | schema-validation-update-data (child: schema-validation-subflow-child) |
+| Schema sessiz reddi | Gecersiz data gonderildiginde state degismez | HTTP test: eksik required alan / tip uyumsuzlugu |
+| Field roles (master schema alan gorunurlugu) | Alan bazli data gorunurlugu | internalNote (admin/customer), auditLog (auditor) |
+| JSON Schema Draft 2020-12 | Schema standardi uyumu | Tum schema dosyalari |
+| Required alan kontrolu | Zorunlu alanlarin validasyonu | orderId, customerName, amount, currency, cancelReason, notes |
+| Enum validation | Allowed value-set check | currency: TRY/USD/EUR, exitCode: success/failure/timeout |
+| SubFlow state + updateData | SubFlow icinde updateData ile parent data guncelleme (eTag degisimi + notes alani yazimi) | subflow-state + schema-validation-subflow-child (updateData child'da tanimli) |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Workflow | `schema-validation-test-workflow` (type:F) | Workflows/schema-validation/schema-validation-test-workflow.json |
+| Workflow | `schema-validation-subflow-child` (type:S) | Workflows/schema-validation/schema-validation-subflow-child.json |
+| Task | `schema-validation-script-task` (type:7) | Tasks/schema-validation/schema-validation-script-task.json |
+| Schema | `schema-validation-master` | Schemas/schema-validation/schema-validation-master.json |
+| Schema | `schema-validation-start` | Schemas/schema-validation/schema-validation-start.json |
+| Schema | `schema-validation-confirm-transition` | Schemas/schema-validation/schema-validation-confirm-transition.json |
+| Schema | `schema-validation-cancel` | Schemas/schema-validation/schema-validation-cancel.json |
+| Schema | `schema-validation-exit` | Schemas/schema-validation/schema-validation-exit.json |
+| Schema | `schema-validation-update-data` | Schemas/schema-validation/schema-validation-update-data.json |
+| CSX | SchemaInitMapping | Workflows/schema-validation/src/SchemaInitMapping.csx |
+| CSX | ConfirmExecutionMapping | Workflows/schema-validation/src/ConfirmExecutionMapping.csx |
+
+### C# Integration Test Dosyalari
+
+| Dosya | Rol |
+|-------|-----|
+| `tests/Core/Tests/schema-validation-test-workflow/SchemaValidationTestWorkflowTests.cs` | [Fact] test metotlari (18 test) |
+| `tests/Core/Tests/schema-validation-test-workflow/SchemaValidationScenarioActions.cs` | Akis adimlari (start, confirm, skip, complete, cancel, exit, enter-subflow, updateData) |
+| `tests/Core/Tests/schema-validation-test-workflow/SchemaValidationInstanceDataAssertions.cs` | Instance data assertion helper |
+
+### C# Test Senaryolari
+
+| Test Metodu | Ne Test Eder |
+|-------------|-------------|
+| `HappyPath_FullChain_CompletesWithStatusC` | Tam zincir: start → confirm → to-no-schema → complete → status C |
+| `StartTransition_SetsInitializedStatus` | SchemaInitMapping: orderId, customerName, amount, currency, status=initialized |
+| `ConfirmTransition_WithValidSchema_MovesToSchemaValidatedState` | Transition schema gecerli data ile gecis |
+| `ConfirmTransition_WithPartialData_DoesNotTransition` | Eksik required alanla (confirmedBy yok) confirm reddedilir |
+| `FieldRoles_AdminRole_SeesInternalNote` | admin rolu internalNote gorur |
+| `FieldRoles_CustomerRole_DoesNotSeeInternalNote` | customer rolu internalNote goremez |
+| `FieldRoles_AuditorRole_SeesAuditLog` | auditor rolu auditLog gorur |
+| `FieldRoles_NoRole_DoesNotSeeRoleRestrictedFields` | rol yok — internalNote ve auditLog gizli |
+| `NoSchemaTransition_AcceptsAnyBody` | Schema olmayan transition herhangi body kabul eder |
+| `MasterSchema_RejectsInstanceWithInvalidEnum` | Master/start schema gecersiz enum (JPY) ile baslatma reddedilir |
+| `StartTransitionSchema_RejectsMissingRequiredFields` | Start schema eksik required alanlarla baslatma reddedilir |
+| `StartTransitionSchema_AcceptsValidPayload` | Start schema gecerli payload ile basarili gecis |
+| `ConfirmTransition_WithInvalidSchemaPayload_DoesNotChangeState` | Transition schema tip uyumsuzlugu ile sessiz red |
+| `ConfirmTransition_WithMissingRequiredField_DoesNotChangeState` | Transition schema eksik required alan ile sessiz red |
+| `CancelTransition_WithValidSchemaPayload_MovesToCancelled` | Cancel schema gecerli payload ile cancelled-state |
+| `CancelTransition_WithMissingCancelReason_DoesNotCancel` | Cancel schema eksik cancelReason ile sessiz red |
+| `ExitTransition_WithValidSchemaPayload_MovesToExited` | Exit schema gecerli payload ile exited-state |
+| `ExitTransition_WithInvalidExitCodeEnum_DoesNotExit` | Exit schema gecersiz enum ile sessiz red |
+| `UpdateData_InSubflow_WithValidSchema_UpdatesAttributes` | SubFlow'da updateData gecerli payload ile parent data guncellenir: eTag degisir + `notes` alani parent attributes'a yazilir |
+| `UpdateData_InSubflow_WithMissingNotes_DoesNotUpdate` | SubFlow'da updateData eksik notes ile schema sessiz reddeder: eTag degismez + gecersiz alan parent'a yazilmaz |
+
+---
+
+## Grup 7: Instance Management
+
+**Workflow:** `instance-management-test-workflow` (type: F)
+
+**Amac:** Instance filtreleme, sayfalama, siralama, workflow timeout, idempotent start mekanizmalarini ve **state subType 4 (Temporarily suspended), 5 (Busy), 6 (Human)** ozelliklerini test eder.
+
+### Agac Yapisi
+
+```
+instance-management-test-workflow (F)
+│
+├── [startTransition] start-instance-management-test
+│   └── onExecutionTasks:
+│       └── instance-mgmt-script-task + InitInstanceMgmtMapping.csx
+│
+├── [timeout]
+│   └── workflow-timeout → timeout-state
+│       └── timer: duration PT120S (2 dakika), reset: false
+│
+├── active-state (Initial, stateType:1)
+│   └── Transitions:
+│       ├── process (Manual) → processing-state
+│       └── fast-complete (Manual) → completed-state
+│
+├── processing-state (Intermediate, stateType:2)
+│   └── Transitions:
+│       ├── finish (Manual) → completed-state
+│       ├── reject (Manual) → rejected-state
+│       ├── suspend (Manual) → suspended-state
+│       ├── set-busy (Manual) → busy-state
+│       └── assign-human (Manual) → human-state
+│
+├── completed-state (Final/Success, stateType:3, subType:1)
+├── rejected-state (Final/Error, stateType:3, subType:2)
+├── timeout-state (Final/Terminated, stateType:3, subType:3)
+├── suspended-state (Final/Suspended, stateType:3, subType:4)
+├── busy-state (Final/Busy, stateType:3, subType:5)
+└── human-state (Final/Human, stateType:3, subType:6)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Workflow timeout | PT120S sonunda otomatik timeout-state | attributes.timeout |
+| Timeout timer | Suresiz timeout ve reset:false | timer yapisi |
+| Idempotent start | Ayni key ile tekrar baslatma | HTTP test: ayni key ile 2 kez POST |
+| Instance filtreleme | API uzerinden filtre sorgusu | HTTP test: filter=attributes.category eq 'finance' |
+| Instance sayfalama | page ve pageSize parametreleri | HTTP test: page=1&pageSize=2 |
+| Instance siralama | sort parametresi | HTTP test: sort=-createdAt |
+| Effective state | State bazli filtreleme | HTTP test: filter=state eq 'active-state' |
+| Status filtreleme | Instance durumuna gore filtreleme | HTTP test: filter=status eq 'A' |
+| Coklu instance senaryosu | Farkli category/priority ile birden fazla instance | HTTP test: 3 farkli instance |
+| **subType 4 (Temporarily suspended)** | Final state ile suspended alt tipi | suspended-state |
+| **subType 5 (Busy)** | Final state ile busy alt tipi | busy-state |
+| **subType 6 (Human)** | Final state ile human alt tipi | human-state |
+| Manuel transition cesitleri | Ayni state'ten farkli hedeflere gecis | process, fast-complete, finish, reject, suspend, set-busy, assign-human |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `instance-mgmt-script-task` (type:7) | Tasks/instance-management/instance-mgmt-script-task.json |
+| CSX | InitInstanceMgmtMapping | Workflows/instance-management/src/InitInstanceMgmtMapping.csx |
+
+---
+
+## Grup 8: Flow Types (Core ve SubProcess)
+
+**Workflow'lar:**
+- `core-flow-test` (type: C) - Core flow tipi
+- `subprocess-flow-test` (type: P) - SubProcess flow tipi
+- `flow-flow-test` (type: F) - Flow tipi
+- `subflow-flow-test` (type: S) - SubFlow tipi
+
+**Amac:** vNext'in destekledigi 4 farkli workflow tipinden (C, F, S, P) her birinin runtime tarafindan kabul edilip calistirilabildigini dogrular. F ve S tipleri diger gruplarda kapsamli test edilir; burada yalnizca minimal smoke dogrulamasi yapilir.
+
+### Agac Yapisi
+
+```
+core-flow-test (C)
+│
+├── [startTransition] start-core-flow → core-init-state
+│   └── onExecutionTasks:
+│       └── flow-types-script-task + CoreInitMapping.csx
+│
+├── core-init-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── flow-types-script-task + CoreInitMapping.csx
+│   └── Transitions:
+│       └── auto-to-core-completed (Auto) → core-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+└── core-completed (Final/Success, stateType:3, subType:1)
+
+subprocess-flow-test (P)
+│
+├── [startTransition] start-subprocess-flow → subprocess-init-state
+│   └── onExecutionTasks:
+│       └── flow-types-script-task + SubProcessInitMapping.csx
+│
+├── subprocess-init-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── flow-types-script-task + SubProcessInitMapping.csx
+│   └── Transitions:
+│       └── auto-to-subprocess-completed (Auto) → subprocess-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+└── subprocess-completed (Final/Success, stateType:3, subType:1)
+
+flow-flow-test (F)
+│
+├── [startTransition] start-flow-flow-test → flow-init-state
+│   └── onExecutionTasks:
+│       └── flow-types-script-task + FlowInitMapping.csx
+│
+├── flow-init-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── flow-types-script-task + FlowInitMapping.csx
+│   └── Transitions:
+│       └── auto-flow-to-complete (Auto) → flow-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+└── flow-completed (Final/Success, stateType:3, subType:1)
+
+subflow-flow-test (S)
+│
+├── [startTransition] start-subflow-flow-test → subflow-init-state
+│   └── onExecutionTasks:
+│       └── flow-types-script-task + SubFlowInitMapping.csx
+│
+├── subflow-init-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── flow-types-script-task + SubFlowInitMapping.csx
+│   └── Transitions:
+│       └── auto-subflow-to-complete (Auto) → subflow-completed
+│           └── rule: AlwaysTrueRule.csx
+│
+└── subflow-completed (Final/Success, stateType:3, subType:1)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Core flow tipi (type: C) | Minimal workflow publish ve calistirma | core-flow-test |
+| SubProcess flow tipi (type: P) | Minimal workflow publish ve calistirma | subprocess-flow-test |
+| Flow tipi (type: F) | Minimal workflow publish ve calistirma | flow-flow-test |
+| SubFlow tipi (type: S) | Minimal workflow publish ve calistirma | subflow-flow-test |
+| Farkli flow tiplerinin runtime uyumlulugu | Tum 4 tip: C, F, S, P (hepsi G8'de minimal smoke; F/S ayrica G1-G7, G2, G9'da kapsamli) | Tum gruplarda |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `flow-types-script-task` (type:7) | Tasks/flow-types/flow-types-script-task.json |
+| CSX | CoreInitMapping | Workflows/flow-types/src/CoreInitMapping.csx |
+| CSX | SubProcessInitMapping | Workflows/flow-types/src/SubProcessInitMapping.csx |
+| CSX | FlowInitMapping | Workflows/flow-types/src/FlowInitMapping.csx |
+| CSX | SubFlowInitMapping | Workflows/flow-types/src/SubFlowInitMapping.csx |
+| CSX | AlwaysTrueRule | Workflows/flow-types/src/AlwaysTrueRule.csx |
+
+### HTTP Test Dosyasi (`flow-types-test.http`)
+
+| Test | Kisa Aciklama |
+|------|---------------|
+| Core flow | Core (C) tipi workflow baslatma ve state kontrolu |
+| SubProcess flow | SubProcess (P) tipi workflow baslatma ve state kontrolu |
+| Flow | Flow (F) tipi workflow baslatma ve state kontrolu |
+| SubFlow | SubFlow (S) tipi workflow baslatma ve state kontrolu |
+
+---
+
+## Grup 9: Version Consistency (Versiyon Tutarliligi)
+
+**Workflow:** `version-consistency-test-workflow` (type: F) — ayni key, iki farkli versiyon (v1.0.0 ve v2.0.0)
+
+**Amac:** Workflow versiyonu degistiginde mevcut instance'larin kendi baslangic versiyonlarinin akisindan devam ettigini dogrular. v2.0.0 publish edildikten sonra bile v1.0.0 uzerinde baslatilmis instance'in v1 yolunu takip etmesini test eder.
+
+**NOT:** Bu test publish surecine bagimli oldugu icin tamamen otomatik calistirilamaz. HTTP test dosyasi kullanicinin sirasiyla v1 ve v2'yi publish etmesini gerektiren adim adim bir rehber niteligindedir.
+
+### Agac Yapisi
+
+```
+version-consistency-test-workflow (F, v1.0.0) — 3 state
+│
+├── [startTransition] start-version-test → init-state
+│   └── onExecutionTasks:
+│       └── version-consistency-script-task + InitVersionMapping.csx
+│
+├── init-state (Initial, stateType:1)
+│   └── Transitions:
+│       └── auto-to-processing (Auto) → processing-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── processing-state (Intermediate, stateType:2)
+│   └── Transitions:
+│       └── complete-processing (Manual) → completed-state  ← v1: dogrudan completed
+│
+└── completed-state (Final/Success, stateType:3, subType:1)
+    └── onEntries:
+        └── version-consistency-script-task + V1CompletedMapping.csx (v1Completed=true)
+
+
+version-consistency-test-workflow (F, v2.0.0) — 4 state (ekstra review-state)
+│
+├── [startTransition] start-version-test → init-state
+│   └── onExecutionTasks:
+│       └── version-consistency-script-task + InitVersionMapping.csx
+│
+├── init-state (Initial, stateType:1)
+│   └── Transitions:
+│       └── auto-to-processing (Auto) → processing-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── processing-state (Intermediate, stateType:2)
+│   └── Transitions:
+│       └── complete-processing (Manual) → review-state    ← v2: review'a gider
+│
+├── review-state (Intermediate, stateType:2)              ← SADECE v2'de VAR
+│   ├── onEntries:
+│   │   └── version-consistency-script-task + ReviewMapping.csx (reviewExecuted=true)
+│   └── Transitions:
+│       └── approve-review (Manual) → completed-state
+│
+└── completed-state (Final/Success, stateType:3, subType:1)
+    └── onEntries:
+        └── version-consistency-script-task + V2CompletedMapping.csx (v2Completed=true)
+```
+
+### Test Senaryosu
+
+| Adim | Islem | Beklenen Sonuc |
+|------|-------|----------------|
+| 1 | v1.0.0 publish et | Runtime v1 tanimini kaydeder |
+| 2 | Instance A baslat (v1 uzerinde) | A: processing-state'te bekler |
+| 3 | v2.0.0 publish et (ayni key) | Runtime v2 tanimini kaydeder, A etkilenmez |
+| 4 | Instance B baslat (v2 uzerinde) | B: processing-state'te bekler |
+| 5 | Instance A: complete-processing | A → completed-state (v1 yolu, review YOK) |
+| 6 | Instance B: complete-processing | B → review-state (v2 yolu) |
+| 7 | Instance B: approve-review | B → completed-state |
+
+### Dogrulama Kriterleri
+
+| Instance | Son State | Data Bayraklari |
+|----------|-----------|-----------------|
+| A (v1.0.0) | completed-state | `v1Completed=true`, `completedByVersion="1.0.0"`, `reviewExecuted` **YOK** |
+| B (v2.0.0) | completed-state | `reviewExecuted=true`, `v2Completed=true`, `completedByVersion="2.0.0"`, `v1Completed` **YOK** |
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| Version isolation | v2 publish sonrasi v1 instance v1 akisinda kalir | Instance A vs Instance B |
+| Ayni key farkli versiyon | Ayni workflow key ile 2 farkli versiyon publish | v1.0.0 + v2.0.0 JSON dosyalari |
+| Yeni instance en son versiyonu kullanir | v2 sonrasi baslatilan instance v2 akisinda gider | Instance B → review-state |
+| Eski instance eski versiyonda kalir | v1 instance v2 state'lerine ugramaz | Instance A → completed (review YOK) |
+| Versiyon bazli data kaniti | Her versiyonun mapping'leri farkli bayraklar set eder | v1Completed vs v2Completed, reviewExecuted |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `version-consistency-script-task` (type:7) | Tasks/version-consistency/version-consistency-script-task.json |
+| Workflow | `version-consistency-test-workflow` (v1.0.0) | Workflows/version-consistency/version-consistency-test-workflow.json |
+| Workflow | `version-consistency-test-workflow` (v2.0.0) | Workflows/version-consistency/version-consistency-test-workflow-v2.json |
+| CSX | InitVersionMapping | Workflows/version-consistency/src/InitVersionMapping.csx |
+| CSX | AlwaysTrueRule | Workflows/version-consistency/src/AlwaysTrueRule.csx |
+| CSX | V1CompletedMapping | Workflows/version-consistency/src/V1CompletedMapping.csx |
+| CSX | ReviewMapping | Workflows/version-consistency/src/ReviewMapping.csx |
+| CSX | V2CompletedMapping | Workflows/version-consistency/src/V2CompletedMapping.csx |
+
+### HTTP Test Dosyasi (`version-consistency-test.http`)
+
+| Adim | Kisa Aciklama |
+|------|---------------|
+| ADIM 1 | v1.0.0 publish (manuel) |
+| ADIM 2-3 | Instance A baslat, state kontrol (processing) |
+| ADIM 4 | v2.0.0 publish (manuel) |
+| ADIM 5-6 | Instance B baslat, state kontrol (processing) |
+| ADIM 7 | Instance A complete → completed (v1 yolu) |
+| ADIM 8 | Instance B complete → review (v2 yolu) |
+| ADIM 9 | Instance B approve → completed |
+| ADIM 10 | Data dogrulama |
+
+---
+
+## Grup 10: Dynamic Collection & Object
+
+**Workflow:** `collection-object-test-workflow` (type: F)
+
+**Amac:** `ScriptBase` sinifinin sagladigi dinamik koleksiyon ve nesne yardimci metodlarini gercek bir workflow context'inde uctan uca dogrular. Her state bir API grubunu test eder ve `AlwaysTrueRule` ile bir sonraki state'e otomatik gecer.
+
+### Agac Yapisi
+
+```
+collection-object-test-workflow (F)
+│
+├── [startTransition] start-collection-test
+│   └── onExecutionTasks:
+│       └── collection-object-script-task + InitCollectionTestMapping.csx
+│
+├── test-create-and-set-state (Initial, stateType:1)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + CreateAndSetMapping.csx
+│   │       (CreateObject, CreateList, SetProperty, ListAdd)
+│   └── Transitions:
+│       └── create-and-set-completed (Auto) → test-get-list-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-get-list-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + GetListAndAsListMapping.csx
+│   │       (GetList, AsList — null/non-list edge case)
+│   └── Transitions:
+│       └── get-list-completed (Auto) → test-filter-count-any-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-filter-count-any-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + ListFilterCountAnyMapping.csx
+│   │       (ListFilter, ListCount, ListAny — predicate'li/predicate'siz, empty list)
+│   └── Transitions:
+│       └── filter-count-any-completed (Auto) → test-first-last-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-first-last-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + ListFirstLastMapping.csx
+│   │       (ListFirst, ListLast — predicate, no-match → null, empty list)
+│   └── Transitions:
+│       └── first-last-completed (Auto) → test-list-select-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-list-select-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + ListSelectMapping.csx
+│   │       (ListSelect<string>, ListSelect<int>, transformation, empty list)
+│   └── Transitions:
+│       └── list-select-completed (Auto) → test-add-remove-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-add-remove-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + ListAddRemoveMapping.csx
+│   │       (ListAdd, ListRemove — predicate ile sayim, count dogrulama)
+│   └── Transitions:
+│       └── add-remove-completed (Auto) → test-remove-prop-to-dict-state
+│           └── rule: AlwaysTrueRule.csx
+│
+├── test-remove-prop-to-dict-state (Intermediate, stateType:2)
+│   ├── onEntries:
+│   │   └── collection-object-script-task + RemovePropertyToDictionaryMapping.csx
+│   │       (RemoveProperty, ToDictionary, HasProperty — null edge case)
+│   └── Transitions:
+│       └── remove-prop-to-dict-completed (Auto) → test-completed-state
+│           └── rule: AlwaysTrueRule.csx
+│
+└── test-completed-state (Final/Success, stateType:3, subType:1)
+```
+
+### Test Edilen Ozellikler
+
+| Ozellik | Nasil Test Edilir | Ilgili Eleman |
+|---------|-------------------|---------------|
+| CreateObject() | Yeni dinamik nesne olusturma | CreateAndSetMapping.csx |
+| CreateList() | Bos dinamik liste olusturma | CreateAndSetMapping.csx |
+| SetProperty(obj, key, val) | Dinamik nesneye property atama | CreateAndSetMapping.csx |
+| ListAdd(list, item) | Listeye eleman ekleme | CreateAndSetMapping.csx, ListAddRemoveMapping.csx |
+| GetList(obj, propName) | Instance data'dan liste alma | GetListAndAsListMapping.csx |
+| AsList(value) | Degeri listeye donusturme (null/non-list edge case) | GetListAndAsListMapping.csx |
+| ListFilter(list, predicate) | Kosul ile filtreleme | ListFilterCountAnyMapping.csx |
+| ListCount(list) / ListCount(list, predicate) | Predicate'li/predicate'siz sayim | ListFilterCountAnyMapping.csx |
+| ListAny(list) / ListAny(list, predicate) | Eleman varlik kontrolu | ListFilterCountAnyMapping.csx |
+| ListFirst(list) / ListFirst(list, predicate) | Ilk eleman (no-match → null) | ListFirstLastMapping.csx |
+| ListLast(list) / ListLast(list, predicate) | Son eleman (no-match → null) | ListFirstLastMapping.csx |
+| ListSelect<T>(list, selector) | Projeksiyon: string, int, transformation | ListSelectMapping.csx |
+| ListRemove(list, predicate) | Kosul ile eleman silme | ListAddRemoveMapping.csx |
+| RemoveProperty(obj, key) | Property silme (non-existent → false) | RemovePropertyToDictionaryMapping.csx |
+| ToDictionary(obj) | ExpandoObject → Dictionary (null → empty) | RemovePropertyToDictionaryMapping.csx |
+| HasProperty(obj, key) | Property varlik kontrolu (ScriptBase) | RemovePropertyToDictionaryMapping.csx |
+| Empty list / null edge cases | Bos liste ve null ile graceful degradation | GetListAndAsListMapping, ListFilterCountAnyMapping, ListFirstLastMapping, ListSelectMapping |
+
+### Kullanilan Bilesenler
+
+| Tip | Anahtar | Dosya |
+|-----|---------|-------|
+| Task | `collection-object-script-task` (type:7) | Tasks/collection-object-test/collection-object-script-task.json |
+| CSX | InitCollectionTestMapping | Workflows/collection-object-test/src/InitCollectionTestMapping.csx |
+| CSX | CreateAndSetMapping | Workflows/collection-object-test/src/CreateAndSetMapping.csx |
+| CSX | GetListAndAsListMapping | Workflows/collection-object-test/src/GetListAndAsListMapping.csx |
+| CSX | ListFilterCountAnyMapping | Workflows/collection-object-test/src/ListFilterCountAnyMapping.csx |
+| CSX | ListFirstLastMapping | Workflows/collection-object-test/src/ListFirstLastMapping.csx |
+| CSX | ListSelectMapping | Workflows/collection-object-test/src/ListSelectMapping.csx |
+| CSX | ListAddRemoveMapping | Workflows/collection-object-test/src/ListAddRemoveMapping.csx |
+| CSX | RemovePropertyToDictionaryMapping | Workflows/collection-object-test/src/RemovePropertyToDictionaryMapping.csx |
+| CSX | AlwaysTrueRule | Workflows/collection-object-test/src/AlwaysTrueRule.csx |
+
+**HTTP test:** [`api-tests/collection-object-test/collection-object-test-workflow.http`](../api-tests/collection-object-test/collection-object-test-workflow.http) — start, `functions/state`, `functions/data`.  
+**C# integration test:** [`tests/Core/Tests/collection-object-test/CollectionObjectTestWorkflowTests.cs`](../tests/Core/Tests/collection-object-test/CollectionObjectTestWorkflowTests.cs).
+
+---
+
+## Altyapi Bilesenleri
+
+### Docker Compose
+
+`docker-compose.yml` dosyasi asagidaki servisleri tanimlar:
+
+| Servis | Amac | Port / Not |
+|--------|------|--------------|
+| `core-mocklab` | Mock API sunucusu (HTTP task testleri icin) | 3002:5000 |
+| `core-mocklab-dapr` | Mocklab Dapr sidecar | `daprd` komutunda **`--resources-path /etc/dapr/components`** ile bilesen YAML'lari yuklenir; volume: `./etc/dapr:/etc/dapr` |
+
+**Dapr bilesen dosyalari:**
+
+| Dosya | Amac |
+|-------|------|
+| `etc/dapr/components/test-binding.yaml` | (Su an **kullanilmiyor**; Dapr Binding test kapsamindan cikarildi — bkz. **Test Edilmeyen Ozellikler**) |
+| `etc/dapr/components/test-pubsub.yaml` | (Su an **kullanilmiyor**; mockoon-dapr sidecar'inda mount edilse de execution-app sidecar'i yalnizca runtime'in yukledigi sistem pubsub bilesenlerini gorur. `extended-tasks-test-workflow` Dapr PubSub task'i Vault'taki `DaprPubSubName` (varsayilan: `vnext-pubsub`) bileseni uzerinden publish eder; `DaprPubSubMapping.csx` `InputHandler`'da `SetPubSubName` ile override edilir.) |
+| `etc/dapr/config.yaml` | Dapr genel konfigurasyon |
+
+### Mockoon Mock Endpoint'leri
+
+`etc/docker/config/seed/integration-test-collection.json` dosyasinda tanimlanan endpoint'ler:
+
+| Method | Endpoint | Durum | Amac |
+|--------|----------|-------|------|
+| POST | `/api/test/process` | 200 | HTTP task testi (Grup 3) |
+| POST | `/api/test/validate` | 200/400 | Kural bazli validasyon testi |
+| GET | `/api/test/user-info` | 200 | Function/extension HTTP task testi (Grup 5) |
+| POST | `/api/test/error-endpoint` | 500 | Error boundary testi (Grup 4) |
+| POST | `/api/test/slow-endpoint` | 200 (5s delay) | Timeout testi |
+| POST | `/api/test/notification` | 200 | Bildirim testi |
+
+---
+
+## CSX Interface Rehberi
+
+Integration testlerde kullanilan C# script interface'leri:
+
+| Interface | Kullanim Alani | Metodlar |
+|-----------|---------------|----------|
+| `ScriptBase, IMapping` | Task mapping (onEntries, onExits, onExecutionTasks), **exit** `onExecutionTasks`, shared transition gorevleri | `InputHandler(WorkflowTask, ScriptContext)`, `OutputHandler(ScriptContext)` |
+| `ScriptBase, IConditionMapping` | Auto transition rule, view selection rule | `Handler(ScriptContext)` → `Task<bool>` |
+| `ScriptBase, ITimerMapping` | Scheduled transition zamanlama | `Handler(ScriptContext)` → zamanlama bilgisi |
+| `ScriptBase, ISubFlowMapping` | SubFlow data aktarimi | `InputHandler(ScriptContext)`, `OutputHandler(ScriptContext)` |
+| `ScriptBase, IOutputHandler` | Function cikti birlestirme | `OutputHandler(ScriptContext)` |
+
+### Ortak ScriptBase Yardimci Metodlari
+
+| Metod | Aciklama |
+|-------|----------|
+| `HasProperty(obj, "propName")` | Dynamic nesnede property var mi kontrol eder |
+| `LogInformation($"mesaj")` | Loglama yapar |
+| `GetConfigValue("Key")` | Reads configuration value from Vault |
+
+---
+
+## Ozellik Kapsam Matrisi
+
+Her grubun hangi vNext ozelliklerini test ettigini gosteren matris. **Gn** sutunu Genel Bakis tablosundaki **Grup n** ile eslesir (1-10; birlestirilmis Dapr senaryosu **G3**).
+
+| Ozellik | G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8 | G9 | G10 |
+|---------|----|----|----|----|----|----|----|----|----|----|
+| State tipleri (1/2/3) | X | X | X | X | X | X | X | X | X | X |
+| State alt tipleri (1/2/3) | X | X |  | X |  |  | X |  |  | X |
+| **State alt tipleri (4/5/6)** |  |  |  |  |  |  | X |  |  |  |
+| SubFlow state (4) |  | X |  |  |  | X |  |  |  |  |
+| Wizard state (5) |  |  |  |  | X |  |  |  |  |  |
+| Manuel transition (0) | X | X |  |  | X | X | X |  | X |  |
+| Otomatik transition (1) | X | X | X | X | X |  |  | X | X | X |
+| Zamanlanmis transition (2) | X |  |  |  |  |  |  |  |  |  |
+| triggerKind:10 (default) | X |  |  |  | X |  |  |  |  |  |
+| onEntries | X | X | X | X |  |  |  | X | X | X |
+| onExits | X |  |  |  |  |  |  |  |  |  |
+| startTransition tasks | X | X | X | X | X | X | X | X | X | X |
+| IMapping | X | X | X | X | X | X | X | X | X | X |
+| IConditionMapping | X | X | X | X | X |  |  | X | X | X |
+| ITimerMapping | X |  |  |  |  |  |  |  |  |  |
+| ITransitionMapping | X |  |  |  |  |  |  |  |  |  |
+| ISubFlowMapping |  | X |  |  |  |  |  |  |  |  |
+| IOutputHandler |  |  |  |  | X |  |  |  |  |  |
+| HTTP Task (type:6) |  |  | X | X |  |  |  |  |  |  |
+| Script Task (type:7) | X | X | X | X | X | X | X | X | X | X |
+| StartFlow Task (11) |  |  | X |  |  |  |  |  |  |  |
+| GetInstanceData Task (13) |  |  | X |  |  |  |  |  |  |  |
+| **Dapr HTTP Task (1)** |  |  | X |  |  |  |  |  |  |  |
+| **Dapr Service Task (3)** |  |  | X |  |  |  |  |  |  |  |
+| **Dapr PubSub Task (4)** |  |  | X |  |  |  |  |  |  |  |
+| **Notification Task (10)** |  |  | X |  |  |  |  |  |  |  |
+| **Trigger Transition Task (12)** |  |  | X |  |  |  |  |  |  |  |
+| **SubProcess Task (14)** |  |  | X |  |  |  |  |  |  |  |
+| **Get Instances Task (15)** |  |  | X |  |  |  |  |  |  |  |
+| Cancel transition | X | X |  |  |  | X |  |  |  |  |
+| **Exit transition (`attributes.exit`)** | X |  |  |  |  | X |  |  |  |  |
+| **Schedule cancel (manuel)** | X |  |  |  |  |  |  |  |  |  |
+| **Timer reschedule (self-loop)** | X |  |  |  |  |  |  |  |  |  |
+| Shared transitions ($self) |  | X |  |  |  |  |  |  |  |  |
+| **Child-level shared transition (availableIn)** |  | X |  |  |  |  |  |  |  |  |
+|| **Shared transition disallowed state** |  | X |  |  |  |  |  |  |  |  |
+| **SubFlow cancel final states (child/grandchild)** |  | X |  |  |  |  |  |  |  |  |
+| **Effective state (/functions/state, nested)** |  | X |  |  |  |  |  |  |  |  |
+| updateData ($self) |  | X |  |  |  | X |  |  |  |  |
+| **UpdateData (SubFlow context)** |  | X |  |  |  | X |  |  |  |  |
+| Master schema |  |  |  |  |  | X |  |  |  |  |
+| **Start transition schema** |  |  |  |  |  | X |  |  |  |  |
+| Transition schema |  |  |  |  |  | X |  |  |  |  |
+| **Cancel transition schema** |  |  |  |  |  | X |  |  |  |  |
+| **Exit transition schema** |  |  |  |  |  | X |  |  |  |  |
+| **UpdateData transition schema** |  |  |  |  |  | X |  |  |  |  |
+| Field roles (master schema) |  |  |  |  |  | X |  |  |  |  |
+| **queryRoles (workflow/state)** | X |  |  |  |  |  |  |  |  |  |
+| **Transition roles (state fn. list filter)** | X |  |  |  |  |  |  |  |  |  |
+| Error boundary (task) |  |  |  | X |  |  |  |  |  |  |
+| Error boundary (state) |  |  |  | X |  |  |  |  |  |  |
+| Error boundary (workflow) |  |  |  | X |  |  |  |  |  |  |
+| Retry policy |  |  |  | X |  |  |  |  |  |  |
+| **Rollback (action:2)** |  |  |  | X |  |  |  |  |  |  |
+| **Log action (action:5, state)** |  |  |  | X |  |  |  |  |  |  |
+| **Notify action (action:4)** |  |  |  | X |  |  |  |  |  |  |
+| **errorBoundary errorTypes / errorCodes** |  |  |  | X |  |  |  |  |  |  |
+| View (6 tip: JSON/HTML/MD/DeepLink/HTTP/URN) |  |  |  |  | X |  |  |  |  |  |
+| Display modlari (6: full-page/popup/bottom-sheet/top-sheet/drawer/inline) |  |  |  |  | X |  |  |  |  |  |
+| `functions/view` icerik dogrulamasi (type, display, content) |  |  |  |  | X |  |  |  |  |  |
+| Function scope I (single + multi + IOutputHandler) |  |  |  |  | X |  |  |  |  |  |
+| Function scope F (workflow) |  |  |  |  | X |  |  |  |  |  |
+| Function scope D (domain/global) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 1 (Global, implicit, scope 3 Everywhere) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 2 (GlobalAndRequested, scope 1 GetInstance) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 3 (DefinedFlows, scope 2 GetAllInstances) |  |  |  |  | X |  |  |  |  |  |
+| Extension type 4 (DefinedFlowAndRequested, scope 1 GetInstance) |  |  |  |  | X |  |  |  |  |  |
+| Extension `?extensions=` sorgu parametresi |  |  |  |  | X |  |  |  |  |  |
+| Workflow timeout |  |  |  |  |  |  | X |  |  |  |
+| Idempotent start | X |  |  |  |  |  | X |  |  |  |
+| Instance filtreleme |  |  | X |  |  |  | X |  |  |  |
+| Sayfalama/Siralama |  |  | X |  |  |  | X |  |  |  |
+| Hedef workflow yasam dongusu (StartFlow/SubProcess hedefi) |  |  | X |  |  |  |  |  |  |  |
+| **Condition Task (tip 8) — auto transition rule** |  |  | X |  |  |  |  |  |  |  |
+| **Timer Task (tip 9) — scheduled transition** |  |  | X |  |  |  |  |  |  |  |
+| Complementary rules | X |  |  |  | X |  |  |  |  |  |
+| **Dapr sidecar + bilesen YAML** |  |  | X |  |  |  |  |  |  |  |
+| **Flow tipi: Core (C)** |  |  |  |  |  |  |  | X |  |  |
+| **Flow tipi: SubProcess (P)** |  |  |  |  |  |  |  | X |  |  |
+| Flow tipi: Flow (F) | X |  | X | X | X | X | X |  | X | X |
+| Flow tipi: SubFlow (S) |  | X |  |  |  |  |  |  |  |  |
+| **Version isolation (ayni key, farkli versiyon)** |  |  |  |  |  |  |  |  | X |  |
+| **Eski instance eski versiyonda kalir** |  |  |  |  |  |  |  |  | X |  |
+| **subFlow override timeout** |  | X |  |  |  |  |  |  |  |  |
+| **subFlow override queryRoles (state)** |  | X |  |  |  |  |  |  |  |  |
+| **subFlow override transition roles** |  | X |  |  |  |  |  |  |  |  |
+| **ScriptBase dinamik koleksiyon API'leri** (CreateList, ListAdd, ListRemove, ListFilter, ListCount, ListAny, ListFirst, ListLast, ListSelect) |  |  |  |  |  |  |  |  |  | X |
+| **ScriptBase dinamik nesne API'leri** (CreateObject, SetProperty, RemoveProperty, HasProperty, ToDictionary) |  |  |  |  |  |  |  |  |  | X |
+| **AsList / GetList edge case** (null, non-list) |  |  |  |  |  |  |  |  |  | X |
+
+---
+
+## NOT: Schema Kisitlamalari
+
+1. **Rule-based view selection**: Mevcut `vnext-schema` versiyonu (0.0.23) state uzerinde sadece tekil `view` (viewDefinition) desteklemektedir. Runtime dokumantasyonunda anlatilan coklu `views` array'i (rule-based view selection) bu schema versiyonunda desteklenmemektedir. Bu nedenle `WebPlatformRule.csx` rule-based view selection yerine transition rule olarak kullanilmistir. Schema guncellendikten sonra bu test, `views` array'i ile yeniden yapilandirilabilir.
+
+2. **platformOverrides**: `view-definition.schema.json` icinde `platformOverrides` alani tanimli degildir. Bu nedenle platform bazli view override testleri mevcut schema ile yapilamaz.
+
+3. **Event transition (triggerType:3)**: Runtime dokumantasyonunda tanimlanan event-driven transition'lar icin test eklenmemistir. Bu, ileri asamada ayri bir senaryoda test edilebilir.
+
+---
+
+## Test Edilmeyen Ozellikler
+
+Bu bolum, runtime tarafindan desteklenen ancak `vnext-example` integration test workflow'lari icinde **bilincli olarak test edilmeyen** ozellikleri listeler. Her madde icin neden test edilmediginin gerekcesi ve ileride etkin test eklenmek istenirse hangi yolun izlenecegine dair kisa bir not bulunur.
+
+### 1. Dapr Binding Task (tip 2)
+
+- **Onceki konum:** Grup 3 → `extended-tasks-test-workflow` icindeki `dapr-binding-state` (state, task ve mapping artik kaldirildi).
+- **Kaldirilan dosyalar:**
+  - State: `core/Workflows/task-execution/extended-tasks-test-workflow.json` icindeki `dapr-binding-state` (ilgili `auto-to-dapr-binding` transition'i ile birlikte). Akis su an `dapr-service-state` → `dapr-pubsub-state` seklinde dogrudan ilerler.
+  - Task tanimi: `core/Tasks/task-execution/extended-tasks-test-workflow/dapr-binding-task.json` (silindi).
+  - Mapping: `core/Workflows/task-execution/src/extended-tasks-test-workflow/DaprBindingMapping.csx` (silindi).
+- **Korunan altyapi:** `etc/dapr/components/test-binding.yaml` Dapr bilesen tanimi dosyada **birakilmistir** ancak workflow tarafindan **artik referans edilmemektedir**; ileride yeniden test eklenmek istendiginde dogrudan kullanilabilir.
+- **Neden test edilmiyor:** Dapr output binding davranisi, runtime'in stabil kapsami disinda kalan bir entegrasyondur ve mevcut integration test ortaminda guvenilir bir mocklab/Dapr kombinasyonu ile uctan uca dogrulanamamaktadir. Diger Dapr task tipleri (HTTP-1, Service-3, PubSub-4) `extended-tasks-test-workflow` icinde test edilmeye devam etmektedir.
+- **Eklenmek istenirse:** Yeni bir `dapr-binding-state` + `dapr-binding-task` (tip 2) cifti `extended-tasks-test-workflow` icinde tekrar olusturulmalidir; Dapr tarafinda `test-binding.yaml` zaten hazirdir. Bu degisiklik mevcut `extended-tasks-test-workflow` zincirini ve C# integration test sozlesmesini (`taskResults.daprBinding`) yeniden gunceller.
+
+### 2. Human Task (tip 5)
+
+- **Onceki konum:** Daha onceki revizyonlarda Grup 3 (`task-execution-test-workflow`) Human Task ozelligini de kapsiyordu; bu zincir icindeki `human-task-state` ve `human-task` (tip 5) artik kaldirilmistir.
+- **Neden test edilmiyor:** Human Task (tip 5) **runtime tarafindan kaldirilacak gecici bir ozellik** olarak isaretlenmistir. Bu nedenle:
+  - Bu ozellik **yeni test workflow'larina eklenmez**.
+  - Mevcut testlerde gecmiste kullanildiysa temizlenir (mevcut durumda `task-execution-test-workflow` ve `instance-management-test-workflow` icinde Human Task tipi referansi yoktur; yalnizca `instance-management` workflow'unda **state subType 6 (Human)** — Human Task task-tipi degil — final state alt tipi olarak korunmaktadir).
+- **Iliskili ama farkli ozellik:** `instance-management-test-workflow` icindeki `human-state` (subType 6) Human **Task** tipi degil, **state alt tipi**dir. Bu state, runtime'in `subType` enum'unu test eder ve Human Task tip 5'in kaldirilma kararindan **etkilenmez**.
+- **Eklenmek istenirse:** Runtime'da Human Task ozelligi kalici olarak destekleneceginin teyidi alindiginda; ayri bir `human-task-test-workflow` ve `human-task` (tip 5) JSON tanimi olusturulup Mocklab veya gercek bir human-task hub uctan uca testle entegre edilmelidir. Su an icin **eklenmemelidir**.
+
+### 3. Error Boundary — `onTimeout` (timeout yapisi)
+
+- **Konum:** `error-boundary-test-workflow.json` — **`errorBoundary.onTimeout` alani tanimlanmaz**; integration test workflow'u bu yapilandirmayi **dogrulamaz**.
+- **Runtime dokumantasyonu:** `vnext-runtime/doc/tr/flow/error-boundary.md` dosyasinda `onTimeout` ozelliginin semada bulundugu ancak **henuz implemente edilmedigi** belirtilmistir.
+- **Iliski:** Workflow veya instance duzeyinde **zaman asimi** (`attributes.timeout` vb.) **Grup 7 (Instance Management)** ve baska workflow'larda ayri kavram olarak test edilebilir; bu, **error boundary `onTimeout`** ile ayni sey degildir.
+- **Eklenmek istenirse:** Runtime'da `errorBoundary.onTimeout` destegi netlestikten sonra `error-boundary-test-workflow` (veya ayri bir workflow) ile dedicated senaryo eklenmeli; simdilik bu dokuman ve ozellik matrisi bu ozelligi **Grup 4 kapsaminda test edilmiyor** olarak isaretler.
+
+### Ozet Tablo
+
+| Ozellik | Tip / Konum | Durum | Gerekce |
+|---------|-------------|-------|---------|
+| Dapr Binding Task | Task tipi 2, `extended-tasks-test-workflow` | **Kaldirildi (state + task + mapping silindi)** | Runtime kapsamindaki kararsizlik; mocklab/Dapr binding entegrasyonu uctan uca dogrulanamiyor |
+| Human Task | Task tipi 5, daha once `task-execution-test-workflow` zincirinde | **Kaldirildi / yeni testlere eklenmez** | Runtime tarafindan kaldirilacak gecici ozellik; sadece state subType 6 (Human) korunur |
+| **Error Boundary `onTimeout`** | `attributes.errorBoundary.onTimeout`, Grup 4 workflow | **Test edilmiyor** | Runtime'da henuz implemente edilmemis (semada var); `error-boundary-test-workflow` icinde tanim yok — bkz. **§3** yukarida |
+
+---
+
+**Not (dokuman sonu):** Grup 4 `error-boundary-test-workflow` **error boundary `onTimeout`** yapisini icermez ve integration testleri bunu dogrulamaz; ayrinti **Test Edilmeyen Ozellikler → §3** ve Ozet Tablo'daki ilgili satirda ozetlenmistir.

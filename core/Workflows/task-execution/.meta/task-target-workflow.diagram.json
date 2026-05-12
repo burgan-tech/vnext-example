@@ -1,0 +1,16 @@
+{
+  "nodePos": {
+    "__start__": {
+      "x": 12,
+      "y": 42
+    },
+    "target-initial": {
+      "x": 220,
+      "y": 150
+    },
+    "target-completed": {
+      "x": 690,
+      "y": 0
+    }
+  }
+}

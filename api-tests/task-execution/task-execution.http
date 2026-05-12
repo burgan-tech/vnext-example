@@ -1,0 +1,128 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = task-execution-test-workflow
+@targetWorkflow = task-target-workflow
+@extendedWorkflow = extended-tasks-test-workflow
+@mocklabBaseUrl = http://localhost:3002
+
+###############################################################################
+# vNext task execution — single file (same section layout as Postman collection)
+#
+# SECTION 1 — Main chain (task-execution-test-workflow): happy path
+# SECTION 2 — Target workflow (task-target-workflow): happy path
+# SECTION 3 — Dapr chain (extended-tasks-test-workflow): happy path
+###############################################################################
+
+###############################################################################
+# SECTION 1 — Happy path: main task execution chain
+# HTTP → Script → Timer wait (Timer Task type 9, scheduled transition ~3s)
+# → Start Flow (11) → Get Instance Data (13)
+# → Notification (10, mapping.type G) → TriggerTransition (12) → SubProcess (14)
+# → GetInstances (15) → Completed (auto)
+# Condition Task (type 8) is produced indirectly for auto rules (AlwaysTrueRule).
+# NOTE: Human Task (type 5) is deprecated — removed from this chain; happy path completes without manual approval.
+# Requires: MocklabBaseUrl config, Mocklab seeded (POST /api/test/process)
+###############################################################################
+
+### B1 — Step 1: Start main workflow (sync runs chain to completed-state)
+# @name createTaskExecInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "task-exec-test-{{$timestamp}}",
+  "tags": ["integration-test", "task-execution"],
+  "attributes": {}
+}
+
+@taskExecInstanceId = {{createTaskExecInstance.response.body.$.id}}
+
+### B1 — Step 2: State check (completed-state, status: C)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state
+
+### B1 — Step 3: Instance data (notification / trigger / subprocess / getInstances flags)
+# Expected: testId, httpTaskCompleted, scriptProcessed,
+# timerStartedAt (TimerStartMapping when entering timer-wait-state),
+# timerExpectedSeconds = 3 (TimerScheduleMapping duration),
+# startFlowCompleted, startedInstanceId (StartTask → target workflow id),
+# subprocessInstanceId (SubProcessTask → target workflow id),
+# subprocessData (point-in-time SubProcessTask context.Body.data: id/instanceId/state, …),
+# getInstanceDataCompleted, taskResults.triggerTransition.completed,
+# taskResults.subprocess.completed, taskResults.getInstances.completed
+# Total elapsed until completed-state should be ≥ ~3s; otherwise the scheduled Timer path may not be exercised.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data
+
+### B1 — Step 3a: functions/state on instance started via StartTask (expect target-completed)
+# Paste startedInstanceId from B1 Step 3 into the variable below.
+# (Postman collection sets this automatically.)
+@taskExecStartedTargetId = REPLACE_WITH_startedInstanceId
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecStartedTargetId}}/functions/state
+
+### B1 — Step 3b: functions/state on subprocess target instance (SubProcessTask)
+# Subprocess is fire-and-forget; state may be target-initial (active) or target-completed.
+@taskExecSubprocessId = REPLACE_WITH_subprocessInstanceId
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}/functions/state
+
+### B1 — Step 3c: Attributes on subprocess target instance (SubProcessTask)
+# Expected: source = "task-execution-test", parentInstanceId = main workflow instance id,
+# note set via SubProcessMapping InputHandler SetBody.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{taskExecSubprocessId}}
+
+###############################################################################
+# SECTION 2 — Happy path: start target workflow (task-target-workflow) standalone
+###############################################################################
+
+### B2 — Step 1: Start target workflow
+# @name createTargetInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "task-target-test-{{$timestamp}}",
+  "tags": ["integration-test", "task-execution", "target"],
+  "attributes": {}
+}
+
+@targetInstanceId = {{createTargetInstance.response.body.$.id}}
+
+### B2 — Step 2: Manual transition on target (same key as DirectTriggerTask: manual-complete-target)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/transitions/manual-complete-target
+Content-Type: application/json
+
+{}
+
+### B2 — Step 3: Target workflow state (expect target-completed)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/functions/state
+
+###############################################################################
+# SECTION 3 — Happy path: Dapr-only chain (extended-tasks-test-workflow)
+# Dapr HTTP (1) → Dapr Service (3) → Dapr PubSub (4) → completed-state (auto)
+###############################################################################
+
+### B3 — Step 1: Start workflow (sync — full chain)
+# @name createExtendedInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "extended-tasks-test-{{$timestamp}}",
+  "tags": ["integration-test", "task-execution", "dapr-only"],
+  "attributes": {
+    "testId": "extended-tasks-dapr-path"
+  }
+}
+
+@extendedInstanceId = {{createExtendedInstance.response.body.$.id}}
+
+### B3 — Step 2: State check — expect completed-state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}/functions/state
+
+### B3 — Step 3: Instance payload — Dapr task results
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}
+
+### B3 — Expected (reference):
+### - initCompleted: true
+### - taskResults.daprHttp.completed: true
+### - taskResults.daprService.completed: true
+### - taskResults.daprPubSub.completed / published proofs (see integration tests §6.4)

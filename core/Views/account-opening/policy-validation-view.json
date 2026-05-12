@@ -16,13 +16,9 @@
       {
         "language": "en-US",
         "label": "Policy Validation"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Politika Doğrulama"
       }
     ],
     "display": "full-page",
-    "content": "{\"type\":\"loading-screen\",\"title\":{\"en-US\":\"Validating Your Information\",\"tr-TR\":\"Bilgileriniz Doğrulanıyor\"},\"description\":{\"en-US\":\"We are checking your account opening request against our policies. This may take a few moments.\",\"tr-TR\":\"Hesap açılış talebinizi politikalarımıza göre kontrol ediyoruz. Bu birkaç dakika sürebilir.\"},\"loadingIndicator\":true,\"showProgress\":true,\"steps\":[{\"key\":\"compliance-check\",\"label\":{\"en-US\":\"Compliance Check\",\"tr-TR\":\"Uyumluluk Kontrolü\"}},{\"key\":\"risk-assessment\",\"label\":{\"en-US\":\"Risk Assessment\",\"tr-TR\":\"Risk Değerlendirmesi\"}},{\"key\":\"policy-validation\",\"label\":{\"en-US\":\"Policy Validation\",\"tr-TR\":\"Politika Doğrulama\"}}]}"
+    "content": "{\"type\":\"loading-screen\",\"title\":{\"en-US\":\"Validating Your Information\"},\"description\":{\"en-US\":\"We are checking your account opening request against our policies. This may take a few moments.\"},\"loadingIndicator\":true,\"showProgress\":true,\"steps\":[{\"key\":\"compliance-check\",\"label\":{\"en-US\":\"Compliance Check\"}},{\"key\":\"risk-assessment\",\"label\":{\"en-US\":\"Risk Assessment\"}},{\"key\":\"policy-validation\",\"label\":{\"en-US\":\"Policy Validation\"}}]}"
   }
 }

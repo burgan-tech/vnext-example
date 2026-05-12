@@ -29,19 +29,19 @@
           "oneOf": [
             {
               "const": "demand-deposit",
-              "description": "Vadesiz Hesap - Demand Deposit Account"
+              "description": "Demand Deposit Account"
             },
             {
               "const": "time-deposit",
-              "description": "Vadeli Hesap - Time Deposit Account"
+              "description": "Time Deposit Account"
             },
             {
               "const": "investment-account",
-              "description": "Fonlu Hesap - Investment Account"
+              "description": "Investment Account"
             },
             {
               "const": "savings-account",
-              "description": "Tasarruf Hesabı - Savings Account"
+              "description": "Savings Account"
             }
           ]
         }

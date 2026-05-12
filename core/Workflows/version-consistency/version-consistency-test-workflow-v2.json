@@ -17,10 +17,6 @@
       {
         "language": "en-US",
         "label": "Version Consistency Test (v2.0.0)"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Versiyon Tutarliligi Testi (v2.0.0)"
       }
     ],
     "functions": [],
@@ -36,10 +32,6 @@
         {
           "language": "en-US",
           "label": "Start Version Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Versiyon Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -68,10 +60,6 @@
           {
             "language": "en-US",
             "label": "Init State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Baslangic Durumu"
           }
         ],
         "view": null,
@@ -88,10 +76,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Processing"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Isleme Otomatik Gecis"
               }
             ],
             "rule": {
@@ -111,10 +95,6 @@
           {
             "language": "en-US",
             "label": "Processing State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Isleme Durumu"
           }
         ],
         "view": null,
@@ -131,10 +111,6 @@
               {
                 "language": "en-US",
                 "label": "Complete Processing"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Islemi Tamamla"
               }
             ],
             "onExecutionTasks": []
@@ -150,10 +126,6 @@
           {
             "language": "en-US",
             "label": "Review State (v2 only)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Inceleme Durumu (sadece v2)"
           }
         ],
         "view": null,
@@ -184,10 +156,6 @@
               {
                 "language": "en-US",
                 "label": "Approve Review"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Incelemeyi Onayla"
               }
             ],
             "onExecutionTasks": []
@@ -203,10 +171,6 @@
           {
             "language": "en-US",
             "label": "Completed (v2)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi (v2)"
           }
         ],
         "view": null,

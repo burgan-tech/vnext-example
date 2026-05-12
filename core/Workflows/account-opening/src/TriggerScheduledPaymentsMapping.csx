@@ -30,7 +30,7 @@ public class TriggerScheduledPaymentsMapping :ScriptBase, IMapping
             startDate = DateTime.UtcNow,
             endDate = "2026-10-01T09:02:38.201Z",
             paymentMethodId = "1",
-            description = "X ödeme",
+            description = "Scheduled payment bootstrap",
             recipientId = "324324",
             isAutoRetry = false,
             maxRetries = 3

@@ -4,7 +4,9 @@ namespace Core.IntegrationTests.Helpers;
 
 /// <summary>
 /// Core-specific factory methods for building vNext workflow instance payloads.
-/// Add static methods here for each workflow your domain tests.
+///
+/// Instance/transition API orchestration helpers: <see cref="WorkflowInstanceTestHelper"/>,
+/// <see cref="StateFunctionJson"/>, <see cref="WorkflowTestHttpHeaders"/>.
 ///
 /// Inherited helpers from <see cref="TestDataBuilderBase"/>:
 ///   - <c>BuildInstancePayload(key, tags, attributes)</c>

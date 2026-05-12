@@ -1,0 +1,17 @@
+{
+  "key": "urn-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["integration-test", "view-function-extension", "urn-view"],
+  "attributes": {
+    "type": 6,
+    "display": "inline",
+    "labels": [
+      { "language": "en-US", "label": "URN View" },
+      { "language": "tr-TR", "label": "URN Görünüm" }
+    ],
+    "content": "{\"urn\":\"urn:vnext:flow:continue:core:view-function-extension-test-workflow\"}"
+  }
+}

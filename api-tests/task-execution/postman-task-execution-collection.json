@@ -1,0 +1,431 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-4123-a8cd-ef1234567890",
+    "name": "vNext Test - Task execution (birlesik)",
+    "description": "task-execution-test-workflow, task-target-workflow, extended-tasks-test-workflow. Sadece happy path. Kaynak: api-tests/task-execution/task-execution.http.\n\n**Timer Task (tip 9):** Ana zincirde script-processing-state sonrasinda timer-wait-state bulunur. Bu state'in cikis transition'i `triggerType: 2` (scheduled) + `ITimerMapping` (TimerScheduleMapping.csx) ile 3 sn bekler. Adim 1 testleri parent attributes.timerStartedAt ile (Date.now() - ts) >= 2500 ms olarak Timer Task'in gercekten beklemis oldugunu dogrular. Condition Task (tip 8) tum auto transition rule'larinda (AlwaysTrueRule) dolayli olarak uretilir.\n\n**Child instance variable senkronu:** Adim 1 (sync start) ve Adim 3 (functions/data) Tests script'leri parent instance data'dan (kok veya attributes) collection variable doldurur: taskExecStartedTargetId, taskExecSubprocessId, taskExecSubflowInstanceId; istege bagli hedef workflow key: childWorkflowStartFlow, childWorkflowSubprocess, childWorkflowSubflow (varsayilan task-target-workflow). Adim 3a–3d zincirleri bu variable'larla StartFlow / SubProcess / Subflow hedeflerinin state, data ve instance GET isteklerini calistirir.\n\nB2 bagimsiz hedef workflow: targetWorkflow + targetInstanceId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4201", "type": "string" },
+    { "key": "apiVersion", "value": "1", "type": "string" },
+    { "key": "domain", "value": "core", "type": "string" },
+    { "key": "workflow", "value": "task-execution-test-workflow", "type": "string" },
+    { "key": "targetWorkflow", "value": "task-target-workflow", "type": "string" },
+    { "key": "extendedWorkflow", "value": "extended-tasks-test-workflow", "type": "string" },
+    { "key": "mocklabBaseUrl", "value": "http://localhost:3002", "type": "string" },
+    { "key": "taskExecInstanceId", "value": "", "type": "string" },
+    { "key": "taskExecStartedTargetId", "value": "", "type": "string" },
+    { "key": "taskExecSubprocessId", "value": "", "type": "string" },
+    { "key": "taskExecSubflowInstanceId", "value": "", "type": "string" },
+    { "key": "childWorkflowStartFlow", "value": "task-target-workflow", "type": "string" },
+    { "key": "childWorkflowSubprocess", "value": "task-target-workflow", "type": "string" },
+    { "key": "childWorkflowSubflow", "value": "task-target-workflow", "type": "string" },
+    { "key": "targetInstanceId", "value": "", "type": "string" },
+    { "key": "extendedInstanceId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1 - Ana zincir (task-execution-test-workflow)",
+      "item": [
+        {
+          "name": "Adim 1: Ana workflow baslat (sync)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "start"],
+              "query": [{ "key": "sync", "value": "true" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"task-exec-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"task-execution\"],\n  \"attributes\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Adim 1: collection variables — sync start (child id + workflow key)\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData, \"start response\").to.be.ok;",
+                  "    pm.expect(jsonData.id, \"parent instance id\").to.be.a(\"string\").and.not.empty;",
+                  "    pm.collectionVariables.set(\"taskExecInstanceId\", jsonData.id);",
+                  "    var a = jsonData.attributes || {};",
+                  "    function optPick(root, attr, keys) {",
+                  "        for (var i = 0; i < keys.length; i++) {",
+                  "            var k = keys[i];",
+                  "            var v = root[k] !== undefined && root[k] !== null ? root[k] : attr[k];",
+                  "            if (v !== undefined && v !== null && String(v).length) return String(v);",
+                  "        }",
+                  "        return \"\";",
+                  "    }",
+                  "    var started = optPick(jsonData, a, [\"startedInstanceId\"]);",
+                  "    var sub = optPick(jsonData, a, [\"subprocessInstanceId\"]);",
+                  "    pm.expect(started, \"startedInstanceId (StartFlow child)\").to.be.a(\"string\").and.not.empty;",
+                  "    pm.expect(sub, \"subprocessInstanceId (SubProcess child)\").to.be.a(\"string\").and.not.empty;",
+                  "    pm.collectionVariables.set(\"taskExecStartedTargetId\", started);",
+                  "    pm.collectionVariables.set(\"taskExecSubprocessId\", sub);",
+                  "    var timerStartedAt = optPick(jsonData, a, [\"timerStartedAt\"]);",
+                  "    pm.expect(timerStartedAt, \"timerStartedAt (Timer Task tip 9 - timer-wait-state)\").to.be.a(\"string\").and.not.empty;",
+                  "    var ts = Date.parse(timerStartedAt);",
+                  "    pm.expect(isNaN(ts), \"timerStartedAt should be parseable ISO 8601\").to.equal(false);",
+                  "    var elapsedMs = Date.now() - ts;",
+                  "    pm.expect(elapsedMs, \"sync start oncesinde completed-state'e ulasilmasi 3 sn'lik scheduled transition'i ortaya cikarmali (>= 2500 ms)\").to.be.at.least(2500);",
+                  "    var expectedSeconds = (a && typeof a.timerExpectedSeconds === \"number\") ? a.timerExpectedSeconds : (typeof jsonData.timerExpectedSeconds === \"number\" ? jsonData.timerExpectedSeconds : null);",
+                  "    pm.expect(expectedSeconds, \"timerExpectedSeconds attribute (TimerStartMapping)\").to.equal(3);",
+                  "    var sfId = optPick(jsonData, a, [\"subflowInstanceId\", \"subFlowInstanceId\", \"childSubFlowInstanceId\"]);",
+                  "    if (sfId) pm.collectionVariables.set(\"taskExecSubflowInstanceId\", sfId);",
+                  "    var wf1 = optPick(jsonData, a, [\"startFlowTargetWorkflow\", \"startedTargetWorkflowKey\", \"childWorkflowStartFlow\"]);",
+                  "    if (wf1) pm.collectionVariables.set(\"childWorkflowStartFlow\", wf1);",
+                  "    var wf2 = optPick(jsonData, a, [\"subprocessTargetWorkflow\", \"subprocessWorkflowKey\", \"childWorkflowSubprocess\"]);",
+                  "    if (wf2) pm.collectionVariables.set(\"childWorkflowSubprocess\", wf2);",
+                  "    var wf3 = optPick(jsonData, a, [\"subflowTargetWorkflow\", \"subflowWorkflowKey\", \"childWorkflowSubflow\"]);",
+                  "    if (wf3) pm.collectionVariables.set(\"childWorkflowSubflow\", wf3);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 2: Durum (completed-state)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{taskExecInstanceId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Instance data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{taskExecInstanceId}}", "functions", "data"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function __attr(p) { return p && p.attributes && typeof p.attributes === \"object\" ? p.attributes : {}; }",
+                  "function __pick(p, keys) {",
+                  "    var a = __attr(p);",
+                  "    for (var i = 0; i < keys.length; i++) {",
+                  "        var k = keys[i];",
+                  "        var v = p[k] !== undefined && p[k] !== null ? p[k] : a[k];",
+                  "        if (v !== undefined && v !== null && String(v).length) return String(v);",
+                  "    }",
+                  "    return \"\";",
+                  "}",
+                  "var j = pm.response.json();",
+                  "var s1 = __pick(j, [\"startedInstanceId\"]);",
+                  "var s2 = __pick(j, [\"subprocessInstanceId\"]);",
+                  "var s3 = __pick(j, [\"subflowInstanceId\", \"subFlowInstanceId\", \"childSubFlowInstanceId\"]);",
+                  "var w1 = __pick(j, [\"startFlowTargetWorkflow\", \"startedTargetWorkflowKey\", \"childWorkflowStartFlow\"]);",
+                  "var w2 = __pick(j, [\"subprocessTargetWorkflow\", \"subprocessWorkflowKey\", \"childWorkflowSubprocess\"]);",
+                  "var w3 = __pick(j, [\"subflowTargetWorkflow\", \"subflowWorkflowKey\", \"childWorkflowSubflow\"]);",
+                  "if (s1) pm.collectionVariables.set(\"taskExecStartedTargetId\", s1);",
+                  "if (s2) pm.collectionVariables.set(\"taskExecSubprocessId\", s2);",
+                  "if (s3) pm.collectionVariables.set(\"taskExecSubflowInstanceId\", s3);",
+                  "if (w1) pm.collectionVariables.set(\"childWorkflowStartFlow\", w1);",
+                  "if (w2) pm.collectionVariables.set(\"childWorkflowSubprocess\", w2);",
+                  "if (w3) pm.collectionVariables.set(\"childWorkflowSubflow\", w3);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 3a: StartTask hedef instance state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowStartFlow}}/instances/{{taskExecStartedTargetId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowStartFlow}}", "instances", "{{taskExecStartedTargetId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3a-2: StartFlow hedef — functions/data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowStartFlow}}/instances/{{taskExecStartedTargetId}}/functions/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowStartFlow}}", "instances", "{{taskExecStartedTargetId}}", "functions", "data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3a-3: StartFlow hedef — instance (attributes: source, parentInstanceId, note)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowStartFlow}}/instances/{{taskExecStartedTargetId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowStartFlow}}", "instances", "{{taskExecStartedTargetId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3b: SubProcessTask hedef instance state",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowSubprocess}}/instances/{{taskExecSubprocessId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowSubprocess}}", "instances", "{{taskExecSubprocessId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3b-2: SubProcess hedef — functions/data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowSubprocess}}/instances/{{taskExecSubprocessId}}/functions/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowSubprocess}}", "instances", "{{taskExecSubprocessId}}", "functions", "data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3c: SubProcessTask hedef instance attributes (parentInstanceId/source/note)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowSubprocess}}/instances/{{taskExecSubprocessId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowSubprocess}}", "instances", "{{taskExecSubprocessId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3d: Subflow hedef — functions/state (parent data'da subflowInstanceId vb. ise)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowSubflow}}/instances/{{taskExecSubflowInstanceId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowSubflow}}", "instances", "{{taskExecSubflowInstanceId}}", "functions", "state"]
+            },
+            "description": "Oncelik: taskExecSubflowInstanceId dolu olmali (Adim 1/3 senkronu: subflowInstanceId, subFlowInstanceId, childSubFlowInstanceId). Bos id ile URL gecersiz olur — subflow yoksa atla."
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3d-2: Subflow hedef — functions/data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowSubflow}}/instances/{{taskExecSubflowInstanceId}}/functions/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowSubflow}}", "instances", "{{taskExecSubflowInstanceId}}", "functions", "data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3d-3: Subflow hedef — instance (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{childWorkflowSubflow}}/instances/{{taskExecSubflowInstanceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{childWorkflowSubflow}}", "instances", "{{taskExecSubflowInstanceId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 4: Final durum (completed-state)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{taskExecInstanceId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 5: Final instance data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{taskExecInstanceId}}/functions/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{workflow}}", "instances", "{{taskExecInstanceId}}", "functions", "data"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2 - Hedef workflow (task-target-workflow)",
+      "item": [
+        {
+          "name": "Adim 1: Hedef workflow baslat",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/start?sync=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "start"],
+              "query": [{ "key": "sync", "value": "true" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"task-target-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"task-execution\", \"target\"],\n  \"attributes\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.collectionVariables.set(\"targetInstanceId\", jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 2: PATCH manual-complete-target",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/transitions/manual-complete-target",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "{{targetInstanceId}}", "transitions", "manual-complete-target"]
+            },
+            "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Hedef workflow durumu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{targetWorkflow}}/instances/{{targetInstanceId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{targetWorkflow}}", "instances", "{{targetInstanceId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3 - Extended / Dapr (extended-tasks-test-workflow)",
+      "item": [
+        {
+          "name": "Adim 1: Workflow baslat (sync)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/start?sync=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{extendedWorkflow}}", "instances", "start"],
+              "query": [{ "key": "sync", "value": "true" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"extended-tasks-test-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"task-execution\", \"dapr-only\"],\n  \"attributes\": {\n    \"testId\": \"extended-tasks-dapr-path\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.collectionVariables.set(\"extendedInstanceId\", jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 2: Durum (completed-state)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{extendedWorkflow}}", "instances", "{{extendedInstanceId}}", "functions", "state"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adim 3: Instance (Dapr taskResults)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{extendedWorkflow}}/instances/{{extendedInstanceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v{{apiVersion}}", "{{domain}}", "workflows", "{{extendedWorkflow}}", "instances", "{{extendedInstanceId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

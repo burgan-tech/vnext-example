@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "tags": [
     "integration-test",
     "lifecycle",
@@ -35,10 +35,6 @@
       {
         "language": "en-US",
         "label": "Lifecycle & Transitions Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Yasam Dongusu ve Gecis Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -56,14 +52,11 @@
       "target": "terminated-state",
       "triggerType": 0,
       "versionStrategy": "Major",
+      "availableIn": [],
       "labels": [
         {
           "language": "en-US",
           "label": "Cancel Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Is Akisini Iptal Et"
         }
       ]
     },
@@ -81,10 +74,6 @@
         {
           "language": "en-US",
           "label": "Exit Workflow"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Is Akisindan Cik"
         }
       ],
       "onExecutionTasks": [
@@ -112,10 +101,6 @@
         {
           "language": "en-US",
           "label": "Start Lifecycle Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Yasam Dongusu Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -144,10 +129,6 @@
           {
             "language": "en-US",
             "label": "Initialize State (Initial)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Baslangic Durumu"
           }
         ],
         "view": null,
@@ -164,10 +145,12 @@
               {
                 "language": "en-US",
                 "label": "Move to Processing (Manual + ITransitionMapping)"
-              },
+              }
+            ],
+            "roles": [
               {
-                "language": "tr-TR",
-                "label": "Isleme Gec (Manuel + ITransitionMapping)"
+                "role": "test-operator",
+                "grant": "allow"
               }
             ],
             "schema": null,
@@ -176,13 +159,7 @@
               "location": "./src/ProcessTransitionMapping.csx",
               "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBQcm9jZXNzVHJhbnNpdGlvbk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKCiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0UGF0aCIpKQogICAgICAgICAgICByZXN1bHQudGVzdFBhdGggPSBkYXRhLnRlc3RQYXRoOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiaW5pdGlhbGl6ZWQiKSkKICAgICAgICAgICAgcmVzdWx0LmluaXRpYWxpemVkID0gZGF0YS5pbml0aWFsaXplZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImluaXRpYWxpemVkQXQiKSkKICAgICAgICAgICAgcmVzdWx0LmluaXRpYWxpemVkQXQgPSBkYXRhLmluaXRpYWxpemVkQXQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJzdGVwTG9nIikpCiAgICAgICAgICAgIHJlc3VsdC5zdGVwTG9nID0gZGF0YS5zdGVwTG9nOwoKICAgICAgICByZXN1bHQudHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZCA9IHRydWU7CiAgICAgICAgcmVzdWx0LnRyYW5zaXRpb25NYXBwaW5nQXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlByb2Nlc3NUcmFuc2l0aW9uTWFwcGluZyBleGVjdXRlZCIpOwoKICAgICAgICByZXR1cm4gcmVzdWx0OwogICAgfQp9Cg=="
             },
-            "onExecutionTasks": [],
-            "roles": [
-              {
-                "role": "test-operator",
-                "grant": "allow"
-              }
-            ]
+            "onExecutionTasks": []
           }
         ]
       },
@@ -195,20 +172,6 @@
           {
             "language": "en-US",
             "label": "Processing State (Intermediate, onEntries + onExits)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Isleme Durumu (Ara Durum, onEntries + onExits)"
-          }
-        ],
-        "queryRoles": [
-          {
-            "role": "test-processor",
-            "grant": "allow"
-          },
-          {
-            "role": "test-viewer",
-            "grant": "deny"
           }
         ],
         "view": null,
@@ -224,7 +187,7 @@
             },
             "mapping": {
               "location": "./src/ProcessEntryMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFByb2Nlc3NFbnRyeU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CgogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidGVzdFBhdGgiKSkKICAgICAgICAgICAgcmVzdWx0LnRlc3RQYXRoID0gZGF0YS50ZXN0UGF0aDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImluaXRpYWxpemVkIikpCiAgICAgICAgICAgIHJlc3VsdC5pbml0aWFsaXplZCA9IGRhdGEuaW5pdGlhbGl6ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJpbml0aWFsaXplZEF0IikpCiAgICAgICAgICAgIHJlc3VsdC5pbml0aWFsaXplZEF0ID0gZGF0YS5pbml0aWFsaXplZEF0OwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZCIpKQogICAgICAgICAgICByZXN1bHQudHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZCA9IGRhdGEudHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZDsKCiAgICAgICAgcmVzdWx0LnByb2Nlc3NFbnRyeUV4ZWN1dGVkID0gdHJ1ZTsKICAgICAgICByZXN1bHQucHJvY2Vzc2VkQXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJQcm9jZXNzRW50cnlNYXBwaW5nIGV4ZWN1dGVkLCB0ZXN0UGF0aD17cmVzdWx0LnRlc3RQYXRofSIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFByb2Nlc3NFbnRyeU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CgogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidGVzdFBhdGgiKSkKICAgICAgICAgICAgcmVzdWx0LnRlc3RQYXRoID0gZGF0YS50ZXN0UGF0aDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImluaXRpYWxpemVkIikpCiAgICAgICAgICAgIHJlc3VsdC5pbml0aWFsaXplZCA9IGRhdGEuaW5pdGlhbGl6ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJpbml0aWFsaXplZEF0IikpCiAgICAgICAgICAgIHJlc3VsdC5pbml0aWFsaXplZEF0ID0gZGF0YS5pbml0aWFsaXplZEF0OwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZCIpKQogICAgICAgICAgICByZXN1bHQudHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZCA9IGRhdGEudHJhbnNpdGlvbk1hcHBpbmdFeGVjdXRlZDsKCiAgICAgICAgcmVzdWx0LnByb2Nlc3NFbnRyeUV4ZWN1dGVkID0gdHJ1ZTsKICAgICAgICByZXN1bHQucHJvY2Vzc2VkQXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKCiAgICAgICAgdmFyIHRlc3RQYXRoRm9yTG9nID0gSGFzUHJvcGVydHkocmVzdWx0LCAidGVzdFBhdGgiKSA/IHJlc3VsdC50ZXN0UGF0aD8uVG9TdHJpbmcoKSA6ICIobnVsbCkiOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCJQcm9jZXNzRW50cnlNYXBwaW5nIGV4ZWN1dGVkLCB0ZXN0UGF0aD0iICsgdGVzdFBhdGhGb3JMb2cpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
             }
           }
         ],
@@ -253,10 +216,6 @@
               {
                 "language": "en-US",
                 "label": "Auto Pass (testPath=pass)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Gecis (testPath=pass)"
               }
             ],
             "rule": {
@@ -274,10 +233,6 @@
               {
                 "language": "en-US",
                 "label": "Auto Fail (testPath=fail)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Basarisiz (testPath=fail)"
               }
             ],
             "rule": {
@@ -295,16 +250,12 @@
             "labels": [
               {
                 "language": "en-US",
-                "label": "Default Auto (triggerKind:10 fallback)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Varsayilan Otomatik Gecis (triggerKind:10)"
+                "label": "Default Auto (DefaultAutoFallbackRule + triggerKind:10)"
               }
             ],
             "rule": {
-              "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gdHJ1ZTsKICAgIH0KfQo="
+              "location": "./src/DefaultAutoFallbackRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIHByb2Nlc3Npbmctc3RhdGU6IG9ubHkgdHJ1ZSB3aGVuIHRlc3RQYXRoIGlzIG5vdCBwYXNzIG5vciBmYWlsIChjb21wbGVtZW50cyBUZXN0UGF0aFBhc3NSdWxlIC8gVGVzdFBhdGhGYWlsUnVsZSkuCnB1YmxpYyBjbGFzcyBEZWZhdWx0QXV0b0ZhbGxiYWNrUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YTsKICAgICAgICBpZiAoZGF0YSA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkRlZmF1bHRBdXRvRmFsbGJhY2tSdWxlOiBkYXRhIG51bGwsIGZhbGxiYWNrIHRydWUiKTsKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQoKICAgICAgICBpZiAoIUhhc1Byb3BlcnR5KGRhdGEsICJ0ZXN0UGF0aCIpKQogICAgICAgIHsKICAgICAgICAgICAgTG9nSW5mb3JtYXRpb24oIkRlZmF1bHRBdXRvRmFsbGJhY2tSdWxlOiB0ZXN0UGF0aCBhYnNlbnQsIGZhbGxiYWNrIHRydWUiKTsKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQoKICAgICAgICB2YXIgdGVzdFBhdGggPSBkYXRhLnRlc3RQYXRoPy5Ub1N0cmluZygpOwogICAgICAgIHZhciBuZWl0aGVyID0gdGVzdFBhdGggIT0gInBhc3MiICYmIHRlc3RQYXRoICE9ICJmYWlsIjsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkRlZmF1bHRBdXRvRmFsbGJhY2tSdWxlOiB0ZXN0UGF0aD17dGVzdFBhdGh9LCBuZWl0aGVyUGFzc05vckZhaWw9e25laXRoZXJ9Iik7CiAgICAgICAgcmV0dXJuIG5laXRoZXI7CiAgICB9Cn0K"
             },
             "onExecutionTasks": []
           }
@@ -319,10 +270,6 @@
           {
             "language": "en-US",
             "label": "Auto Passed State (Intermediate)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Otomatik Gecis Basarili Durumu"
           }
         ],
         "view": null,
@@ -338,16 +285,12 @@
             "labels": [
               {
                 "language": "en-US",
-                "label": "Scheduled Timer (ITimerMapping, 10s)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Zamanlanmis Gecis (ITimerMapping, 10s)"
+                "label": "Scheduled Timer (ITimerMapping, 6s)"
               }
             ],
             "timer": {
               "location": "./src/ShortTimerMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFNob3J0VGltZXJNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiU2hvcnRUaW1lck1hcHBpbmc6IHNjaGVkdWxpbmcgMTAgc2Vjb25kcyBmcm9tIG5vdyIpOwogICAgICAgIHJldHVybiBuZXcgVGltZXJTY2hlZHVsZQogICAgICAgIHsKICAgICAgICAgICAgRmlyZUF0ID0gRGF0ZVRpbWUuVXRjTm93LkFkZFNlY29uZHMoMTApCiAgICAgICAgfTsKICAgIH0KfQo="
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFNob3J0VGltZXJNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiU2hvcnRUaW1lck1hcHBpbmc6IHNjaGVkdWxpbmcgNiBzZWNvbmRzIGZyb20gbm93Iik7CiAgICAgICAgcmV0dXJuIFRpbWVyU2NoZWR1bGUuRnJvbURhdGVUaW1lKERhdGVUaW1lLlV0Y05vdy5BZGRTZWNvbmRzKDYpKTsKICAgIH0KfQo="
             },
             "onExecutionTasks": []
           },
@@ -360,26 +303,18 @@
               {
                 "language": "en-US",
                 "label": "Cancel Schedule Manually"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Schedule Manuel Iptal"
               }
             ]
           },
           {
             "key": "reschedule-timer",
-            "target": "$self",
+            "target": "auto-passed-state",
             "triggerType": 0,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
                 "label": "Reschedule Timer"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Timer Yeniden Zamanla"
               }
             ]
           }
@@ -394,10 +329,6 @@
           {
             "language": "en-US",
             "label": "Timer Triggered State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Zamanlayici Tetiklenmis Durum"
           }
         ],
         "view": null,
@@ -428,15 +359,11 @@
               {
                 "language": "en-US",
                 "label": "Auto to Pre-Complete (AlwaysTrue)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik On-Tamamlama Gecisi"
               }
             ],
             "rule": {
               "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gdHJ1ZTsKICAgIH0KfQo="
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
             },
             "onExecutionTasks": []
           }
@@ -451,10 +378,16 @@
           {
             "language": "en-US",
             "label": "Pre-Complete State (Manual to Finish)"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "test-processor",
+            "grant": "allow"
           },
           {
-            "language": "tr-TR",
-            "label": "Tamamlama Oncesi Durum"
+            "role": "test-viewer",
+            "grant": "deny"
           }
         ],
         "view": null,
@@ -471,25 +404,11 @@
               {
                 "language": "en-US",
                 "label": "Complete Workflow (Manual to Final)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Is Akisini Tamamla"
               }
             ],
             "schema": null,
             "view": null,
-            "onExecutionTasks": [],
-            "roles": [
-              {
-                "role": "test-approver",
-                "grant": "allow"
-              },
-              {
-                "role": "test-operator",
-                "grant": "deny"
-              }
-            ]
+            "onExecutionTasks": []
           }
         ]
       },
@@ -502,10 +421,6 @@
           {
             "language": "en-US",
             "label": "Default Fallback State (triggerKind:10 target)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Varsayilan Geri Donus Durumu"
           }
         ],
         "view": null,
@@ -522,15 +437,11 @@
               {
                 "language": "en-US",
                 "label": "Fallback Auto Complete"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Geri Donus Otomatik Tamamlama"
               }
             ],
             "rule": {
               "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gdHJ1ZTsKICAgIH0KfQo="
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
             },
             "onExecutionTasks": []
           }
@@ -545,10 +456,6 @@
           {
             "language": "en-US",
             "label": "Auto Failed State (Final/Error)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Otomatik Basarisiz Durumu (Final/Hata)"
           }
         ],
         "view": null,
@@ -566,10 +473,6 @@
           {
             "language": "en-US",
             "label": "Completed State (Final/Success)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi Durumu (Final/Basarili)"
           }
         ],
         "view": null,
@@ -587,10 +490,6 @@
           {
             "language": "en-US",
             "label": "Terminated State (Final/Terminated)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Sonlandirildi Durumu (Final/Sonlandirildi)"
           }
         ],
         "view": null,

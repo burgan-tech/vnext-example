@@ -30,7 +30,7 @@
           "description": "Name/alias for the account",
           "minLength": 1,
           "maxLength": 50,
-          "pattern": "^[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\\s\\-_]+$"
+          "pattern": "^[a-zA-Z0-9\\s\\-_]+$"
         },
         "currency": {
           "type": "string",
@@ -79,19 +79,19 @@
           "oneOf": [
             {
               "const": "personal-banking",
-              "description": "Kişisel Bankacılık - Personal Banking"
+              "description": "Personal Banking"
             },
             {
               "const": "salary-account",
-              "description": "Maaş Hesabı - Salary Account"
+              "description": "Salary Account"
             },
             {
               "const": "savings",
-              "description": "Tasarruf - Savings"
+              "description": "Savings"
             },
             {
               "const": "business-expenses",
-              "description": "İş Giderleri - Business Expenses"
+              "description": "Business Expenses"
             }
           ]
         },

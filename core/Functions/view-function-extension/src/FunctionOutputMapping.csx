@@ -1,21 +1,24 @@
-using System.Dynamic;
+using System;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 
-public class FunctionOutputMapping : ScriptBase, IOutputHandler
+public class FunctionOutputMapping : IOutputHandler
 {
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
-        dynamic result = new ExpandoObject();
-        var outputs = context.OutputResponse;
-        if (outputs != null)
+        var task1Result = context.OutputResponse?["vfeScriptTask"];
+        var task2Result = context.OutputResponse?["vfeScriptTask2"];
+
+        return Task.FromResult(new ScriptResponse
         {
-            if (HasProperty(outputs, "vfeScriptTask"))
-                result.scriptResult = outputs.vfeScriptTask;
-            if (HasProperty(outputs, "vfeHttpTask"))
-                result.httpResult = outputs.vfeHttpTask;
-        }
-        result.aggregated = true;
-        return Task.FromResult(new ScriptResponse { Data = result });
+            Key = "multi-task-output",
+            Data = new
+            {
+                scriptResult = task1Result,
+                secondResult = task2Result,
+                aggregated = true,
+                normalizedAt = DateTime.UtcNow
+            }
+        });
     }
 }

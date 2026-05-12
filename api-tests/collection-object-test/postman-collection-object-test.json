@@ -1,0 +1,219 @@
+{
+  "info": {
+    "_postman_id": "c8a41e2b-9f03-4c5d-a1d6-2b9e7f3d1a44",
+    "name": "vNext Test - Collection Object (Grup 10)",
+    "description": "collection-object-test-workflow — ScriptBase dinamik koleksiyon/nesne API pipeline'i.\n\nAkış: start (InitCollectionTestMapping) → test-create-and-set-state → … → otomatik zincir (AlwaysTrueRule) → test-completed-state.\n\n- Adım 1: `sync=true` ile başlatma (ara otomatik geçişler tamamlanana kadar bekler; `.http` örneği sync kullanmıyorsa sorgudan kaldırıp state için yeniden GET yapın).\n- Beklenen son: state `test-completed-state`, status `C`.\n- `functions/data` içinde: `testId`, `createAndSetResult`, `getListResult`, … `removeToDictResult`.\n\nÖnkoşul: workflow + task publish (`core/collection-object-test-workflow`).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4201",
+      "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "domain",
+      "value": "core",
+      "type": "string"
+    },
+    {
+      "key": "workflow",
+      "value": "collection-object-test-workflow",
+      "type": "string"
+    },
+    {
+      "key": "collectionObjectInstanceId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "collection-object-test-workflow",
+      "item": [
+        {
+          "name": "Adim 1: Workflow baslat (sync)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "start"
+              ],
+              "query": [
+                {
+                  "key": "sync",
+                  "value": "true"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"collection-object-{{$timestamp}}\",\n  \"tags\": [\"integration-test\", \"collection-object-test\"],\n  \"attributes\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 2xx', function () { pm.response.to.be.success; });",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "  pm.collectionVariables.set('collectionObjectInstanceId', jsonData.id);",
+                  "  console.log('collectionObjectInstanceId:', jsonData.id);",
+                  "} else {",
+                  "  console.warn('Yant id icermiyor', jsonData);",
+                  "}",
+                  "pm.test('id donmeli', function () {",
+                  "  pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 2: GET functions/state (test-completed-state + C)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{collectionObjectInstanceId}}/functions/state",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{collectionObjectInstanceId}}",
+                "functions",
+                "state"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('collectionObjectInstanceId')) {",
+                  "  throw new Error('Once Adim 1 calistirin (collectionObjectInstanceId bos).');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 2xx', function () { pm.response.to.be.success; });",
+                  "var b = pm.response.json();",
+                  "var state = (b && (b.state || (b.data && b.data.state))) || '';",
+                  "var status = (b && (b.status || (b.data && b.data.status))) || '';",
+                  "pm.test('state test-completed-state', function () {",
+                  "  pm.expect(String(state)).to.eql('test-completed-state');",
+                  "});",
+                  "pm.test('status Completed (C)', function () {",
+                  "  pm.expect(String(status)).to.eql('C');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Adim 3: GET functions/data (pipeline bayraklari)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{collectionObjectInstanceId}}/functions/data",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v{{apiVersion}}",
+                "{{domain}}",
+                "workflows",
+                "{{workflow}}",
+                "instances",
+                "{{collectionObjectInstanceId}}",
+                "functions",
+                "data"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('collectionObjectInstanceId')) {",
+                  "  throw new Error('Once Adim 1 calistirin (collectionObjectInstanceId bos).');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 2xx', function () { pm.response.to.be.success; });",
+                  "var body = pm.response.json();",
+                  "var attrs = (body && body.attributes) ? body.attributes : body;",
+                  "if (body && body.data && body.data.attributes) attrs = body.data.attributes;",
+                  "function has(obj, path) {",
+                  "  var cur = obj;",
+                  "  for (var i = 0; i < path.length; i++) {",
+                  "    if (!cur || typeof cur !== 'object' || !(path[i] in cur)) return false;",
+                  "    cur = cur[path[i]];",
+                  "  }",
+                  "  return true;",
+                  "}",
+                  "pm.test('testId var', function () { pm.expect(has(attrs, ['testId'])).to.be.true; });",
+                  "pm.test('createAndSetResult.success', function () { pm.expect(has(attrs, ['createAndSetResult', 'success'])).to.be.true; });",
+                  "pm.test('getListResult.success', function () { pm.expect(has(attrs, ['getListResult', 'success'])).to.be.true; });",
+                  "pm.test('removeToDictResult.success', function () { pm.expect(has(attrs, ['removeToDictResult', 'success'])).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,13 +1,9 @@
 using System;
+using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
-using BBT.Workflow.Scripting.Functions;
 
-/// <summary>
-/// Tests: GetList(), AsList()
-/// Retrieves the items list from Instance.Data and verifies AsList() edge cases.
-/// </summary>
 public class GetListAndAsListMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
@@ -21,48 +17,44 @@ public class GetListAndAsListMapping : ScriptBase, IMapping
         {
             LogInformation("GetList and AsList Test - Starting");
 
-            var instanceData = context.Instance?.Data;
+            var data = context.Instance.Data;
 
-            // Test GetList() - retrieve items from instance data by property name
-            var items = GetList(instanceData, "items");
-
-            // Test AsList() with a valid list - should return same items
+            var items = GetList(data, "items");
             var asListFromValid = AsList(items);
-
-            // Test AsList() with null - should return empty list (graceful degradation)
             var asListFromNull = AsList(null);
-
-            // Test AsList() with a non-list value - should return empty list
             var asListFromString = AsList("not a list");
 
-            LogInformation("GetList Test - Retrieved {0} items", args: new object[] { items.Count });
+            LogInformation($"GetList Test - Retrieved {items.Count} items");
 
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "get-list-success",
-                Data = new
-                {
-                    getListResult = new
-                    {
-                        success = true,
-                        itemCount = items.Count,
-                        getListWorked = items.Count == 3,
-                        asListFromValidCount = asListFromValid.Count,
-                        asListNullReturnsEmpty = asListFromNull.Count == 0,
-                        asListInvalidReturnsEmpty = asListFromString.Count == 0
-                    }
-                },
-                Tags = new[] { "collection-object-test", "get-list", "as-list", "success" }
-            });
+            dynamic result = new ExpandoObject();
+
+            if (HasProperty(data, "testId"))
+                result.testId = data.testId;
+            if (HasProperty(data, "startedAt"))
+                result.startedAt = data.startedAt;
+            if (HasProperty(data, "items"))
+                result.items = data.items;
+            if (HasProperty(data, "metadata"))
+                result.metadata = data.metadata;
+            if (HasProperty(data, "createAndSetResult"))
+                result.createAndSetResult = data.createAndSetResult;
+
+            result.getListResult = new ExpandoObject();
+            result.getListResult.success = true;
+            result.getListResult.itemCount = items.Count;
+            result.getListResult.getListWorked = items.Count == 3;
+            result.getListResult.asListFromValidCount = asListFromValid.Count;
+            result.getListResult.asListNullReturnsEmpty = asListFromNull.Count == 0;
+            result.getListResult.asListInvalidReturnsEmpty = asListFromString.Count == 0;
+
+            return Task.FromResult(new ScriptResponse { Data = result });
         }
         catch (Exception ex)
         {
-            LogError("GetList Test - Failed: {0}", args: new object[] { ex.Message });
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "get-list-error",
-                Data = new { error = ex.Message }
-            });
+            LogError($"GetList Test - Failed: {ex.Message}");
+            dynamic errResult = new ExpandoObject();
+            errResult.error = ex.Message;
+            return Task.FromResult(new ScriptResponse { Data = errResult });
         }
     }
 }

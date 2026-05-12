@@ -18,10 +18,6 @@
       {
         "language": "en-US",
         "label": "Scheduled Payments Workflow"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Zamanlanmış Ödemeler İş Akışı"
       }
     ],
     "functions": [
@@ -44,10 +40,6 @@
         {
           "language": "en-US",
           "label": "Start Payment Setup"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Ödeme Kurulum Başlat"
         }
       ],
       "onExecutionTasks": []
@@ -62,10 +54,6 @@
           {
             "language": "en-US",
             "label": "Manual - Save Payment Configuration"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Manuel - Ödeme Konfigürasyonu Kaydet"
           }
         ],
         "view": null,
@@ -96,10 +84,6 @@
               {
                 "language": "en-US",
                 "label": "Auto - Payment Saved Successfully"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik - Ödeme Başarıyla Kaydedildi"
               }
             ],
             "schema": null,
@@ -120,10 +104,6 @@
               {
                 "language": "en-US",
                 "label": "Configuration Failed - Retry"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Konfigürasyon Başarısız - Tekrar Dene"
               }
             ],
             "schema": null,
@@ -146,10 +126,6 @@
           {
             "language": "en-US",
             "label": "Active"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Aktif"
           }
         ],
         "view": null,
@@ -192,10 +168,6 @@
               {
                 "language": "en-US",
                 "label": "Manual - Deactivate Payment"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Manuel - Ödemeyi Deaktive Et"
               }
             ],
             "schema": null,
@@ -213,10 +185,6 @@
               {
                 "language": "en-US",
                 "label": "Auto - Payment Process Complete (Success & More Payments Remaining)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik - Ödeme Süreci Tamamlandı (Başarılı & Daha Fazla Ödeme Var)"
               }
             ],
             "schema": null,
@@ -237,10 +205,6 @@
               {
                 "language": "en-US",
                 "label": "Auto - All Payments Complete (Count/Date/Pattern Finished)"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik - Tüm Ödemeler Tamamlandı (Sayı/Tarih/Desen Bitti)"
               }
             ],
             "schema": null,
@@ -263,10 +227,6 @@
           {
             "language": "en-US",
             "label": "Deactive"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Deaktif"
           }
         ],
         "view": null,
@@ -297,10 +257,6 @@
               {
                 "language": "en-US",
                 "label": "Manual - Reactivate Payment"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Manuel - Ödemeyi Reaktive Et"
               }
             ],
             "schema": null,
@@ -318,10 +274,6 @@
               {
                 "language": "en-US",
                 "label": "Manual - Update Payment"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Manuel - Ödemeyi Güncelle"
               }
             ],
             "schema": null,
@@ -339,10 +291,6 @@
               {
                 "language": "en-US",
                 "label": "Manual - Delete Payment"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Manuel - Ödemeyi Sil"
               }
             ],
             "schema": null,
@@ -362,10 +310,6 @@
           {
             "language": "en-US",
             "label": "Payment Cycle Check"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ödeme Döngüsü Kontrolü"
           }
         ],
         "view": null,
@@ -394,10 +338,6 @@
               {
                 "language": "en-US",
                 "label": "Auto - Continue Payment Cycle"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik - Ödeme Döngüsünü Devam Ettir"
               }
             ],
             "schema": null,
@@ -420,10 +360,6 @@
           {
             "language": "en-US",
             "label": "Finished"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandı"
           }
         ],
         "view": null,
@@ -455,10 +391,6 @@
           {
             "language": "en-US",
             "label": "Terminated"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Sonlandırıldı"
           }
         ],
         "view": null,

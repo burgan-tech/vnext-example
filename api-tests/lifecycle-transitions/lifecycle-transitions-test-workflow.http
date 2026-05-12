@@ -29,22 +29,26 @@ Content-Type: application/json
 ### Adim 2: Durum Kontrol (initialize-state olmali)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
-### Adim 3: Manuel Transition - Move to Processing (ITransitionMapping test)
+### Adim 3: Manuel Transition - Move to Processing (ITransitionMapping + transition roles)
+### transition roles: test-operator allow only. State function (GET .../functions/state) filters transitions[] by role (v0.0.39+). PATCH is not formally guaranteed to be denied by the same rule in docs.
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
+role: test-operator
 
 {}
 
 ### Adim 4: Durum Kontrol (auto-passed-state olmali, auto transition testPath=pass rule calisti)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
-### Adim 5: 15 saniye bekle (scheduled timer 10s) ve durum kontrol
+### Adim 5: ~12 saniye bekleyip durum kontrol (scheduled timer 6s + islem payi)
 # timer-triggered-state -> (auto AlwaysTrue) -> pre-complete-state olmali
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/functions/state
 
 ### Adim 6: Manuel Transition - Complete Workflow
+### transition roles: allow test-approver; test-operator deny
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{passInstanceId}}/transitions/complete-workflow?sync=true
 Content-Type: application/json
+role: test-approver
 
 {}
 
@@ -74,6 +78,7 @@ Content-Type: application/json
 ### Adim 2: Manuel Transition - Move to Processing
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{failInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
+role: test-operator
 
 {}
 
@@ -103,10 +108,13 @@ Content-Type: application/json
 ### Adim 2: Manuel Transition - Move to Processing
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{defaultInstanceId}}/transitions/move-to-processing?sync=true
 Content-Type: application/json
+role: test-operator
 
 {}
 
-### Adim 3: Durum Kontrol (default-fallback-state -> completed-state olmali)
+### Adim 3: Durum Kontrol (default-fallback-state gecici, sonra completed-state)
+### Not: C# testi WaitForStateAsync(..., 30s) ile completed bekler; tek GET erken default-fallback gosterebilir.
+###    Gerekirse birkac saniye sonra GET'i tekrarlayin veya state endpoint'ini poll edin.
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{defaultInstanceId}}/functions/state
 
 ###############################################################################
@@ -181,7 +189,7 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 
 ### Adim 1: Workflow Baslat (Exit Test)
 # @name exitCreate
-POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
@@ -196,7 +204,7 @@ Content-Type: application/json
 @exitInstanceId = {{exitCreate.response.body.$.id}}
 
 ### Adim 2: Exit Transition Tetikle (initialize-state'den)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-workflow
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{exitInstanceId}}/transitions/exit-workflow?sync=true
 Content-Type: application/json
 
 {}
@@ -209,11 +217,16 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/
 
 ### ============================================================
 ### TEST: Schedule Cancel (Manual ile timer iptali)
+### xUnit: ScheduleCancel_ManualTransition_CancelsTimerAndReachesPreComplete
+### VNext.Testing.Sdk: StartInstanceAsync / RunTransitionAsync cagrilarinda ?sync=true (XML docs).
+### Akis: Start -> move-to-processing (role test-operator) -> AssertState auto-passed-state
+###       -> cancel-schedule-manually (role header YOK) -> AssertState pre-complete-state
+### Workflow: auto-passed-state icinde scheduled-timer 6s; iptal timer tetiklenmeden yapilir.
 ### ============================================================
 
-### Adim 1: Workflow Baslat (Schedule Cancel Test)
+### Adim 1: StartInstanceAsync — key/tags/attributes C# ile ayni
 # @name scheduleCancelCreate
-POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
@@ -228,25 +241,36 @@ Content-Type: application/json
 ### Response'dan instance ID'yi yakala
 @scheduleCancelInstanceId = {{scheduleCancelCreate.response.body.$.id}}
 
-### Adim 2: Durum Kontrol - auto-passed-state olmali (auto transitions sonrasi)
+### Adim 2: RunTransitionAsync move-to-processing + role (headers null degil)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/move-to-processing?sync=true
+Content-Type: application/json
+role: test-operator
+
+{}
+
+### Adim 3: GET state — beklenen: auto-passed-state (AssertStateAsync)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/functions/state
 
-### Adim 3: Timer tetiklenmeden cancel-schedule-manually transition cagir
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/cancel-schedule-manually
+### Adim 4: RunTransitionAsync cancel-schedule-manually — role header yok (C# headers: null)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/transitions/cancel-schedule-manually?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 4: Durum Kontrol - pre-complete-state olmali (timer iptali basarili)
+### Adim 5: GET state — beklenen: pre-complete-state (AssertStateAsync; schedule iptali)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{scheduleCancelInstanceId}}/functions/state
 
 ### ============================================================
-### TEST: Reschedule Timer ($self transition)
+### TEST: Reschedule Timer ($self + yeniden kurulan timer -> pre-complete)
+### xUnit: RescheduleTimer_SelfTransition_ThenWaitsForRescheduledTimer_ReachesPreCompleteState
+### Akis: move -> auto-passed -> reschedule-timer (yine auto-passed) -> ~6s sonra scheduled transition
+###       -> timer-triggered-state -> auto-to-pre-complete -> pre-complete-state
+### Adim 6 REST Client: reschedule sonrasi en az ~8-12 sn bekleyin (veya GET'i poll ile tekrarlayin).
 ### ============================================================
 
 ### Adim 1: Workflow Baslat (Reschedule Test)
 # @name rescheduleCreate
-POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
@@ -261,25 +285,63 @@ Content-Type: application/json
 ### Response'dan instance ID'yi yakala
 @rescheduleInstanceId = {{rescheduleCreate.response.body.$.id}}
 
-### Adim 2: Durum Kontrol - auto-passed-state olmali
+### Adim 2: move-to-processing (test-operator — transition roles zorunlu)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/move-to-processing?sync=true
+Content-Type: application/json
+role: test-operator
+
+{}
+
+### Adim 3: Durum Kontrol — auto-passed-state (AssertStateAsync)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
 
-### Adim 3: Reschedule timer ($self transition - timer sifirlanmali)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/reschedule-timer
+### Adim 4: reschedule-timer ($self; timer yeniden zamanlanmali)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/transitions/reschedule-timer?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 4: Durum Kontrol - hala auto-passed-state olmali ($self = ayni state)
+### Adim 5: Durum Kontrol — hâlâ auto-passed-state (AssertStateAsync, $self)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
+
+### Adim 6: ~8-20 sn SONRA — pre-complete-state (WaitForStateAsync ile es; timer + timer-triggered auto)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rescheduleInstanceId}}/functions/state
+
+###############################################################################
+### State function: transitions[] role ile filtrelenir (move-to-processing ornegi, v0.0.39+)
+###############################################################################
+### Workflow Baslat
+# @name stateFilterStart
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "key": "lifecycle-state-filter-{{$timestamp}}",
+  "tags": ["integration-test", "lifecycle", "state-filter"],
+  "attributes": {
+    "testPath": "pass"
+  }
+}
+
+@stateFilterInstanceId = {{stateFilterStart.response.body.$.id}}
+
+### initialize-state: GET state + role test-operator — response.transitions icinde move-to-processing beklenir
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{stateFilterInstanceId}}/functions/state
+role: test-operator
+
+### initialize-state: GET state + role test-viewer — transition rollerinde yok; move-to-processing transitions listesinde olmamali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{stateFilterInstanceId}}/functions/state
+role: test-viewer
 
 ### ============================================================
 ### TEST: QueryRoles ve Transition Roles
+### State-level queryRoles is on pre-complete-state (processing-state auto-only, not observable).
+### Flow: move -> auto-passed -> cancel-schedule-manually -> pre-complete -> authorize (processor OK, viewer deny)
 ### ============================================================
 
 ### Adim 1: Workflow Baslat (Roles Test)
 # @name rolesCreate
-POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
 Content-Type: application/json
 
 {
@@ -295,19 +357,29 @@ Content-Type: application/json
 @rolesInstanceId = {{rolesCreate.response.body.$.id}}
 
 ### Adim 2: QueryRoles ile yetki kontrolu - test-viewer izinli olmali (workflow-level)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-viewer
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-viewer
 
 ### Adim 3: move-to-processing transition (test-operator rolu ile)
-PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/move-to-processing
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/move-to-processing?sync=true
+Content-Type: application/json
+role: test-operator
+
+{}
+
+### Adim 4: Durum Kontrol - auto-passed-state olmali (sync sonrasi processing atlanir)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/state
+
+### Adim 5: cancel-schedule-manually (timer beklemeden pre-complete — Schedule cancel ile ayni gecis)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/transitions/cancel-schedule-manually?sync=true
 Content-Type: application/json
 
 {}
 
-### Adim 4: Durum Kontrol - processing-state olmali
+### Adim 6: Durum Kontrol - pre-complete-state olmali
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/state
 
-### Adim 5: QueryRoles - processing-state'de test-processor izinli, test-viewer reddedilmis olmali
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-processor
+### Adim 7: QueryRoles - pre-complete-state'te test-processor izinli olmali
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-processor
 
-### Adim 6: QueryRoles - test-viewer deny olmali (state-level override)
-GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?role=test-viewer
+### Adim 8: QueryRoles - test-viewer deny olmali (state-level override)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{rolesInstanceId}}/functions/authorize?queryRoles=true&role=test-viewer

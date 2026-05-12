@@ -1,0 +1,48 @@
+{
+  "key": "vfe-multi-task-function",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-function-extension",
+    "multi-task-function",
+    "scope-I"
+  ],
+  "attributes": {
+    "scope": "I",
+    "onExecutionTasks": [
+      {
+        "order": 1,
+        "task": {
+          "key": "vfe-script-task",
+          "domain": "core",
+          "version": "1.0.0",
+          "flow": "sys-tasks"
+        },
+        "mapping": {
+          "location": "./src/FunctionMultiTask1Mapping.csx",
+          "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEZ1bmN0aW9uTXVsdGlUYXNrMU1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQuc3RlcCA9IDE7CiAgICAgICAgcmVzdWx0LnZmZVNjcmlwdCA9IHRydWU7CiAgICAgICAgcmVzdWx0LmF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+        }
+      },
+      {
+        "order": 2,
+        "task": {
+          "key": "vfe-script-task-2",
+          "domain": "core",
+          "version": "1.0.0",
+          "flow": "sys-tasks"
+        },
+        "mapping": {
+          "location": "./src/FunctionMultiTask2Mapping.csx",
+          "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEZ1bmN0aW9uTXVsdGlUYXNrMk1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQuc3RlcCA9IDI7CiAgICAgICAgcmVzdWx0LnZmZVNlY29uZFNjcmlwdCA9IHRydWU7CiAgICAgICAgcmVzdWx0LmF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+        }
+      }
+    ],
+    "output": {
+      "location": "./src/FunctionOutputMapping.csx",
+      "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIEZ1bmN0aW9uT3V0cHV0TWFwcGluZyA6IElPdXRwdXRIYW5kbGVyCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdGFzazFSZXN1bHQgPSBjb250ZXh0Lk91dHB1dFJlc3BvbnNlP1sidmZlU2NyaXB0VGFzayJdOwogICAgICAgIHZhciB0YXNrMlJlc3VsdCA9IGNvbnRleHQuT3V0cHV0UmVzcG9uc2U/WyJ2ZmVTY3JpcHRUYXNrMiJdOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgIHsKICAgICAgICAgICAgS2V5ID0gIm11bHRpLXRhc2stb3V0cHV0IiwKICAgICAgICAgICAgRGF0YSA9IG5ldwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBzY3JpcHRSZXN1bHQgPSB0YXNrMVJlc3VsdCwKICAgICAgICAgICAgICAgIHNlY29uZFJlc3VsdCA9IHRhc2syUmVzdWx0LAogICAgICAgICAgICAgICAgYWdncmVnYXRlZCA9IHRydWUsCiAgICAgICAgICAgICAgICBub3JtYWxpemVkQXQgPSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgfQogICAgICAgIH0pOwogICAgfQp9Cg=="
+    }
+  }
+}

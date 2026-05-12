@@ -9,7 +9,7 @@
     "subflow-orchestration",
     "child",
     "subflow",
-    "update-data"
+    "shared-transitions"
   ],
   "attributes": {
     "type": "S",
@@ -18,10 +18,6 @@
       {
         "language": "en-US",
         "label": "SubFlow Orchestration Child"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Alt Akis Orkestrasyon Cocuk"
       }
     ],
     "functions": [],
@@ -29,22 +25,18 @@
     "extensions": [],
     "sharedTransitions": [
       {
-        "key": "shared-child-update",
+        "key": "shared-child-mark",
         "target": "$self",
         "triggerType": 0,
         "versionStrategy": "Minor",
         "labels": [
           {
             "language": "en-US",
-            "label": "Shared Child Update ($self)"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Paylasimli Child Guncelleme ($self)"
+            "label": "Shared Child Mark ($self)"
           }
         ],
         "availableIn": [
-          "child-subflow-state"
+          "child-manual-state"
         ],
         "onExecutionTasks": [
           {
@@ -56,8 +48,8 @@
               "flow": "sys-tasks"
             },
             "mapping": {
-              "location": "./src/ChildSharedUpdateMapping.csx",
-              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIENoaWxkU2hhcmVkVXBkYXRlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSBkYXRhLmNoaWxkU3RhcnRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImdyYW5kY2hpbGRDb21wbGV0ZWQiKSkgcmVzdWx0LmdyYW5kY2hpbGRDb21wbGV0ZWQgPSBkYXRhLmdyYW5kY2hpbGRDb21wbGV0ZWQ7CiAgICAgICAgcmVzdWx0LmNoaWxkU2hhcmVkVXBkYXRlRXhlY3V0ZWQgPSB0cnVlOwogICAgICAgIHJlc3VsdC5jaGlsZFNoYXJlZFVwZGF0ZUF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNoaWxkU2hhcmVkVXBkYXRlTWFwcGluZyBjb21wbGV0ZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+              "location": "./src/ChildSharedMarkMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIENoaWxkU2hhcmVkTWFya01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImNoaWxkU3RhcnRlZCIpKSByZXN1bHQuY2hpbGRTdGFydGVkID0gZGF0YS5jaGlsZFN0YXJ0ZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJwYXJlbnREYXRhIikpIHJlc3VsdC5wYXJlbnREYXRhID0gZGF0YS5wYXJlbnREYXRhOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpIHJlc3VsdC50ZXN0SWQgPSBkYXRhLnRlc3RJZDsKICAgICAgICByZXN1bHQuY2hpbGRTaGFyZWRNYXJrRXhlY3V0ZWQgPSB0cnVlOwogICAgICAgIHJlc3VsdC5jaGlsZFNoYXJlZE1hcmtBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDaGlsZFNoYXJlZE1hcmtNYXBwaW5nIGNvbXBsZXRlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
             }
           }
         ]
@@ -72,10 +64,6 @@
         {
           "language": "en-US",
           "label": "Cancel Child"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Child Iptal"
         }
       ]
     },
@@ -88,12 +76,9 @@
         {
           "language": "en-US",
           "label": "Update Parent Data from Child"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Child'dan Parent Data Guncelle"
         }
       ],
+      "availableIn": [],
       "onExecutionTasks": [
         {
           "order": 1,
@@ -105,7 +90,7 @@
           },
           "mapping": {
             "location": "./src/UpdateParentDataMapping.csx",
-            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFVwZGF0ZVBhcmVudERhdGFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CgogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSBkYXRhLmNoaWxkU3RhcnRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImdyYW5kY2hpbGRGaW5pc2hlZCIpKQogICAgICAgICAgICByZXN1bHQuZ3JhbmRjaGlsZEZpbmlzaGVkID0gZGF0YS5ncmFuZGNoaWxkRmluaXNoZWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjaGlsZFNoYXJlZFVwZGF0ZUV4ZWN1dGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5jaGlsZFNoYXJlZFVwZGF0ZUV4ZWN1dGVkID0gZGF0YS5jaGlsZFNoYXJlZFVwZGF0ZUV4ZWN1dGVkOwoKICAgICAgICByZXN1bHQuY2hpbGRVcGRhdGVkUGFyZW50ID0gdHJ1ZTsKICAgICAgICByZXN1bHQudXBkYXRlUGFyZW50QXQgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlVwZGF0ZVBhcmVudERhdGFNYXBwaW5nIGNvbXBsZXRlZCAtIHVwZGF0ZURhdGEgZnJvbSBjaGlsZCB0byBwYXJlbnQiKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFVwZGF0ZVBhcmVudERhdGFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CgogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiY2hpbGRTdGFydGVkIikpCiAgICAgICAgICAgIHJlc3VsdC5jaGlsZFN0YXJ0ZWQgPSBkYXRhLmNoaWxkU3RhcnRlZDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImdyYW5kY2hpbGRGaW5pc2hlZCIpKQogICAgICAgICAgICByZXN1bHQuZ3JhbmRjaGlsZEZpbmlzaGVkID0gZGF0YS5ncmFuZGNoaWxkRmluaXNoZWQ7CgogICAgICAgIHJlc3VsdC5jaGlsZFVwZGF0ZWRQYXJlbnQgPSB0cnVlOwogICAgICAgIHJlc3VsdC51cGRhdGVQYXJlbnRBdCA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigiVXBkYXRlUGFyZW50RGF0YU1hcHBpbmcgY29tcGxldGVkIC0gdXBkYXRlRGF0YSBmcm9tIGNoaWxkIHRvIHBhcmVudCIpOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
           }
         }
       ]
@@ -119,10 +104,6 @@
         {
           "language": "en-US",
           "label": "Start Child"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Cocugu Baslat"
         }
       ]
     },
@@ -136,10 +117,6 @@
           {
             "language": "en-US",
             "label": "Child Initial"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Baslangic"
           }
         ],
         "view": null,
@@ -162,24 +139,51 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "auto-child-to-subflow",
-            "target": "child-subflow-state",
+            "key": "auto-child-to-manual",
+            "target": "child-manual-state",
             "triggerType": 1,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Auto to Child SubFlow State"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Alt Akis Durumuna"
+                "label": "Auto to Child Manual State"
               }
             ],
             "rule": {
               "location": "./src/AlwaysTrueRule.csx",
               "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
             },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-manual-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Manual State"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "proceed-to-subflow",
+            "target": "child-subflow-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Proceed to SubFlow"
+              }
+            ],
             "onExecutionTasks": []
           }
         ]
@@ -193,10 +197,6 @@
           {
             "language": "en-US",
             "label": "Child SubFlow State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Alt Akis Durumu"
           }
         ],
         "view": null,
@@ -225,10 +225,6 @@
               {
                 "language": "en-US",
                 "label": "Auto to Child Completed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik Cocuk Tamamlandi"
               }
             ],
             "rule": {
@@ -248,10 +244,6 @@
           {
             "language": "en-US",
             "label": "Child Completed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Tamamlandi"
           }
         ],
         "view": null,
@@ -269,10 +261,6 @@
           {
             "language": "en-US",
             "label": "Child Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Cocuk Iptal"
           }
         ],
         "view": null,

@@ -1,0 +1,370 @@
+{
+  "key": "schema-validation-test-workflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-validation",
+    "schema",
+    "master-schema",
+    "transition-schema",
+    "schema-rejection",
+    "field-roles",
+    "cancel",
+    "exit",
+    "update-data",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schema Validation Integration Test"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "schema": {
+      "key": "schema-validation-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "cancel": {
+      "key": "cancel-with-schema",
+      "target": "cancelled-state",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "availableIn": [],
+      "schema": {
+        "key": "schema-validation-cancel",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel with Schema Validation"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "exit": {
+      "key": "exit-with-schema",
+      "target": "exited-state",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "availableIn": [
+        "data-initialized",
+        "schema-validated-state",
+        "no-schema-state",
+        "subflow-state"
+      ],
+      "schema": {
+        "key": "schema-validation-exit",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Exit with Schema Validation"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "startTransition": {
+      "key": "start-schema-validation-test",
+      "target": "data-initialized",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "schema": {
+        "key": "schema-validation-start",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Schema Validation Test"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "schema-validation-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/SchemaInitMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIFNjaGVtYUluaXRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgIm9yZGVySWQiKSkKICAgICAgICAgICAgcmVzdWx0Lm9yZGVySWQgPSBkYXRhLm9yZGVySWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjdXN0b21lck5hbWUiKSkKICAgICAgICAgICAgcmVzdWx0LmN1c3RvbWVyTmFtZSA9IGRhdGEuY3VzdG9tZXJOYW1lOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiYW1vdW50IikpCiAgICAgICAgICAgIHJlc3VsdC5hbW91bnQgPSBkYXRhLmFtb3VudDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImN1cnJlbmN5IikpCiAgICAgICAgICAgIHJlc3VsdC5jdXJyZW5jeSA9IGRhdGEuY3VycmVuY3k7CgogICAgICAgIHJlc3VsdC5zdGF0dXMgPSAiaW5pdGlhbGl6ZWQiOwogICAgICAgIHJlc3VsdC5pbnRlcm5hbE5vdGUgPSAiQ3JlYXRlZCBieSBpbnRlZ3JhdGlvbiB0ZXN0IjsKICAgICAgICByZXN1bHQuYXVkaXRMb2cgPSAiSW5pdCBhdCAiICsgRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiU2NoZW1hSW5pdE1hcHBpbmc6IG9yZGVyPXtyZXN1bHQub3JkZXJJZH0iKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "data-initialized",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Data Initialized (Master Schema Active)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "confirm-with-schema",
+            "target": "schema-validated-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Confirm with Transition Schema"
+              }
+            ],
+            "schema": {
+              "key": "schema-validation-confirm-transition",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            },
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "skip-to-no-schema",
+            "target": "no-schema-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Skip to No-Schema State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "schema-validated-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Schema Validated State"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "schema-validation-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ConfirmExecutionMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIENvbmZpcm1FeGVjdXRpb25NYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKCiAgICAgICAgdmFyIGhhc0NvbmZpcm1lZCA9IEhhc1Byb3BlcnR5KGRhdGEsICJjb25maXJtZWQiKTsKICAgICAgICB2YXIgaGFzQ29uZmlybWVkQnkgPSBIYXNQcm9wZXJ0eShkYXRhLCAiY29uZmlybWVkQnkiKTsKICAgICAgICB2YXIgaGFzT3JkZXJJZCA9IEhhc1Byb3BlcnR5KGRhdGEsICJvcmRlcklkIik7CiAgICAgICAgdmFyIGhhc0ludGVybmFsTm90ZSA9IEhhc1Byb3BlcnR5KGRhdGEsICJpbnRlcm5hbE5vdGUiKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkNvbmZpcm1FeGVjdXRpb25NYXBwaW5nOiBoYXNDb25maXJtZWQ9e2hhc0NvbmZpcm1lZH0sIGhhc0NvbmZpcm1lZEJ5PXtoYXNDb25maXJtZWRCeX0sIGhhc09yZGVySWQ9e2hhc09yZGVySWR9LCBoYXNJbnRlcm5hbE5vdGU9e2hhc0ludGVybmFsTm90ZX0iKTsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgIm9yZGVySWQiKSkKICAgICAgICAgICAgcmVzdWx0Lm9yZGVySWQgPSBkYXRhLm9yZGVySWQ7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJjdXN0b21lck5hbWUiKSkKICAgICAgICAgICAgcmVzdWx0LmN1c3RvbWVyTmFtZSA9IGRhdGEuY3VzdG9tZXJOYW1lOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiYW1vdW50IikpCiAgICAgICAgICAgIHJlc3VsdC5hbW91bnQgPSBkYXRhLmFtb3VudDsKICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgImN1cnJlbmN5IikpCiAgICAgICAgICAgIHJlc3VsdC5jdXJyZW5jeSA9IGRhdGEuY3VycmVuY3k7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJpbnRlcm5hbE5vdGUiKSkKICAgICAgICAgICAgcmVzdWx0LmludGVybmFsTm90ZSA9IGRhdGEuaW50ZXJuYWxOb3RlOwogICAgICAgIGlmIChIYXNQcm9wZXJ0eShkYXRhLCAiYXVkaXRMb2ciKSkKICAgICAgICAgICAgcmVzdWx0LmF1ZGl0TG9nID0gZGF0YS5hdWRpdExvZzsKCiAgICAgICAgcmVzdWx0LmNvbmZpcm1lZCA9IEhhc1Byb3BlcnR5KGRhdGEsICJjb25maXJtZWQiKSA/IGRhdGEuY29uZmlybWVkIDogdHJ1ZTsKICAgICAgICByZXN1bHQuY29uZmlybWVkQnkgPSBIYXNQcm9wZXJ0eShkYXRhLCAiY29uZmlybWVkQnkiKQogICAgICAgICAgICA/IGRhdGEuY29uZmlybWVkQnkKICAgICAgICAgICAgOiAic3lzdGVtLWNvbmZpcm1lZCI7CgogICAgICAgIHJlc3VsdC5zdGF0dXMgPSAiY29uZmlybWVkIjsKICAgICAgICByZXN1bHQudXBkYXRlZEF0ID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiQ29uZmlybUV4ZWN1dGlvbk1hcHBpbmcgZXhlY3V0ZWQsIHN0YXR1cz1jb25maXJtZWQsIGNvbmZpcm1lZEJ5PXtyZXN1bHQuY29uZmlybWVkQnl9Iik7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-no-schema",
+            "target": "no-schema-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Move to No-Schema State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "enter-subflow",
+            "target": "subflow-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter SubFlow State"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "no-schema-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "No Schema State (Free-form transitions)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete-schema-validation-test",
+            "target": "completed-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete Schema Validation Test"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "subflow-state",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow State (updateData test)"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "schema-validation-subflow-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/SubflowPassthroughMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKcHVibGljIGNsYXNzIFN1YmZsb3dQYXNzdGhyb3VnaE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyBjaGlsZElucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIEhhc1Byb3BlcnR5KGRhdGEsICJvcmRlcklkIikpCiAgICAgICAgewogICAgICAgICAgICBjaGlsZElucHV0Lm9yZGVySWQgPSBkYXRhLm9yZGVySWQ7CiAgICAgICAgfQogICAgICAgIExvZ0luZm9ybWF0aW9uKCJTdWJmbG93UGFzc3Rocm91Z2hNYXBwaW5nOiBwcmVwYXJlZCBjaGlsZCBpbnB1dCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNoaWxkSW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "subflow-complete",
+            "target": "completed-state",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete from SubFlow"
+              }
+            ],
+            "schema": null,
+            "view": null,
+            "mapping": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Schema Validation Test Completed (Final/Success)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "cancelled-state",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled State (Cancel Schema Test)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "exited-state",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Exited State (Exit Schema Test)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

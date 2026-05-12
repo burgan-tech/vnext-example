@@ -1,13 +1,9 @@
 using System;
+using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
-using BBT.Workflow.Scripting.Functions;
 
-/// <summary>
-/// Tests: RemoveProperty(), ToDictionary(), HasProperty()
-/// Creates a dynamic object, removes a property, converts to dictionary.
-/// </summary>
 public class RemovePropertyToDictionaryMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
@@ -21,74 +17,81 @@ public class RemovePropertyToDictionaryMapping : ScriptBase, IMapping
         {
             LogInformation("RemoveProperty and ToDictionary Test - Starting");
 
-            // Create a test object with multiple properties
             dynamic testObj = CreateObject();
             SetProperty(testObj, "id", "test-001");
             SetProperty(testObj, "name", "Test Object");
             SetProperty(testObj, "tempField", "this will be removed");
             SetProperty(testObj, "keepField", "this stays");
 
-            // Verify property exists before removal (uses HasProperty from ScriptBase)
             var hadTempField = HasProperty(testObj, "tempField");
             var hadKeepField = HasProperty(testObj, "keepField");
 
-            // Test RemoveProperty()
             var removeResult = RemoveProperty(testObj, "tempField");
 
-            // Verify property is gone
             var hasTempFieldAfter = HasProperty(testObj, "tempField");
             var hasKeepFieldAfter = HasProperty(testObj, "keepField");
 
-            // Test RemoveProperty() on non-existent property → false
             var removeNonExistent = RemoveProperty(testObj, "doesNotExist");
 
-            // Test ToDictionary()
             var dict = ToDictionary(testObj);
             var dictHasId = dict.ContainsKey("id");
             var dictHasName = dict.ContainsKey("name");
             var dictHasTemp = dict.ContainsKey("tempField");
             var dictHasKeep = dict.ContainsKey("keepField");
 
-            // Test ToDictionary() with null → empty dictionary
             var emptyDict = ToDictionary(null);
 
-            LogInformation("RemoveProperty: removed={0}, dictCount={1}", args: new object[] { removeResult, dict.Count });
+            LogInformation($"RemoveProperty: removed={removeResult}, dictCount={dict.Count}");
 
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "remove-to-dict-success",
-                Data = new
-                {
-                    removeToDictResult = new
-                    {
-                        success = true,
-                        hadTempFieldBefore = hadTempField,
-                        hadKeepFieldBefore = hadKeepField,
-                        removePropertyResult = removeResult,
-                        hasTempFieldAfterRemove = hasTempFieldAfter,
-                        hasKeepFieldAfterRemove = hasKeepFieldAfter,
-                        removeNonExistentReturnsFalse = !removeNonExistent,
-                        dictCount = dict.Count,
-                        dictHasId = dictHasId,
-                        dictHasName = dictHasName,
-                        dictRemovedTempField = !dictHasTemp,
-                        dictKeptKeepField = dictHasKeep,
-                        nullToDictReturnsEmpty = emptyDict.Count == 0,
-                        removePropertyWorked = removeResult && !hasTempFieldAfter && hasKeepFieldAfter,
-                        toDictionaryWorked = dictHasId && dictHasName && !dictHasTemp && dictHasKeep
-                    }
-                },
-                Tags = new[] { "collection-object-test", "remove-property", "to-dictionary", "has-property", "success" }
-            });
+            var data = context.Instance.Data;
+            dynamic result = new ExpandoObject();
+
+            if (HasProperty(data, "testId"))
+                result.testId = data.testId;
+            if (HasProperty(data, "startedAt"))
+                result.startedAt = data.startedAt;
+            if (HasProperty(data, "items"))
+                result.items = data.items;
+            if (HasProperty(data, "metadata"))
+                result.metadata = data.metadata;
+            if (HasProperty(data, "createAndSetResult"))
+                result.createAndSetResult = data.createAndSetResult;
+            if (HasProperty(data, "getListResult"))
+                result.getListResult = data.getListResult;
+            if (HasProperty(data, "filterCountAnyResult"))
+                result.filterCountAnyResult = data.filterCountAnyResult;
+            if (HasProperty(data, "firstLastResult"))
+                result.firstLastResult = data.firstLastResult;
+            if (HasProperty(data, "listSelectResult"))
+                result.listSelectResult = data.listSelectResult;
+            if (HasProperty(data, "listAddRemoveResult"))
+                result.listAddRemoveResult = data.listAddRemoveResult;
+
+            result.removeToDictResult = new ExpandoObject();
+            result.removeToDictResult.success = true;
+            result.removeToDictResult.hadTempFieldBefore = hadTempField;
+            result.removeToDictResult.hadKeepFieldBefore = hadKeepField;
+            result.removeToDictResult.removePropertyResult = removeResult;
+            result.removeToDictResult.hasTempFieldAfterRemove = hasTempFieldAfter;
+            result.removeToDictResult.hasKeepFieldAfterRemove = hasKeepFieldAfter;
+            result.removeToDictResult.removeNonExistentReturnsFalse = !removeNonExistent;
+            result.removeToDictResult.dictCount = dict.Count;
+            result.removeToDictResult.dictHasId = dictHasId;
+            result.removeToDictResult.dictHasName = dictHasName;
+            result.removeToDictResult.dictRemovedTempField = !dictHasTemp;
+            result.removeToDictResult.dictKeptKeepField = dictHasKeep;
+            result.removeToDictResult.nullToDictReturnsEmpty = emptyDict.Count == 0;
+            result.removeToDictResult.removePropertyWorked = removeResult && !hasTempFieldAfter && hasKeepFieldAfter;
+            result.removeToDictResult.toDictionaryWorked = dictHasId && dictHasName && !dictHasTemp && dictHasKeep;
+
+            return Task.FromResult(new ScriptResponse { Data = result });
         }
         catch (Exception ex)
         {
-            LogError("RemoveProperty/ToDictionary Test - Failed: {0}", args: new object[] { ex.Message });
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "remove-to-dict-error",
-                Data = new { error = ex.Message }
-            });
+            LogError($"RemoveProperty/ToDictionary Test - Failed: {ex.Message}");
+            dynamic errResult = new ExpandoObject();
+            errResult.error = ex.Message;
+            return Task.FromResult(new ScriptResponse { Data = errResult });
         }
     }
 }

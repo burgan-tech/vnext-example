@@ -504,7 +504,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"349874994574\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"userId\": 1,\n        \"amount\": 12000,\n        \"currency\": \"TL\",\n        \"frequency\": \"monthly\",\n        \"startDate\": \"2025-10-01T09:02:38.201Z\",\n        \"endDate\": \"2026-10-01T09:02:38.201Z\",\n        \"paymentMethodId\": \"1\",\n        \"description\": \"Tayfun ödeme\",\n        \"recipientId\": \"324324\",\n        \"isAutoRetry\": false,\n        \"maxRetries\": 3\n    }\n}",
+									"raw": "{\n    \"key\": \"349874994574\",\n    \"tags\": [\n        \"test\",\n        \"oauth\",\n        \"authentication\"\n    ],\n    \"attributes\": {\n        \"userId\": 1,\n        \"amount\": 12000,\n        \"currency\": \"TL\",\n        \"frequency\": \"monthly\",\n        \"startDate\": \"2025-10-01T09:02:38.201Z\",\n        \"endDate\": \"2026-10-01T09:02:38.201Z\",\n        \"paymentMethodId\": \"1\",\n        \"description\": \"Tayfun payment\",\n        \"recipientId\": \"324324\",\n        \"isAutoRetry\": false,\n        \"maxRetries\": 3\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2021,7 +2021,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"attributes\": {\n        \"approvedBy\": \"user-123\",\n        \"approvalNotes\": \"Döküman incelendi ve onaylandı\"\n    }\n}",
+									"raw": "{\n    \"attributes\": {\n        \"approvedBy\": \"user-123\",\n        \"approvalNotes\": \"Document reviewed and approved\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2077,7 +2077,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"attributes\": {\n        \"rejectedBy\": \"user-123\",\n        \"reason\": \"Döküman içeriğinde eksiklik tespit edildi\"\n    }\n}",
+									"raw": "{\n    \"attributes\": {\n        \"rejectedBy\": \"user-123\",\n        \"reason\": \"Missing information in document content\"\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"

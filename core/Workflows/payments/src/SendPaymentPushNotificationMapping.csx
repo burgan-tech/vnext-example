@@ -28,9 +28,9 @@ public class SendPaymentPushNotificationMapping : IMapping
             var paymentResult = context.Instance?.Data?.paymentResult;
             var user = context.Instance?.Data?.user;
             var registeredDevices = context.Instance?.Data?.registeredDevices;
-            var language = user?.language ?? "tr-TR";
+            var language = user?.language ?? "en-US";
 
-            // Generate push message
+            // Generate push message (English baseline; localize via explicit language tag if needed later)
             var title = "";
             var body = "";
             if (paymentResult?.success == true)
@@ -40,11 +40,11 @@ public class SendPaymentPushNotificationMapping : IMapping
                     title = "Payment Successful";
                     body = $"Your payment of {paymentResult?.amount} {paymentResult?.currency} has been processed successfully.";
                 }
-                else
-                {
-                    title = "Ödeme Başarılı";
-                    body = $"{paymentResult?.amount} {paymentResult?.currency} ödemeniz başarıyla işleme alındı.";
-                }
+            else
+            {
+                title = "Payment Successful";
+                body = $"Your payment of {paymentResult?.amount} {paymentResult?.currency} has been processed successfully.";
+            }
             }
             else
             {
@@ -55,8 +55,8 @@ public class SendPaymentPushNotificationMapping : IMapping
                 }
                 else
                 {
-                    title = "Ödeme Başarısız";
-                    body = "Ödemeniz gerçekleştirilemedi. Lütfen tekrar deneyin.";
+                    title = "Payment Failed";
+                    body = "Your payment could not be processed. Please try again.";
                 }
             }
 

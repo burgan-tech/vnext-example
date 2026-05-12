@@ -35,31 +35,40 @@ function findDomainDirectory() {
   return pathsConfig.componentsRoot;
 }
 
-// Load JSON files from a directory
+// Load JSON files from a directory (recursively; basename is the map key)
 function loadJsonFiles(dirPath) {
   const files = {};
   if (!fs.existsSync(dirPath)) {
     return files;
   }
-  
-  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-  for (const entry of entries) {
-    // Skip .meta directory
-    if (entry.name === '.meta') {
-      continue;
-    }
-    
-    if (entry.isFile() && entry.name.endsWith('.json')) {
-      try {
-        const filePath = path.join(dirPath, entry.name);
-        const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        const baseName = entry.name.replace('.json', '');
-        files[baseName] = content;
-      } catch (error) {
-        console.warn(`Warning: Could not load ${entry.name}: ${error.message}`);
+
+  const walk = (currentDir) => {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name === '.meta') {
+        continue;
+      }
+      const fullPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        walk(fullPath);
+      } else if (entry.isFile() && entry.name.endsWith('.json')) {
+        const baseName = entry.name.replace(/\.json$/i, '');
+        if (Object.prototype.hasOwnProperty.call(files, baseName)) {
+          console.warn(
+            `Warning: Duplicate JSON basename "${baseName}" under ${dirPath}; keeping first, skipping ${fullPath}`
+          );
+          continue;
+        }
+        try {
+          files[baseName] = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+        } catch (error) {
+          console.warn(`Warning: Could not load ${fullPath}: ${error.message}`);
+        }
       }
     }
-  }
+  };
+
+  walk(dirPath);
   return files;
 }
 

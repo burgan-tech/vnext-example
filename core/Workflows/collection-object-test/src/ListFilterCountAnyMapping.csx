@@ -1,13 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
-using BBT.Workflow.Scripting.Functions;
 
-/// <summary>
-/// Tests: ListFilter(), ListCount(), ListAny()
-/// Uses the items list (Alice=active, Bob=inactive, Charlie=active) from Instance.Data.
-/// </summary>
 public class ListFilterCountAnyMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
@@ -21,67 +19,66 @@ public class ListFilterCountAnyMapping : ScriptBase, IMapping
         {
             LogInformation("ListFilter, ListCount, ListAny Test - Starting");
 
-            object instanceData = context.Instance?.Data;
-            var items = GetList(instanceData, "items");
+            var data = context.Instance.Data;
+            var items = GetList(data, "items");
 
-            // Test ListFilter() - filter active items (Alice + Charlie)
-            var activeItems = ListFilter(items, x => x.status == "active");
-
-            // Test ListCount() - no predicate (total)
+            var activeItems = ListFilter(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
             var totalCount = ListCount(items);
-
-            // Test ListCount() with predicate
-            var activeCount = ListCount(items, x => x.status == "active");
-            var inactiveCount = ListCount(items, x => x.status == "inactive");
-
-            // Test ListAny() - no predicate (has any element)
+            var activeCount = ListCount(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
+            var inactiveCount = ListCount(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "inactive"));
             var hasItems = ListAny(items);
+            var hasActive = ListAny(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "active"));
+            var hasAdminRole = ListAny(items, (Func<object, bool>)(x => GetPropertyValue(x, "status")?.ToString() == "admin"));
 
-            // Test ListAny() with predicate
-            var hasActive = ListAny(items, x => x.status == "active");
-            var hasAdminRole = ListAny(items, x => x.status == "admin");
-
-            // Empty list checks
             var emptyList = CreateList();
             var emptyHasItems = ListAny(emptyList);
             var emptyCount = ListCount(emptyList);
 
-            LogInformation("ListFilter: active={0}, inactive={1}, total={2}",
-                args: new object[] { activeCount, inactiveCount, totalCount });
+            LogInformation(
+                $"ListFilter: active={activeCount}, inactive={inactiveCount}, total={totalCount}"
+            );
 
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "filter-count-any-success",
-                Data = new
-                {
-                    filterCountAnyResult = new
-                    {
-                        success = true,
-                        totalCount = totalCount,
-                        activeCount = activeCount,
-                        inactiveCount = inactiveCount,
-                        activeItemsFiltered = activeItems.Count,
-                        hasItems = hasItems,
-                        hasActive = hasActive,
-                        hasAdminRole = hasAdminRole,
-                        emptyListHasItems = emptyHasItems,
-                        emptyListCount = emptyCount,
-                        filterWorked = activeItems.Count == 2,
-                        countWorked = totalCount == 3 && activeCount == 2 && inactiveCount == 1,
-                        anyWorked = hasItems && hasActive && !hasAdminRole && !emptyHasItems
-                    }
-                },
-                Tags = new[] { "collection-object-test", "list-filter", "list-count", "list-any", "success" }
-            });
+            dynamic result = new ExpandoObject();
+
+            if (HasProperty(data, "testId"))
+                result.testId = data.testId;
+            if (HasProperty(data, "startedAt"))
+                result.startedAt = data.startedAt;
+            if (HasProperty(data, "items"))
+                result.items = data.items;
+            if (HasProperty(data, "metadata"))
+                result.metadata = data.metadata;
+            if (HasProperty(data, "createAndSetResult"))
+                result.createAndSetResult = data.createAndSetResult;
+            if (HasProperty(data, "getListResult"))
+                result.getListResult = data.getListResult;
+
+            result.filterCountAnyResult = new ExpandoObject();
+            result.filterCountAnyResult.success = true;
+            result.filterCountAnyResult.totalCount = totalCount;
+            result.filterCountAnyResult.activeCount = activeCount;
+            result.filterCountAnyResult.inactiveCount = inactiveCount;
+            result.filterCountAnyResult.activeItemsFiltered = activeItems.Count;
+            result.filterCountAnyResult.hasItems = hasItems;
+            result.filterCountAnyResult.hasActive = hasActive;
+            result.filterCountAnyResult.hasAdminRole = hasAdminRole;
+            result.filterCountAnyResult.emptyListHasItems = emptyHasItems;
+            result.filterCountAnyResult.emptyListCount = emptyCount;
+            result.filterCountAnyResult.filterWorked = activeItems.Count == 2;
+            result.filterCountAnyResult.countWorked =
+                totalCount == 3 && activeCount == 2 && inactiveCount == 1;
+            result.filterCountAnyResult.anyWorked =
+                hasItems && hasActive && !hasAdminRole && !emptyHasItems;
+
+            return Task.FromResult(new ScriptResponse { Data = result });
         }
         catch (Exception ex)
         {
-            LogError("ListFilter/Count/Any Test - Failed: {0}", args: new object[] { ex.Message });
-            return Task.FromResult(new ScriptResponse
-            {
-                Key = "filter-count-any-error",
-                Data = new { error = ex.Message }
-            });
+            LogError($"ListFilter/Count/Any Test - Failed: {ex.Message}");
+            dynamic errResult = new ExpandoObject();
+            errResult.error = ex.Message;
+            errResult.errorStack = ex.StackTrace;
+            return Task.FromResult(new ScriptResponse { Data = errResult });
         }
     }
 }

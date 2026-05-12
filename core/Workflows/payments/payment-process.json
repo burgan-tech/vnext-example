@@ -18,10 +18,6 @@
       {
         "language": "en-US",
         "label": "Payment Processing"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Ödeme İşleme"
       }
     ],
     "functions": [],
@@ -37,10 +33,6 @@
         {
           "language": "en-US",
           "label": "Start Payment Processing"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Ödeme İşlemeyi Başlat"
         }
       ],
       "onExecutionTasks": []
@@ -55,10 +47,6 @@
           {
             "language": "en-US",
             "label": "Payment Pending"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ödeme Beklemede"
           }
         ],
         "view": null,
@@ -75,10 +63,6 @@
               {
                 "language": "en-US",
                 "label": "Scheduled - Payment Due Date/Time"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Zamanlanmış - Ödeme Vade Tarihi/Saati"
               }
             ],
             "schema": null,
@@ -99,10 +83,6 @@
               {
                 "language": "en-US",
                 "label": "Manual - Pay Now"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Manuel - Hemen Öde"
               }
             ],
             "schema": null,
@@ -122,10 +102,6 @@
           {
             "language": "en-US",
             "label": "ProcessPayment"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Ödeme İşle"
           }
         ],
         "view": null,
@@ -156,10 +132,6 @@
               {
                 "language": "en-US",
                 "label": "Payment Processed"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Ödeme İşlendi"
               }
             ],
             "schema": null,
@@ -180,10 +152,6 @@
               {
                 "language": "en-US",
                 "label": "Payment Error"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Ödeme Hatası"
               }
             ],
             "schema": null,
@@ -206,10 +174,6 @@
           {
             "language": "en-US",
             "label": "Failed"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Başarısız"
           }
         ],
         "view": null,
@@ -226,10 +190,6 @@
               {
                 "language": "en-US",
                 "label": "Auto - Retry Payment"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik - Ödemeyi Tekrar Dene"
               }
             ],
             "schema": null,
@@ -250,10 +210,6 @@
               {
                 "language": "en-US",
                 "label": "Manual - User Triggers Retry"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Manuel - Kullanıcı Yeniden Deneme Tetikler"
               }
             ],
             "schema": null,
@@ -271,10 +227,6 @@
               {
                 "language": "en-US",
                 "label": "Max Retries Reached"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Maksimum Yeniden Deneme Sayısına Ulaşıldı"
               }
             ],
             "schema": null,
@@ -295,10 +247,6 @@
               {
                 "language": "en-US",
                 "label": "Main Workflow Deactivated"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Ana İş Akışı Deaktive Edildi"
               }
             ],
             "schema": null,
@@ -321,10 +269,6 @@
           {
             "language": "en-US",
             "label": "Retry"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Yeniden Dene"
           }
         ],
         "view": null,
@@ -355,10 +299,6 @@
               {
                 "language": "en-US",
                 "label": "Auto - Retry Logic"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Otomatik - Yeniden Deneme Mantığı"
               }
             ],
             "schema": null,
@@ -381,10 +321,6 @@
           {
             "language": "en-US",
             "label": "Success"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Başarılı"
           }
         ],
         "view": null,
@@ -402,10 +338,6 @@
           {
             "language": "en-US",
             "label": "Cancelled"
-          },
-          {
-            "language": "tr-TR",
-            "label": "İptal Edildi"
           }
         ],
         "view": null,

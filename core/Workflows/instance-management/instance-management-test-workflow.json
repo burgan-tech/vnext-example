@@ -25,17 +25,13 @@
       "versionStrategy": "Major",
       "timer": {
         "reset": "false",
-        "duration": "PT120S"
+        "duration": "PT80S"
       }
     },
     "labels": [
       {
         "language": "en-US",
         "label": "Instance Management Integration Test"
-      },
-      {
-        "language": "tr-TR",
-        "label": "Ornek Yonetimi Entegrasyon Testi"
       }
     ],
     "functions": [],
@@ -51,10 +47,6 @@
         {
           "language": "en-US",
           "label": "Start Instance Management Test"
-        },
-        {
-          "language": "tr-TR",
-          "label": "Ornek Yonetimi Testini Baslat"
         }
       ],
       "onExecutionTasks": [
@@ -83,10 +75,6 @@
           {
             "language": "en-US",
             "label": "Active State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Aktif Durum"
           }
         ],
         "view": null,
@@ -103,10 +91,6 @@
               {
                 "language": "en-US",
                 "label": "Process"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Isle"
               }
             ],
             "schema": null,
@@ -123,10 +107,6 @@
               {
                 "language": "en-US",
                 "label": "Fast Complete"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Hizli Tamamla"
               }
             ],
             "schema": null,
@@ -145,10 +125,6 @@
           {
             "language": "en-US",
             "label": "Processing State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Isleniyor Durumu"
           }
         ],
         "view": null,
@@ -165,10 +141,6 @@
               {
                 "language": "en-US",
                 "label": "Finish"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Bitir"
               }
             ],
             "schema": null,
@@ -185,10 +157,6 @@
               {
                 "language": "en-US",
                 "label": "Reject"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Reddet"
               }
             ],
             "schema": null,
@@ -205,10 +173,6 @@
               {
                 "language": "en-US",
                 "label": "Suspend"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Askiya Al"
               }
             ],
             "schema": null,
@@ -225,10 +189,6 @@
               {
                 "language": "en-US",
                 "label": "Set Busy"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Mesgul Yap"
               }
             ],
             "schema": null,
@@ -245,10 +205,6 @@
               {
                 "language": "en-US",
                 "label": "Assign Human"
-              },
-              {
-                "language": "tr-TR",
-                "label": "Insan Ata"
               }
             ],
             "schema": null,
@@ -267,10 +223,6 @@
           {
             "language": "en-US",
             "label": "Completed State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Tamamlandi Durumu"
           }
         ],
         "view": null,
@@ -288,10 +240,6 @@
           {
             "language": "en-US",
             "label": "Rejected State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Reddedildi Durumu"
           }
         ],
         "view": null,
@@ -309,10 +257,6 @@
           {
             "language": "en-US",
             "label": "Timeout State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Zaman Asimi Durumu"
           }
         ],
         "view": null,
@@ -330,10 +274,6 @@
           {
             "language": "en-US",
             "label": "Suspended State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Askiya Alinmis Durumu"
           }
         ],
         "view": null,
@@ -351,10 +291,6 @@
           {
             "language": "en-US",
             "label": "Busy State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Mesgul Durumu"
           }
         ],
         "view": null,
@@ -372,10 +308,6 @@
           {
             "language": "en-US",
             "label": "Human State"
-          },
-          {
-            "language": "tr-TR",
-            "label": "Insan Mudahalesi Durumu"
           }
         ],
         "view": null,

@@ -12,6 +12,10 @@
   "attributes": {
     "type": 3,
     "display": "bottom-sheet",
+    "labels": [
+      { "language": "en-US", "label": "Markdown View" },
+      { "language": "tr-TR", "label": "Markdown Görünüm" }
+    ],
     "content": "# Markdown View\n\nIntegration test view"
   }
 }
