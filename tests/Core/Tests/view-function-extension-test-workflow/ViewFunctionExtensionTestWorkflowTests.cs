@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Core.IntegrationTests.Helpers;
 using Core.IntegrationTests.Infrastructure;
@@ -5,9 +6,7 @@ using Core.IntegrationTests.Infrastructure;
 namespace Core.IntegrationTests.Tests.ViewFunctionExtensionTestWorkflow;
 
 /*
-! Bugs:
-! Workflow-scope (F) function — GET /workflows/{key}/functions/{name} returns 404 (instance-scope I works)
-! Domain-scope (D) function — GET /api/v1/{domain}/functions/{name} returns empty/null body
+! Known gap: workflow-scope (F) function — GET /workflows/{key}/functions/{name} may return 404 on some runtimes.
 */
 
 /// <summary>
@@ -158,8 +157,8 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
             // The view IS attached to the state (confirmed by state response above).
             Assert.Fail(
                 "Runtime returned 404 for functions/view on URN (type 6) view. "
-                + "State confirms view.hasView=true but content endpoint fails. "
-                + $"Exception: {ex.Message}"
+                    + "State confirms view.hasView=true but content endpoint fails. "
+                    + $"Exception: {ex.Message}"
             );
         }
     }
@@ -192,8 +191,10 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
         var stateBody = await _wf.GetStateFunctionBodyAsync(instanceId, headers: null);
         Assert.Equal("wizard-step-state", StateFunctionJson.ExtractStateName(stateBody));
 
-        if (stateBody.TryGetProperty("transitions", out var transitions)
-            && transitions.ValueKind == JsonValueKind.Array)
+        if (
+            stateBody.TryGetProperty("transitions", out var transitions)
+            && transitions.ValueKind == JsonValueKind.Array
+        )
         {
             Assert.True(
                 transitions.GetArrayLength() == 1,
@@ -212,7 +213,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
                     hasView.ValueKind == JsonValueKind.False
                         || hasView.ValueKind == JsonValueKind.Null,
                     "Wizard state should not render a state-level view (hasView should be false/null). "
-                    + "Wizard states render the transition view instead."
+                        + "Wizard states render the transition view instead."
                 );
             }
         }
@@ -260,7 +261,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
             // when the extension is not referenced in the workflow's extensions array.
             Assert.Fail(
                 "Extension 'vfe-global-extension' (Type 1, Global, Scope 3) not found in functions/data response. "
-                + $"Actual functions/data keys: {dataSummary}"
+                    + $"Actual functions/data keys: {dataSummary}"
             );
         }
     }
@@ -330,7 +331,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
         var dataSummary = SummarizeJson(dataBody, 300);
         Assert.Fail(
             "Extension 'vfe-global-and-requested-extension' (Type 2, Scope 1) not found in GetInstance or functions/data. "
-            + $"GetInstance keys: {instSummary} | functions/data keys: {dataSummary}"
+                + $"GetInstance keys: {instSummary} | functions/data keys: {dataSummary}"
         );
     }
 
@@ -353,7 +354,10 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
 
         var dataBody = await _wf.CallFunctionAsync(instanceId, "data");
 
-        bool presentByDefault = TryHasExtension(dataBody, "vfe-defined-flow-and-requested-extension");
+        bool presentByDefault = TryHasExtension(
+            dataBody,
+            "vfe-defined-flow-and-requested-extension"
+        );
         if (presentByDefault)
         {
             Assert.Fail(
@@ -383,7 +387,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
             // TODO: Runtime did not return Type 4 extension even with ?extensions= query on functions/data.
             Assert.Fail(
                 "Extension 'vfe-defined-flow-and-requested-extension' (Type 4) not found even with "
-                + "?extensions= query on functions/data endpoint."
+                    + "?extensions= query on functions/data endpoint."
             );
         }
     }
@@ -445,7 +449,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
         Assert.True(
             VfeFunctionAssertions.TryAssertFunctionPropertyTrue(body, "singleTaskFunction"),
             $"Function 'vfe-single-task-function' response.singleTaskFunction should be true. "
-            + $"Actual body: {bodySummary}"
+                + $"Actual body: {bodySummary}"
         );
     }
 
@@ -461,7 +465,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
         Assert.True(
             VfeFunctionAssertions.TryAssertFunctionPropertyTrue(body, "aggregated"),
             $"Function 'vfe-multi-task-function' response.aggregated should be true. "
-            + $"Actual body: {bodySummary}"
+                + $"Actual body: {bodySummary}"
         );
     }
 
@@ -470,7 +474,14 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
     {
         try
         {
-            var body = await _wf.CallWorkflowScopeFunctionAsync("vfe-workflow-function");
+            var response = await Api.CallWorkflowFunctionAsync(
+                WorkflowKey,
+                "vfe-workflow-function",
+                queryParams: null,
+                headers: null
+            );
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var body = response.Body;
             VfeFunctionAssertions.AssertFunctionResponseNotEmpty(body, "vfe-workflow-function");
             VfeFunctionAssertions.AssertFunctionProperty(
                 body,
@@ -483,8 +494,8 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
         {
             // TODO: Runtime returns 404 for workflow-scope (F) function endpoint.
             Assert.Fail(
-                "Workflow-scope function 'vfe-workflow-function' returned 404. "
-                + "Runtime may not support scope 'F' functions via workflow-level endpoint."
+                $"Workflow-scope function 'vfe-workflow-function' {ex.Message}"
+                    + "Runtime may not support scope 'F' functions via workflow-level endpoint."
             );
         }
     }
@@ -494,19 +505,19 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
     {
         try
         {
-            var body = await DomainFunctionHelper.CallDomainScopeFunctionAsync(
-                Api,
-                "core",
-                "1",
-                "vfe-domain-function"
+            var response = await Api.CallFunctionAsync(
+                "vfe-domain-function",
+                queryParams: null,
+                headers: null
             );
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var body = response.Body;
 
-            if (body.ValueKind == JsonValueKind.Undefined
-                || body.ValueKind == JsonValueKind.Null)
+            if (body.ValueKind == JsonValueKind.Undefined || body.ValueKind == JsonValueKind.Null)
             {
                 Assert.Fail(
                     "Domain-scope function 'vfe-domain-function' returned empty response. "
-                    + "Runtime may not support scope 'D' functions via domain-level endpoint."
+                        + "Runtime may not support scope 'D' functions via domain-level endpoint."
                 );
                 return;
             }
@@ -523,7 +534,7 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
         {
             Assert.Fail(
                 $"Domain-scope function 'vfe-domain-function' failed: {ex.Message}. "
-                + "Runtime may not support scope 'D' functions."
+                    + "Runtime may not support scope 'D' functions."
             );
         }
     }
@@ -536,18 +547,24 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
     {
         var camelKey = ToCamelCase(extensionKey);
 
-        if (body.ValueKind == JsonValueKind.Object
+        if (
+            body.ValueKind == JsonValueKind.Object
             && body.TryGetProperty("extensions", out var ext)
             && ext.ValueKind == JsonValueKind.Object
-            && (ext.TryGetProperty(extensionKey, out _) || ext.TryGetProperty(camelKey, out _)))
+            && (ext.TryGetProperty(extensionKey, out _) || ext.TryGetProperty(camelKey, out _))
+        )
             return true;
 
-        if (body.ValueKind == JsonValueKind.Object
+        if (
+            body.ValueKind == JsonValueKind.Object
             && body.TryGetProperty("data", out var data)
             && data.ValueKind == JsonValueKind.Object
             && data.TryGetProperty("extensions", out var nested)
             && nested.ValueKind == JsonValueKind.Object
-            && (nested.TryGetProperty(extensionKey, out _) || nested.TryGetProperty(camelKey, out _)))
+            && (
+                nested.TryGetProperty(extensionKey, out _) || nested.TryGetProperty(camelKey, out _)
+            )
+        )
             return true;
 
         return false;
@@ -556,11 +573,12 @@ public class ViewFunctionExtensionTestWorkflowTests : IntegrationTestBase
     private static string ToCamelCase(string kebab)
     {
         var parts = kebab.Split('-');
-        if (parts.Length <= 1) return kebab;
-        return parts[0] + string.Concat(
-            parts.Skip(1).Select(p =>
-                p.Length == 0 ? p : char.ToUpperInvariant(p[0]) + p[1..])
-        );
+        if (parts.Length <= 1)
+            return kebab;
+        return parts[0]
+            + string.Concat(
+                parts.Skip(1).Select(p => p.Length == 0 ? p : char.ToUpperInvariant(p[0]) + p[1..])
+            );
     }
 
     private static string SummarizeJson(JsonElement el, int maxLen)

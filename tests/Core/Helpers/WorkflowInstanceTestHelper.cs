@@ -213,25 +213,6 @@ public sealed class WorkflowInstanceTestHelper
     }
 
     /// <summary>
-    /// Calls a workflow-scoped function (<c>GET .../workflows/{workflowKey}/functions/{functionName}</c>).
-    /// </summary>
-    public async Task<JsonElement> CallWorkflowScopeFunctionAsync(
-        string functionName,
-        Dictionary<string, string>? queryParams = null,
-        Dictionary<string, string>? headers = null
-    )
-    {
-        var response = await _api.CallWorkflowFunctionAsync(
-            _workflowKey,
-            functionName,
-            queryParams,
-            headers
-        );
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        return response.Body;
-    }
-
-    /// <summary>
     /// Calls <c>GET .../instances</c> with any subset of <c>filter</c> / <c>sort</c> / <c>page</c> /
     /// <c>pageSize</c> query parameters and asserts HTTP 200 before returning the response body.
     /// <paramref name="filterJson"/> is the GraphQL / JSON filter string expected by the runtime

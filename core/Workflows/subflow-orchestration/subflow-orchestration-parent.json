@@ -35,9 +35,7 @@
             "label": "Shared Common Transition"
           }
         ],
-        "availableIn": [
-          "parent-subflow-state"
-        ],
+        "availableIn": ["parent-subflow-state"],
         "onExecutionTasks": [
           {
             "order": 1,

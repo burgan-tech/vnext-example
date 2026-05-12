@@ -28,9 +28,7 @@
       "onError": [
         {
           "action": 0,
-          "errorCodes": [
-            "*"
-          ],
+          "errorCodes": ["*"],
           "priority": 999
         }
       ]
@@ -139,9 +137,7 @@
                 },
                 {
                   "action": 3,
-                  "errorCodes": [
-                    "*"
-                  ],
+                  "errorCodes": ["*"],
                   "priority": 999
                 }
               ]
@@ -353,16 +349,12 @@
               "onError": [
                 {
                   "action": 3,
-                  "errorTypes": [
-                    "InvalidOperationException"
-                  ],
+                  "errorTypes": ["InvalidOperationException"],
                   "priority": 1
                 },
                 {
                   "action": 5,
-                  "errorTypes": [
-                    "*"
-                  ],
+                  "errorTypes": ["*"],
                   "priority": 999
                 }
               ]
