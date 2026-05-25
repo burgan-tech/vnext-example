@@ -13,12 +13,134 @@
   "attributes": {
     "type": 1,
     "labels": [
-      {
-        "language": "en-US",
-        "label": "Confirm Account Details"
-      }
+      { "language": "en-US", "label": "Confirm Account Details" }
     ],
     "display": "full-page",
-    "content": "{\"type\":\"confirmation-summary\",\"title\":{\"en-US\":\"Review Your Account Details\"},\"description\":{\"en-US\":\"Please review all the information below before proceeding with your account opening.\"},\"sections\":[{\"key\":\"account-type\",\"title\":{\"en-US\":\"Account Type\"},\"fields\":[{\"key\":\"selectedAccountType\",\"label\":{\"en-US\":\"Selected Account Type\"},\"value\":\"{{accountType.accountType}}\",\"displayValue\":{\"demand-deposit\":{\"en-US\":\"Demand Deposit Account\"}}}]},{\"key\":\"account-details\",\"title\":{\"en-US\":\"Account Details\"},\"fields\":[{\"key\":\"accountName\",\"label\":{\"en-US\":\"Account Name\"},\"value\":\"{{accountDetails.accountName}}\"},{\"key\":\"currency\",\"label\":{\"en-US\":\"Currency\"},\"value\":\"{{accountDetails.currency}}\"},{\"key\":\"branchCode\",\"label\":{\"en-US\":\"Branch\"},\"value\":\"{{accountDetails.branchCode}}\"},{\"key\":\"initialDeposit\",\"label\":{\"en-US\":\"Initial Deposit\"},\"value\":\"{{accountDetails.initialDeposit}}\",\"format\":\"currency\"},{\"key\":\"accountPurpose\",\"label\":{\"en-US\":\"Account Purpose\"},\"value\":\"{{accountDetails.accountPurpose}}\",\"displayValue\":{\"personal\":{\"en-US\":\"Personal Use\"},\"business\":{\"en-US\":\"Business Use\"},\"savings\":{\"en-US\":\"Savings\"}}}]},{\"key\":\"notifications\",\"title\":{\"en-US\":\"Notification Preferences\"},\"fields\":[{\"key\":\"smsNotifications\",\"label\":{\"en-US\":\"SMS Notifications\"},\"value\":\"{{accountDetails.notifications.smsNotifications}}\",\"format\":\"boolean\"},{\"key\":\"emailNotifications\",\"label\":{\"en-US\":\"Email Notifications\"},\"value\":\"{{accountDetails.notifications.emailNotifications}}\",\"format\":\"boolean\"},{\"key\":\"pushNotifications\",\"label\":{\"en-US\":\"Push Notifications\"},\"value\":\"{{accountDetails.notifications.pushNotifications}}\",\"format\":\"boolean\"}]}],\"buttons\":[{\"key\":\"confirm-account-opening\",\"label\":{\"en-US\":\"Confirm & Open Account\"},\"style\":\"primary\",\"action\":\"submit\",\"transition\":\"confirm-account-opening\"},{\"key\":\"edit\",\"label\":{\"en-US\":\"Edit Details\"},\"style\":\"secondary\",\"action\":\"back\"}]}"
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:amorphie:res:schema:core:account-opening-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": { "en": "Step 3 of 4 — Review", "tr": "Adım 3 / 4 — Özet" },
+                "variant": "labelLarge"
+              },
+              {
+                "type": "Text",
+                "content": { "en": "Review Your Account Details", "tr": "Hesap Bilgilerinizi Gözden Geçirin" },
+                "variant": "headlineMedium"
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "en": "Check the information below before sending the account opening request for policy validation.",
+                  "tr": "Hesap açılış talebini politika doğrulamasına göndermeden önce aşağıdaki bilgileri kontrol edin."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "xs",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Account", "tr": "Hesap" }, "variant": "titleMedium" },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.accountType.label",
+                        "subtitle": "$instance.accountType",
+                        "leading": { "type": "Icon", "name": "home" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.accountName.label",
+                        "subtitle": "$instance.accountName",
+                        "leading": { "type": "Icon", "name": "badge" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.currency.label",
+                        "subtitle": "$instance.currency",
+                        "leading": { "type": "Icon", "name": "credit_card" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.branchCode.label",
+                        "subtitle": "$instance.branchCode",
+                        "leading": { "type": "Icon", "name": "location_on" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "xs",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Preferences", "tr": "Tercihler" }, "variant": "titleMedium" },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.initialDeposit.label",
+                        "subtitle": "$instance.initialDeposit",
+                        "leading": { "type": "Icon", "name": "star" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.accountPurpose.label",
+                        "subtitle": "$instance.accountPurpose",
+                        "leading": { "type": "Icon", "name": "flag" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.notifications.label",
+                        "subtitle": {
+                          "en": "SMS, email, and push settings will be applied.",
+                          "tr": "SMS, e-posta ve anlık bildirim ayarları uygulanacak."
+                        },
+                        "leading": { "type": "Icon", "name": "notifications" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": { "en": "Edit Details", "tr": "Bilgileri Düzenle" },
+                    "variant": "outlined",
+                    "action": "back"
+                  },
+                  {
+                    "type": "Button",
+                    "label": { "en": "Approve", "tr": "Onayla" },
+                    "variant": "filled",
+                    "icon": "check",
+                    "action": "submit",
+                    "command": "urn:amorphie:wf:account-opening:transition:approve-account-opening"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 }

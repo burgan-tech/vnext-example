@@ -11,10 +11,9 @@
     "approval"
   ],
   "attributes": {
-    "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://schemas.vnext.com/banking/account-confirmation.json",
+      "$id": "urn:amorphie:res:schema:core:account-confirmation",
       "title": "Account Confirmation Schema",
       "description": "Schema for account opening confirmation",
       "type": "object",
@@ -27,22 +26,55 @@
           "type": "boolean",
           "title": "Confirmation",
           "description": "User confirms the account opening",
-          "const": true
+          "const": true,
+          "x-labels": {
+            "en": "I confirm the account opening",
+            "tr": "Hesap açılışını onaylıyorum"
+          },
+          "x-errorMessages": {
+            "required": {
+              "en": "You must confirm to proceed",
+              "tr": "Devam etmek için onaylamalısınız"
+            },
+            "const": {
+              "en": "You must confirm to proceed",
+              "tr": "Devam etmek için onaylamalısınız"
+            }
+          }
         },
         "termsAccepted": {
           "type": "boolean",
           "title": "Terms and Conditions Accepted",
           "description": "User accepts terms and conditions",
-          "const": true
+          "const": true,
+          "x-labels": {
+            "en": "I accept the Terms and Conditions",
+            "tr": "Şartlar ve Koşulları kabul ediyorum"
+          },
+          "x-errorMessages": {
+            "required": {
+              "en": "You must accept the Terms and Conditions",
+              "tr": "Şartlar ve Koşulları kabul etmelisiniz"
+            },
+            "const": {
+              "en": "You must accept the Terms and Conditions",
+              "tr": "Şartlar ve Koşulları kabul etmelisiniz"
+            }
+          }
         },
         "privacyPolicyAccepted": {
           "type": "boolean",
           "title": "Privacy Policy Accepted",
           "description": "User accepts privacy policy",
-          "const": true
+          "const": true,
+          "x-labels": {
+            "en": "I accept the Privacy Policy",
+            "tr": "Gizlilik Politikasını kabul ediyorum"
+          }
         }
       },
       "additionalProperties": false
-    }
+    },
+    "type": "workflow"
   }
 }

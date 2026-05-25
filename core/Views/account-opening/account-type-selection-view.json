@@ -13,68 +13,170 @@
   "attributes": {
     "type": 1,
     "labels": [
-      {
-        "language": "en-US",
-        "label": "Select Account Type"
-      }
+      { "language": "en-US", "label": "Select Account Type" },
+      { "language": "tr-TR", "label": "Hesap Türü Seçimi" }
     ],
     "display": "full-page",
+    "renderer": "pseudo-ui",
     "content": {
-      "type": "form",
-      "title": {
-        "en-US": "Choose Your Account Type"
-      },
-      "description": {
-        "en-US": "Select the type of account that best suits your needs."
-      },
-      "fields": [
-        {
-          "key": "accountType",
-          "type": "radio-group",
-          "label": {
-            "en-US": "Account Type"
-          },
-          "required": true,
-          "options": [
-            {
-              "value": "demand-deposit",
-              "label": {
-                "en-US": "Demand Deposit Account"
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:amorphie:res:schema:core:account-opening-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": { "en": "Step 1 of 4 — Account Type", "tr": "Adım 1 / 4 — Hesap Türü" },
+                "variant": "labelLarge"
               },
-              "description": {
-                "en-US": "Access your money anytime with no minimum balance requirement"
+              {
+                "type": "Text",
+                "content": { "en": "Choose Your Account Type", "tr": "Hesap Türünüzü Seçin" },
+                "variant": "headlineMedium"
               },
-              "icon": "credit-card"
-            },
-            {
-              "value": "savings",
-              "label": {
-                "en-US": "Savings Account"
+              {
+                "type": "Text",
+                "content": {
+                  "en": "Tap a card to continue. Your selection is dispatched as a workflow transition.",
+                  "tr": "Devam etmek için bir karta dokunun. Seçiminiz workflow transition olarak gönderilir."
+                },
+                "variant": "bodyMedium"
               },
-              "description": {
-                "en-US": "Earn interest on your deposits with competitive rates"
-              },
-              "icon": "piggy-bank",
-              "disabled": true,
-              "disabledReason": {
-                "en-US": "Coming soon"
+              {
+                "type": "Grid",
+                "columns": 2,
+                "gap": "md",
+                "children": [
+                  {
+                    "type": "Card",
+                    "variant": "outlined",
+                    "onTap": {
+                      "action": "dispatch",
+                      "command": "urn:amorphie:wf:account-opening:transition:select-demand-deposit"
+                    },
+                    "children": [
+                      {
+                        "type": "Column",
+                        "gap": "sm",
+                        "children": [
+                          { "type": "Icon", "name": "home", "size": "lg" },
+                          {
+                            "type": "Text",
+                            "content": { "en": "Demand Deposit", "tr": "Vadesiz Mevduat" },
+                            "variant": "titleMedium"
+                          },
+                          {
+                            "type": "Text",
+                            "content": {
+                              "en": "Access your money anytime with everyday banking services.",
+                              "tr": "Günlük bankacılık hizmetleriyle paranıza istediğiniz zaman erişin."
+                            },
+                            "variant": "bodyMedium"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Card",
+                    "variant": "outlined",
+                    "onTap": {
+                      "action": "dispatch",
+                      "command": "urn:amorphie:wf:account-opening:transition:select-savings-account"
+                    },
+                    "children": [
+                      {
+                        "type": "Column",
+                        "gap": "sm",
+                        "children": [
+                          { "type": "Icon", "name": "star", "size": "lg" },
+                          {
+                            "type": "Text",
+                            "content": { "en": "Savings Account", "tr": "Birikim Hesabı" },
+                            "variant": "titleMedium"
+                          },
+                          {
+                            "type": "Text",
+                            "content": {
+                              "en": "Set aside money and track your savings goal.",
+                              "tr": "Birikim hedefiniz için para ayırın ve ilerlemenizi takip edin."
+                            },
+                            "variant": "bodyMedium"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Card",
+                    "variant": "outlined",
+                    "onTap": {
+                      "action": "dispatch",
+                      "command": "urn:amorphie:wf:account-opening:transition:select-time-deposit"
+                    },
+                    "children": [
+                      {
+                        "type": "Column",
+                        "gap": "sm",
+                        "children": [
+                          { "type": "Icon", "name": "schedule", "size": "lg" },
+                          {
+                            "type": "Text",
+                            "content": { "en": "Time Deposit", "tr": "Vadeli Mevduat" },
+                            "variant": "titleMedium"
+                          },
+                          {
+                            "type": "Text",
+                            "content": {
+                              "en": "Plan deposits for a fixed term with predictable returns.",
+                              "tr": "Belirli bir vade için öngörülebilir getiriyle mevduat planlayın."
+                            },
+                            "variant": "bodyMedium"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Card",
+                    "variant": "outlined",
+                    "onTap": {
+                      "action": "dispatch",
+                      "command": "urn:amorphie:wf:account-opening:transition:select-investment-account"
+                    },
+                    "children": [
+                      {
+                        "type": "Column",
+                        "gap": "sm",
+                        "children": [
+                          { "type": "Icon", "name": "show_chart", "size": "lg" },
+                          {
+                            "type": "Text",
+                            "content": { "en": "Investment Account", "tr": "Yatırım Hesabı" },
+                            "variant": "titleMedium"
+                          },
+                          {
+                            "type": "Text",
+                            "content": {
+                              "en": "Access investment products with a profile-driven setup.",
+                              "tr": "Profile dayalı kurulumla yatırım ürünlerine erişin."
+                            },
+                            "variant": "bodyMedium"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
-            }
-          ]
-        }
-      ],
-      "buttons": [
-        {
-          "key": "select-demand-deposit",
-          "label": {
-            "en-US": "Continue"
-          },
-          "style": "primary",
-          "action": "submit",
-          "transition": "select-demand-deposit",
-          "requiresValidForm": true
-        }
-      ]
+            ]
+          }
+        ]
+      }
     }
   }
 }

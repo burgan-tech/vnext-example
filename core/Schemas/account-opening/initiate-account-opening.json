@@ -13,7 +13,7 @@
   "attributes": {
     "type": "workflow",
     "schema": {
-      "$id": "https://schemas.vnext.com/banking/initiate-account-opening.json",
+      "$id": "urn:amorphie:res:schema:core:initiate-account-opening",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Initiate Account Opening Schema",
       "description": "Schema for the start transition payload of the account-opening workflow",
@@ -26,18 +26,30 @@
           "type": "string",
           "title": "Session",
           "description": "Unique session identifier for the account opening request",
-          "minLength": 1
+          "minLength": 1,
+          "x-labels": {
+            "en": "Session",
+            "tr": "Oturum"
+          }
         },
         "customer": {
           "type": "object",
           "title": "Customer",
           "description": "Customer information for the account opening request",
+          "x-labels": {
+            "en": "Customer",
+            "tr": "Müşteri"
+          },
           "properties": {
             "ownerUserId": {
               "type": "string",
               "title": "Owner User ID",
               "description": "Identifier of the user who owns the account opening request",
-              "minLength": 1
+              "minLength": 1,
+              "x-labels": {
+                "en": "Owner User ID",
+                "tr": "Sahip Kullanıcı ID"
+              }
             }
           },
           "additionalProperties": false

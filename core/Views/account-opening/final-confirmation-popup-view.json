@@ -14,12 +14,69 @@
   "attributes": {
     "type": 1,
     "labels": [
-      {
-        "language": "en-US",
-        "label": "Final Confirmation"
-      }
+      { "language": "en-US", "label": "Final Confirmation" }
     ],
     "display": "popup",
-    "content": "{\"type\":\"terms-confirmation-dialog\",\"title\":{\"en-US\":\"Final Account Opening Confirmation\"},\"message\":{\"en-US\":\"By proceeding, you confirm that all information provided is accurate and you agree to our terms and conditions.\"},\"icon\":\"document-check\",\"showFullAccountSummary\":true,\"termsAndConditions\":{\"required\":true,\"links\":[{\"key\":\"terms\",\"label\":{\"en-US\":\"Terms and Conditions\"},\"url\":\"/terms-and-conditions\"},{\"key\":\"privacy\",\"label\":{\"en-US\":\"Privacy Policy\"},\"url\":\"/privacy-policy\"}]},\"checkboxes\":[{\"key\":\"terms-accepted\",\"label\":{\"en-US\":\"I accept the Terms and Conditions\"},\"required\":true},{\"key\":\"privacy-accepted\",\"label\":{\"en-US\":\"I accept the Privacy Policy\"},\"required\":true},{\"key\":\"marketing-consent\",\"label\":{\"en-US\":\"I consent to receive marketing communications (optional)\"},\"required\":false}],\"buttons\":[{\"key\":\"confirm\",\"label\":{\"en-US\":\"Open Account\"},\"style\":\"primary\",\"action\":\"submit\",\"requiresAllMandatoryCheckboxes\":true},{\"key\":\"cancel\",\"label\":{\"en-US\":\"Cancel\"},\"style\":\"secondary\",\"action\":\"cancel\"}]}"
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:amorphie:res:schema:core:account-confirmation",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          {
+            "type": "Text",
+            "content": { "en": "Final Confirmation", "tr": "Son Onay" },
+            "variant": "headlineSmall"
+          },
+          {
+            "type": "Text",
+            "content": {
+              "en": "Confirm that the information is accurate and accept the required terms to open the account.",
+              "tr": "Hesabı açmak için bilgilerin doğru olduğunu onaylayın ve gerekli koşulları kabul edin."
+            },
+            "variant": "bodyMedium"
+          },
+          {
+            "type": "Card",
+            "variant": "outlined",
+            "children": [
+              {
+                "type": "Column",
+                "gap": "sm",
+                "children": [
+                  { "type": "Checkbox", "bind": "confirmed" },
+                  { "type": "Checkbox", "bind": "termsAccepted" },
+                  { "type": "Checkbox", "bind": "privacyPolicyAccepted" }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Row",
+            "gap": "sm",
+            "mainAxisAlignment": "spaceBetween",
+            "children": [
+              {
+                "type": "Button",
+                "label": { "en": "Cancel", "tr": "İptal" },
+                "variant": "outlined",
+                "action": "cancel",
+                "command": "urn:amorphie:wf:account-opening:transition:cancel-account-opening"
+              },
+              {
+                "type": "Button",
+                "label": { "en": "Open Account", "tr": "Hesap Aç" },
+                "variant": "filled",
+                "icon": "check_circle",
+                "action": "submit",
+                "command": "urn:amorphie:wf:account-opening:transition:approve-account-opening"
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 }

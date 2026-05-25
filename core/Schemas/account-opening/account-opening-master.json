@@ -15,9 +15,9 @@
     "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://schemas.vnext.com/banking/account-opening-master.json",
+      "$id": "urn:amorphie:res:schema:core:account-opening-master",
       "title": "Account Opening Workflow Master Schema",
-      "description": "Master schema for account-opening instance data with field-level visibility (x-roles). Used by function response filtering per request header role.",
+      "description": "Master schema for account-opening instance data with field-level visibility (roles). Used by function response filtering per request header role.",
       "type": "object",
       "additionalProperties": true,
       "properties": {
@@ -28,11 +28,19 @@
           "properties": {
             "session": {
               "type": "string",
-              "description": "Session identifier"
+              "description": "Session identifier",
+              "x-labels": {
+                "en": "Session",
+                "tr": "Oturum"
+              }
             },
             "requestId": {
               "type": "string",
               "description": "Request correlation ID",
+              "x-labels": {
+                "en": "Request ID",
+                "tr": "Talep Numarası"
+              },
               "roles": [
                 { "role": "morph-idm.maker", "grant": "allow" },
                 { "role": "morph-idm.approver", "grant": "allow" },
@@ -43,15 +51,27 @@
         },
         "currency": {
           "type": "string",
-          "description": "Account currency"
+          "description": "Account currency",
+          "x-labels": {
+            "en": "Currency",
+            "tr": "Para Birimi"
+          }
         },
         "confirmed": {
           "type": "boolean",
-          "description": "User confirmation flag"
+          "description": "User confirmation flag",
+          "x-labels": {
+            "en": "Confirmation",
+            "tr": "Onay"
+          }
         },
         "branchCode": {
           "type": "string",
           "description": "Branch code",
+          "x-labels": {
+            "en": "Branch Code",
+            "tr": "Şube Kodu"
+          },
           "roles": [
                 { "role": "$PreviousUser", "grant": "allow" }
               ]
@@ -59,13 +79,21 @@
         "accountName": {
           "type": "string",
           "description": "Account name/alias",
+          "x-labels": {
+            "en": "Account Name",
+            "tr": "Hesap Adı"
+          },
           "roles": [
-                { "role": "$InstanceStarter", "grant": "allow" }
+                { "role": "$PreviousUser", "grant": "deny" }
               ]
         },
         "accountType": {
           "type": "string",
-          "description": "Account type (e.g. demand-deposit)"
+          "description": "Account type (e.g. demand-deposit)",
+          "x-labels": {
+            "en": "Account Type",
+            "tr": "Hesap Türü"
+          }
         },
         "userSession": {
           "type": "object",
@@ -106,41 +134,145 @@
           "type": "object",
           "description": "Notification preferences",
           "additionalProperties": true,
+          "x-labels": {
+            "en": "Notification Preferences",
+            "tr": "Bildirim Tercihleri"
+          },
           "properties": {
-            "smsNotifications": { "type": "boolean" },
-            "pushNotifications": { "type": "boolean" },
-            "emailNotifications": { "type": "boolean" }
+            "smsNotifications": {
+              "type": "boolean",
+              "x-labels": {
+                "en": "SMS Notifications",
+                "tr": "SMS Bildirimleri"
+              }
+            },
+            "pushNotifications": {
+              "type": "boolean",
+              "x-labels": {
+                "en": "Push Notifications",
+                "tr": "Anlık Bildirimler"
+              }
+            },
+            "emailNotifications": {
+              "type": "boolean",
+              "x-labels": {
+                "en": "Email Notifications",
+                "tr": "E-posta Bildirimleri"
+              }
+            }
           }
         },
         "termsAccepted": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-labels": {
+            "en": "Terms Accepted",
+            "tr": "Koşullar Kabul Edildi"
+          }
         },
         "accountPurpose": {
-          "type": "string"
+          "type": "string",
+          "x-labels": {
+            "en": "Account Purpose",
+            "tr": "Hesap Amacı"
+          }
         },
-        "accountSummary": {
-          "type": "object",
-          "description": "Summary of created account",
-          "additionalProperties": true,
-          "properties": {
-            "iban": { "type": "string" },
-            "status": { "type": "string" },
-            "currency": { "type": "string" },
-            "createdAt": { "type": "string", "format": "date-time" },
-            "accountType": { "type": "string" },
-            "accountNumber": { "type": "string" }
+        "termMonths": {
+          "type": "integer",
+          "description": "Time deposit term in months",
+          "x-labels": {
+            "en": "Term (Months)",
+            "tr": "Vade (Ay)"
+          }
+        },
+        "maturityInstruction": {
+          "type": "string",
+          "description": "What to do at time-deposit maturity",
+          "x-labels": {
+            "en": "Maturity Instruction",
+            "tr": "Vade Sonu Talimatı"
+          }
+        },
+        "minimumDeposit": {
+          "type": "number",
+          "description": "Minimum required deposit for time deposit",
+          "x-labels": {
+            "en": "Minimum Deposit",
+            "tr": "Minimum Yatırım"
+          }
+        },
+        "riskProfile": {
+          "type": "string",
+          "description": "Investor risk tolerance",
+          "x-labels": {
+            "en": "Risk Profile",
+            "tr": "Risk Profili"
+          }
+        },
+        "investmentExperience": {
+          "type": "string",
+          "description": "Prior investment experience",
+          "x-labels": {
+            "en": "Investment Experience",
+            "tr": "Yatırım Deneyimi"
+          }
+        },
+        "investmentObjective": {
+          "type": "string",
+          "description": "Investment objective category",
+          "x-labels": {
+            "en": "Investment Objective",
+            "tr": "Yatırım Hedefi"
+          }
+        },
+        "savingsGoalAmount": {
+          "type": "number",
+          "description": "Target savings amount",
+          "x-labels": {
+            "en": "Savings Goal Amount",
+            "tr": "Birikim Hedef Tutarı"
+          }
+        },
+        "targetDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Target date for the savings goal",
+          "x-labels": {
+            "en": "Target Date",
+            "tr": "Hedef Tarih"
+          }
+        },
+        "autoTransferFromAccount": {
+          "type": "string",
+          "description": "IBAN to auto-transfer from for savings",
+          "x-labels": {
+            "en": "Auto-Transfer Source",
+            "tr": "Otomatik Aktarım Kaynağı"
           }
         },
         "initialDeposit": {
           "type": "number",
-          "description": "Initial deposit amount"
+          "description": "Initial deposit amount",
+          "x-labels": {
+            "en": "Initial Deposit",
+            "tr": "Başlangıç Yatırımı"
+          }
         },
         "accountCreation": {
           "type": "object",
           "description": "Full account creation result; internal IDs and limits restricted",
           "additionalProperties": true,
+          "x-labels": {
+            "en": "Account Creation Result",
+            "tr": "Hesap Oluşturma Sonucu"
+          },
           "properties": {
-            "iban": { "type": "string" },
+            "iban": {
+              "type": "string",
+              "x-labels": {
+                "en": "IBAN",
+                "tr": "IBAN"
+              }
+            },
             "limits": {
               "type": "object",
               "additionalProperties": true,
@@ -155,9 +287,21 @@
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
             },
-            "status": { "type": "string" },
+            "status": {
+              "type": "string",
+              "x-labels": {
+                "en": "Status",
+                "tr": "Durum"
+              }
+            },
             "success": { "type": "boolean" },
-            "currency": { "type": "string" },
+            "currency": {
+              "type": "string",
+              "x-labels": {
+                "en": "Currency",
+                "tr": "Para Birimi"
+              }
+            },
             "isActive": { "type": "boolean" },
             "services": {
               "type": "array",
@@ -172,9 +316,27 @@
               ]
             },
             "createdAt": { "type": "string", "format": "date-time" },
-            "branchCode": { "type": "string" },
-            "accountType": { "type": "string" },
-            "accountNumber": { "type": "string" },
+            "branchCode": {
+              "type": "string",
+              "x-labels": {
+                "en": "Branch Code",
+                "tr": "Şube Kodu"
+              }
+            },
+            "accountType": {
+              "type": "string",
+              "x-labels": {
+                "en": "Account Type",
+                "tr": "Hesap Türü"
+              }
+            },
+            "accountNumber": {
+              "type": "string",
+              "x-labels": {
+                "en": "Account Number",
+                "tr": "Hesap Numarası"
+              }
+            },
             "coreBankingId": {
               "type": "string",
               "roles": [
@@ -200,6 +362,10 @@
           "type": "object",
           "description": "Policy/compliance validation result; internal details restricted",
           "additionalProperties": true,
+          "x-labels": {
+            "en": "Policy Validation",
+            "tr": "Politika Doğrulama"
+          },
           "properties": {
             "passed": { "type": "boolean" },
             "approvedBy": {
@@ -261,7 +427,11 @@
           }
         },
         "privacyPolicyAccepted": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-labels": {
+            "en": "Privacy Policy Accepted",
+            "tr": "Gizlilik Politikası Kabul Edildi"
+          }
         }
       }
     }

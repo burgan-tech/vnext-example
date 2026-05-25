@@ -1,0 +1,58 @@
+{
+  "collection": {
+    "name": "Notification",
+    "description": null,
+    "color": "#8b5cf6"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "/api/notification/state",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "{}",
+      "contentType": "application/json",
+      "description": "",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "/api/notification/sms",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "{}",
+      "contentType": "application/json",
+      "description": "",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "/api/notification/email",
+      "queryString": null,
+      "requestBody": null,
+      "statusCode": 200,
+      "responseBody": "{}",
+      "contentType": "application/json",
+      "description": "",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}

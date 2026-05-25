@@ -1,0 +1,126 @@
+{
+  "key": "investment-account-input-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-details",
+    "investment-account",
+    "ui-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      { "language": "en-US", "label": "Investment Account Details" },
+      { "language": "tr-TR", "label": "Yatırım Hesabı Bilgileri" }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:amorphie:res:schema:core:investment-account-input",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": { "en": "Step 2 of 4 — Details", "tr": "Adım 2 / 4 — Bilgiler" },
+                "variant": "labelLarge"
+              },
+              {
+                "type": "Text",
+                "content": { "en": "Investment Account Details", "tr": "Yatırım Hesabı Bilgileri" },
+                "variant": "headlineMedium"
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "en": "Tell us about your investment profile so we can tailor the account setup.",
+                  "tr": "Hesap kurulumunu uyarlayabilmemiz için yatırım profilinizi bizimle paylaşın."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Account Identity", "tr": "Hesap Bilgileri" }, "variant": "titleMedium" },
+                      { "type": "TextField",   "bind": "accountName",    "variant": "outlined" },
+                      { "type": "Dropdown",    "bind": "currency",       "variant": "outlined" },
+                      { "type": "TextField",   "bind": "branchCode",     "variant": "outlined" },
+                      { "type": "NumberField", "bind": "initialDeposit", "variant": "outlined" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Investor Profile", "tr": "Yatırımcı Profili" }, "variant": "titleMedium" },
+                      { "type": "Dropdown", "bind": "riskProfile",          "variant": "outlined" },
+                      { "type": "Dropdown", "bind": "investmentExperience", "variant": "outlined" },
+                      { "type": "Dropdown", "bind": "investmentObjective",  "variant": "outlined" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Notification Preferences", "tr": "Bildirim Tercihleri" }, "variant": "titleMedium" },
+                      { "type": "Switch", "bind": "notifications.smsNotifications" },
+                      { "type": "Switch", "bind": "notifications.emailNotifications" },
+                      { "type": "Switch", "bind": "notifications.pushNotifications" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": { "en": "Cancel", "tr": "İptal" },
+                    "variant": "outlined",
+                    "action": "cancel",
+                    "command": "urn:amorphie:wf:account-opening:transition:cancel-account-opening"
+                  },
+                  {
+                    "type": "Button",
+                    "label": { "en": "Continue", "tr": "Devam Et" },
+                    "variant": "filled",
+                    "icon": "arrow_forward",
+                    "action": "submit",
+                    "command": "urn:amorphie:wf:account-opening:transition:submit-investment-account-info"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

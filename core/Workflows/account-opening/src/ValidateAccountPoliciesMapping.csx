@@ -29,7 +29,7 @@ public class ValidateAccountPoliciesMapping : IMapping
                 userId = userSession?.userId,
                 
                 // Account details
-                accountType = accountType?.accountType ?? "demand-deposit",
+                accountType = ResolveAccountType(accountType),
                 accountName = context.Instance?.Data?.accountName,
                 currency = context.Instance?.Data?.currency,
                 branchCode = context.Instance?.Data?.branchCode,
@@ -64,6 +64,23 @@ public class ValidateAccountPoliciesMapping : IMapping
         catch (Exception ex)
         {
             return Task.FromResult(new ScriptResponse());
+        }
+    }
+
+    private string ResolveAccountType(dynamic accountType)
+    {
+        if (accountType == null)
+        {
+            return "demand-deposit";
+        }
+
+        try
+        {
+            return accountType.accountType?.ToString() ?? "demand-deposit";
+        }
+        catch
+        {
+            return accountType.ToString();
         }
     }
 

@@ -1,0 +1,113 @@
+{
+  "key": "savings-account-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-details",
+    "input-schema",
+    "savings-account"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:amorphie:res:schema:core:savings-account-input",
+      "title": "Savings Account Input Schema",
+      "description": "Input schema for savings account details during account opening",
+      "type": "object",
+      "required": [
+        "accountName",
+        "currency",
+        "branchCode",
+        "savingsGoalAmount",
+        "targetDate"
+      ],
+      "properties": {
+        "accountName": {
+          "type": "string",
+          "title": "Account Name",
+          "minLength": 1,
+          "maxLength": 50,
+          "pattern": "^[a-zA-Z0-9\\s\\-_]+$",
+          "x-labels": { "en": "Account Name", "tr": "Hesap Adı" },
+          "x-errorMessages": {
+            "required": { "en": "Please enter an account name", "tr": "Lütfen hesap adı girin" }
+          }
+        },
+        "currency": {
+          "type": "string",
+          "title": "Currency",
+          "enum": ["TRY", "USD", "EUR", "GBP"],
+          "x-labels": { "en": "Currency", "tr": "Para Birimi" },
+          "x-enum": {
+            "TRY": { "en": "Turkish Lira", "tr": "Türk Lirası" },
+            "USD": { "en": "US Dollar", "tr": "ABD Doları" },
+            "EUR": { "en": "Euro", "tr": "Euro" },
+            "GBP": { "en": "British Pound", "tr": "İngiliz Sterlini" }
+          }
+        },
+        "branchCode": {
+          "type": "string",
+          "title": "Branch Code",
+          "pattern": "^[0-9]{4}$",
+          "x-labels": { "en": "Branch Code", "tr": "Şube Kodu" },
+          "x-errorMessages": {
+            "pattern": { "en": "Enter a valid 4-digit branch code", "tr": "4 haneli geçerli bir şube kodu girin" }
+          }
+        },
+        "initialDeposit": {
+          "type": "number",
+          "title": "Initial Deposit",
+          "minimum": 0,
+          "maximum": 1000000,
+          "x-labels": { "en": "Initial Deposit", "tr": "Başlangıç Yatırımı" }
+        },
+        "savingsGoalAmount": {
+          "type": "number",
+          "title": "Savings Goal Amount",
+          "minimum": 100,
+          "maximum": 100000000,
+          "x-labels": { "en": "Savings Goal Amount", "tr": "Birikim Hedef Tutarı" },
+          "x-errorMessages": {
+            "required": { "en": "Please enter a savings goal", "tr": "Lütfen birikim hedefi girin" },
+            "minimum":  { "en": "Goal must be at least 100",  "tr": "Hedef en az 100 olmalıdır" }
+          }
+        },
+        "targetDate": {
+          "type": "string",
+          "format": "date",
+          "title": "Target Date",
+          "x-labels": { "en": "Target Date", "tr": "Hedef Tarih" },
+          "x-errorMessages": {
+            "required": { "en": "Please choose a target date", "tr": "Lütfen hedef tarih seçin" },
+            "format":   { "en": "Enter a valid date",          "tr": "Geçerli bir tarih girin" }
+          }
+        },
+        "autoTransferFromAccount": {
+          "type": "string",
+          "title": "Auto-Transfer Source IBAN",
+          "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$",
+          "x-labels": { "en": "Auto-Transfer Source IBAN", "tr": "Otomatik Aktarım Kaynağı IBAN" },
+          "x-errorMessages": {
+            "pattern": { "en": "Enter a valid IBAN", "tr": "Geçerli bir IBAN girin" }
+          }
+        },
+        "notifications": {
+          "type": "object",
+          "title": "Notification Preferences",
+          "x-labels": { "en": "Notification Preferences", "tr": "Bildirim Tercihleri" },
+          "properties": {
+            "smsNotifications":   { "type": "boolean", "default": true,  "x-labels": { "en": "SMS Notifications",   "tr": "SMS Bildirimleri" } },
+            "emailNotifications": { "type": "boolean", "default": true,  "x-labels": { "en": "Email Notifications", "tr": "E-posta Bildirimleri" } },
+            "pushNotifications":  { "type": "boolean", "default": true,  "x-labels": { "en": "Push Notifications",  "tr": "Anlık Bildirimler" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

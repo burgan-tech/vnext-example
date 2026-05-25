@@ -13,7 +13,7 @@
   "attributes": {
     "type": "workflow",
     "schema": {
-      "$id": "https://schemas.vnext.com/banking/account-type-selection.json",
+      "$id": "urn:amorphie:res:schema:core:account-type-selection",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Account Type Selection Schema",
       "description": "Schema for account type selection input",
@@ -26,24 +26,44 @@
           "type": "string",
           "title": "Account Type",
           "description": "Type of account to be opened",
-          "oneOf": [
-            {
-              "const": "demand-deposit",
-              "description": "Demand Deposit Account"
+          "x-labels": {
+            "en": "Account Type",
+            "tr": "Hesap Türü"
+          },
+          "x-errorMessages": {
+            "required": {
+              "en": "Please select an account type",
+              "tr": "Lütfen bir hesap türü seçin"
             },
-            {
-              "const": "time-deposit",
-              "description": "Time Deposit Account"
-            },
-            {
-              "const": "investment-account",
-              "description": "Investment Account"
-            },
-            {
-              "const": "savings-account",
-              "description": "Savings Account"
+            "enum": {
+              "en": "Please select a valid account type",
+              "tr": "Lütfen geçerli bir hesap türü seçin"
             }
-          ]
+          },
+          "enum": [
+            "demand-deposit",
+            "time-deposit",
+            "investment-account",
+            "savings-account"
+          ],
+          "x-enum": {
+            "demand-deposit": {
+              "en": "Demand Deposit Account",
+              "tr": "Vadesiz Mevduat Hesabı"
+            },
+            "time-deposit": {
+              "en": "Time Deposit Account",
+              "tr": "Vadeli Mevduat Hesabı"
+            },
+            "investment-account": {
+              "en": "Investment Account",
+              "tr": "Yatırım Hesabı"
+            },
+            "savings-account": {
+              "en": "Savings Account",
+              "tr": "Birikim Hesabı"
+            }
+          }
         }
       },
       "additionalProperties": true

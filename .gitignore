@@ -281,3 +281,4 @@ jmeter/results/
 
 # vnext-forge LSP scaffold
 .vnext-forge-lsp/
+core.link.json

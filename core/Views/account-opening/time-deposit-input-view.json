@@ -1,0 +1,125 @@
+{
+  "key": "time-deposit-input-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-details",
+    "time-deposit",
+    "ui-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      { "language": "en-US", "label": "Time Deposit Details" },
+      { "language": "tr-TR", "label": "Vadeli Mevduat Bilgileri" }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:amorphie:res:schema:core:time-deposit-input",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": { "en": "Step 2 of 4 — Details", "tr": "Adım 2 / 4 — Bilgiler" },
+                "variant": "labelLarge"
+              },
+              {
+                "type": "Text",
+                "content": { "en": "Time Deposit Details", "tr": "Vadeli Mevduat Bilgileri" },
+                "variant": "headlineMedium"
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "en": "Choose a term and how interest should be handled at maturity.",
+                  "tr": "Vade süresini seçin ve vade sonunda faizin nasıl işleneceğine karar verin."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Account Identity", "tr": "Hesap Bilgileri" }, "variant": "titleMedium" },
+                      { "type": "TextField", "bind": "accountName", "variant": "outlined" },
+                      { "type": "Dropdown",  "bind": "currency",    "variant": "outlined" },
+                      { "type": "TextField", "bind": "branchCode",  "variant": "outlined" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Term and Deposit", "tr": "Vade ve Yatırım" }, "variant": "titleMedium" },
+                      { "type": "NumberField", "bind": "initialDeposit",      "variant": "outlined" },
+                      { "type": "Dropdown",    "bind": "termMonths",          "variant": "outlined" },
+                      { "type": "Dropdown",    "bind": "maturityInstruction", "variant": "outlined" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Notification Preferences", "tr": "Bildirim Tercihleri" }, "variant": "titleMedium" },
+                      { "type": "Switch", "bind": "notifications.smsNotifications" },
+                      { "type": "Switch", "bind": "notifications.emailNotifications" },
+                      { "type": "Switch", "bind": "notifications.pushNotifications" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": { "en": "Cancel", "tr": "İptal" },
+                    "variant": "outlined",
+                    "action": "cancel",
+                    "command": "urn:amorphie:wf:account-opening:transition:cancel-account-opening"
+                  },
+                  {
+                    "type": "Button",
+                    "label": { "en": "Continue", "tr": "Devam Et" },
+                    "variant": "filled",
+                    "icon": "arrow_forward",
+                    "action": "submit",
+                    "command": "urn:amorphie:wf:account-opening:transition:submit-time-deposit-info"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -13,12 +13,132 @@
   "attributes": {
     "type": 1,
     "labels": [
-      {
-        "language": "en-US",
-        "label": "Account Opening Successful"
-      }
+      { "language": "en-US", "label": "Account Opening Successful" }
     ],
     "display": "bottom-sheet",
-    "content": "{\"type\":\"success-celebration\",\"animation\":\"confetti\",\"title\":{\"en-US\":\"🎉 Congratulations!\"},\"subtitle\":{\"en-US\":\"Your account has been successfully created\"},\"message\":{\"en-US\":\"Welcome to our digital banking family! Your new account is ready to use.\"},\"accountSummary\":{\"title\":{\"en-US\":\"Account Details\"},\"fields\":[{\"key\":\"accountNumber\",\"label\":{\"en-US\":\"Account Number\"},\"value\":\"{{accountCreation.accountNumber}}\",\"copyable\":true,\"highlight\":true},{\"key\":\"iban\",\"label\":{\"en-US\":\"IBAN\"},\"value\":\"{{accountCreation.iban}}\",\"copyable\":true},{\"key\":\"accountType\",\"label\":{\"en-US\":\"Account Type\"},\"value\":\"{{accountCreation.accountType}}\",\"displayValue\":{\"demand-deposit\":{\"en-US\":\"Demand Deposit Account\"}}},{\"key\":\"currency\",\"label\":{\"en-US\":\"Currency\"},\"value\":\"{{accountCreation.currency}}\"},{\"key\":\"status\",\"label\":{\"en-US\":\"Status\"},\"value\":\"{{accountCreation.status}}\",\"displayValue\":{\"active\":{\"en-US\":\"Active ✅\"}},\"statusColor\":\"success\"}]},\"nextSteps\":{\"title\":{\"en-US\":\"What's Next?\"},\"items\":[{\"icon\":\"credit-card\",\"title\":{\"en-US\":\"Order Your Debit Card\"},\"description\":{\"en-US\":\"Get instant access to your funds\"},\"action\":\"order-card\"},{\"icon\":\"mobile-app\",\"title\":{\"en-US\":\"Download Mobile App\"},\"description\":{\"en-US\":\"Manage your account on the go\"},\"action\":\"download-app\"},{\"icon\":\"money-transfer\",\"title\":{\"en-US\":\"Make Your First Deposit\"},\"description\":{\"en-US\":\"Start using your new account\"},\"action\":\"make-deposit\"}]},\"buttons\":[{\"key\":\"continue-banking\",\"label\":{\"en-US\":\"Continue to Banking\"},\"style\":\"primary\",\"action\":\"navigate\",\"destination\":\"/dashboard\",\"icon\":\"arrow-right\"},{\"key\":\"download-summary\",\"label\":{\"en-US\":\"Download Summary\"},\"style\":\"secondary\",\"action\":\"download\",\"fileType\":\"pdf\",\"icon\":\"download\"},{\"key\":\"share-success\",\"label\":{\"en-US\":\"Share\"},\"style\":\"tertiary\",\"action\":\"share\",\"icon\":\"share\"}],\"footer\":{\"message\":{\"en-US\":\"Need help? Contact our 24/7 customer support\"},\"supportAction\":{\"label\":{\"en-US\":\"Get Support\"},\"action\":\"contact-support\"}}}"
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:amorphie:res:schema:core:account-opening-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": { "en": "Step 4 of 4 — Done", "tr": "Adım 4 / 4 — Tamamlandı" },
+                "variant": "labelLarge"
+              },
+              {
+                "type": "Center",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "crossAxisAlignment": "center",
+                    "children": [
+                      { "type": "Icon", "name": "check_circle", "size": "lg" },
+                      {
+                        "type": "Text",
+                        "content": { "en": "Account Created", "tr": "Hesap Oluşturuldu" },
+                        "variant": "headlineMedium"
+                      },
+                      {
+                        "type": "Text",
+                        "content": { "en": "Your new account is ready to use.", "tr": "Yeni hesabınız kullanıma hazır." },
+                        "variant": "bodyMedium"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "filled",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "xs",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Account Details", "tr": "Hesap Detayları" }, "variant": "titleMedium" },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "tag" },
+                        "title": { "en": "Account Number", "tr": "Hesap Numarası" },
+                        "subtitle": "$instance.accountCreation.accountNumber"
+                      },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "credit_card" },
+                        "title": { "en": "IBAN", "tr": "IBAN" },
+                        "subtitle": "$instance.accountCreation.iban"
+                      },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "credit_card" },
+                        "title": { "en": "Currency", "tr": "Para Birimi" },
+                        "subtitle": "$instance.accountCreation.currency"
+                      },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "check_circle" },
+                        "title": { "en": "Status", "tr": "Durum" },
+                        "subtitle": "$instance.accountCreation.status"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "xs",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Next Steps", "tr": "Sonraki Adımlar" }, "variant": "titleMedium" },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "credit_card" },
+                        "title": { "en": "Order your debit card", "tr": "Banka kartınızı sipariş edin" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "smartphone" },
+                        "title": { "en": "Manage the account from mobile banking", "tr": "Hesabı mobil bankacılıktan yönetin" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "leading": { "type": "Icon", "name": "star" },
+                        "title": { "en": "Make your first deposit", "tr": "İlk para yatırma işleminizi yapın" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "end",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": { "en": "Continue to Banking", "tr": "Bankacılığa Devam Et" },
+                    "variant": "filled",
+                    "icon": "arrow_forward",
+                    "action": "submit",
+                    "command": "urn:forge:nav:/dashboard"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 }

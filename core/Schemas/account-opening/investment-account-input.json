@@ -1,0 +1,125 @@
+{
+  "key": "investment-account-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-details",
+    "input-schema",
+    "investment-account"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:amorphie:res:schema:core:investment-account-input",
+      "title": "Investment Account Input Schema",
+      "description": "Input schema for investment account details during account opening",
+      "type": "object",
+      "required": [
+        "accountName",
+        "currency",
+        "branchCode",
+        "riskProfile",
+        "investmentExperience",
+        "investmentObjective"
+      ],
+      "properties": {
+        "accountName": {
+          "type": "string",
+          "title": "Account Name",
+          "minLength": 1,
+          "maxLength": 50,
+          "pattern": "^[a-zA-Z0-9\\s\\-_]+$",
+          "x-labels": {
+            "en": "Account Name",
+            "tr": "Hesap Adı"
+          },
+          "x-errorMessages": {
+            "required": { "en": "Please enter an account name", "tr": "Lütfen hesap adı girin" }
+          }
+        },
+        "currency": {
+          "type": "string",
+          "title": "Currency",
+          "enum": ["TRY", "USD", "EUR", "GBP"],
+          "x-labels": { "en": "Currency", "tr": "Para Birimi" },
+          "x-enum": {
+            "TRY": { "en": "Turkish Lira", "tr": "Türk Lirası" },
+            "USD": { "en": "US Dollar", "tr": "ABD Doları" },
+            "EUR": { "en": "Euro", "tr": "Euro" },
+            "GBP": { "en": "British Pound", "tr": "İngiliz Sterlini" }
+          }
+        },
+        "branchCode": {
+          "type": "string",
+          "title": "Branch Code",
+          "pattern": "^[0-9]{4}$",
+          "x-labels": { "en": "Branch Code", "tr": "Şube Kodu" },
+          "x-errorMessages": {
+            "pattern": { "en": "Enter a valid 4-digit branch code", "tr": "4 haneli geçerli bir şube kodu girin" }
+          }
+        },
+        "initialDeposit": {
+          "type": "number",
+          "title": "Initial Deposit",
+          "minimum": 0,
+          "maximum": 100000000,
+          "x-labels": { "en": "Initial Deposit", "tr": "Başlangıç Yatırımı" }
+        },
+        "riskProfile": {
+          "type": "string",
+          "title": "Risk Profile",
+          "enum": ["low", "medium", "high"],
+          "x-labels": { "en": "Risk Profile", "tr": "Risk Profili" },
+          "x-enum": {
+            "low":    { "en": "Conservative", "tr": "Düşük (Korumacı)" },
+            "medium": { "en": "Balanced",     "tr": "Orta (Dengeli)" },
+            "high":   { "en": "Aggressive",   "tr": "Yüksek (Agresif)" }
+          },
+          "x-errorMessages": {
+            "required": { "en": "Please choose your risk profile", "tr": "Lütfen risk profilinizi seçin" }
+          }
+        },
+        "investmentExperience": {
+          "type": "string",
+          "title": "Investment Experience",
+          "enum": ["none", "beginner", "intermediate", "expert"],
+          "x-labels": { "en": "Investment Experience", "tr": "Yatırım Deneyimi" },
+          "x-enum": {
+            "none":         { "en": "No experience",  "tr": "Deneyimsiz" },
+            "beginner":     { "en": "Beginner",       "tr": "Başlangıç" },
+            "intermediate": { "en": "Intermediate",   "tr": "Orta" },
+            "expert":       { "en": "Expert",         "tr": "Uzman" }
+          }
+        },
+        "investmentObjective": {
+          "type": "string",
+          "title": "Investment Objective",
+          "enum": ["capital-preservation", "income", "growth", "aggressive-growth"],
+          "x-labels": { "en": "Investment Objective", "tr": "Yatırım Hedefi" },
+          "x-enum": {
+            "capital-preservation": { "en": "Capital preservation", "tr": "Anapara koruma" },
+            "income":               { "en": "Income generation",   "tr": "Gelir oluşturma" },
+            "growth":               { "en": "Capital growth",      "tr": "Sermaye büyümesi" },
+            "aggressive-growth":    { "en": "Aggressive growth",   "tr": "Agresif büyüme" }
+          }
+        },
+        "notifications": {
+          "type": "object",
+          "title": "Notification Preferences",
+          "x-labels": { "en": "Notification Preferences", "tr": "Bildirim Tercihleri" },
+          "properties": {
+            "smsNotifications":   { "type": "boolean", "default": true,  "x-labels": { "en": "SMS Notifications",   "tr": "SMS Bildirimleri" } },
+            "emailNotifications": { "type": "boolean", "default": true,  "x-labels": { "en": "Email Notifications", "tr": "E-posta Bildirimleri" } },
+            "pushNotifications":  { "type": "boolean", "default": true,  "x-labels": { "en": "Push Notifications",  "tr": "Anlık Bildirimler" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

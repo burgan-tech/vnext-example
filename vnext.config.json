@@ -3,7 +3,7 @@
   "description": "core Domain Definition Configuration",
   "domain": "core",
   "runtimeVersion": "0.0.32",
-  "schemaVersion": "0.0.41",
+  "schemaVersion": "0.0.42",
   "paths": {
     "componentsRoot": "core",
     "tasks": "Tasks",

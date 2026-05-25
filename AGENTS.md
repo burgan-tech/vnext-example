@@ -1,8 +1,8 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (and any AGENTS.md-compatible agent) when working with code in this repository.
 
-> **Keep `AGENTS.md` in sync with this file** — both files describe the same rules; `AGENTS.md` exists for Codex. When you change one, update the other.
+> **Keep `CLAUDE.md` in sync with this file** — both files describe the same rules; `CLAUDE.md` exists for Claude Code. When you change one, update the other.
 
 ## Commands
 

@@ -1,36 +1,86 @@
 {
   "nodePos": {
+    "__start__": {
+      "x": 371,
+      "y": 12
+    },
     "account-type-selection": {
-      "x": 1040,
-      "y": 560
+      "x": 277,
+      "y": 184,
+      "width": 228,
+      "height": 99
     },
-    "account-details-input": {
-      "x": 1240,
-      "y": 980
+    "demand-deposit-info": {
+      "x": 1092,
+      "y": 403,
+      "width": 280,
+      "height": 99
     },
-    "account-confirmation": {
-      "x": 721,
-      "y": 1556
+    "time-deposit-info": {
+      "x": 753,
+      "y": 403,
+      "width": 259,
+      "height": 99
+    },
+    "investment-account-info": {
+      "x": 426,
+      "y": 403,
+      "width": 247,
+      "height": 99
+    },
+    "savings-account-info": {
+      "x": -320,
+      "y": 360,
+      "width": 227,
+      "height": 99
+    },
+    "account-summary": {
+      "x": 358,
+      "y": 622,
+      "width": 193,
+      "height": 99
     },
     "policy-validation": {
-      "x": 660,
-      "y": 600
+      "x": 104,
+      "y": 841,
+      "width": 195,
+      "height": 99
     },
     "account-creation": {
-      "x": 278,
-      "y": 954
+      "x": 34,
+      "y": 1060,
+      "width": 188,
+      "height": 99
     },
     "account-opening-success": {
-      "x": 153,
-      "y": 1400
+      "x": 0,
+      "y": 1279,
+      "width": 255,
+      "height": 89
     },
     "cancelled": {
-      "x": 160,
-      "y": -200
+      "x": 491,
+      "y": 0,
+      "width": 249,
+      "height": 64
     },
-    "__start__": {
-      "x": 840,
-      "y": 100
+    "timeouted": {
+      "x": 820,
+      "y": 0,
+      "width": 239,
+      "height": 64
+    },
+    "__wf_cancel__": {
+      "x": -200,
+      "y": 0,
+      "width": 82,
+      "height": 34
+    },
+    "__wf_timeout__": {
+      "x": -200,
+      "y": 55,
+      "width": 89,
+      "height": 34
     }
   }
 }

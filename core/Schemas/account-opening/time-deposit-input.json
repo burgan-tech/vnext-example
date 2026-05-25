@@ -1,0 +1,169 @@
+{
+  "key": "time-deposit-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-details",
+    "input-schema",
+    "time-deposit"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:amorphie:res:schema:core:time-deposit-input",
+      "title": "Time Deposit Input Schema",
+      "description": "Input schema for time deposit account details during account opening",
+      "type": "object",
+      "required": [
+        "accountName",
+        "currency",
+        "branchCode",
+        "termMonths",
+        "maturityInstruction",
+        "initialDeposit"
+      ],
+      "properties": {
+        "accountName": {
+          "type": "string",
+          "title": "Account Name",
+          "minLength": 1,
+          "maxLength": 50,
+          "pattern": "^[a-zA-Z0-9\\s\\-_]+$",
+          "x-labels": {
+            "en": "Account Name",
+            "tr": "Hesap Adı"
+          },
+          "x-errorMessages": {
+            "required": {
+              "en": "Please enter an account name",
+              "tr": "Lütfen hesap adı girin"
+            },
+            "pattern": {
+              "en": "Use letters, numbers, spaces, hyphens, or underscores",
+              "tr": "Harf, rakam, boşluk, tire veya alt çizgi kullanın"
+            }
+          }
+        },
+        "currency": {
+          "type": "string",
+          "title": "Currency",
+          "enum": ["TRY", "USD", "EUR", "GBP"],
+          "x-labels": {
+            "en": "Currency",
+            "tr": "Para Birimi"
+          },
+          "x-enum": {
+            "TRY": { "en": "Turkish Lira", "tr": "Türk Lirası" },
+            "USD": { "en": "US Dollar", "tr": "ABD Doları" },
+            "EUR": { "en": "Euro", "tr": "Euro" },
+            "GBP": { "en": "British Pound", "tr": "İngiliz Sterlini" }
+          },
+          "x-errorMessages": {
+            "required": { "en": "Please select a currency", "tr": "Lütfen bir para birimi seçin" }
+          }
+        },
+        "branchCode": {
+          "type": "string",
+          "title": "Branch Code",
+          "pattern": "^[0-9]{4}$",
+          "x-labels": {
+            "en": "Branch Code",
+            "tr": "Şube Kodu"
+          },
+          "x-errorMessages": {
+            "pattern": { "en": "Enter a valid 4-digit branch code", "tr": "4 haneli geçerli bir şube kodu girin" }
+          }
+        },
+        "initialDeposit": {
+          "type": "number",
+          "title": "Initial Deposit",
+          "minimum": 1000,
+          "maximum": 10000000,
+          "x-labels": {
+            "en": "Initial Deposit",
+            "tr": "Başlangıç Yatırımı"
+          },
+          "x-errorMessages": {
+            "minimum": { "en": "Minimum deposit is 1,000", "tr": "Minimum yatırım 1.000" }
+          }
+        },
+        "termMonths": {
+          "type": "integer",
+          "title": "Term (Months)",
+          "enum": [3, 6, 12, 24, 36],
+          "x-labels": {
+            "en": "Term (Months)",
+            "tr": "Vade (Ay)"
+          },
+          "x-enum": {
+            "3":  { "en": "3 Months",  "tr": "3 Ay" },
+            "6":  { "en": "6 Months",  "tr": "6 Ay" },
+            "12": { "en": "12 Months", "tr": "12 Ay" },
+            "24": { "en": "24 Months", "tr": "24 Ay" },
+            "36": { "en": "36 Months", "tr": "36 Ay" }
+          },
+          "x-errorMessages": {
+            "required": { "en": "Please select a term", "tr": "Lütfen vade seçin" }
+          }
+        },
+        "maturityInstruction": {
+          "type": "string",
+          "title": "Maturity Instruction",
+          "enum": ["auto-renew", "principal-payout", "full-payout"],
+          "x-labels": {
+            "en": "Maturity Instruction",
+            "tr": "Vade Sonu Talimatı"
+          },
+          "x-enum": {
+            "auto-renew": {
+              "en": "Auto-renew with interest",
+              "tr": "Faiziyle birlikte otomatik yenile"
+            },
+            "principal-payout": {
+              "en": "Pay out interest, renew principal",
+              "tr": "Faizi öde, anaparayı yenile"
+            },
+            "full-payout": {
+              "en": "Pay out principal and interest",
+              "tr": "Anapara ve faizi ödeme yap"
+            }
+          },
+          "x-errorMessages": {
+            "required": { "en": "Please choose a maturity instruction", "tr": "Lütfen vade sonu talimatı seçin" }
+          }
+        },
+        "notifications": {
+          "type": "object",
+          "title": "Notification Preferences",
+          "x-labels": {
+            "en": "Notification Preferences",
+            "tr": "Bildirim Tercihleri"
+          },
+          "properties": {
+            "smsNotifications": {
+              "type": "boolean",
+              "default": true,
+              "x-labels": { "en": "SMS Notifications", "tr": "SMS Bildirimleri" }
+            },
+            "emailNotifications": {
+              "type": "boolean",
+              "default": true,
+              "x-labels": { "en": "Email Notifications", "tr": "E-posta Bildirimleri" }
+            },
+            "pushNotifications": {
+              "type": "boolean",
+              "default": true,
+              "x-labels": { "en": "Push Notifications", "tr": "Anlık Bildirimler" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

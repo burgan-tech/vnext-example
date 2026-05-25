@@ -1,0 +1,150 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = account-opening
+@instanceKey = REPLACE_WITH_INSTANCE_KEY
+
+### Start instance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+x-device-id: dev-mac-001
+x-request-id: req-{{$guid}}
+
+{
+  "session": "session-{{$guid}}",
+  "customer": {
+    "ownerUserId": "11111111-1111-1111-1111-111111111111",
+    "firstName": "Ada",
+    "lastName": "Lovelace",
+    "preferredLanguage": "tr"
+  }
+}
+
+### Get current state (long-polling for view + data)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### --- Step 1: Choose account type (only one of the four runs per instance) ---
+
+### Select Demand Deposit
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/select-demand-deposit
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### Select Time Deposit
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/select-time-deposit
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### Select Investment Account
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/select-investment-account
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### Select Savings Account
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/select-savings-account
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### --- Step 2: Submit type-specific details (only one runs per instance) ---
+
+### Submit Demand Deposit details
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/submit-demand-deposit-info
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "accountName": "Daily Spending",
+  "currency": "TRY",
+  "branchCode": "1001",
+  "initialDeposit": 500,
+  "accountPurpose": "personal-banking",
+  "notifications": {
+    "smsNotifications": true,
+    "emailNotifications": true,
+    "pushNotifications": false
+  }
+}
+
+### Submit Time Deposit details
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/submit-time-deposit-info
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "accountName": "12m TRY Deposit",
+  "currency": "TRY",
+  "branchCode": "1001",
+  "initialDeposit": 25000,
+  "termMonths": 12,
+  "maturityInstruction": "auto-renew",
+  "notifications": {
+    "smsNotifications": true,
+    "emailNotifications": true,
+    "pushNotifications": true
+  }
+}
+
+### Submit Investment Account details
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/submit-investment-account-info
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "accountName": "Portfolio Account",
+  "currency": "USD",
+  "branchCode": "1001",
+  "initialDeposit": 10000,
+  "riskProfile": "medium",
+  "investmentExperience": "intermediate",
+  "investmentObjective": "growth",
+  "notifications": {
+    "smsNotifications": true,
+    "emailNotifications": true,
+    "pushNotifications": true
+  }
+}
+
+### Submit Savings Account details
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/submit-savings-account-info
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "accountName": "Vacation Fund",
+  "currency": "EUR",
+  "branchCode": "1001",
+  "initialDeposit": 500,
+  "savingsGoalAmount": 15000,
+  "targetDate": "2027-06-01",
+  "autoTransferFromAccount": "TR330006100519786457841326",
+  "notifications": {
+    "smsNotifications": true,
+    "emailNotifications": true,
+    "pushNotifications": false
+  }
+}
+
+### --- Step 3: Approve summary (manual transition; final confirmation popup view) ---
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/approve-account-opening
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "confirmed": true,
+  "termsAccepted": true,
+  "privacyPolicyAccepted": true
+}
+
+### --- Step 4: Wait for automatic policy-validation + account-creation (poll state) ---
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### Cancel at any user-driven step
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/cancel-account-opening
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### Retry a failed transition
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/retry
+user_reference: 11111111-1111-1111-1111-111111111111
+
+### Query instances by state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?state=account-opening-success
+user_reference: 11111111-1111-1111-1111-111111111111
