@@ -76,6 +76,18 @@
                 { "role": "$PreviousUser", "grant": "allow" }
               ]
         },
+        "branchDetail": {
+          "type": "object",
+          "description": "Read-only branch enrichment looked up from branchCode (display only). Accessed via $lookup.branchDetail.* in views; activated by the view's lookups: [\"branchDetail\"] array.",
+          "additionalProperties": true,
+          "x-lookup": {
+            "source": "urn:amorphie:func:core:get-branch-detail",
+            "resultField": "$.data",
+            "filter": [
+              { "param": "code", "value": "$instance.branchCode", "required": true }
+            ]
+          }
+        },
         "accountName": {
           "type": "string",
           "description": "Account name/alias",
@@ -89,7 +101,7 @@
         },
         "accountType": {
           "type": "string",
-          "description": "Account type (e.g. demand-deposit)",
+          "description": "Account type (e.g. demand-deposit). Read-only in the master/instance schema; user input is captured by the account-type-selection transition schema, which carries the x-lov definition.",
           "x-labels": {
             "en": "Account Type",
             "tr": "Hesap Türü"

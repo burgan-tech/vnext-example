@@ -25,7 +25,7 @@
         "accountType": {
           "type": "string",
           "title": "Account Type",
-          "description": "Type of account to be opened",
+          "description": "Type of account to be opened. Enum + x-enum carry the validation contract and localised labels; the account-type-selection-view renders a static navigation Card grid (each Card dispatches its own select-{type} transition).",
           "x-labels": {
             "en": "Account Type",
             "tr": "Hesap Türü"

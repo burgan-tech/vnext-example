@@ -69,6 +69,160 @@
         }
       ],
       "sequenceItems": []
+    },
+    {
+      "httpMethod": "GET",
+      "route": "api/banking/lov/branches",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"data\": [\n    { \"code\": \"1001\", \"name\": { \"en\": \"Kadıköy Branch\",  \"tr\": \"Kadıköy Şubesi\"  }, \"city\": \"İstanbul\", \"currency\": \"TRY\" },\n    { \"code\": \"1002\", \"name\": { \"en\": \"Beşiktaş Branch\", \"tr\": \"Beşiktaş Şubesi\" }, \"city\": \"İstanbul\", \"currency\": \"TRY\" },\n    { \"code\": \"1003\", \"name\": { \"en\": \"Çankaya Branch\",  \"tr\": \"Çankaya Şubesi\"  }, \"city\": \"Ankara\",   \"currency\": \"TRY\" },\n    { \"code\": \"2001\", \"name\": { \"en\": \"Levent FX\",       \"tr\": \"Levent FX\"       }, \"city\": \"İstanbul\", \"currency\": \"USD\" },\n    { \"code\": \"2002\", \"name\": { \"en\": \"Bahçelievler FX\", \"tr\": \"Bahçelievler FX\" }, \"city\": \"Ankara\",   \"currency\": \"USD\" },\n    { \"code\": \"3001\", \"name\": { \"en\": \"Maslak EUR\",      \"tr\": \"Maslak EUR\"      }, \"city\": \"İstanbul\", \"currency\": \"EUR\" },\n    { \"code\": \"3002\", \"name\": { \"en\": \"Karşıyaka EUR\",   \"tr\": \"Karşıyaka EUR\"   }, \"city\": \"İzmir\",    \"currency\": \"EUR\" },\n    { \"code\": \"4001\", \"name\": { \"en\": \"Etiler GBP\",      \"tr\": \"Etiler GBP\"      }, \"city\": \"İstanbul\", \"currency\": \"GBP\" }\n  ]\n}",
+      "contentType": "application/json",
+      "description": "LOV: branches catalog, filterable by currency. Drives branchCode x-lov (cascade with $form.currency) on demand-deposit-input, time-deposit-input, investment-account-input, savings-account-input schemas.",
+      "delayMs": 250,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "query.currency",
+          "conditionOperator": "equals",
+          "conditionValue": "TRY",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": [\n    { \"code\": \"1001\", \"name\": { \"en\": \"Kadıköy Branch\",  \"tr\": \"Kadıköy Şubesi\"  }, \"city\": \"İstanbul\", \"currency\": \"TRY\" },\n    { \"code\": \"1002\", \"name\": { \"en\": \"Beşiktaş Branch\", \"tr\": \"Beşiktaş Şubesi\" }, \"city\": \"İstanbul\", \"currency\": \"TRY\" },\n    { \"code\": \"1003\", \"name\": { \"en\": \"Çankaya Branch\",  \"tr\": \"Çankaya Şubesi\"  }, \"city\": \"Ankara\",   \"currency\": \"TRY\" }\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.currency",
+          "conditionOperator": "equals",
+          "conditionValue": "USD",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": [\n    { \"code\": \"2001\", \"name\": { \"en\": \"Levent FX\",       \"tr\": \"Levent FX\"       }, \"city\": \"İstanbul\", \"currency\": \"USD\" },\n    { \"code\": \"2002\", \"name\": { \"en\": \"Bahçelievler FX\", \"tr\": \"Bahçelievler FX\" }, \"city\": \"Ankara\",   \"currency\": \"USD\" }\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.currency",
+          "conditionOperator": "equals",
+          "conditionValue": "EUR",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": [\n    { \"code\": \"3001\", \"name\": { \"en\": \"Maslak EUR\",    \"tr\": \"Maslak EUR\"    }, \"city\": \"İstanbul\", \"currency\": \"EUR\" },\n    { \"code\": \"3002\", \"name\": { \"en\": \"Karşıyaka EUR\", \"tr\": \"Karşıyaka EUR\" }, \"city\": \"İzmir\",    \"currency\": \"EUR\" }\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 2,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.currency",
+          "conditionOperator": "equals",
+          "conditionValue": "GBP",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": [\n    { \"code\": \"4001\", \"name\": { \"en\": \"Etiler GBP\", \"tr\": \"Etiler GBP\" }, \"city\": \"İstanbul\", \"currency\": \"GBP\" }\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 3,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "GET",
+      "route": "api/banking/lookup/branches",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 404,
+      "responseBody": "{\n  \"error\": {\n    \"code\": \"branch_not_found\",\n    \"message\": \"Branch not found for the provided code.\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Lookup: branch detail (address, phone, manager) by code. Drives branchCode x-lookup on account-opening-master schema; result is exposed under $lookup.branchDetail in account-confirmation-view. Returns 404 for unknown codes.",
+      "delayMs": 200,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "1001",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"1001\",\n    \"name\": { \"en\": \"Kadıköy Branch\", \"tr\": \"Kadıköy Şubesi\" },\n    \"city\": \"İstanbul\",\n    \"address\": \"Caferağa Mah. Moda Cad. No:12 Kadıköy / İstanbul\",\n    \"phone\": \"+90 216 555 10 01\",\n    \"manager\": \"Ada Lovelace\",\n    \"currency\": \"TRY\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "1002",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"1002\",\n    \"name\": { \"en\": \"Beşiktaş Branch\", \"tr\": \"Beşiktaş Şubesi\" },\n    \"city\": \"İstanbul\",\n    \"address\": \"Sinanpaşa Mah. Beşiktaş Cad. No:45 Beşiktaş / İstanbul\",\n    \"phone\": \"+90 212 555 10 02\",\n    \"manager\": \"Grace Hopper\",\n    \"currency\": \"TRY\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "1003",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"1003\",\n    \"name\": { \"en\": \"Çankaya Branch\", \"tr\": \"Çankaya Şubesi\" },\n    \"city\": \"Ankara\",\n    \"address\": \"Kavaklıdere Mah. Atatürk Bulvarı No:88 Çankaya / Ankara\",\n    \"phone\": \"+90 312 555 10 03\",\n    \"manager\": \"Alan Turing\",\n    \"currency\": \"TRY\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 2,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "2001",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"2001\",\n    \"name\": { \"en\": \"Levent FX\", \"tr\": \"Levent FX\" },\n    \"city\": \"İstanbul\",\n    \"address\": \"Esentepe Mah. Büyükdere Cad. No:201 Levent / İstanbul\",\n    \"phone\": \"+90 212 555 20 01\",\n    \"manager\": \"Linus Torvalds\",\n    \"currency\": \"USD\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 3,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "2002",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"2002\",\n    \"name\": { \"en\": \"Bahçelievler FX\", \"tr\": \"Bahçelievler FX\" },\n    \"city\": \"Ankara\",\n    \"address\": \"Bahçelievler Mah. 7. Cad. No:14 Çankaya / Ankara\",\n    \"phone\": \"+90 312 555 20 02\",\n    \"manager\": \"Margaret Hamilton\",\n    \"currency\": \"USD\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 4,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "3001",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"3001\",\n    \"name\": { \"en\": \"Maslak EUR\", \"tr\": \"Maslak EUR\" },\n    \"city\": \"İstanbul\",\n    \"address\": \"Maslak Mah. Eski Büyükdere Cad. No:55 Sarıyer / İstanbul\",\n    \"phone\": \"+90 212 555 30 01\",\n    \"manager\": \"Edsger Dijkstra\",\n    \"currency\": \"EUR\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 5,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "3002",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"3002\",\n    \"name\": { \"en\": \"Karşıyaka EUR\", \"tr\": \"Karşıyaka EUR\" },\n    \"city\": \"İzmir\",\n    \"address\": \"Bostanlı Mah. Cemal Gürsel Cad. No:120 Karşıyaka / İzmir\",\n    \"phone\": \"+90 232 555 30 02\",\n    \"manager\": \"Barbara Liskov\",\n    \"currency\": \"EUR\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 6,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.code",
+          "conditionOperator": "equals",
+          "conditionValue": "4001",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"code\": \"4001\",\n    \"name\": { \"en\": \"Etiler GBP\", \"tr\": \"Etiler GBP\" },\n    \"city\": \"İstanbul\",\n    \"address\": \"Etiler Mah. Nispetiye Cad. No:73 Beşiktaş / İstanbul\",\n    \"phone\": \"+90 212 555 40 01\",\n    \"manager\": \"Donald Knuth\",\n    \"currency\": \"GBP\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 7,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
     }
   ]
 }

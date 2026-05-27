@@ -88,27 +88,38 @@ Cascade: when `country` changes, the `city` LOV is auto-refreshed and the previo
 
 ### 2.4 Read-only enrichment (Lookup)
 
-View-level. In view JSON:
+**Critical naming rule** (`view-model-vocabulary.json`): lookup results are accessed via **`$lookup.{propertyName}.{field}`**, where `{propertyName}` is the **schema property that owns the `x-lookup`**. So to read `$lookup.branchDetail.*`, the `x-lookup` must live on a property literally named `branchDetail` — **not** on the `branchCode` input field. Define the lookup as its own read-only property; don't attach it to the input it enriches.
 
-```json
-{ "$schema": "...", "dataSchema": "...", "lookups": ["branchDetail"], "view": ... }
-```
-
-In schema:
+In schema — a dedicated read-only property (no `bind` target; not in `required`):
 ```json
 {
   "branchCode": {
     "type": "string",
+    "x-lov": { "source": "urn:amorphie:func:core:get-branches", "valueField": "$.data[*].code", "displayField": "$.data[*].name" }
+  },
+  "branchDetail": {
+    "type": "object",
+    "description": "Read-only enrichment looked up from branchCode (display only).",
+    "additionalProperties": true,
     "x-lookup": {
-      "source": "urn:amorphie:func:branch:get-detail",
-      "resultField": "$.response.data",
+      "source": "urn:amorphie:func:core:get-branch-detail",
+      "resultField": "$.data",
       "filter": [{ "param": "code", "value": "$form.branchCode" }]
     }
   }
 }
 ```
 
+In view JSON — activate by the **property name**:
+```json
+{ "$schema": "...", "dataSchema": "...", "lookups": ["branchDetail"], "view": ... }
+```
+
 In the view, read with `$lookup.branchDetail.address`, `$lookup.branchDetail.phone` — NOT an input bind target, display only.
+
+> **filter value scope**: input/transition views use `$form.branchCode` (user is still picking); display/summary views (bound to the master schema) use `$instance.branchCode` (persisted value).
+
+> **Antipattern**: putting `x-lookup` on `branchCode` and expecting `$lookup.branchDetail` to resolve — the name won't match (`{propertyName}` = `branchCode`, so it'd be `$lookup.branchCode`). Either name the access expression after the field, or (preferred) give the lookup its own well-named property.
 
 ### 2.5 Conditional visibility / enable
 

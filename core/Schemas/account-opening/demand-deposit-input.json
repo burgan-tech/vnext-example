@@ -27,7 +27,7 @@
         "accountName": {
           "type": "string",
           "title": "Account Name",
-          "description": "Name/alias for the account",
+          "description": "Name/alias for the account. Uniqueness is checked asynchronously via the host's onValidationRequest delegate (rule: unique-account-name).",
           "minLength": 1,
           "maxLength": 50,
           "pattern": "^[a-zA-Z0-9\\s\\-_]+$",
@@ -51,6 +51,13 @@
             "pattern": {
               "en": "Please enter a valid account name using letters, numbers, spaces, hyphens, or underscores",
               "tr": "Lütfen harf, rakam, boşluk, tire veya alt çizgi içeren geçerli bir hesap adı girin"
+            }
+          },
+          "x-validation": {
+            "rule": "unique-account-name",
+            "errorMessages": {
+              "en": "An account with this name already exists",
+              "tr": "Bu isimde bir hesap zaten var"
             }
           }
         },
@@ -105,7 +112,7 @@
         "branchCode": {
           "type": "string",
           "title": "Branch Code",
-          "description": "Branch code where account will be opened",
+          "description": "Branch where the account will be opened. Options come from the get-branches LOV, filtered by the selected currency (cascade).",
           "pattern": "^[0-9]{4}$",
           "x-labels": {
             "en": "Branch Code",
@@ -113,13 +120,34 @@
           },
           "x-errorMessages": {
             "required": {
-              "en": "Please enter a branch code",
-              "tr": "Lütfen şube kodu girin"
+              "en": "Please select a branch",
+              "tr": "Lütfen şube seçin"
             },
             "pattern": {
-              "en": "Please enter a valid 4-digit branch code",
-              "tr": "Lütfen 4 haneli geçerli bir şube kodu girin"
+              "en": "Please pick a valid 4-digit branch code",
+              "tr": "Lütfen 4 haneli geçerli bir şube kodu seçin"
             }
+          },
+          "x-lov": {
+            "source": "urn:amorphie:func:core:get-branches",
+            "valueField": "$.data[*].code",
+            "displayField": "$.data[*].name",
+            "filter": [
+              { "param": "currency", "value": "$form.currency", "required": true }
+            ]
+          }
+        },
+        "branchDetail": {
+          "type": "object",
+          "title": "Branch Detail",
+          "description": "Read-only branch enrichment looked up from the selected branchCode. Display only — not a form input. Accessed via $lookup.branchDetail.* in the view (activated by lookups: [\"branchDetail\"]).",
+          "additionalProperties": true,
+          "x-lookup": {
+            "source": "urn:amorphie:func:core:get-branch-detail",
+            "resultField": "$.data",
+            "filter": [
+              { "param": "code", "value": "$form.branchCode", "required": true }
+            ]
           }
         },
         "initialDeposit": {

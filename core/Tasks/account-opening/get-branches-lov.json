@@ -1,0 +1,27 @@
+{
+  "key": "get-branches-lov",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-opening",
+    "lov",
+    "branch",
+    "cascade"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/banking/lov/branches",
+      "method": "GET",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

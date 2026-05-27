@@ -1,0 +1,27 @@
+{
+  "key": "get-branch-detail-lookup",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "banking",
+    "account-opening",
+    "lookup",
+    "branch",
+    "enrichment"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/banking/lookup/branches",
+      "method": "GET",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

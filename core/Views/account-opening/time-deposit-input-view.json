@@ -21,6 +21,7 @@
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
       "dataSchema": "urn:amorphie:res:schema:core:time-deposit-input",
+      "lookups": ["branchDetail"],
       "view": {
         "type": "ScrollView",
         "children": [
@@ -57,7 +58,24 @@
                       { "type": "Text", "content": { "en": "Account Identity", "tr": "Hesap Bilgileri" }, "variant": "titleMedium" },
                       { "type": "TextField", "bind": "accountName", "variant": "outlined" },
                       { "type": "Dropdown",  "bind": "currency",    "variant": "outlined" },
-                      { "type": "TextField", "bind": "branchCode",  "variant": "outlined" }
+                      { "type": "Dropdown",  "bind": "branchCode",  "variant": "outlined" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "filled",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "xs",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Selected Branch", "tr": "Seçilen Şube" }, "variant": "titleSmall" },
+                      { "type": "ListTile", "title": { "en": "Branch", "tr": "Şube" },        "subtitle": "$lookup.branchDetail.name",    "leading": { "type": "Icon", "name": "location_on" } },
+                      { "type": "ListTile", "title": { "en": "Address", "tr": "Adres" },      "subtitle": "$lookup.branchDetail.address", "leading": { "type": "Icon", "name": "home" } },
+                      { "type": "ListTile", "title": { "en": "Phone", "tr": "Telefon" },      "subtitle": "$lookup.branchDetail.phone",   "leading": { "type": "Icon", "name": "smartphone" } },
+                      { "type": "ListTile", "title": { "en": "Branch Manager", "tr": "Şube Müdürü" }, "subtitle": "$lookup.branchDetail.manager", "leading": { "type": "Icon", "name": "badge" } }
                     ]
                   }
                 ]

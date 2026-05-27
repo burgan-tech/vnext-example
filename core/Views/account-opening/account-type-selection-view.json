@@ -8,6 +8,7 @@
     "banking",
     "account-type",
     "selection",
+    "navigation",
     "ui-view"
   ],
   "attributes": {
@@ -20,7 +21,7 @@
     "renderer": "pseudo-ui",
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
-      "dataSchema": "urn:amorphie:res:schema:core:account-opening-master",
+      "dataSchema": "urn:amorphie:res:schema:core:account-type-selection",
       "view": {
         "type": "ScrollView",
         "children": [
@@ -41,8 +42,8 @@
               {
                 "type": "Text",
                 "content": {
-                  "en": "Tap a card to continue. Your selection is dispatched as a workflow transition.",
-                  "tr": "Devam etmek için bir karta dokunun. Seçiminiz workflow transition olarak gönderilir."
+                  "en": "Tap a card to continue. Each card dispatches its own workflow transition.",
+                  "tr": "Devam etmek için bir karta dokunun. Her kart kendi workflow transition'ını gönderir."
                 },
                 "variant": "bodyMedium"
               },

@@ -100,6 +100,33 @@ pseudo-ui views use `$schema: https://amorphie.io/meta/view-vocabulary/1.0` and 
 
 **Stepper is not a progress bar.** vocabulary requires `Stepper.steps[].title` (string/multi-lang) **and** `steps[].content` (componentNode[]) — it renders a true multi-step form on a single screen. Don't use Stepper as a wizard progress indicator across separate state views; for that, show a small `Text` ("Adım 2 / 4") at the top of each view instead.
 
+**View `dataSchema` selection.** A view's `dataSchema` URN must match the **role** of the view:
+- **Transition / input views** (user fills a form): bind to the **transition payload schema** (e.g. `urn:amorphie:res:schema:core:account-type-selection`, `:demand-deposit-input`). These schemas carry `enum`/`x-lov`/`x-validation`/`x-conditional` for the input field set.
+- **Display / summary / status views** (read-only from `$instance`): bind to the **master / instance schema** (e.g. `urn:amorphie:res:schema:core:account-opening-master`). The master schema covers the full instance shape so `$schema.<field>.label` and `$instance.<field>` paths resolve everywhere.
+
+Don't point a transition view at the master schema "just to keep things uniform" — the master typically lacks the `required`/`x-lov`/`x-validation` semantics the transition needs.
+
+**`x-lov` / `x-lookup` are for field-input, not navigation.** SDK intent: `x-lov` provides dropdown options for a bound input (typically `Dropdown.bind` — a `TextField` will NOT render LOV options, use `Dropdown`), and `x-lookup` enriches a field with read-only detail (`$lookup.X.field`). A **navigation Card grid** (each card dispatches its own workflow transition) is not a form-input — encoding transition URNs into LOV item data (`$item.transitionCommand`) blurs UI semantics with data and adds mock dependencies for no gain. Use a **static Card grid with hardcoded `onTap.command` URNs** for navigation; reserve LOV/lookup for actual `bind`-driven dropdowns and field-bound enrichment.
+
+**`x-lookup` access is by property name.** Per `view-model-vocabulary.json`, lookup results resolve as `$lookup.{propertyName}.{field}` where `{propertyName}` is the schema property that owns the `x-lookup`. To read `$lookup.branchDetail.*`, the `x-lookup` must live on a property literally named `branchDetail` — define it as a dedicated read-only object property (not in `required`, no `bind`), **separate from** the input field it enriches (e.g. `branchCode`). Activate in the view with `lookups: ["branchDetail"]`. Filter value scope: input/transition views use `$form.X`, display/summary views (master schema) use `$instance.X`.
+
+### Functions — script mapping pattern (`.csx`)
+
+vNext functions wrap upstream task results as a `StandardTaskResponse` (`{ data, body, statusCode, headers, metadata, isSuccess, ... }`). Three rules avoid the common pitfalls:
+
+1. **Unwrap output, don't return `context.Body` raw.** Inside `OutputHandler`, `context.Body` is the parsed HTTP response body of the upstream task. If you set `ScriptResponse.Data = context.Body`, the response double-wraps (the renderer's `x-lov` JsonPath `$.data[*].code` then fails because the array lives at `$.data.data[*]`). Unwrap one level and re-envelope:
+   ```csharp
+   dynamic payload = context.Body?.data ?? context.Body;
+   dynamic items = null; try { items = payload?.data ?? payload; } catch { items = payload; }
+   return Task.FromResult(new ScriptResponse {
+     Key = "...", Data = new { data = items }, Tags = new[] { "lov", "success" }
+   });
+   ```
+2. **GET function calls don't carry a body.** When the renderer's `x-lov`/`x-lookup` invokes a function via GET, parameters arrive in `context.QueryString[…]` or `context.Headers[…]`, **not** `context.Body`. Use a multi-source resolver (QueryString → Headers → Body fallback). Reading from `context.Body?.<field>` alone breaks renderer-initiated calls.
+3. **Branch on `statusCode` + tag the response.** Read `context.Body?.statusCode`; use `2xx` for success, `4xx` (esp. 404) for not-found, exceptions for transport errors. Tag `ScriptResponse.Tags` with `success` / `failure` / `not-found` / `exception` for downstream filtering.
+
+Full template, examples, and the `IMapping` vs. `IOutputHandler` (multi-task) distinction in [`.claude/references/function-mapping-pattern.md`](./.claude/references/function-mapping-pattern.md). Working LOV/lookup examples: `core/Functions/account-opening/src/GetBranchesLovMapping.csx` (LOV cascade) and `GetBranchDetailLookupMapping.csx` (lookup).
+
 ### Flow execution mental model
 
 How the vNext runtime executes a workflow — keep this in mind when designing states and transitions:
@@ -157,9 +184,9 @@ Workflows reference C# script files in `src/` folders next to the workflow JSON.
 | Server | Port | Purpose |
 |--------|------|---------|
 | vNext Runtime | `localhost:4201` | Workflow engine; use for instance start, transitions, state queries |
-| Mockoon | `localhost:3001` | External API mocks; all HTTP tasks point here |
+| MockLab | `localhost:3001` | External API mocks; all HTTP tasks point here. Container `ghcr.io/burgan-tech/mocklab:latest` is started by `docker-compose.yml`; seed collections live under `etc/docker/config/seed/`. A `mocklab-dapr` sidecar is co-located (dapr app-id `mocklab`, http port `3500`), so endpoints can also be reached via dapr service invocation. |
 
-**Never** call the Mockoon API (`localhost:3001`) for workflow operations, and **never** hardcode production URLs in HTTP task configs — always use Mockoon during development.
+**Never** call MockLab (`localhost:3001`) for workflow operations, and **never** hardcode production URLs in HTTP task configs — always route mocked dependencies through MockLab during development.
 
 ### Runtime API — HTTP test file pattern
 
@@ -191,9 +218,50 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{workflow-key}/instance
 
 For the full Runtime API reference (request/response schemas, error codes), see `/docs/api-reference/rest-api`.
 
-### Mockoon mock organization
+### MockLab — mock layer
 
-When adding new routes to `mockoon/`, **first create a folder named after the domain**, then place routes inside. Endpoint pattern: `api/{domain}/{resource}/{action}`. Include success (2xx) and error (4xx/5xx) response scenarios with realistic latency (500–1000 ms).
+**MockLab is the canonical mock API** (repo: `https://github.com/burgan-tech/mocklab`, currently private). Mockoon has been removed.
+
+**Seed layout** — `etc/docker/config/seed/{collection}.json`, one collection per business domain (current set: `account-opening`, `payments`, `integration-test`, `notification`). MockLab recursively scans the seed directory on startup and imports each `*.json` file as a collection.
+
+**Collection envelope**:
+
+```jsonc
+{
+  "collection": { "name": "<domain>", "description": null, "color": "#6366f1" },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "GET|POST|...",
+      "route": "api/{domain}/{resource}/{action}",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "<JSON string; supports Scriban: {{helpers.guid()}}, {{request.body.X}}>",
+      "contentType": "application/json",
+      "description": "...",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        // conditionField: "query.X" | "body.X" | "header.X" | "route.X" | "method" | "path"
+        // conditionOperator: equals | regex | contains | startsWith | endsWith | exists | notExists | greaterThan | lessThan
+        { "conditionField": "query.currency", "conditionOperator": "equals", "conditionValue": "TRY",
+          "statusCode": 200, "responseBody": "...", "contentType": "application/json",
+          "priority": 0, "responseHeaders": [] }
+      ],
+      "sequenceItems": []   // for retry/rate-limit demos (isSequential: true)
+    }
+  ]
+}
+```
+
+**HTTP task URL convention** — all tasks point at MockLab via `http://localhost:3001/api/{domain}/{resource}/{action}`; task type stays `"6"` (HTTP). Dapr service invocation is an optional alternative: `http://localhost:3500/v1.0/invoke/mocklab/method/api/{domain}/{resource}/{action}` (or a `dapr-service` task with app-id `mocklab`).
+
+**Adding a mock for a new HTTP task** — append a `mocks[]` entry to the domain's existing collection file (do **not** create a separate collection for the same domain). After editing the seed, **drop the MockLab volume to force re-import** (`docker compose down -v && docker compose up -d mocklab`) — MockLab skips collections whose name already exists in the DB.
+
+For the full seed format reference (rule operators, Scriban helpers, sequential responses, dapr invocation), see [`.claude/references/mocklab-seed-format.md`](./.claude/references/mocklab-seed-format.md).
 
 ## Skills
 

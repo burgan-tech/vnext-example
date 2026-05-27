@@ -64,58 +64,77 @@ All vNext components follow a standard structure:
 - **Current Schema Version**: 0.0.25 (check package.json for updates)
 - Use `npm run validate` to validate all components after changes
 
-## 🎭 Mockoon API Mocking
+## 🎭 MockLab API Mocking
 
 ### Mock API Strategy
-- **Never use real APIs** - Always use Mockoon for API mocking during development
-- **Mock Location**: `mockoon/` directory
-- **Current Mocks**: `mockoon/migration-api.json`
-- **Mock Server**: Runs on `localhost:3001`
+- **Never use real APIs** — always route HTTP tasks through MockLab during development
+- **Mock layer**: MockLab (`https://github.com/burgan-tech/mocklab`, currently private; public at RC)
+- **Container**: `ghcr.io/burgan-tech/mocklab:latest`, started by `docker-compose.yml`
+- **Seed location**: `etc/docker/config/seed/{domain}-collection.json` — one collection per business domain
+- **Mock server**: `localhost:3001` (REST). Optional dapr invocation via the co-located `mocklab-dapr` sidecar at `http://localhost:3500/v1.0/invoke/mocklab/method/{path}`.
 
-### Creating New Mocks
-When creating new workflows or processes:
+### Creating new mocks
+When adding HTTP tasks to a workflow:
 
-1. **Always create corresponding mocks** in Mockoon
-2. **Create a folder with domain name first** - Before creating routes, create a folder in Mockoon with the domain name (e.g., "contract", "banking", "oauth"). All routes for that domain should be placed inside this folder. This groups routes by domain for better organization.
-3. **Use folder structure** to organize APIs by domain (see `mockoon/migration-api.json` for examples)
-4. **Follow naming conventions**:
-   - Endpoint: `api/{domain}/{resource}/{action}`
-   - Example: `api/banking/user/validate-session`
-5. **Include multiple response scenarios**:
-   - Success response (200-299 status codes)
-   - Error responses (400-499 for client errors, 500-599 for server errors)
-   - Use rules to conditionally return different responses
-6. **Use Mockoon's Faker.js** for dynamic data generation
-7. **Add latency** to simulate real API behavior (500-1000ms)
-8. **Document each endpoint** with clear documentation field
+1. **Append a `mocks[]` entry to the domain's existing seed file** — never split a domain into multiple collections.
+2. **Follow the route convention**: `api/{domain}/{resource}/{action}` (e.g. `api/banking/lov/account-types`).
+3. **Capture multiple scenarios** via `rules[]`:
+   - Default `statusCode` / `responseBody` = primary success path
+   - Each rule narrows by `conditionField` (`query.X`, `body.X`, `header.X`, `route.X`, `method`, `path`) and `conditionOperator` (`equals`, `regex`, `contains`, `exists`, `notExists`, `greaterThan`, `lessThan`, etc.)
+4. **For retry / rate-limit demos**, set `"isSequential": true` and provide ordered `sequenceItems[]`.
+5. **Use Scriban templates** for dynamic payloads: `{{helpers.guid()}}`, `{{helpers.rand_int(min,max)}}`, `{{request.body.X}}`, `{{request.query.X}}`, `{{random_account_number}}`, `{{random_number_string N}}`.
+6. **Add `delayMs`** (200–500 ms) to simulate realistic latency.
+7. **Document each mock** with the `description` field — explain which workflow/HTTP task consumes it.
 
-### Mock Structure Example
+### Re-import gotcha
+MockLab skips collections whose `collection.name` already exists in its DB on restart. After editing a seed file:
+
+```bash
+docker compose down -v          # drop the MockLab DB volume
+docker compose up -d mocklab    # forces a clean re-import
+```
+
+Or push the new mocks live via the admin API (`POST /_admin/mocks`), then mirror the change in the seed file for the next clean start.
+
+### Mock structure example
 ```json
 {
-  "uuid": "unique-id",
-  "type": "http",
-  "documentation": "Clear description of what this endpoint does",
-  "method": "post",
-  "endpoint": "api/{domain}/{resource}/{action}",
-  "responses": [
+  "httpMethod": "GET",
+  "route": "api/banking/lov/branches",
+  "queryString": null,
+  "requestBody": "",
+  "statusCode": 200,
+  "responseBody": "{\n  \"data\": [ /* fallback list */ ]\n}",
+  "contentType": "application/json",
+  "description": "LOV: branches, filterable by currency",
+  "delayMs": 250,
+  "isActive": true,
+  "isSequential": false,
+  "folderIndex": null,
+  "rules": [
     {
-      "uuid": "response-id",
-      "body": "{\n  \"statusCode\": 200,\n  \"data\": {...}\n}",
+      "conditionField": "query.currency",
+      "conditionOperator": "equals",
+      "conditionValue": "TRY",
       "statusCode": 200,
-      "label": "Success Scenario",
-      "latency": 500,
-      "rules": [...]
+      "responseBody": "{\n  \"data\": [ /* TRY branches */ ]\n}",
+      "contentType": "application/json",
+      "priority": 0,
+      "responseHeaders": []
     }
-  ]
+  ],
+  "sequenceItems": []
 }
 ```
+
+Full reference: [`.claude/references/mocklab-seed-format.md`](../../.claude/references/mocklab-seed-format.md).
 
 ## 📄 HTTP Request Files
 
 ### vNext Runtime API Configuration
 - **Base URL**: `http://localhost:4201`
 - **API Version**: Check vnext.config.json for current runtime version
-- **All requests**: Use vNext Runtime API endpoints (not Mockoon for workflow operations)
+- **All requests**: Use vNext Runtime API endpoints (not MockLab — MockLab is for external API mocks only)
 
 ### Create Test Files for Each Process
 For every workflow or process, create an `.http` file to demonstrate instance progression:
@@ -296,7 +315,7 @@ Reference vnext-runtime documentation for detailed understanding of these concep
   - `tags`: Array of searchable tags
   - `attributes`: Task-specific attributes (type, url, headers, etc.)
 - **Task Types**: HTTP, SubProcess, Script, Service
-- **HTTP Tasks**: Always have corresponding Mockoon mocks at `localhost:3001`
+- **HTTP Tasks**: Always have corresponding mocks in MockLab at `localhost:3001`
 - **Attributes Structure**: Reference vnext-runtime for task type schemas
 - **Schema References**: Link input/output schemas when applicable
 
@@ -366,7 +385,7 @@ When creating a new workflow or process:
    - Query vnext-runtime via Context7 for workflow patterns and examples
    - Understand state lifecycle and transition types
    - Identify all states, transitions, and their relationships
-   - List all external API calls needed (these will use Mockoon)
+   - List all external API calls needed (these will use MockLab)
    - Define data flow and schema requirements
    - Determine if using flow, subflow, or subprocess
 
@@ -376,8 +395,8 @@ When creating a new workflow or process:
    - Follow kebab-case for keys
    - Use semantic versioning
 
-3. **Create Mockoon mocks** (for external APIs):
-   - Add all external API endpoints to `mockoon/banking-api-mocks.json`
+3. **Create MockLab mocks** (for external APIs):
+   - Add all external API endpoints to `etc/docker/config/seed/banking-collection.json`
    - Use folder structure to organize by domain
    - Create success and error response scenarios
    - Add realistic latency (500-1000ms)
@@ -394,7 +413,7 @@ When creating a new workflow or process:
 5. **Create tasks**:
    - Define in `core/Tasks/{domain}/` with flow type `sys-tasks`
    - Reference vnext-runtime for task type schemas
-   - HTTP tasks point to Mockoon endpoints (`localhost:3001`)
+   - HTTP tasks point to MockLab endpoints (`localhost:3001`)
    - SubProcess tasks reference other workflows
    - Link input/output schemas where applicable
    - Create mappings in `src/` folder
@@ -430,7 +449,7 @@ When creating a new workflow or process:
    - Run `npm run validate` to check all components
    - Fix any schema validation errors
    - Start vNext Runtime server on `localhost:4201`
-   - Start Mockoon server on `localhost:3001`
+   - Start MockLab via `docker compose up -d mocklab` (exposes `localhost:3001`)
    - Execute .http file step by step
    - Verify workflow progresses correctly
    - Test error scenarios
@@ -469,7 +488,7 @@ When creating a new workflow or process:
 ### Before Committing
 1. Run `npm run validate` to validate all components
 2. Check that all referenced schemas exist
-3. Verify Mockoon mocks are complete
+3. Verify MockLab mocks are complete
 4. Test workflows using .http files
 5. Ensure no schema validation errors
 
@@ -488,10 +507,10 @@ When creating a new workflow or process:
 
 ### API & Testing
 5. **DO NOT** use vNext Runtime API (`localhost:4201`) for external service calls
-6. **DO NOT** use Mockoon API (`localhost:3001`) for workflow operations
-7. **DO NOT** hardcode production API URLs - always use Mockoon for external APIs
+6. **DO NOT** use MockLab (`localhost:3001`) for workflow operations
+7. **DO NOT** hardcode production API URLs - always route external APIs through MockLab
 8. **DO NOT** create workflows without corresponding .http test files
-9. **DO NOT** create HTTP tasks without Mockoon mocks
+9. **DO NOT** create HTTP tasks without MockLab mocks
 
 ### Code & Validation
 10. **DO NOT** create components without validating against schemas
@@ -508,8 +527,8 @@ When creating a new workflow or process:
 19. **DO NOT** create a single auto transition (triggerType: 1) in a state - auto transitions work in pairs with mutually exclusive rules. If you have only one auto transition, its rule MUST always return true (unconditional). For proper flow control, always define complementary auto transitions (e.g., "has-more" and "no-more") with opposite conditions.
 20. **DO NOT** create multiple initial states in a workflow - each workflow must have exactly ONE initial state (defined by startTransition.target)
 
-### Mockoon Mocking
-21. **DO NOT** create routes without first creating a domain folder - always create a folder with the domain name in Mockoon and place all related routes inside that folder for proper organization
+### MockLab Mocking
+21. **DO NOT** create routes without first creating a domain folder - always append the new mock to the domain's existing `etc/docker/config/seed/{domain}-collection.json` file (one collection per domain)
 
 ## 🔍 Reference Resolution
 
@@ -552,11 +571,11 @@ Always ensure:
    - Map out views, schemas, and tasks needed
    - Determine flow vs subflow vs subprocess usage
 
-4. **Create Mockoon mocks** (for external APIs):
-   - Add API endpoints to `mockoon/banking-api-mocks.json`
+4. **Create MockLab mocks** (for external APIs):
+   - Add API endpoints to `etc/docker/config/seed/banking-collection.json`
    - Use folder structure to organize by domain
    - Create success and error response scenarios
-   - Test mocks with Mockoon server on `localhost:3001`
+   - Test mocks against MockLab at `localhost:3001`
 
 5. **Create schemas**:
    - Define JSON schemas in `core/Schemas/{domain}/`
@@ -584,7 +603,7 @@ Always ensure:
 9. **Validate and test**:
    - Run `npm run validate` to check all components
    - Start vNext Runtime server on `localhost:4201`
-   - Start Mockoon server on `localhost:3001` (for external API mocks)
+   - Start MockLab via `docker compose up -d mocklab` (exposes `localhost:3001`) (for external API mocks)
    - Execute .http file to test workflow
 
 10. **Review and commit**:
@@ -605,7 +624,7 @@ Always ensure:
 - **Validation Tool**: Run `npm run validate` after any changes
 
 ### Testing & Mocking
-- **Mock APIs**: `mockoon/banking-api-mocks.json` - External API mocks (port 3001)
+- **Mock APIs**: `etc/docker/config/seed/banking-collection.json` - External API mocks (port 3001)
 - **HTTP Tests**: Create `.http` files for workflow testing (Runtime API port 4201)
 - **Example Workflows**: `core/Workflows/` - Reference implementations
 

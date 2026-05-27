@@ -58,7 +58,11 @@ Confirm with the user the available component types (`ScrollView`, `Column`, `Ro
 Ask the user:
 - **`display`** — `full-page`, `popup`, `inline`, etc.
 - **State binding** — which workflow + state will reference this view?
-- **`dataSchema`** — which schema drives the data shape? If none exists, suggest spinning off the `schema-design` skill first.
+- **`dataSchema`** — which schema drives the data shape? **Choose by role**:
+  - *Transition / input view* (user fills a form) → bind to the **transition payload schema** (carries `enum`/`x-lov`/`x-validation`/`x-conditional` for the input set).
+  - *Display / summary / status view* (read-only from `$instance`) → bind to the **master / instance schema** (covers the full instance shape so `$schema.X.label` and `$instance.X` paths resolve everywhere).
+  - Never point a transition view at the master schema "just to keep things uniform" — you'll lose the input-side semantics (required/LOV/validation).
+  - If none exists, suggest spinning off the `schema-design` skill first.
 - **Localization** — Turkish + English labels?
 - **Interactions** — which buttons / transitions does it trigger?
 

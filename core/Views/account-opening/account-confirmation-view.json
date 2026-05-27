@@ -8,6 +8,7 @@
     "banking",
     "account-confirmation",
     "approval",
+    "x-lookup",
     "ui-view"
   ],
   "attributes": {
@@ -20,6 +21,7 @@
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
       "dataSchema": "urn:amorphie:res:schema:core:account-opening-master",
+      "lookups": ["branchDetail"],
       "view": {
         "type": "ScrollView",
         "children": [
@@ -40,8 +42,8 @@
               {
                 "type": "Text",
                 "content": {
-                  "en": "Check the information below before sending the account opening request for policy validation.",
-                  "tr": "Hesap açılış talebini politika doğrulamasına göndermeden önce aşağıdaki bilgileri kontrol edin."
+                  "en": "Branch details below are enriched live via the get-branch-detail x-lookup on $instance.branchCode.",
+                  "tr": "Aşağıdaki şube bilgileri $instance.branchCode üzerinden get-branch-detail x-lookup ile canlı zenginleştirilir."
                 },
                 "variant": "bodyMedium"
               },
@@ -77,6 +79,43 @@
                         "title": "$schema.branchCode.label",
                         "subtitle": "$instance.branchCode",
                         "leading": { "type": "Icon", "name": "location_on" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "filled",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "xs",
+                    "children": [
+                      { "type": "Text", "content": { "en": "Branch Details (lookup)", "tr": "Şube Detayları (lookup)" }, "variant": "titleMedium" },
+                      {
+                        "type": "ListTile",
+                        "title": { "en": "Branch Name", "tr": "Şube Adı" },
+                        "subtitle": "$lookup.branchDetail.name",
+                        "leading": { "type": "Icon", "name": "location_on" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": { "en": "Address", "tr": "Adres" },
+                        "subtitle": "$lookup.branchDetail.address",
+                        "leading": { "type": "Icon", "name": "home" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": { "en": "Phone", "tr": "Telefon" },
+                        "subtitle": "$lookup.branchDetail.phone",
+                        "leading": { "type": "Icon", "name": "smartphone" }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": { "en": "Branch Manager", "tr": "Şube Müdürü" },
+                        "subtitle": "$lookup.branchDetail.manager",
+                        "leading": { "type": "Icon", "name": "badge" }
                       }
                     ]
                   }

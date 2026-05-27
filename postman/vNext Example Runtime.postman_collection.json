@@ -2625,8 +2625,8 @@
 			"value": "core"
 		},
 		{
-			"key": "mockoonApi",
-			"value": ""
+			"key": "mocklabApi",
+			"value": "http://localhost:3001"
 		},
 		{
 			"key": "instanceId",

@@ -129,9 +129,13 @@ Content-Type: application/json
 
 Run `npm run validate`. Hand off failures to the `validate-and-fix` skill.
 
-### 12. (Optional) Mockoon routes
+### 12. (Optional) MockLab seed update
 
-If transitions call HTTP tasks pointing at `localhost:3001`, add the corresponding Mockoon mock routes under `mockoon/{domain}/...`. Endpoint pattern: `api/{domain}/{resource}/{action}`. Include 2xx and 4xx/5xx scenarios with 500–1000 ms latency.
+If transitions call HTTP tasks pointing at `localhost:3001`, append a `mocks[]` entry to the domain's existing seed file at `etc/docker/config/seed/{collection}.json` — one collection per domain; do not split. Endpoint pattern stays `api/{domain}/{resource}/{action}`. Capture 2xx and 4xx/5xx scenarios via `rules[]` (`conditionField: "query.X" | "body.X"`, operators `equals | regex | exists | greaterThan | ...`) and use `sequenceItems[]` for retry/rate-limit demos (`isSequential: true`). Add 200–500 ms `delayMs` for realistic latency.
+
+**Re-import gotcha** — MockLab skips collections whose name already exists in its DB on restart. After editing a seed, run `docker compose down -v && docker compose up -d mocklab` to force a clean import, or push the new mocks via MockLab's admin API.
+
+Full reference: [`.claude/references/mocklab-seed-format.md`](../../references/mocklab-seed-format.md).
 
 ## Notes
 

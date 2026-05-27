@@ -148,3 +148,49 @@ user_reference: 11111111-1111-1111-1111-111111111111
 ### Query instances by state
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?state=account-opening-success
 user_reference: 11111111-1111-1111-1111-111111111111
+
+### ============================================================
+### LOV / Lookup function tests (called by the renderer on x-lov / x-lookup)
+### ============================================================
+
+### Call the get-branches LOV with cascade filter (currency)
+### Cascade: response should change when currency changes (TRY vs USD branches)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/get-branches
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "currency": "TRY"
+}
+
+### Call the get-branch-detail lookup (single branch enrichment)
+### Returns: { data: { code, name: {en,tr}, address, phone, manager } }
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/get-branch-detail
+Content-Type: application/json
+user_reference: 11111111-1111-1111-1111-111111111111
+
+{
+  "code": "1001"
+}
+
+### ============================================================
+### Direct mock endpoint tests (bypass workflow runtime; hit the mock layer)
+### Useful when wiring up MockLab — verify the contract before exercising x-lov/x-lookup.
+### ============================================================
+
+### Mock — branches filtered by currency
+GET http://localhost:3001/api/banking/lov/branches?currency=TRY
+Accept: application/json
+
+### Mock — single branch detail
+GET http://localhost:3001/api/banking/lookup/branches?code=1001
+Accept: application/json
+
+### ============================================================
+### x-validation note
+### ============================================================
+### accountName has `x-validation: { rule: "unique-account-name" }`.
+### This is NOT an HTTP endpoint — the renderer calls
+###   delegate.onValidationRequest("accountName", value, formData)
+### in the host (Forge). The host returns either null (valid) or a localised error
+### string. Mock this in the Forge extension's delegate implementation.
