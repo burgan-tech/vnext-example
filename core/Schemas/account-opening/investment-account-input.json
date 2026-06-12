@@ -14,7 +14,7 @@
     "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "urn:amorphie:res:schema:core:investment-account-input",
+      "$id": "urn:vnext:res:schema:core:investment-account-input",
       "title": "Investment Account Input Schema",
       "description": "Input schema for investment account details during account opening",
       "type": "object",
@@ -70,7 +70,7 @@
             "pattern":  { "en": "Pick a valid 4-digit branch code", "tr": "4 haneli geçerli bir şube kodu seçin" }
           },
           "x-lov": {
-            "source": "urn:amorphie:func:core:get-branches",
+            "source": "urn:vnext:fn:core:get-branches",
             "valueField": "$.data[*].code",
             "displayField": "$.data[*].name",
             "filter": [
@@ -84,7 +84,7 @@
           "description": "Read-only branch enrichment looked up from the selected branchCode. Display only — not a form input. Accessed via $lookup.branchDetail.* in the view (activated by lookups: [\"branchDetail\"]).",
           "additionalProperties": true,
           "x-lookup": {
-            "source": "urn:amorphie:func:core:get-branch-detail",
+            "source": "urn:vnext:fn:core:get-branch-detail",
             "resultField": "$.data",
             "filter": [
               { "param": "code", "value": "$form.branchCode", "required": true }

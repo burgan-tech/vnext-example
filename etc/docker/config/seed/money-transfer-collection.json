@@ -1,0 +1,95 @@
+{
+  "collection": {
+    "name": "money-transfer",
+    "description": "MockLab seed for the core domain. One collection per domain — append new mocks to this file, do NOT create parallel collections.",
+    "color": "#6366f1"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "GET",
+      "route": "api/payments/accounts",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{ \"data\": [ { \"accountId\": \"ACC-1001\", \"displayName\": \"Vadesiz TRY - ****1001\" }, { \"accountId\": \"ACC-2002\", \"displayName\": \"Vadesiz USD - ****2002\" }, { \"accountId\": \"ACC-3003\", \"displayName\": \"Vadesiz EUR - ****3003\" } ] }",
+      "contentType": "application/json",
+      "description": "Source accounts LOV for money-transfer (get-source-accounts function -> get-accounts task).",
+      "delayMs": 0,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/payments/transfers/validate",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{ \"valid\": true, \"reason\": null }",
+      "contentType": "application/json",
+      "description": "Money-transfer validation. Default valid; targetIban TR00... or amount > 100000 fails.",
+      "delayMs": 200,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.targetIban",
+          "conditionOperator": "startsWith",
+          "conditionValue": "TR00",
+          "statusCode": 200,
+          "responseBody": "{ \"valid\": false, \"reason\": \"Blocked target IBAN\" }",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "body.amount",
+          "conditionOperator": "greaterThan",
+          "conditionValue": "100000",
+          "statusCode": 200,
+          "responseBody": "{ \"valid\": false, \"reason\": \"Amount exceeds limit\" }",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/payments/transfers/execute",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{ \"transferReference\": \"TRX-{{ guid() }}\", \"executedAt\": \"{{ now() }}\" }",
+      "contentType": "application/json",
+      "description": "Money-transfer execution. Returns a transfer reference on success.",
+      "delayMs": 300,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "GET",
+      "route": "api/payments/beneficiaries/favorites",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{ \"data\": [ { \"iban\": \"TR330006100519786457841326\", \"alias\": \"Ev Kirası - Ahmet Y.\" }, { \"iban\": \"TR120001002033456789012345\", \"alias\": \"Anne\" }, { \"iban\": \"TR760004600123890000098765\", \"alias\": \"Kredi Kartı Ödemesi\" } ] }",
+      "contentType": "application/json",
+      "description": "Favorite beneficiaries LOV for money-transfer (get-favorite-beneficiaries function -> get-favorite-beneficiaries-http task). View binds $item.iban / $item.alias.",
+      "delayMs": 0,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}

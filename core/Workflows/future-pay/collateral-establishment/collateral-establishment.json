@@ -1,0 +1,138 @@
+{
+  "key": "collateral-establishment",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "collateral",
+    "subflow",
+    "teminat"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "label": "Teminat Tesisi",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Collateral Establishment",
+        "language": "en-US"
+      }
+    ],
+    "schema": {
+      "key": "collateral-detail",
+      "domain": "core",
+      "flow": "sys-schemas",
+      "version": "1.0.0"
+    },
+    "startTransition": {
+      "key": "start-collateral",
+      "target": "contract-signing",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "label": "Teminat Sürecini Başlat",
+          "language": "tr-TR"
+        },
+        {
+          "label": "Start Collateral",
+          "language": "en-US"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "contract-signing",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Sözleşme İmzalama",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Contract Signing",
+            "language": "en-US"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "sign-contract",
+            "target": "collateral-registration",
+            "versionStrategy": "Minor",
+            "triggerType": 0,
+            "labels": [
+              {
+                "label": "Sözleşmeyi İmzala",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Sign Contract",
+                "language": "en-US"
+              }
+            ],
+            "schema": {
+              "key": "collateral-detail",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            }
+          }
+        ]
+      },
+      {
+        "key": "collateral-registration",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Teminat Tescili",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Collateral Registration",
+            "language": "en-US"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "registration-completed",
+            "target": "completed",
+            "versionStrategy": "Minor",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "labels": [
+              {
+                "label": "Tescil Tamamlandı",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Registration Completed",
+                "language": "en-US"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Tamamlandı",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Completed",
+            "language": "en-US"
+          }
+        ]
+      }
+    ]
+  }
+}

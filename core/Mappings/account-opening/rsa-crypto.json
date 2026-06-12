@@ -1,0 +1,16 @@
+{
+  "key": "rsa-crypto",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "inital"
+  ],
+  "attributes": {
+    "name": "RsaCryptoHelper",
+    "location": "./src/RsaCryptoHelper.csx",
+    "code": "using System;\nusing System.Security.Cryptography;\nusing System.Text;\n\nnamespace Acme.Helpers;\n\npublic static class RsaCryptoHelper\n{\n    private static readonly RSAEncryptionPadding Padding = RSAEncryptionPadding.OaepSHA256;\n\n    /// <summary>Encrypts UTF-8 text with a Base64 SubjectPublicKeyInfo (SPKI) public key.</summary>\n    public static string Encrypt(string plainText, string publicKeyBase64)\n    {\n        ArgumentException.ThrowIfNullOrEmpty(plainText);\n        ArgumentException.ThrowIfNullOrEmpty(publicKeyBase64);\n\n        using var rsa = RSA.Create();\n        rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(publicKeyBase64), out _);\n        var cipher = rsa.Encrypt(Encoding.UTF8.GetBytes(plainText), Padding);\n        return Convert.ToBase64String(cipher);\n    }\n\n    /// <summary>Decrypts Base64 ciphertext with a Base64 PKCS#8 private key.</summary>\n    public static string Decrypt(string cipherBase64, string privateKeyBase64)\n    {\n        ArgumentException.ThrowIfNullOrEmpty(cipherBase64);\n        ArgumentException.ThrowIfNullOrEmpty(privateKeyBase64);\n\n        using var rsa = RSA.Create();\n        rsa.ImportPkcs8PrivateKey(Convert.FromBase64String(privateKeyBase64), out _);\n        var plain = rsa.Decrypt(Convert.FromBase64String(cipherBase64), Padding);\n        return Encoding.UTF8.GetString(plain);\n    }\n}",
+    "encoding": "NAT"
+  }
+}

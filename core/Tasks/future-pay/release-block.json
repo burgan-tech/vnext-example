@@ -1,0 +1,19 @@
+{
+  "key": "release-block",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "http", "disbursement", "mocklab"],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/core/disbursement/release-block",
+      "method": "POST",
+      "headers": { "Accept": "application/json", "Content-Type": "application/json" },
+      "body": {},
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

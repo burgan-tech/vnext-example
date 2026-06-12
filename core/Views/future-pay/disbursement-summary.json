@@ -1,0 +1,39 @@
+{
+  "key": "disbursement-summary",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "pseudo-ui", "summary", "disbursement"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Kullandırım Özeti", "language": "tr-TR" },
+      { "label": "Disbursement Summary", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:loan-disbursement",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Icon", "name": "account_balance" },
+            { "type": "Text", "content": { "tr": "Kullandırım Özeti", "en": "Disbursement Summary" }, "variant": "headlineMedium" }
+          ]},
+          { "type": "Card", "variant": "outlined", "children": [
+            { "type": "ListTile", "title": { "tr": "Müşteri No", "en": "Customer ID" }, "trailing": "$instance.application.customerId" },
+            { "type": "ListTile", "title": { "tr": "Onaylanan Limit", "en": "Approved Limit" }, "trailing": "$instance.assessment.approvedLimit" },
+            { "type": "ListTile", "title": { "tr": "Para Birimi", "en": "Currency" }, "trailing": "$instance.application.currency" },
+            { "type": "ListTile", "title": { "tr": "Teminat Tipi", "en": "Collateral Type" }, "trailing": "$instance.collateral.collateralType" },
+            { "type": "ListTile", "title": { "tr": "Teminat Değeri", "en": "Collateral Value" }, "trailing": "$instance.collateral.collateralValue" }
+          ]},
+          { "type": "Text", "content": { "tr": "Bu adımda kullandırım otomatik olarak gerçekleştirilir.", "en": "Disbursement is executed automatically at this step." }, "variant": "bodyMedium" }
+        ]
+      }
+    }
+  }
+}

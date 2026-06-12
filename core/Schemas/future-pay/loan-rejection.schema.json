@@ -1,0 +1,28 @@
+{
+  "key": "loan-rejection",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "rejection", "transition-payload"],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      { "label": "Kredi Reddi", "language": "tr-TR" },
+      { "label": "Loan Rejection", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:loan-rejection",
+      "title": "Loan Rejection Payload",
+      "description": "Payload submitted on the reject transition (T5).",
+      "type": "object",
+      "properties": {
+        "rejectionReason": { "type": "string", "x-labels": { "tr": "Ret Gerekçesi", "en": "Rejection Reason" } },
+        "rejectionCode": { "type": "string", "x-labels": { "tr": "Ret Kodu", "en": "Rejection Code" } }
+      },
+      "required": ["rejectionReason"],
+      "additionalProperties": false
+    }
+  }
+}

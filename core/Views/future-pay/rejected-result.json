@@ -1,0 +1,34 @@
+{
+  "key": "rejected-result",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "pseudo-ui", "result", "final"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Başvuru Reddedildi", "language": "tr-TR" },
+      { "label": "Application Rejected", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:loan-disbursement",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          { "type": "Center", "children": [
+            { "type": "Icon", "name": "cancel" }
+          ]},
+          { "type": "Text", "content": { "tr": "Kredi başvurunuz reddedildi", "en": "Your loan application was rejected" }, "variant": "headlineSmall" },
+          { "type": "Card", "variant": "outlined", "children": [
+            { "type": "ListTile", "title": { "tr": "Karar Gerekçesi", "en": "Decision Reason" }, "trailing": "$instance.approval.decisionReason" }
+          ]}
+        ]
+      }
+    }
+  }
+}

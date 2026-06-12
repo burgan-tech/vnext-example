@@ -1,0 +1,15 @@
+{
+  "key": "notify-state",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["account-opening", "notification"],
+  "attributes": {
+    "type": "10",
+    "config": {
+      "channels": ["state"],
+      "includeStateChannel": false
+    }
+  }
+}

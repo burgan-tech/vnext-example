@@ -20,7 +20,7 @@
     "renderer": "pseudo-ui",
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
-      "dataSchema": "urn:amorphie:res:schema:core:account-confirmation",
+      "dataSchema": "urn:vnext:res:schema:core:account-confirmation",
       "view": {
         "type": "Column",
         "gap": "md",
@@ -63,7 +63,7 @@
                 "label": { "en": "Cancel", "tr": "İptal" },
                 "variant": "outlined",
                 "action": "cancel",
-                "command": "urn:amorphie:wf:account-opening:transition:cancel-account-opening"
+                "command": "urn:vnext:flow:transition:core:account-opening:cancel-account-opening"
               },
               {
                 "type": "Button",
@@ -71,7 +71,7 @@
                 "variant": "filled",
                 "icon": "check_circle",
                 "action": "submit",
-                "command": "urn:amorphie:wf:account-opening:transition:approve-account-opening"
+                "command": "urn:vnext:flow:transition:core:account-opening:approve-account-opening"
               }
             ]
           }

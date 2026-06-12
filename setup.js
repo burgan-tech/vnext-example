@@ -23,7 +23,8 @@ function getPathsConfig() {
     tasks: 'Tasks',
     views: 'Views',
     functions: 'Functions',
-    extensions: 'Extensions'
+    extensions: 'Extensions',
+    mappings: 'Mappings'
   };
   
   if (config && config.paths) {

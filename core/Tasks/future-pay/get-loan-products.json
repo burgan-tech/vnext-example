@@ -1,0 +1,18 @@
+{
+  "key": "get-loan-products",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "http", "lov", "mocklab"],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/core/lov/loan-products",
+      "method": "GET",
+      "headers": { "Accept": "application/json" },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

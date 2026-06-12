@@ -1,0 +1,530 @@
+{
+  "key": "money-transfer",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "money-transfer",
+    "payments",
+    "flow"
+  ],
+  "attributes": {
+    "type": "F",
+    "errorBoundary": {
+      "onError": [
+        {
+          "action": 0,
+          "priority": 100
+        }
+      ]
+    },
+    "schema": {
+      "key": "money-transfer-master",
+      "domain": "core",
+      "flow": "sys-schemas",
+      "version": "1.0.0"
+    },
+    "functions": [
+      {
+        "key": "get-source-accounts",
+        "domain": "core",
+        "flow": "sys-functions",
+        "version": "1.0.0"
+      },
+      {
+        "key": "get-favorite-beneficiaries",
+        "domain": "core",
+        "flow": "sys-functions",
+        "version": "1.0.0"
+      }
+    ],
+    "labels": [
+      {
+        "label": "Para Transferi",
+        "language": "tr"
+      },
+      {
+        "label": "Money Transfer",
+        "language": "en"
+      }
+    ],
+    "startTransition": {
+      "key": "start",
+      "target": "enter-transfer-details",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "label": "Transferi Başlat",
+          "language": "tr"
+        },
+        {
+          "label": "Start Transfer",
+          "language": "en"
+        }
+      ]
+    },
+    "cancel": {
+      "key": "cancel-transfer",
+      "target": "transfer-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "availableIn": [
+        "enter-transfer-details",
+        "review-and-confirm",
+        "awaiting-push-approval"
+      ],
+      "labels": [
+        {
+          "label": "Transferi İptal Et",
+          "language": "tr"
+        },
+        {
+          "label": "Cancel Transfer",
+          "language": "en"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "enter-transfer-details",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Transfer Bilgileri",
+            "language": "tr"
+          },
+          {
+            "label": "Enter Transfer Details",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "money-transfer-input-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": false
+        },
+        "transitions": [
+          {
+            "key": "submit-details",
+            "target": "review-and-confirm",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Devam Et",
+                "language": "tr"
+              },
+              {
+                "label": "Continue",
+                "language": "en"
+              }
+            ],
+            "schema": {
+              "key": "money-transfer-input",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            }
+          }
+        ],
+        "alias": [
+          {
+            "name": "Transfer Detail",
+            "roles": [
+              {
+                "role": "morph-core.maker",
+                "grant": "allow"
+              }
+            ],
+            "labels": [
+              {
+                "language": "tr",
+                "label": "Transfer Detayı"
+              },
+              {
+                "language": "en",
+                "label": "Transfer Detail"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "review-and-confirm",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Gözden Geçir ve Onayla",
+            "language": "tr"
+          },
+          {
+            "label": "Review and Confirm",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "money-transfer-summary-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "confirm",
+            "target": "evaluate-push-requirement",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Onayla",
+                "language": "tr"
+              },
+              {
+                "label": "Confirm",
+                "language": "en"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "get-iban-history",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/GetIbanHistoryMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkxpbnE7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKCi8vIFF1ZXJpZXMgcHJpb3IgbW9uZXktdHJhbnNmZXIgaW5zdGFuY2VzIGZvciB0aGUgc2FtZSB0YXJnZXRJYmFuIChHZXRJbnN0YW5jZXMgdGFzaywgdHlwZSAxNSkuCi8vIElucHV0SGFuZGxlciBidWlsZHMgdGhlIHRhcmdldEliYW4gZmlsdGVyOyBPdXRwdXRIYW5kbGVyIHdyaXRlcyBpc0ZpcnN0VHJhbnNmZXIgYmFzZWQgb24gdGhlCi8vIG51bWJlciBvZiByZXR1cm5lZCBpbnN0YW5jZXMgKDAgcHJpb3IgdHJhbnNmZXJzID0+IGZpcnN0IHRyYW5zZmVyID0+IHB1c2ggcmVxdWlyZWQpLgpwdWJsaWMgY2xhc3MgR2V0SWJhbkhpc3RvcnlNYXBwaW5nIDogSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGdldEluc3RhbmNlc1Rhc2sgPSB0YXNrIGFzIEdldEluc3RhbmNlc1Rhc2s7CiAgICAgICAgICAgIGlmIChnZXRJbnN0YW5jZXNUYXNrID09IG51bGwpCiAgICAgICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgR2V0SW5zdGFuY2VzVGFzayIpOwoKICAgICAgICAgICAgdmFyIHRhcmdldEliYW4gPSAoc3RyaW5nKWNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnRhcmdldEliYW4gPz8gc3RyaW5nLkVtcHR5OwoKICAgICAgICAgICAgLy8gTWF0Y2ggcHJpb3IgaW5zdGFuY2VzIHdob3NlIGRhdGEudGFyZ2V0SWJhbiBlcXVhbHMgdGhlIGN1cnJlbnQgdGFyZ2V0SWJhbi4KICAgICAgICAgICAgZ2V0SW5zdGFuY2VzVGFzay5TZXRGaWx0ZXIobmV3W10KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgJCJkYXRhLnRhcmdldEliYW49PXt0YXJnZXRJYmFufSIKICAgICAgICAgICAgfSk7CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEtleSA9ICJpYmFuLWhpc3RvcnktaW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgc3RhdHVzQ29kZSA9IChpbnQ/KShjb250ZXh0LkJvZHk/LnN0YXR1c0NvZGUpID8/IDIwMDsKICAgICAgICAgICAgZHluYW1pYyBwYXlsb2FkID0gY29udGV4dC5Cb2R5Py5kYXRhID8/IGNvbnRleHQuQm9keTsKCiAgICAgICAgICAgIGxvbmcgY291bnQgPSAwOwogICAgICAgICAgICB0cnkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgLy8gUHJlZmVyIGFuIGV4cGxpY2l0IHRvdGFsL2NvdW50IGlmIHRoZSBydW50aW1lIHByb3ZpZGVzIG9uZS4KICAgICAgICAgICAgICAgIHZhciB0b3RhbCA9IHBheWxvYWQ/LnRvdGFsQ291bnQgPz8gcGF5bG9hZD8udG90YWwgPz8gcGF5bG9hZD8uY291bnQ7CiAgICAgICAgICAgICAgICBpZiAodG90YWwgIT0gbnVsbCkKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBjb3VudCA9IChsb25nKXRvdGFsOwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgZWxzZQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIGR5bmFtaWMgaXRlbXMgPSBwYXlsb2FkPy5kYXRhID8/IHBheWxvYWQ/Lmluc3RhbmNlcyA/PyBwYXlsb2FkOwogICAgICAgICAgICAgICAgICAgIHZhciBsaXN0ID0gaXRlbXMgYXMgSUVudW1lcmFibGU8b2JqZWN0PjsKICAgICAgICAgICAgICAgICAgICBjb3VudCA9IGxpc3Q/LkxvbmdDb3VudCgpID8/IDA7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgICAgY2F0Y2gKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgY291bnQgPSAwOwogICAgICAgICAgICB9CgogICAgICAgICAgICBib29sIGlzRmlyc3QgPSBjb3VudCA8PSAwOwoKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gaXNGaXJzdCA/ICJpYmFuLWhpc3RvcnktZmlyc3QtdHJhbnNmZXIiIDogImliYW4taGlzdG9yeS1rbm93bi1pYmFuIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyBpc0ZpcnN0VHJhbnNmZXIgPSBpc0ZpcnN0LCBwcmlvclRyYW5zZmVyQ291bnQgPSBjb3VudCwgc3RhdHVzQ29kZSA9IHN0YXR1c0NvZGUgfSwKICAgICAgICAgICAgICAgIFRhZ3MgPSBuZXdbXSB7ICJtb25leS10cmFuc2ZlciIsICJoaXN0b3J5IiwgaXNGaXJzdCA/ICJmaXJzdC10cmFuc2ZlciIgOiAia25vd24taWJhbiIgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIC8vIE9uIGVycm9yIGZhaWwgc2FmZTogdHJlYXQgYXMgZmlyc3QgdHJhbnNmZXIgc28gdGhlIHB1c2ggc3RlcCBzdGlsbCBwcm90ZWN0cyB0aGUgdXNlci4KICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImliYW4taGlzdG9yeS1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGlzRmlyc3RUcmFuc2ZlciA9IHRydWUsIGVycm9yID0gZXguTWVzc2FnZSB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgIm1vbmV5LXRyYW5zZmVyIiwgImhpc3RvcnkiLCAiZXhjZXB0aW9uIiB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KfQo="
+                }
+              }
+            ]
+          }
+        ],
+        "alias": [
+          {
+            "name": "Review",
+            "roles": [
+              {
+                "role": "morph-core.maker",
+                "grant": "allow"
+              }
+            ],
+            "labels": [
+              {
+                "language": "tr",
+                "label": "İnceleme"
+              },
+              {
+                "language": "en",
+                "label": "Review"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "evaluate-push-requirement",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Push Gereksinimi Değerlendiriliyor",
+            "language": "tr"
+          },
+          {
+            "label": "Evaluate Push Requirement",
+            "language": "en"
+          }
+        ],
+        "view": null,
+        "transitions": [
+          {
+            "key": "require-push",
+            "target": "awaiting-push-approval",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Push Gerekli (İlk Transfer)",
+                "language": "tr"
+              },
+              {
+                "label": "Push Required (First Transfer)",
+                "language": "en"
+              }
+            ],
+            "rule": {
+              "type": "L",
+              "location": "./src/RequirePushRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBBVVRPLVBBSVIgQTogZmlyZXMgd2hlbiB0aGlzIGlzIHRoZSBmaXJzdCB0cmFuc2ZlciB0byB0aGUgdGFyZ2V0SWJhbiAtPiByZXF1aXJlIG1vYmlsZSBwdXNoIGFwcHJvdmFsLgpwdWJsaWMgY2xhc3MgUmVxdWlyZVB1c2hSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgYm9vbCBpc0ZpcnN0ID0gZmFsc2U7CiAgICAgICAgdHJ5IHsgaXNGaXJzdCA9IChib29sPykoY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uaXNGaXJzdFRyYW5zZmVyKSA/PyBmYWxzZTsgfSBjYXRjaCB7IGlzRmlyc3QgPSBmYWxzZTsgfQogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoaXNGaXJzdCk7CiAgICB9Cn0K"
+            }
+          },
+          {
+            "key": "skip-push",
+            "target": "executing-transfer",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Push Atla (Bilinen IBAN)",
+                "language": "tr"
+              },
+              {
+                "label": "Skip Push (Known IBAN)",
+                "language": "en"
+              }
+            ],
+            "rule": {
+              "type": "L",
+              "location": "./src/SkipPushRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBBVVRPLVBBSVIgQjogY29tcGxlbWVudCBvZiBSZXF1aXJlUHVzaFJ1bGUuIEZpcmVzIHdoZW4gdGhlIHRhcmdldEliYW4gaGFzIGJlZW4gdXNlZCBiZWZvcmUKLy8gKGlzRmlyc3RUcmFuc2ZlciA9PSBmYWxzZSkgLT4gc2tpcCBwdXNoLCBnbyBzdHJhaWdodCB0byBleGVjdXRpb24uCnB1YmxpYyBjbGFzcyBTa2lwUHVzaFJ1bGUgOiBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBib29sIGlzRmlyc3QgPSBmYWxzZTsKICAgICAgICB0cnkgeyBpc0ZpcnN0ID0gKGJvb2w/KShjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5pc0ZpcnN0VHJhbnNmZXIpID8/IGZhbHNlOyB9IGNhdGNoIHsgaXNGaXJzdCA9IGZhbHNlOyB9CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCghaXNGaXJzdCk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "awaiting-push-approval",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Push Onayı Bekleniyor",
+            "language": "tr"
+          },
+          {
+            "label": "Awaiting Push Approval",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "money-transfer-awaiting-push-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "approve-push",
+            "target": "executing-transfer",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Cihazdan Onaylandı",
+                "language": "tr"
+              },
+              {
+                "label": "Approved on Device",
+                "language": "en"
+              }
+            ]
+          },
+          {
+            "key": "push-timeout",
+            "target": "transfer-failed",
+            "triggerType": 2,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Onay Zaman Aşımı",
+                "language": "tr"
+              },
+              {
+                "label": "Approval Timeout",
+                "language": "en"
+              }
+            ],
+            "timer": {
+              "type": "L",
+              "location": "./src/PushTimeoutTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9ucy5UaW1lcjsKCi8vIFRpbWVyIGZvciB0aGUgcHVzaC10aW1lb3V0IHRyYW5zaXRpb24gKHRyaWdnZXJUeXBlOiAyKS4gRmlyZXMgNSBtaW51dGVzIChQVDVNKSBhZnRlciBlbnRlcmluZwovLyBhd2FpdGluZy1wdXNoLWFwcHJvdmFsIGlmIHRoZSB1c2VyIGhhcyBub3QgYXBwcm92ZWQgZnJvbSB0aGVpciBkZXZpY2UsIHJvdXRpbmcgdG8gdHJhbnNmZXItZmFpbGVkLgpwdWJsaWMgY2xhc3MgUHVzaFRpbWVvdXRUaW1lciA6IElUaW1lck1hcHBpbmcKewogICAgcHVibGljIFRhc2s8VGltZXJTY2hlZHVsZT4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChUaW1lclNjaGVkdWxlLkZyb21EdXJhdGlvbihUaW1lU3Bhbi5Gcm9tTWludXRlcyg1KSkpOwogICAgfQp9Cg=="
+            }
+          }
+        ]
+      },
+      {
+        "key": "executing-transfer",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Transfer Gerçekleştiriliyor",
+            "language": "tr"
+          },
+          {
+            "label": "Executing Transfer",
+            "language": "en"
+          }
+        ],
+        "view": null,
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "errorCodes": [
+                "400"
+              ],
+              "transition": "cancel-transfer",
+              "priority": 50,
+              "logOnly": false
+            }
+          ]
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "execute-transfer",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/ExecuteTransferMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwoKcHVibGljIGNsYXNzIEV4ZWN1dGVUcmFuc2Zlck1hcHBpbmcgOiBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgICAgICBpZiAoaHR0cFRhc2sgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYW4gSHR0cFRhc2siKTsKCiAgICAgICAgICAgIGh0dHBUYXNrLlNldEJvZHkobmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHNvdXJjZUFjY291bnRJZCA9IChzdHJpbmcpY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uc291cmNlQWNjb3VudElkLAogICAgICAgICAgICAgICAgdGFyZ2V0SWJhbiA9IChzdHJpbmcpY29udGV4dC5JbnN0YW5jZT8uRGF0YT8udGFyZ2V0SWJhbiwKICAgICAgICAgICAgICAgIGFtb3VudCA9IChkZWNpbWFsPyljb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5hbW91bnQsCiAgICAgICAgICAgICAgICBjdXJyZW5jeSA9IChzdHJpbmcpY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uY3VycmVuY3kKICAgICAgICAgICAgfSk7CgogICAgICAgICAgICBodHRwVGFzay5TZXRIZWFkZXJzKG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPz4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJDb250ZW50LVR5cGUiXSA9ICJhcHBsaWNhdGlvbi9qc29uIiwKICAgICAgICAgICAgICAgIFsiQWNjZXB0Il0gPSAiYXBwbGljYXRpb24vanNvbiIsCiAgICAgICAgICAgICAgICBbIlgtUmVxdWVzdC1JZCJdID0gY29udGV4dC5IZWFkZXJzP1sieC1yZXF1ZXN0LWlkIl0gPz8gR3VpZC5OZXdHdWlkKCkuVG9TdHJpbmcoKQogICAgICAgICAgICB9KTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gImV4ZWN1dGUtdHJhbnNmZXItaW5wdXQtZXJyb3IiLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IGVycm9yID0gZXguTWVzc2FnZSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgc3RhdHVzQ29kZSA9IChpbnQ/KShjb250ZXh0LkJvZHk/LnN0YXR1c0NvZGUpID8/IDIwMDsKICAgICAgICAgICAgZHluYW1pYyBwYXlsb2FkID0gY29udGV4dC5Cb2R5Py5kYXRhID8/IGNvbnRleHQuQm9keTsKCiAgICAgICAgICAgIGJvb2wgc3VjY2VlZGVkID0gc3RhdHVzQ29kZSA+PSAyMDAgJiYgc3RhdHVzQ29kZSA8IDMwMDsKICAgICAgICAgICAgc3RyaW5nIHJlZmVyZW5jZSA9IG51bGw7CiAgICAgICAgICAgIHRyeSB7IHJlZmVyZW5jZSA9IChzdHJpbmcpcGF5bG9hZD8udHJhbnNmZXJSZWZlcmVuY2U7IH0gY2F0Y2ggeyB9CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSBzdWNjZWVkZWQgPyAiZXhlY3V0ZS10cmFuc2Zlci1zdWNjZWVkZWQiIDogImV4ZWN1dGUtdHJhbnNmZXItZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcgeyB0cmFuc2ZlclJlc3VsdCA9IG5ldyB7IHN1Y2Nlc3MgPSBzdWNjZWVkZWQsIHRyYW5zZmVyUmVmZXJlbmNlID0gcmVmZXJlbmNlLCBzdGF0dXNDb2RlID0gc3RhdHVzQ29kZSB9IH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAibW9uZXktdHJhbnNmZXIiLCAiZXhlY3V0aW9uIiwgc3VjY2VlZGVkID8gInN1Y2Nlc3MiIDogImZhaWx1cmUiIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSAiZXhlY3V0ZS10cmFuc2Zlci1leGNlcHRpb24iLAogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyB7IHRyYW5zZmVyUmVzdWx0ID0gbmV3IHsgc3VjY2VzcyA9IGZhbHNlLCBlcnJvciA9IGV4Lk1lc3NhZ2UgfSB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgIm1vbmV5LXRyYW5zZmVyIiwgImV4ZWN1dGlvbiIsICJleGNlcHRpb24iIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "key": "execution-succeeded",
+            "target": "transfer-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Transfer Başarılı",
+                "language": "tr"
+              },
+              {
+                "label": "Execution Succeeded",
+                "language": "en"
+              }
+            ],
+            "rule": {
+              "type": "L",
+              "location": "./src/ExecutionSucceededRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBBVVRPLVBBSVI6IGZpcmVzIHdoZW4gdGhlIGV4ZWN1dGUtdHJhbnNmZXIgdGFzayByZXBvcnRlZCBzdWNjZXNzLgpwdWJsaWMgY2xhc3MgRXhlY3V0aW9uU3VjY2VlZGVkUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGJvb2wgb2sgPSBmYWxzZTsKICAgICAgICB0cnkgeyBvayA9IChib29sPykoY29udGV4dC5JbnN0YW5jZT8uRGF0YT8udHJhbnNmZXJSZXN1bHQ/LnN1Y2Nlc3MpID8/IGZhbHNlOyB9IGNhdGNoIHsgb2sgPSBmYWxzZTsgfQogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQob2spOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "key": "execution-failed",
+            "target": "transfer-failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Transfer Başarısız",
+                "language": "tr"
+              },
+              {
+                "label": "Execution Failed",
+                "language": "en"
+              }
+            ],
+            "rule": {
+              "type": "L",
+              "location": "./src/ExecutionFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBBVVRPLVBBSVI6IGNvbXBsZW1lbnQgb2YgRXhlY3V0aW9uU3VjY2VlZGVkUnVsZS4gRmlyZXMgd2hlbiB0aGUgZXhlY3V0ZS10cmFuc2ZlciB0YXNrIGRpZCBub3Qgc3VjY2VlZC4KcHVibGljIGNsYXNzIEV4ZWN1dGlvbkZhaWxlZFJ1bGUgOiBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBib29sIG9rID0gZmFsc2U7CiAgICAgICAgdHJ5IHsgb2sgPSAoYm9vbD8pKGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LnRyYW5zZmVyUmVzdWx0Py5zdWNjZXNzKSA/PyBmYWxzZTsgfSBjYXRjaCB7IG9rID0gZmFsc2U7IH0KICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KCFvayk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "transfer-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Transfer Tamamlandı",
+            "language": "tr"
+          },
+          {
+            "label": "Transfer Completed",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "money-transfer-completed-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": []
+      },
+      {
+        "key": "transfer-failed",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Transfer Başarısız",
+            "language": "tr"
+          },
+          {
+            "label": "Transfer Failed",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "money-transfer-failed-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": []
+      },
+      {
+        "key": "transfer-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Transfer İptal Edildi",
+            "language": "tr"
+          },
+          {
+            "label": "Transfer Cancelled",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "money-transfer-cancelled-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": []
+      }
+    ]
+  }
+}

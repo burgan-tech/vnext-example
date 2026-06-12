@@ -124,23 +124,32 @@ Rules and sequence items are mutually exclusive — choose one mode per mock.
 
 ## 6. Scriban templating
 
-Response bodies and header values pass through a Scriban engine. Common helpers:
+Response bodies and header values pass through a Scriban engine. Helpers take **space-separated
+args, no parentheses** (`{{ random_int 1 100 }}`, not `helpers.rand_int(1,100)`). Common helpers:
 
 | Template | Output |
 |---|---|
-| `{{helpers.guid()}}` | New GUID per request |
-| `{{helpers.rand_int(85, 100)}}` | Random integer in range |
-| `{{random_account_number}}` | Synthetic 16-digit account number |
-| `{{random_number_string 24}}` | N-digit numeric string (used for IBAN tail) |
-| `{{request.body.X}}` | Echo a field from the parsed JSON request body |
-| `{{request.json.currency}}` | Same as above (alias) |
-| `{{request.query.code}}` | Echo a query parameter |
-| `{{request.headers.X-Request-Id}}` | Echo a request header |
+| `{{ guid }}` (or `{{ helpers.guid }}`) | New GUID per request |
+| `{{ iso_timestamp }}` / `{{ timestamp }}` | ISO 8601 UTC / Unix timestamp |
+| `{{ now_fmt 'yyyy-MM-dd' }}` | Current date, formatted |
+| `{{ random_int 85 100 }}` | Random integer in range |
+| `{{ random_float }}` / `{{ random_double 1 99 }}` | Random float / double in range |
+| `{{ random_string 8 }}` / `{{ random_alpha_numeric 12 }}` | Random string / alphanumeric |
+| `{{ random_string 24 "0123456789" }}` | N-char string from a custom set (e.g. IBAN tail) |
+| `{{ request.body.amount }}` | Echo a field from the parsed JSON request body |
+| `{{ request.query["code"] }}` | Echo a query parameter (bracket syntax) |
+| `{{ request.headers["X-Request-Id"] }}` | Echo a request header |
+| `{{ request.route.id }}` | Echo a route parameter |
+
+> **Verify against the live guide.** The helper set evolves — confirm names at
+> `https://github.com/burgan-tech/mocklab/blob/master/docs/user-guide.md` (or via Context7).
+> Wrong forms seen in older docs: `helpers.guid()`, `helpers.now()`, `helpers.rand_int(..)`,
+> `random_account_number`, `random_number_string`, `request.json.X` — all invalid.
 
 Inside JSON string responses, template tokens are typed-aware — numbers stay numbers when used as values:
 
 ```jsonc
-"responseBody": "{ \"score\": {{helpers.rand_int(70, 100)}} }"
+"responseBody": "{ \"score\": {{ random_int 70 100 }} }"
 ```
 
 ---

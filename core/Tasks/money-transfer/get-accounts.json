@@ -1,0 +1,19 @@
+{
+  "key": "get-accounts",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "lov", "accounts", "http"],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/payments/accounts",
+      "method": "GET",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "timeoutSeconds": 15
+    }
+  }
+}

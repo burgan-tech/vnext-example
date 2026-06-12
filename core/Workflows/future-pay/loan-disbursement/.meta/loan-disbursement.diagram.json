@@ -1,0 +1,40 @@
+{
+  "nodePos": {
+    "__start__": {
+      "x": 240,
+      "y": 0
+    },
+    "application-intake": {
+      "x": 150,
+      "y": 160
+    },
+    "credit-bureau-inquiry": {
+      "x": 150,
+      "y": 380
+    },
+    "assessment-pricing": {
+      "x": 150,
+      "y": 600
+    },
+    "approval": {
+      "x": 150,
+      "y": 820
+    },
+    "collateral-establishment": {
+      "x": 300,
+      "y": 1040
+    },
+    "disbursement": {
+      "x": 300,
+      "y": 1260
+    },
+    "disbursed": {
+      "x": 300,
+      "y": 1480
+    },
+    "rejected": {
+      "x": 0,
+      "y": 1040
+    }
+  }
+}

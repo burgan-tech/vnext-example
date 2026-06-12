@@ -19,7 +19,7 @@
     "renderer": "pseudo-ui",
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
-      "dataSchema": "urn:amorphie:res:schema:core:account-opening-master",
+      "dataSchema": "urn:vnext:res:schema:core:account-opening-master",
       "view": {
         "type": "ScrollView",
         "children": [

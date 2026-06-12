@@ -2,13 +2,14 @@ using System;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
 public class TriggerScheduledPaymentsMapping :ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
         var subProcessTask = task as SubProcessTask;
-
+        
         if (subProcessTask == null)
         {
             throw new InvalidOperationException("Task must be a SubProcessTask");

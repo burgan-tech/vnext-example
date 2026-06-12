@@ -13,7 +13,7 @@
   "attributes": {
     "type": "workflow",
     "schema": {
-      "$id": "urn:amorphie:res:schema:core:account-type-selection",
+      "$id": "urn:vnext:res:schema:core:account-type-selection",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Account Type Selection Schema",
       "description": "Schema for account type selection input",

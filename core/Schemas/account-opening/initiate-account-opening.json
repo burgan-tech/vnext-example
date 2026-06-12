@@ -13,7 +13,7 @@
   "attributes": {
     "type": "workflow",
     "schema": {
-      "$id": "urn:amorphie:res:schema:core:initiate-account-opening",
+      "$id": "urn:vnext:res:schema:core:initiate-account-opening",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Initiate Account Opening Schema",
       "description": "Schema for the start transition payload of the account-opening workflow",

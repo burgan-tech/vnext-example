@@ -1,0 +1,71 @@
+### loan-disbursement — full lifecycle driver
+### Start runtime (localhost:4201) and MockLab (docker compose up -d mocklab) first.
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflowKey = loan-disbursement
+
+### 1. Start an instance (submit-application — start transition, schema loan-application)
+# @name startInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "customerId": "CUST-1001",
+  "productType": "ihtiyac",
+  "requestedAmount": 75000,
+  "currency": "TRY",
+  "termMonths": 36,
+  "monthlyIncome": 32000,
+  "purpose": "Ev tadilatı"
+}
+
+### Capture the new instance id
+@instanceId = {{startInstance.response.body.id}}
+
+### 2. Get the instance (application-intake; auto-advances through credit-bureau-inquiry subflow)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}
+
+### 3. List available transitions (expect submit-assessment once in assessment-pricing)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions
+
+### 4. submit-assessment (T3 — schema loan-assessment; score-and-limit + price-loan)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/submit-assessment?sync=true
+Content-Type: application/json
+
+{
+  "approvedLimit": 75000,
+  "interestRate": 3.59,
+  "insurancePremium": 450,
+  "monthlyInstallment": 2380,
+  "apr": 4.12,
+  "internalRating": "B",
+  "riskScore": 72
+}
+
+### 5. approve (T4 — schema loan-approval-decision; dynamic approver role from limit)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/approve?sync=true
+Content-Type: application/json
+
+{
+  "decisionReason": "Skor ve gelir uygun",
+  "conditions": "Maaş müşterisi olma şartı",
+  "approverUserId": "USER-APPROVER-1"
+}
+
+### 6. Get the instance (collateral-establishment subflow → disbursement → disbursed)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}
+
+### --- Rejection path (alternative to step 5) ---
+### reject (T5 — schema loan-rejection)
+# PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/reject?sync=true
+# Content-Type: application/json
+#
+# {
+#   "rejectionReason": "Yetersiz kredi notu",
+#   "rejectionCode": "LOW_SCORE"
+# }
+
+### 7. Call the loan-product-lov function (domain scope D)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/functions/loan-product-lov

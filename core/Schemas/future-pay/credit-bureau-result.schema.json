@@ -1,0 +1,30 @@
+{
+  "key": "credit-bureau-result",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["credit-bureau", "subflow", "master"],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      { "label": "Kredi Bürosu Sonucu", "language": "tr-TR" },
+      { "label": "Credit Bureau Result", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:credit-bureau-result",
+      "title": "Credit Bureau Inquiry Result",
+      "description": "Master data for the credit-bureau-inquiry subflow (KKB/Findeks).",
+      "type": "object",
+      "properties": {
+        "kkbScore": { "type": "integer", "minimum": 0, "maximum": 1900, "x-labels": { "tr": "KKB Skoru", "en": "KKB Score" } },
+        "findeksNote": { "type": "integer", "x-labels": { "tr": "Findeks Notu", "en": "Findeks Note" } },
+        "totalExistingDebt": { "type": "number", "x-labels": { "tr": "Toplam Mevcut Borç", "en": "Total Existing Debt" } },
+        "inquiryDate": { "type": "string", "format": "date-time", "x-labels": { "tr": "Sorgu Tarihi", "en": "Inquiry Date" } },
+        "inquiryStatus": { "type": "string", "x-labels": { "tr": "Sorgu Durumu", "en": "Inquiry Status" } }
+      },
+      "additionalProperties": true
+    }
+  }
+}

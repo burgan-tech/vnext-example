@@ -13,7 +13,7 @@
   "attributes": {
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "urn:amorphie:res:schema:core:account-confirmation",
+      "$id": "urn:vnext:res:schema:core:account-confirmation",
       "title": "Account Confirmation Schema",
       "description": "Schema for account opening confirmation",
       "type": "object",

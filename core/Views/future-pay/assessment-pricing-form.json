@@ -1,0 +1,52 @@
+{
+  "key": "assessment-pricing-form",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "pseudo-ui", "form", "assessment"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Değerlendirme ve Fiyatlama", "language": "tr-TR" },
+      { "label": "Assessment & Pricing", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:loan-assessment",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Icon", "name": "analytics" },
+            { "type": "Text", "content": { "tr": "Değerlendirme ve Fiyatlama", "en": "Assessment & Pricing" }, "variant": "headlineMedium" }
+          ]},
+          { "type": "Card", "variant": "outlined", "children": [
+            { "type": "Text", "content": { "tr": "Kredi Bürosu Özeti", "en": "Credit Bureau Summary" }, "variant": "titleMedium" },
+            { "type": "ListTile", "title": { "tr": "KKB Skoru", "en": "KKB Score" }, "trailing": "$instance.creditBureau.kkbScore" },
+            { "type": "ListTile", "title": { "tr": "Findeks Notu", "en": "Findeks Note" }, "trailing": "$instance.creditBureau.findeksNote" },
+            { "type": "ListTile", "title": { "tr": "Toplam Mevcut Borç", "en": "Total Existing Debt" }, "trailing": "$instance.creditBureau.totalExistingDebt" }
+          ]},
+          { "type": "Text", "content": { "tr": "Değerlendirme", "en": "Assessment" }, "variant": "titleMedium" },
+          { "type": "NumberField", "bind": "riskScore" },
+          { "type": "TextField", "bind": "internalRating" },
+          { "type": "NumberField", "bind": "approvedLimit" },
+          { "type": "Text", "content": { "tr": "Fiyatlama", "en": "Pricing" }, "variant": "titleMedium" },
+          { "type": "NumberField", "bind": "interestRate" },
+          { "type": "NumberField", "bind": "insurancePremium" },
+          { "type": "NumberField", "bind": "monthlyInstallment" },
+          { "type": "NumberField", "bind": "apr" },
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Button", "label": { "tr": "Onaya Gönder", "en": "Submit to Approval" },
+              "action": "dispatch",
+              "command": "urn:vnext:flow:transition:core:loan-disbursement:submit-assessment",
+              "validate": true }
+          ]}
+        ]
+      }
+    }
+  }
+}

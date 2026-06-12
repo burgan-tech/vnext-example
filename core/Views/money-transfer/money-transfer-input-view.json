@@ -1,0 +1,125 @@
+{
+  "key": "money-transfer-input-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "money-transfer",
+    "input",
+    "pseudo-ui"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:money-transfer-input",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Para Transferi",
+                  "en": "Money Transfer"
+                },
+                "variant": "headlineMedium"
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Favori Alıcılar",
+                  "en": "Favorite Beneficiaries"
+                },
+                "variant": "titleMedium"
+              },
+              {
+                "type": "ForEach",
+                "source": "$lookup.targetIban",
+                "as": "fav",
+                "template": {
+                  "type": "Card",
+                  "variant": "outlined",
+                  "action": {
+                    "action": "select",
+                    "bind": "targetIban",
+                    "value": "$item.iban"
+                  },
+                  "children": [
+                    {
+                      "type": "ListTile",
+                      "leading": {
+                        "type": "Icon",
+                        "name": "star"
+                      },
+                      "title": "$item.alias",
+                      "subtitle": "$item.iban"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Dropdown",
+                "bind": "sourceAccountId"
+              },
+              {
+                "type": "TextField",
+                "bind": "targetIban"
+              },
+              {
+                "type": "NumberField",
+                "bind": "amount"
+              },
+              {
+                "type": "Dropdown",
+                "bind": "currency"
+              },
+              {
+                "type": "Switch",
+                "bind": "saveBeneficiary"
+              },
+              {
+                "type": "TextField",
+                "bind": "beneficiaryAlias"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Devam Et",
+                      "en": "Continue"
+                    },
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:money-transfer:submit-details"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "lookups": [
+        "targetIban"
+      ]
+    },
+    "labels": [
+      {
+        "label": "Para Transferi Giriş Formu",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Money Transfer Input Form",
+        "language": "en-US"
+      }
+    ]
+  }
+}

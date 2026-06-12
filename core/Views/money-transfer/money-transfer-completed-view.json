@@ -1,0 +1,81 @@
+{
+  "key": "money-transfer-completed-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "completed", "receipt", "display", "pseudo-ui"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:money-transfer-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  { "type": "Icon", "name": "check_circle" },
+                  {
+                    "type": "Text",
+                    "content": { "tr": "Transfer Tamamlandı", "en": "Transfer Completed" },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.sourceAccountId.label",
+                        "subtitle": "$instance.sourceAccountId"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.targetIban.label",
+                        "subtitle": "$instance.targetIban"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.amount.label",
+                        "subtitle": "$instance.amount"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.currency.label",
+                        "subtitle": "$instance.currency"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": { "tr": "İşlem Referansı", "en": "Transfer Reference" },
+                        "subtitle": "$instance.transferResult.transferReference"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "labels": [
+      { "label": "Para Transferi Makbuzu", "language": "tr-TR" },
+      { "label": "Money Transfer Receipt", "language": "en-US" }
+    ]
+  }
+}

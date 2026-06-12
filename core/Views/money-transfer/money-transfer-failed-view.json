@@ -1,0 +1,74 @@
+{
+  "key": "money-transfer-failed-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "failed", "display", "pseudo-ui"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:money-transfer-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  { "type": "Icon", "name": "error" },
+                  {
+                    "type": "Text",
+                    "content": { "tr": "Transfer Başarısız", "en": "Transfer Failed" },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Transfer tamamlanamadı. Bu, onay zaman aşımından veya işlem hatasından kaynaklanabilir. Lütfen tekrar deneyin.",
+                  "en": "The transfer could not be completed. This may be due to approval timeout or an execution error. Please try again."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.targetIban.label",
+                        "subtitle": "$instance.targetIban"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.amount.label",
+                        "subtitle": "$instance.amount"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "labels": [
+      { "label": "Para Transferi Başarısız", "language": "tr-TR" },
+      { "label": "Money Transfer Failed", "language": "en-US" }
+    ]
+  }
+}

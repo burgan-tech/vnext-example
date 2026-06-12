@@ -68,7 +68,7 @@ The SDK auto-binds when rendering a Dropdown. In the view just write: `{ "type":
   "city": {
     "type": "string",
     "x-lov": {
-      "source": "urn:amorphie:func:domain:shared:get-cities",
+      "source": "urn:vnext:fn:get:shared:get-cities",
       "valueField": "$.response.data[*].code",
       "displayField": "$.response.data[*].name",
       "filter": [
@@ -95,14 +95,14 @@ In schema — a dedicated read-only property (no `bind` target; not in `required
 {
   "branchCode": {
     "type": "string",
-    "x-lov": { "source": "urn:amorphie:func:core:get-branches", "valueField": "$.data[*].code", "displayField": "$.data[*].name" }
+    "x-lov": { "source": "urn:vnext:fn:get:core:get-branches", "valueField": "$.data[*].code", "displayField": "$.data[*].name" }
   },
   "branchDetail": {
     "type": "object",
     "description": "Read-only enrichment looked up from branchCode (display only).",
     "additionalProperties": true,
     "x-lookup": {
-      "source": "urn:amorphie:func:core:get-branch-detail",
+      "source": "urn:vnext:fn:get:core:get-branch-detail",
       "resultField": "$.data",
       "filter": [{ "param": "code", "value": "$form.branchCode" }]
     }
@@ -229,15 +229,42 @@ All carry `children: ComponentNode[]`. Spacing via `gap: 'xs' | 'sm' | 'md' | 'l
 | `Menu.items[i]` | `action` | `ActionDescriptor` | Per-item action |
 | Form inputs (`TextField` etc.) | — | — | No action; `bind` writes to formData |
 
-**Three reserved verbs** (handled specially by the SDK):
+**Reserved verbs** (handled specially by the SDK):
 
-| Verb | Behavior | Validation? |
-|---|---|:---:|
-| `'submit'` | Validate-then-dispatch | ✅ |
-| `'reset'` | Clear formData, emit `'reset'` event to host | – |
-| `{action:'select', bind, value}` | Inline set field/UI state, **host not called** | – |
+| Verb | Behavior | Validation? | Hits host? |
+|---|---|:---:|:---:|
+| `'submit'` | Validate-then-dispatch | ✅ (default) | ✅ |
+| `'reset'` | Clear formData, emit `'reset'` event to host | – | ✅ (runs hooks) |
+| `{action:'select', bind, value}` | Inline set field/UI state | – | ❌ (skips hooks) |
+| `'dispatch'` | Domain dispatch (the general case) | optional (`validate`) | ✅ |
 
+`delegate` actions are built on `submit` / `reset`; the `command` URN customizes what runs.
+`submit` validates the form by default; `dispatch` exposes an explicit `validate` flag.
 **Everything else** = domain dispatch. SDK passes it through; the host (Forge) interprets.
+
+### Pre / post hooks
+
+`command`, `submit`, and `dispatch` actions accept `preHooks` / `postHooks` arrays — secondary
+commands (audit, telemetry, …) fired around the main action:
+
+```jsonc
+{ "type": "Button", "label": "Save",
+  "action": {
+    "action": "dispatch",
+    "command": "urn:vnext:flow:transition:onboarding:kyc-main-flow:save",
+    "preHooks":  [{ "action": "audit",     "command": "urn:vnext:fn:post:onboarding:audit-click", "sync": true }],
+    "postHooks": [{ "action": "telemetry", "command": "urn:vnext:fn:post:onboarding:telemetry-click" }]
+  } }
+```
+
+Behavior rules:
+- **Sync pre-hook reject** → main action + post-hooks skipped + error log.
+- **Sync post-hook reject** → error log, remaining post-hooks still run.
+- **Async hook reject** → warn log; the main action is not blocked.
+- **`select`** skips hooks entirely (it never reaches the host). **`reset`** runs hooks (it does).
+- **Validation fail** → no hooks fire at all.
+- A **reserved verb** (`submit`/`select`/`reset`) used *as a hook* is rejected + warn log.
+- The hook pipeline **never throws** — a last-ditch try/catch + error log guards it.
 
 ### 4.1 Common patterns
 
@@ -250,7 +277,7 @@ All carry `children: ComponentNode[]`. Spacing via `gap: 'xs' | 'sm' | 'md' | 'l
 ```json
 { "type": "Button", "label": "Continue",
   "action": "dispatch",
-  "command": "urn:amorphie:wf:account-opening:transition:next-step",
+  "command": "urn:vnext:flow:transition:core:account-opening:next-step",
   "validate": true }
 ```
 
@@ -258,7 +285,7 @@ All carry `children: ComponentNode[]`. Spacing via `gap: 'xs' | 'sm' | 'md' | 'l
 ```json
 { "type": "Button", "label": "Back", "variant": "text",
   "action": "dispatch",
-  "command": "urn:amorphie:wf:account-opening:transition:back" }
+  "command": "urn:vnext:flow:transition:core:account-opening:back" }
 ```
 
 #### Open dialog (UI state)
@@ -271,7 +298,7 @@ All carry `children: ComponentNode[]`. Spacing via `gap: 'xs' | 'sm' | 'md' | 'l
 ```json
 { "type": "Card", "variant": "outlined",
   "action": { "action": "dispatch",
-              "command": "urn:amorphie:wf:account-opening:transition:select-deposit" },
+              "command": "urn:vnext:flow:transition:core:account-opening:select-deposit" },
   "children": [ { "type": "Text", "content": "Demand Deposit" } ] }
 ```
 
@@ -285,11 +312,11 @@ NavigationDrawer and Menu **do not carry a node-level action**; each item carrie
   "visible": "$ui.drawerOpen",
   "items": [
     { "label": { "tr": "Hesaplar", "en": "Accounts" }, "icon": "account_balance",
-      "action": { "action": "navigate", "command": "urn:forge:nav:/accounts" } },
+      "action": { "action": "navigate", "command": "urn:client:nav:/accounts" } },
     { "divider": true },
     { "header": { "tr": "Ayarlar", "en": "Settings" } },
     { "label": { "tr": "Profil", "en": "Profile" }, "icon": "person",
-      "action": { "action": "navigate", "command": "urn:forge:nav:/profile" } }
+      "action": { "action": "navigate", "command": "urn:client:nav:/profile" } }
   ]
 }
 ```
@@ -304,7 +331,7 @@ An item is one of three kinds:
 #### ListTile navigation
 ```json
 { "type": "ListTile", "title": "Accounts",
-  "onTap": { "action": "navigate", "command": "urn:forge:nav:/accounts" } }
+  "onTap": { "action": "navigate", "command": "urn:client:nav:/accounts" } }
 ```
 
 #### Form reset
@@ -333,14 +360,34 @@ An item is one of three kinds:
 | Navigation | `navigate` | (default ❌) | Page change doesn't need validation |
 | Reset | `reset` | (n/a) | Handled inside the SDK |
 
-### 4.3 URN convention (recommended)
+### 4.3 URN catalog
+
+> Use `urn:vnext` for runtime commands and `urn:client` for client-local behaviors.
 
 ```
-urn:amorphie:wf:<flow-name>:transition:<state>     # workflow transition
-urn:amorphie:func:<domain>:<function>              # BFF function
-urn:forge:nav:<route>                              # navigation
-urn:tenant:<tenant>:<custom>                       # tenant-specific
+# Flow start
+urn:vnext:flow:start:<domain>:<flow>
+
+# Transition on a specific instance (${param} = instance id, bound at runtime)
+urn:vnext:flow:transition:<domain>:<flow>:${param}:<transition>
+
+# Transition on the current instance (no id segment)
+urn:vnext:flow:transition:<domain>:<flow>:<transition>
+
+# Function (cmd ∈ get|post|patch|delete; get is the default and may be omitted)
+urn:vnext:fn:<cmd>:<domain>:<flow>:${param}:<fn-key>
+urn:vnext:fn:<cmd>:<domain>:<fn-key>
+urn:vnext:fn:<domain>:<fn-key>                        # short form, get
+
+# Resource reference (res-key ∈ schema|flow|extension|function|view|task)
+urn:vnext:res:<res-key>:<domain>:<key>                # e.g. urn:vnext:res:schema:core:input-schema
+
+# Client-local behaviors (navigation, etc.) — free-form, interpreted by the client SDK
+urn:client:nav:<route>
 ```
+
+**Binding format**: `http`, `deeplink`, and `urn` values support runtime data binding via the
+`${param}` placeholder (e.g. `urn:vnext:flow:transition:core:account-opening:${param}:approved`).
 
 Group entries in the action picker by these prefixes.
 
@@ -417,7 +464,7 @@ In the child view, read parent-provided data via `$param.value`, write local inp
 
 | ❌ | ✅ | Reason |
 |---|---|---|
-| `"action": "transition"` (thinking it's an SDK reserved verb) | `"action": "dispatch", "command": "urn:wf:...", "validate": true` | `transition` is meaningless to the SDK; dispatch with a URN |
+| `"action": "transition"` (thinking it's an SDK reserved verb) | `"action": "dispatch", "command": "urn:vnext:flow:transition:...", "validate": true` | `transition` is meaningless to the SDK; dispatch with a URN |
 | `"bind": "$form.firstName"` (using `$form.` prefix on input) | `"bind": "firstName"` | Input bind is a schema property path; `$form.` is only for expressions |
 | `validate: true` on every button | Only on submit-like flows | Navigation/cancel/back don't need validation |
 | `enum` in schema but hardcoded options in the view | `enum` + `x-enum` in schema, just `{type:'Dropdown', bind:...}` in view | Single source — i18n + validation come for free |
@@ -435,7 +482,7 @@ The order an AI co-author should follow when this guide is loaded into a skill:
 
 1. **Create the schema first**: every field with `type`, `x-labels`, plus `enum`/`x-enum`/`x-lov`/`x-lookup`/`x-conditional`/`x-validation` as needed. Finish validation rules here.
 2. **Then write the view**: layout (Column/Row/Card/...) → inputs with `bind` → action button(s) at the bottom.
-3. **When picking an action**: first consider reserved (`submit`/`reset`); use domain dispatch if needed (`{action: 'dispatch', command: 'urn:...'}`); set `validate` to `true` only on flows that send data to the backend.
+3. **When picking an action**: first consider reserved (`submit`/`select`/`reset`); use domain dispatch if needed (`{action: 'dispatch', command: 'urn:vnext:flow:transition:...'}`); set `validate` to `true` only on flows that send data to the backend. Attach `preHooks`/`postHooks` for audit/telemetry side-effects (see §4).
 4. **Never use the `$form` prefix in input `bind`** — only in expression contexts.
 5. **Multi-lang**: every visible string is a `{en, tr, ...}` object (the sample language set comes from tenant config).
 6. **Nested components use the `Component` node + the `loadComponent` delegate** — child views receive data through `$param.x`.

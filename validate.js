@@ -515,6 +515,7 @@ validate('Main entry point functionality', () => {
     'getViews',
     'getFunctions',
     'getExtensions',
+    'getMappings',
     'getAvailableTypes',
     'getDomainName'
   ];
@@ -568,7 +569,8 @@ validate('Domain directory structure', () => {
     pathsConfig.tasks,
     pathsConfig.views,
     pathsConfig.functions,
-    pathsConfig.extensions
+    pathsConfig.extensions,
+    pathsConfig.mappings
   ];
   const existingDirs = vnextDirs.filter(dir => fs.existsSync(path.join(domainName, dir)));
   
@@ -673,7 +675,8 @@ validate('JSON files schema validation using @burgan-tech/vnext-schema', () => {
     [pathsConfig.tasks]: 'task',
     [pathsConfig.views]: 'view',
     [pathsConfig.functions]: 'function',
-    [pathsConfig.extensions]: 'extension'
+    [pathsConfig.extensions]: 'extension',
+    [pathsConfig.mappings]: 'mapping'
   };
 
   // Get available schema types
@@ -864,7 +867,8 @@ validate('Module functionality test', () => {
     pathsConfig.tasks,
     pathsConfig.views,
     pathsConfig.functions,
-    pathsConfig.extensions
+    pathsConfig.extensions,
+    pathsConfig.mappings
   ];
   
   for (const dir of expectedDirs) {
@@ -880,7 +884,8 @@ validate('Module functionality test', () => {
     'getTasks',
     'getViews',
     'getFunctions',
-    'getExtensions'
+    'getExtensions',
+    'getMappings'
   ];
   
   for (const getter of componentGetters) {

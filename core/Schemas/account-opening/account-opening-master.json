@@ -15,7 +15,7 @@
     "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "urn:amorphie:res:schema:core:account-opening-master",
+      "$id": "urn:vnext:res:schema:core:account-opening-master",
       "title": "Account Opening Workflow Master Schema",
       "description": "Master schema for account-opening instance data with field-level visibility (roles). Used by function response filtering per request header role.",
       "type": "object",
@@ -41,7 +41,7 @@
                 "en": "Request ID",
                 "tr": "Talep Numarası"
               },
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.maker", "grant": "allow" },
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
@@ -72,7 +72,7 @@
             "en": "Branch Code",
             "tr": "Şube Kodu"
           },
-          "roles": [
+          "x-roles": [
                 { "role": "$PreviousUser", "grant": "allow" }
               ]
         },
@@ -81,7 +81,7 @@
           "description": "Read-only branch enrichment looked up from branchCode (display only). Accessed via $lookup.branchDetail.* in views; activated by the view's lookups: [\"branchDetail\"] array.",
           "additionalProperties": true,
           "x-lookup": {
-            "source": "urn:amorphie:func:core:get-branch-detail",
+            "source": "urn:vnext:fn:core:get-branch-detail",
             "resultField": "$.data",
             "filter": [
               { "param": "code", "value": "$instance.branchCode", "required": true }
@@ -95,7 +95,7 @@
             "en": "Account Name",
             "tr": "Hesap Adı"
           },
-          "roles": [
+          "x-roles": [
                 { "role": "$PreviousUser", "grant": "deny" }
               ]
         },
@@ -114,28 +114,28 @@
           "properties": {
             "userId": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
             },
             "deviceId": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
             },
             "ipAddress": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
             },
             "userAgent": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -294,7 +294,7 @@
                 "dailyTransactionLimit": { "type": "number" },
                 "monthlyTransactionLimit": { "type": "number" }
               },
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -321,7 +321,7 @@
             },
             "accountId": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.maker", "grant": "allow" },
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
@@ -351,7 +351,7 @@
             },
             "coreBankingId": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -360,7 +360,7 @@
             "availableBalance": { "type": "number" },
             "creationReference": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -382,7 +382,7 @@
             "passed": { "type": "boolean" },
             "approvedBy": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -390,7 +390,7 @@
             "validatedAt": { "type": "string", "format": "date-time" },
             "validationId": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -398,14 +398,14 @@
             "accountLimits": {
               "type": "object",
               "additionalProperties": true,
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
             },
             "approvalLevel": {
               "type": "string",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -413,7 +413,7 @@
             "policyVersion": { "type": "string" },
             "validationScore": {
               "type": "number",
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]
@@ -427,7 +427,7 @@
                 "riskAssessment": { "type": "string" },
                 "sanctionsCheck": { "type": "boolean" }
               },
-              "roles": [
+              "x-roles": [
                 { "role": "morph-idm.approver", "grant": "allow" },
                 { "role": "morph-idm.manager", "grant": "allow" }
               ]

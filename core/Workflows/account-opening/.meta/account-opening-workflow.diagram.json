@@ -17,8 +17,8 @@
       "height": 99
     },
     "time-deposit-info": {
-      "x": 753,
-      "y": 403,
+      "x": 1120,
+      "y": 100,
       "width": 259,
       "height": 99
     },
@@ -29,8 +29,8 @@
       "height": 99
     },
     "savings-account-info": {
-      "x": -320,
-      "y": 360,
+      "x": 119,
+      "y": 403,
       "width": 227,
       "height": 99
     },
@@ -80,6 +80,12 @@
       "x": -200,
       "y": 55,
       "width": 89,
+      "height": 34
+    },
+    "__wf_exit__": {
+      "x": -200,
+      "y": 110,
+      "width": 67,
       "height": 34
     }
   }

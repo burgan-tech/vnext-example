@@ -1,0 +1,41 @@
+{
+  "key": "customer-profile-enrichment",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-extensions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "customer",
+    "enrichment",
+    "extension"
+  ],
+  "attributes": {
+    "type": 3,
+    "scope": 1,
+    "labels": [
+      {
+        "label": "Müşteri Profili Zenginleştirme",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Customer Profile Enrichment",
+        "language": "en-US"
+      }
+    ],
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "get-customer-profile",
+        "domain": "core",
+        "flow": "sys-tasks",
+        "version": "1.0.0"
+      },
+      "mapping": {
+        "type": "L",
+        "location": "./src/CustomerProfileEnrichmentMapping.csx",
+        "encoding": "NAT",
+        "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n// customer-profile-enrichment — attaches customer/branch detail to instance reads\n// for the application-intake state of the loan-disbursement workflow.\n// type=3 DefinedFlows + scope=1 GetInstance: runs only on the single-instance GET endpoint\n// of the flows it is referenced from (no Global/Everywhere performance cost).\npublic class CustomerProfileEnrichmentMapping : IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        try\n        {\n            var httpTask = task as HttpTask;\n            if (httpTask == null)\n                throw new InvalidOperationException(\"Task must be an HttpTask\");\n\n            // Resolve customerId from the instance data so we enrich the right profile.\n            string? customerId = null;\n            try { customerId = context.Instance?.Data?.application?.customerId?.ToString(); } catch { }\n            try { customerId ??= context.Body?.application?.customerId?.ToString(); } catch { }\n\n            if (!string.IsNullOrEmpty(customerId))\n            {\n                var sep = httpTask.Url.Contains(\"?\") ? \"&\" : \"?\";\n                httpTask.SetUrl($\"{httpTask.Url}{sep}customerId={customerId}\");\n            }\n\n            httpTask.SetHeaders(new Dictionary<string, string?>\n            {\n                [\"Accept\"] = \"application/json\",\n                [\"X-Request-Id\"] = context.Headers?[\"x-request-id\"] ?? Guid.NewGuid().ToString()\n            });\n\n            return Task.FromResult(new ScriptResponse());\n        }\n        catch (Exception ex)\n        {\n            return Task.FromResult(new ScriptResponse\n            {\n                Key = \"customer-profile-enrichment-input-error\",\n                Data = new { error = ex.Message }\n            });\n        }\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        try\n        {\n            var statusCode = (int?)(context.Body?.statusCode) ?? 200;\n            dynamic payload = context.Body?.data ?? context.Body;\n\n            if (statusCode >= 200 && statusCode < 300 && payload != null)\n            {\n                return Task.FromResult(new ScriptResponse\n                {\n                    Key = \"customerProfile\",\n                    Data = new { customerProfile = payload },\n                    Tags = new[] { \"enrichment\", \"customer\", \"success\" }\n                });\n            }\n\n            return Task.FromResult(new ScriptResponse\n            {\n                Key = \"customer-profile-enrichment-failure\",\n                Data = new { error = \"Failed\", statusCode = statusCode },\n                Tags = new[] { \"enrichment\", \"customer\", \"failure\" }\n            });\n        }\n        catch (Exception ex)\n        {\n            return Task.FromResult(new ScriptResponse\n            {\n                Key = \"customer-profile-enrichment-exception\",\n                Data = new { error = ex.Message },\n                Tags = new[] { \"enrichment\", \"customer\", \"exception\" }\n            });\n        }\n    }\n}\n"
+      }
+    }
+  }
+}

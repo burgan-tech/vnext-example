@@ -43,14 +43,14 @@ Every component, regardless of type, follows this shape:
   "key": "kebab-case-name",
   "version": "1.0.0",
   "domain": "core",
-  "flow": "sys-workflows",
+  "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "tags": ["searchable", "tags"],
   "attributes": { /* type-specific content */ }
 }
 ```
 
-**`flow` values per component type**: `sys-workflows`, `sys-tasks`, `sys-schemas`, `sys-views`, `sys-functions`, `sys-extensions`.
+**`flow` values per component type**: `sys-flows` (workflows), `sys-tasks`, `sys-schemas`, `sys-views`, `sys-functions`, `sys-extensions`.
 
 **Cross-component references** use this nested shape:
 
@@ -94,15 +94,18 @@ pseudo-ui views use `$schema: https://amorphie.io/meta/view-vocabulary/1.0` and 
 
 **Wizard state view placement.** When a state has `stateType: 5` (Wizard), keep `state.view = null` and put the view reference on the state's single transition. Wizard semantics expect the form to be rendered during the transition action, not on state entry.
 
+**Initial state input placement.** When the workflow's Initial state (`stateType: 1`) gathers user input, the **default placement is `state.view`** (on the state itself), NOT on the outgoing transition. Reason: the runtime serves the state view immediately on instance start — the user sees the form right away and submits via a `view: null` transition. Putting the form on the transition forces the client to discover and trigger it before any UI appears, with no UX benefit. Ask the user to confirm (some flows intentionally want an "intro screen → tap → form" two-step); state-view is Recommended. This is the inverse of the Wizard state rule.
+
 **Auto transition view ban.** Transitions with `triggerType: 1` (auto, rule-evaluated) and `triggerType: 2` (timer) must have `view: null` — the runtime fires them without user interaction. By extension, an Intermediate state (`stateType: 2`) whose only outgoing transitions are auto/timer typically needs `state.view = null` too; passive processing states are not user-facing and don't render. Only manual transitions (`triggerType: 0`) can carry a view.
 
-**Button action model.** `Button.action` is a `ButtonAction` enum — only `submit`, `cancel`, or `back`. The actual workflow/function target goes in `command` as a URN: `urn:amorphie:wf:{flow-key}:transition:{transition-key}` for workflow transitions, `urn:forge:nav:/path` for navigation, `urn:amorphie:func:{domain}:{function}` for BFF functions. `submit` runs validation; `cancel`/`back` skip validation. For `Card.onTap` (vocabulary's preferred name; legacy `action` alias still works), use `{ "action": "dispatch", "command": "urn:..." }` or the `select` form `{ "action": "select", "bind": "...", "value": "..." }`. Never use ad-hoc verbs like `"transition"` — the SDK has no built-in semantics for them.
+**Button action model.** Reserved verbs: `submit` (validates by default), `select` (inline set, host NOT called), `reset` (clears formData, runs hooks), `dispatch` (domain dispatch; optional `validate`). The actual workflow/function target goes in `command` as a URN: `urn:vnext:flow:transition:{domain}:{flow}:{transition}` for workflow transitions, `urn:vnext:fn:{cmd}:{domain}:{function}` for functions (`cmd` defaults to `get`), `urn:client:nav:/path` for client-local navigation. `submit` runs validation; `dispatch` exposes an explicit `validate` flag. For `Card.onTap` (vocabulary's preferred name; legacy `action` alias still works), use `{ "action": "dispatch", "command": "urn:vnext:..." }` or the `select` form `{ "action": "select", "bind": "...", "value": "..." }`. Attach `preHooks`/`postHooks` arrays for audit/telemetry side-effects (see `.claude/references/view-author-guide.md` §4). Never use ad-hoc verbs like `"transition"` — the SDK has no built-in semantics for them.
+
 
 **Stepper is not a progress bar.** vocabulary requires `Stepper.steps[].title` (string/multi-lang) **and** `steps[].content` (componentNode[]) — it renders a true multi-step form on a single screen. Don't use Stepper as a wizard progress indicator across separate state views; for that, show a small `Text` ("Adım 2 / 4") at the top of each view instead.
 
 **View `dataSchema` selection.** A view's `dataSchema` URN must match the **role** of the view:
-- **Transition / input views** (user fills a form): bind to the **transition payload schema** (e.g. `urn:amorphie:res:schema:core:account-type-selection`, `:demand-deposit-input`). These schemas carry `enum`/`x-lov`/`x-validation`/`x-conditional` for the input field set.
-- **Display / summary / status views** (read-only from `$instance`): bind to the **master / instance schema** (e.g. `urn:amorphie:res:schema:core:account-opening-master`). The master schema covers the full instance shape so `$schema.<field>.label` and `$instance.<field>` paths resolve everywhere.
+- **Transition / input views** (user fills a form): bind to the **transition payload schema** (e.g. `urn:vnext:res:schema:core:account-type-selection`, `:demand-deposit-input`). These schemas carry `enum`/`x-lov`/`x-validation`/`x-conditional` for the input field set.
+- **Display / summary / status views** (read-only from `$instance`): bind to the **master / instance schema** (e.g. `urn:vnext:res:schema:core:account-opening-master`). The master schema covers the full instance shape so `$schema.<field>.label` and `$instance.<field>` paths resolve everywhere.
 
 Don't point a transition view at the master schema "just to keep things uniform" — the master typically lacks the `required`/`x-lov`/`x-validation` semantics the transition needs.
 
@@ -112,7 +115,9 @@ Don't point a transition view at the master schema "just to keep things uniform"
 
 ### Functions — script mapping pattern (`.csx`)
 
-vNext functions wrap upstream task results as a `StandardTaskResponse` (`{ data, body, statusCode, headers, metadata, isSuccess, ... }`). Three rules avoid the common pitfalls:
+vNext functions wrap upstream task results as a `StandardTaskResponse` (`{ data, body, statusCode, headers, metadata, isSuccess, ... }`). Four rules avoid the common pitfalls:
+
+0. **`rawResponse: true` for view-bound functions.** If a view binds to the function output (via `dataSchema`, `x-lov.source`, `x-lookup.source`, `$lov.X`, `$lookup.X`), set `attributes.rawResponse: true` in the function JSON (same level as `scope`). Default is `false`, which wraps the response under the function key (`{ "{functionKey}": { ... } }`) and silently breaks JsonPath like `$.data[*]` — dropdowns appear empty with no error logged. Examples: `core/Functions/account-opening/get-branches.json` and `get-branch-detail.json` both set `rawResponse: true`.
 
 1. **Unwrap output, don't return `context.Body` raw.** Inside `OutputHandler`, `context.Body` is the parsed HTTP response body of the upstream task. If you set `ScriptResponse.Data = context.Body`, the response double-wraps (the renderer's `x-lov` JsonPath `$.data[*].code` then fails because the array lives at `$.data.data[*]`). Unwrap one level and re-envelope:
    ```csharp
@@ -148,7 +153,7 @@ When a user wants a new schema, **do not produce JSON before gathering inputs.**
 - Role-based field access (`roles[]` with `$PreviousUser`, `$CurrentUser`, etc.)
 - Whether the schema is workflow data, a transition payload, or task input/output
 
-Output: JSON Schema draft 2020-12 with `$id` set to a **URN** of the form `urn:amorphie:res:schema:{domain}:{key}` (e.g. `urn:amorphie:res:schema:core:account-opening-master`). Views reference the same URN in their `dataSchema` field — never use HTTP URLs for schema identifiers, the runtime resolves URNs against the registered schema set.
+Output: JSON Schema draft 2020-12 with `$id` set to a **URN** of the form `urn:vnext:res:schema:{domain}:{key}` (e.g. `urn:vnext:res:schema:core:account-opening-master`). Views reference the same URN in their `dataSchema` field — never use HTTP URLs for schema identifiers, the runtime resolves URNs against the registered schema set.
 
 ### Knowledge access strategy
 
@@ -222,7 +227,7 @@ For the full Runtime API reference (request/response schemas, error codes), see 
 
 **MockLab is the canonical mock API** (repo: `https://github.com/burgan-tech/mocklab`, currently private). Mockoon has been removed.
 
-**Seed layout** — `etc/docker/config/seed/{collection}.json`, one collection per business domain (current set: `account-opening`, `payments`, `integration-test`, `notification`). MockLab recursively scans the seed directory on startup and imports each `*.json` file as a collection.
+**Seed layout** — `etc/docker/config/seed/{domain}-collection.json`, one collection per business domain (current set: `account-opening-collection`, `future-pay-collection`, `money-transfer-collection`, `integration-test-collection`, `notification-collection`, `payments-collection`). MockLab recursively scans the seed directory on startup and imports each `*.json` file as a collection.
 
 **Collection envelope**:
 
@@ -265,12 +270,16 @@ For the full seed format reference (rule operators, Scriban helpers, sequential 
 
 ## Skills
 
-When a user wants to build a component end-to-end, prefer invoking the matching skill (under `.claude/skills/`) rather than freestyling:
+When a user wants to build a component end-to-end, prefer invoking the matching skill (provided by the `vnext-ai-toolkit` plugin) rather than freestyling. Invoke them by their namespaced name:
 
-- **`view-design`** — interactive view creation; asks for renderer, loads pseudo-ui vocabulary if needed, generates view JSON
-- **`schema-design`** — interactive JSON Schema authoring with localization and role-based access
-- **`workflow-scaffold`** — end-to-end workflow scaffolding (states, transitions, views, schemas, `.http` test file)
-- **`validate-and-fix`** — runs `npm run validate`, categorizes errors, proposes fixes
+- **`vnext-ai-toolkit:view-design`** — interactive view creation; asks for renderer, loads pseudo-ui vocabulary if needed, generates view JSON
+- **`vnext-ai-toolkit:schema-design`** — interactive JSON Schema authoring with localization and role-based access
+- **`vnext-ai-toolkit:workflow-scaffold`** — end-to-end workflow scaffolding (states, transitions, views, schemas, `.http` test file)
+- **`vnext-ai-toolkit:validate-and-fix`** — runs `npm run validate`, categorizes errors, proposes fixes
+- **`vnext-ai-toolkit:component-task` / `:component-function` / `:component-extension`** — single-component scaffolders (task / function / extension) that fetch the relevant schema first
+- **`vnext-ai-toolkit:integration-test`** — generates xUnit lifecycle tests against the official `VNext.Testing.Sdk`
+
+End-to-end orchestration: **`/vnext-ai-toolkit:vnext-design-process "<workflow name>"`** runs the multi-turn architect (Discovery → Flow → Components → Assembly → Test). The legacy local skills under `.claude/skills/` have been removed — the plugin is now the source of truth.
 
 ## Critical Rules
 

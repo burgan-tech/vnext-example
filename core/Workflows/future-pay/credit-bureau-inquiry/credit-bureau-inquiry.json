@@ -1,0 +1,132 @@
+{
+  "key": "credit-bureau-inquiry",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "credit-bureau",
+    "subflow",
+    "kkb",
+    "findeks"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "label": "Kredi Bürosu Sorgusu",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Credit Bureau Inquiry",
+        "language": "en-US"
+      }
+    ],
+    "schema": {
+      "key": "credit-bureau-result",
+      "domain": "core",
+      "flow": "sys-schemas",
+      "version": "1.0.0"
+    },
+    "startTransition": {
+      "key": "start-inquiry",
+      "target": "inquiry",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "label": "Sorguyu Başlat",
+          "language": "tr-TR"
+        },
+        {
+          "label": "Start Inquiry",
+          "language": "en-US"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "inquiry",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Büro Sorgusu",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Bureau Inquiry",
+            "language": "en-US"
+          }
+        ],
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "inquire-kkb",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/InquireKkbMapping.csx",
+              "encoding": "NAT",
+              "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// onEntry HTTP mapping for inquire-kkb (Task type 6) in the credit-bureau-inquiry subflow.\n/// Sends customerId to MockLab; writes the KKB score / total debt onto instance data.\n/// </summary>\npublic class InquireKkbMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var httpTask = task as HttpTask;\n        if (httpTask == null)\n            throw new InvalidOperationException(\"Task must be an HttpTask\");\n\n        var data = context.Instance?.Data;\n        var customerId = data?.customerId?.ToString() ?? data?.application?.customerId?.ToString();\n\n        httpTask.SetBody(new { customerId = customerId ?? string.Empty });\n        httpTask.SetHeaders(new Dictionary<string, string?>\n        {\n            [\"Accept\"] = \"application/json\",\n            [\"Content-Type\"] = \"application/json\"\n        });\n\n        return Task.FromResult(new ScriptResponse());\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        var payload = context.Body?.data ?? context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                kkbScore = payload?.kkbScore,\n                totalExistingDebt = payload?.totalExistingDebt,\n                inquiryDate = DateTime.UtcNow.ToString(\"o\"),\n                inquiryStatus = \"kkb-completed\"\n            },\n            Tags = new[] { \"credit-bureau\", \"kkb\" }\n        });\n    }\n}\n"
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "inquire-findeks",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/InquireFindeksMapping.csx",
+              "encoding": "NAT",
+              "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// onEntry HTTP mapping for inquire-findeks (Task type 6) in the credit-bureau-inquiry subflow.\n/// Sends customerId to MockLab; writes the Findeks note onto instance data.\n/// </summary>\npublic class InquireFindeksMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var httpTask = task as HttpTask;\n        if (httpTask == null)\n            throw new InvalidOperationException(\"Task must be an HttpTask\");\n\n        var data = context.Instance?.Data;\n        var customerId = data?.customerId?.ToString() ?? data?.application?.customerId?.ToString();\n\n        httpTask.SetBody(new { customerId = customerId ?? string.Empty });\n        httpTask.SetHeaders(new Dictionary<string, string?>\n        {\n            [\"Accept\"] = \"application/json\",\n            [\"Content-Type\"] = \"application/json\"\n        });\n\n        return Task.FromResult(new ScriptResponse());\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        var payload = context.Body?.data ?? context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                findeksNote = payload?.findeksNote,\n                inquiryStatus = \"findeks-completed\"\n            },\n            Tags = new[] { \"credit-bureau\", \"findeks\" }\n        });\n    }\n}\n"
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "key": "inquiry-completed",
+            "target": "completed",
+            "versionStrategy": "Minor",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "labels": [
+              {
+                "label": "Sorgu Tamamlandı",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Inquiry Completed",
+                "language": "en-US"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Tamamlandı",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Completed",
+            "language": "en-US"
+          }
+        ]
+      }
+    ]
+  }
+}

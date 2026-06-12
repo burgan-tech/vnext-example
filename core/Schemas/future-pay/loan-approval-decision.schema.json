@@ -1,0 +1,28 @@
+{
+  "key": "loan-approval-decision",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "approval", "transition-payload"],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      { "label": "Kredi Onay Kararı", "language": "tr-TR" },
+      { "label": "Loan Approval Decision", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:loan-approval-decision",
+      "title": "Loan Approval Decision Payload",
+      "description": "Payload submitted on the approve transition (T4).",
+      "type": "object",
+      "properties": {
+        "decisionReason": { "type": "string", "x-labels": { "tr": "Karar Gerekçesi", "en": "Decision Reason" } },
+        "conditions": { "type": "string", "x-labels": { "tr": "Koşullar", "en": "Conditions" } },
+        "approverUserId": { "type": "string", "x-labels": { "tr": "Onaylayan Kullanıcı", "en": "Approver User ID" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

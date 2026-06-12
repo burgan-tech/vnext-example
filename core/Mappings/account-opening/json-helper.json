@@ -1,0 +1,16 @@
+{
+  "key": "json-helper",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "inital"
+  ],
+  "attributes": {
+    "name": "JsonHelper",
+    "location": "./src/JsonHelper.csx",
+    "code": "using Newtonsoft.Json;\n\nnamespace Acme.Helpers;\n\npublic static class JsonHelper\n{\n    public static string Serialize(object value) => JsonConvert.SerializeObject(value);\n}",
+    "encoding": "NAT"
+  }
+}

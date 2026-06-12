@@ -1,0 +1,12 @@
+{
+  "key": "compute-required-approver",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "script", "approval"],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

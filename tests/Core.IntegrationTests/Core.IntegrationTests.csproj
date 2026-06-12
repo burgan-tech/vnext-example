@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Core.IntegrationTests</RootNamespace>
+    <!--
+      Rider and `dotnet test` CLI pick up RunSettingsFilePath automatically.
+      test.runsettings.local is git-ignored and takes precedence for local overrides.
+      Falls back to test.runsettings when the local file does not exist.
+    -->
+    <RunSettingsFilePath Condition="Exists('$(MSBuildProjectDirectory)/test.runsettings.local')">$(MSBuildProjectDirectory)/test.runsettings.local</RunSettingsFilePath>
+    <RunSettingsFilePath Condition="!Exists('$(MSBuildProjectDirectory)/test.runsettings.local')">$(MSBuildProjectDirectory)/test.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="VNext.Testing.Sdk" Version="0.0.5" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Domain-specific Dapr component overrides.
+      Files here take precedence over the SDK's embedded defaults.
+      Delete this folder to use the SDK defaults unchanged.
+    -->
+    <Content Include="Infrastructure\DaprComponents\**\*.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\**\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

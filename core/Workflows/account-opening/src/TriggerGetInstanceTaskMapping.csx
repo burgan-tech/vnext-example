@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using System.Text.Json;
+using BBT.Workflow.Definitions;
 
 public class TriggerGetInstanceTaskMapping : IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
         var triggerTask = (task as GetInstanceDataTask)!;
-       
         triggerTask.SetInstance(context.Instance.Key);
         
         return Task.FromResult(new ScriptResponse());

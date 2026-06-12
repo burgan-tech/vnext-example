@@ -1,0 +1,21 @@
+{
+  "key": "validate-transfer",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "validation", "http"],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/payments/transfers/validate",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      "timeoutSeconds": 30,
+      "acceptedStatusCodes": ["4xx"]
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "key": "loan-disbursement",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "disbursement", "master"],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      { "label": "Kredi Kullandırma Verisi", "language": "tr-TR" },
+      { "label": "Loan Disbursement Data", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:loan-disbursement",
+      "title": "Loan Disbursement Master Data",
+      "description": "Master data shape for the loan-disbursement workflow instance.",
+      "type": "object",
+      "properties": {
+        "application": {
+          "type": "object",
+          "x-labels": { "tr": "Başvuru", "en": "Application" },
+          "properties": {
+            "applicationId": { "type": "string", "x-labels": { "tr": "Başvuru No", "en": "Application ID" } },
+            "customerId": { "type": "string", "x-labels": { "tr": "Müşteri No", "en": "Customer ID" } },
+            "productType": {
+              "type": "string",
+              "enum": ["ihtiyac", "tasit", "konut", "ticari"],
+              "x-labels": { "tr": "Ürün Tipi", "en": "Product Type" },
+              "x-enum": {
+                "ihtiyac": { "tr": "İhtiyaç Kredisi", "en": "Personal Loan" },
+                "tasit": { "tr": "Taşıt Kredisi", "en": "Auto Loan" },
+                "konut": { "tr": "Konut Kredisi", "en": "Mortgage" },
+                "ticari": { "tr": "Ticari Kredi", "en": "Commercial Loan" }
+              }
+            },
+            "requestedAmount": { "type": "number", "exclusiveMinimum": 0, "x-labels": { "tr": "Talep Edilen Tutar", "en": "Requested Amount" } },
+            "currency": {
+              "type": "string",
+              "enum": ["TRY", "USD", "EUR"],
+              "default": "TRY",
+              "x-labels": { "tr": "Para Birimi", "en": "Currency" },
+              "x-enum": {
+                "TRY": { "tr": "Türk Lirası", "en": "Turkish Lira" },
+                "USD": { "tr": "ABD Doları", "en": "US Dollar" },
+                "EUR": { "tr": "Euro", "en": "Euro" }
+              }
+            },
+            "termMonths": { "type": "integer", "minimum": 1, "maximum": 360, "x-labels": { "tr": "Vade (Ay)", "en": "Term (Months)" } },
+            "purpose": { "type": "string", "maxLength": 500, "x-labels": { "tr": "Kredi Amacı", "en": "Purpose" } },
+            "monthlyIncome": { "type": "number", "minimum": 0, "x-labels": { "tr": "Aylık Gelir", "en": "Monthly Income" } }
+          },
+          "required": ["customerId", "requestedAmount", "termMonths"]
+        },
+        "creditBureau": {
+          "type": "object",
+          "x-labels": { "tr": "Kredi Bürosu", "en": "Credit Bureau" },
+          "properties": {
+            "kkbScore": { "type": "integer", "x-labels": { "tr": "KKB Skoru", "en": "KKB Score" } },
+            "findeksNote": { "type": "integer", "x-labels": { "tr": "Findeks Notu", "en": "Findeks Note" } },
+            "totalExistingDebt": { "type": "number", "x-labels": { "tr": "Toplam Mevcut Borç", "en": "Total Existing Debt" } },
+            "inquiryDate": { "type": "string", "format": "date-time", "x-labels": { "tr": "Sorgu Tarihi", "en": "Inquiry Date" } }
+          }
+        },
+        "assessment": {
+          "type": "object",
+          "x-labels": { "tr": "Değerlendirme", "en": "Assessment" },
+          "properties": {
+            "riskScore": { "type": "number", "x-labels": { "tr": "Risk Skoru", "en": "Risk Score" } },
+            "approvedLimit": { "type": "number", "x-labels": { "tr": "Onaylanan Limit", "en": "Approved Limit" } },
+            "internalRating": { "type": "string", "x-labels": { "tr": "İç Derecelendirme", "en": "Internal Rating" } }
+          }
+        },
+        "pricing": {
+          "type": "object",
+          "x-labels": { "tr": "Fiyatlama", "en": "Pricing" },
+          "properties": {
+            "interestRate": { "type": "number", "x-labels": { "tr": "Faiz Oranı", "en": "Interest Rate" } },
+            "insurancePremium": { "type": "number", "x-labels": { "tr": "Sigorta Primi", "en": "Insurance Premium" } },
+            "monthlyInstallment": { "type": "number", "x-labels": { "tr": "Aylık Taksit", "en": "Monthly Installment" } },
+            "apr": { "type": "number", "x-labels": { "tr": "Yıllık Maliyet Oranı", "en": "APR" } }
+          }
+        },
+        "approval": {
+          "type": "object",
+          "x-labels": { "tr": "Onay", "en": "Approval" },
+          "properties": {
+            "requiredApproverRole": { "type": "string", "x-labels": { "tr": "Gerekli Onay Mercii", "en": "Required Approver Role" } },
+            "decision": {
+              "type": "string",
+              "enum": ["approved", "rejected"],
+              "x-labels": { "tr": "Karar", "en": "Decision" },
+              "x-enum": {
+                "approved": { "tr": "Onaylandı", "en": "Approved" },
+                "rejected": { "tr": "Reddedildi", "en": "Rejected" }
+              }
+            },
+            "approverUserId": { "type": "string", "x-labels": { "tr": "Onaylayan Kullanıcı", "en": "Approver User ID" } },
+            "decisionReason": { "type": "string", "x-labels": { "tr": "Karar Gerekçesi", "en": "Decision Reason" } },
+            "conditions": { "type": "string", "x-labels": { "tr": "Koşullar", "en": "Conditions" } }
+          }
+        },
+        "collateral": {
+          "type": "object",
+          "x-labels": { "tr": "Teminat", "en": "Collateral" },
+          "properties": {
+            "collateralType": {
+              "type": "string",
+              "enum": ["ipotek", "rehin", "kefalet", "nakit_blokaj"],
+              "x-labels": { "tr": "Teminat Tipi", "en": "Collateral Type" },
+              "x-enum": {
+                "ipotek": { "tr": "İpotek", "en": "Mortgage Lien" },
+                "rehin": { "tr": "Rehin", "en": "Pledge" },
+                "kefalet": { "tr": "Kefalet", "en": "Surety" },
+                "nakit_blokaj": { "tr": "Nakit Blokaj", "en": "Cash Block" }
+              }
+            },
+            "collateralValue": { "type": "number", "x-labels": { "tr": "Teminat Değeri", "en": "Collateral Value" } },
+            "establishmentStatus": { "type": "string", "x-labels": { "tr": "Tesis Durumu", "en": "Establishment Status" } }
+          }
+        },
+        "disbursement": {
+          "type": "object",
+          "x-labels": { "tr": "Kullandırım", "en": "Disbursement" },
+          "properties": {
+            "disbursedAmount": { "type": "number", "x-labels": { "tr": "Kullandırılan Tutar", "en": "Disbursed Amount" } },
+            "disbursementDate": { "type": "string", "format": "date-time", "x-labels": { "tr": "Kullandırım Tarihi", "en": "Disbursement Date" } },
+            "accountNumber": { "type": "string", "x-labels": { "tr": "Hesap No", "en": "Account Number" } },
+            "transactionRef": { "type": "string", "x-labels": { "tr": "İşlem Referansı", "en": "Transaction Reference" } }
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

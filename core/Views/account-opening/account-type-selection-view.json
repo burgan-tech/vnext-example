@@ -21,7 +21,7 @@
     "renderer": "pseudo-ui",
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
-      "dataSchema": "urn:amorphie:res:schema:core:account-type-selection",
+      "dataSchema": "urn:vnext:res:schema:core:account-type-selection",
       "view": {
         "type": "ScrollView",
         "children": [
@@ -57,7 +57,7 @@
                     "variant": "outlined",
                     "onTap": {
                       "action": "dispatch",
-                      "command": "urn:amorphie:wf:account-opening:transition:select-demand-deposit"
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-demand-deposit"
                     },
                     "children": [
                       {
@@ -87,7 +87,7 @@
                     "variant": "outlined",
                     "onTap": {
                       "action": "dispatch",
-                      "command": "urn:amorphie:wf:account-opening:transition:select-savings-account"
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-savings-account"
                     },
                     "children": [
                       {
@@ -117,7 +117,7 @@
                     "variant": "outlined",
                     "onTap": {
                       "action": "dispatch",
-                      "command": "urn:amorphie:wf:account-opening:transition:select-time-deposit"
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-time-deposit"
                     },
                     "children": [
                       {
@@ -147,7 +147,7 @@
                     "variant": "outlined",
                     "onTap": {
                       "action": "dispatch",
-                      "command": "urn:amorphie:wf:account-opening:transition:select-investment-account"
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-investment-account"
                     },
                     "children": [
                       {

@@ -1,0 +1,52 @@
+{
+  "key": "money-transfer-cancelled-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "cancelled", "display", "pseudo-ui"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:money-transfer-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  { "type": "Icon", "name": "cancel" },
+                  {
+                    "type": "Text",
+                    "content": { "tr": "Transfer İptal Edildi", "en": "Transfer Cancelled" },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Para transferi işlemi iptal edildi. Tutar hesabınızdan çekilmedi.",
+                  "en": "The money transfer was cancelled. No amount was debited from your account."
+                },
+                "variant": "bodyMedium"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "labels": [
+      { "label": "Para Transferi İptal Edildi", "language": "tr-TR" },
+      { "label": "Money Transfer Cancelled", "language": "en-US" }
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "key": "money-transfer-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "master", "schema"],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:money-transfer-master",
+      "title": "Money Transfer Master",
+      "description": "Full instance shape for the money-transfer workflow. Bound by display/summary views.",
+      "type": "object",
+      "properties": {
+        "sourceAccountId": {
+          "type": "string",
+          "x-labels": { "tr": "Kaynak Hesap", "en": "Source Account" }
+        },
+        "targetIban": {
+          "type": "string",
+          "pattern": "^TR[0-9]{24}$",
+          "x-labels": { "tr": "Alıcı IBAN", "en": "Target IBAN" }
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0.01,
+          "x-labels": { "tr": "Tutar", "en": "Amount" }
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["TRY", "USD", "EUR"],
+          "default": "TRY",
+          "x-labels": { "tr": "Para Birimi", "en": "Currency" }
+        },
+        "saveBeneficiary": {
+          "type": "boolean",
+          "x-labels": { "tr": "Alıcıyı Kaydet", "en": "Save Beneficiary" }
+        },
+        "beneficiaryAlias": {
+          "type": "string",
+          "x-labels": { "tr": "Alıcı Takma Adı", "en": "Beneficiary Alias" }
+        },
+        "isFirstTransfer": {
+          "type": "boolean",
+          "description": "True when no prior money-transfer instance exists for this targetIban. Set by the get-iban-history task; drives the push-approval branch.",
+          "x-labels": { "tr": "İlk Transfer", "en": "First Transfer" }
+        },
+        "transferResult": {
+          "type": "object",
+          "description": "Result of the execute-transfer task. success drives the completed/failed branch.",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-labels": { "tr": "Başarılı", "en": "Success" }
+            },
+            "transferReference": {
+              "type": "string",
+              "x-labels": { "tr": "İşlem Referansı", "en": "Transfer Reference" }
+            },
+            "statusCode": {
+              "type": "integer",
+              "x-labels": { "tr": "Durum Kodu", "en": "Status Code" }
+            }
+          }
+        }
+      }
+    },
+    "labels": [
+      { "label": "Para Transferi (Ana Şema)", "language": "tr-TR" },
+      { "label": "Money Transfer (Master)", "language": "en-US" }
+    ]
+  }
+}

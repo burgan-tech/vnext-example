@@ -40,6 +40,7 @@ test('Module exports expected functions', () => {
     'getViews',
     'getFunctions',
     'getExtensions',
+    'getMappings',
     'getAvailableTypes',
     'getDomainName'
   ];
@@ -60,7 +61,7 @@ test('getAvailableTypes returns expected array', () => {
     throw new Error('getAvailableTypes should return an array');
   }
   
-  const expectedTypes = ['Schemas', 'Workflows', 'Tasks', 'Views', 'Functions', 'Extensions'];
+  const expectedTypes = ['Schemas', 'Workflows', 'Tasks', 'Views', 'Functions', 'Extensions', 'Mappings'];
   for (const type of expectedTypes) {
     if (!types.includes(type)) {
       throw new Error(`Expected type '${type}' not found in available types`);
@@ -82,7 +83,7 @@ test('getDomainConfig handles missing config gracefully', () => {
 // Test 5: Component getters return objects
 test('Component getters return objects', () => {
   const vnextTemplate = require('./index.js');
-  const getters = ['getSchemas', 'getWorkflows', 'getTasks', 'getViews', 'getFunctions', 'getExtensions'];
+  const getters = ['getSchemas', 'getWorkflows', 'getTasks', 'getViews', 'getFunctions', 'getExtensions', 'getMappings'];
   
   for (const getter of getters) {
     const result = vnextTemplate[getter]();
@@ -140,7 +141,7 @@ test('Domain directory structure is valid', () => {
     }
     
     // Check for typical vnext structure
-    const expectedDirs = ['Schemas', 'Workflows', 'Tasks', 'Views', 'Functions', 'Extensions'];
+    const expectedDirs = ['Schemas', 'Workflows', 'Tasks', 'Views', 'Functions', 'Extensions', 'Mappings'];
     let foundDirs = 0;
     
     for (const dir of expectedDirs) {

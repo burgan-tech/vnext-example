@@ -1,0 +1,123 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = atlas
+@workflow = money-transfer
+
+### NOTE
+# The .csx mappings carry "<base64; VS Code populates>" placeholders in their
+# mapping.code fields. They satisfy schema validation, but the workflow will only
+# execute at runtime once the vNext VS Code extension has opened & saved each
+# component once (it base64-encodes the .csx into mapping.code). Do this before
+# exercising the calls below.
+
+# ============================================================================
+# PATH A — FIRST transfer to an IBAN -> mobile push approval step
+#   enter-transfer-details --submit-details--> review-and-confirm
+#   --confirm (get-iban-history => isFirstTransfer=true)--> evaluate-push-requirement
+#   --require-push (auto)--> awaiting-push-approval
+#   --approve-push (manual)--> executing-transfer
+#   --execution-succeeded (auto)--> transfer-completed
+# ============================================================================
+
+### 1. Start an instance (lands on Initial state enter-transfer-details)
+# @name start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{}
+
+### Capture the instance key from the start response
+@instanceKey = {{start.response.body.$.id}}
+
+### 2. Source-accounts LOV (sourceAccountId dropdown) — optional pre-fetch
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/get-source-accounts
+Content-Type: application/json
+
+{}
+
+### 3. Favorite-beneficiaries LOV (favorite cards in the input view)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/get-favorite-beneficiaries
+Content-Type: application/json
+
+{}
+
+### 4. submit-details (enter-transfer-details -> review-and-confirm)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/submit-details
+Content-Type: application/json
+
+{
+  "sourceAccountId": "ACC-1001",
+  "targetIban": "TR120006200000000009999999",
+  "amount": 2500.75,
+  "currency": "TRY",
+  "saveBeneficiary": false
+}
+
+### 5. confirm (review-and-confirm -> evaluate-push-requirement; runs get-iban-history)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/confirm
+Content-Type: application/json
+
+{}
+
+### 6. Poll state — for a NEW iban, require-push auto-fires -> awaiting-push-approval
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+
+### 7. approve-push (awaiting-push-approval -> executing-transfer)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/approve-push
+Content-Type: application/json
+
+{}
+
+### 8. Poll state — execution-succeeded auto-fires -> transfer-completed
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+
+# ============================================================================
+# PATH B — KNOWN IBAN -> push step is skipped (skip-push auto transition)
+#   ...--confirm (get-iban-history => isFirstTransfer=false)--> evaluate-push-requirement
+#   --skip-push (auto)--> executing-transfer --execution-succeeded--> transfer-completed
+# (Run PATH A first against the same targetIban so history exists.)
+# ============================================================================
+
+### B1. Start
+# @name startKnown
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{}
+
+@knownKey = {{startKnown.response.body.$.id}}
+
+### B2. submit-details (same targetIban as PATH A)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{knownKey}}/transitions/submit-details
+Content-Type: application/json
+
+{
+  "sourceAccountId": "ACC-1001",
+  "targetIban": "TR120006200000000009999999",
+  "amount": 100,
+  "currency": "TRY"
+}
+
+### B3. confirm -> evaluate-push-requirement (skip-push expected)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{knownKey}}/transitions/confirm
+Content-Type: application/json
+
+{}
+
+### B4. Poll state — should land directly on transfer-completed (no push)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{knownKey}}/functions/state
+
+# ============================================================================
+# PATH C — push timeout (PT5M) -> transfer-failed
+#   At awaiting-push-approval, do NOT approve; after 5 minutes the push-timeout
+#   timer fires -> transfer-failed. Poll state after the window to observe.
+# ============================================================================
+
+### C. Cancel from review-and-confirm -> transfer-cancelled (cancel transition)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/cancel-transfer
+Content-Type: application/json
+
+{}
+
+### Query instances by state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?state=transfer-completed

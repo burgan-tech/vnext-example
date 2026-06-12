@@ -1,0 +1,45 @@
+{
+  "key": "application-intake-form",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "pseudo-ui", "form", "application-intake"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Kredi Başvuru Formu", "language": "tr-TR" },
+      { "label": "Loan Application Form", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:loan-application",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Icon", "name": "request_quote" },
+            { "type": "Text", "content": { "tr": "Kredi Başvurusu", "en": "Loan Application" }, "variant": "headlineMedium" }
+          ]},
+          { "type": "TextField", "bind": "customerId" },
+          { "type": "Dropdown", "bind": "productType" },
+          { "type": "NumberField", "bind": "requestedAmount" },
+          { "type": "Dropdown", "bind": "currency" },
+          { "type": "NumberField", "bind": "termMonths" },
+          { "type": "NumberField", "bind": "monthlyIncome" },
+          { "type": "TextArea", "bind": "purpose" },
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Button", "label": { "tr": "Temizle", "en": "Reset" }, "variant": "text", "action": "reset" },
+            { "type": "Button", "label": { "tr": "Başvur", "en": "Submit" },
+              "action": "dispatch",
+              "command": "urn:vnext:flow:transition:core:loan-disbursement:submit-application",
+              "validate": true }
+          ]}
+        ]
+      }
+    }
+  }
+}

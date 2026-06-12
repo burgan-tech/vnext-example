@@ -1,0 +1,15 @@
+{
+  "key": "notify-application-received",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "notification"],
+  "attributes": {
+    "type": "10",
+    "config": {
+      "channels": ["email"],
+      "includeStateChannel": false
+    }
+  }
+}

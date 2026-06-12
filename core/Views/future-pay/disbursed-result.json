@@ -1,0 +1,37 @@
+{
+  "key": "disbursed-result",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "pseudo-ui", "result", "final"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Kullandırım Tamamlandı", "language": "tr-TR" },
+      { "label": "Disbursement Completed", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:loan-disbursement",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          { "type": "Center", "children": [
+            { "type": "Icon", "name": "check_circle" }
+          ]},
+          { "type": "Text", "content": { "tr": "Krediniz hesabınıza aktarıldı", "en": "Your loan has been disbursed" }, "variant": "headlineSmall" },
+          { "type": "Card", "variant": "outlined", "children": [
+            { "type": "ListTile", "title": { "tr": "Kullandırılan Tutar", "en": "Disbursed Amount" }, "trailing": "$instance.disbursement.disbursedAmount" },
+            { "type": "ListTile", "title": { "tr": "Hesap No", "en": "Account Number" }, "trailing": "$instance.disbursement.accountNumber" },
+            { "type": "ListTile", "title": { "tr": "İşlem Referansı", "en": "Transaction Reference" }, "trailing": "$instance.disbursement.transactionRef" },
+            { "type": "ListTile", "title": { "tr": "Kullandırım Tarihi", "en": "Disbursement Date" }, "trailing": "$instance.disbursement.disbursementDate" }
+          ]}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "key": "loan-assessment",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "assessment", "transition-payload"],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      { "label": "Kredi Değerlendirme", "language": "tr-TR" },
+      { "label": "Loan Assessment", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:loan-assessment",
+      "title": "Loan Assessment Payload",
+      "description": "Assessor-confirmed values submitted on the submit-assessment transition (T3).",
+      "type": "object",
+      "properties": {
+        "approvedLimit": { "type": "number", "x-labels": { "tr": "Onaylanan Limit", "en": "Approved Limit" } },
+        "interestRate": { "type": "number", "x-labels": { "tr": "Faiz Oranı", "en": "Interest Rate" } },
+        "insurancePremium": { "type": "number", "x-labels": { "tr": "Sigorta Primi", "en": "Insurance Premium" } },
+        "monthlyInstallment": { "type": "number", "x-labels": { "tr": "Aylık Taksit", "en": "Monthly Installment" } },
+        "apr": { "type": "number", "x-labels": { "tr": "Yıllık Maliyet Oranı", "en": "APR" } },
+        "internalRating": { "type": "string", "x-labels": { "tr": "İç Derecelendirme", "en": "Internal Rating" } },
+        "riskScore": { "type": "number", "x-labels": { "tr": "Risk Skoru", "en": "Risk Score" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

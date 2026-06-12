@@ -1,12 +1,13 @@
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
 /// <summary>
 /// Account Policies Validation Mapping - Validates account opening against bank policies
 /// This mapping validates account opening request against compliance and risk policies.
 /// </summary>
-public class ValidateAccountPoliciesMapping : IMapping
+public class ValidateAccountPoliciesMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {

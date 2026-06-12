@@ -1,0 +1,16 @@
+{
+  "key": "initial-mapping",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "inital"
+  ],
+  "attributes": {
+    "name": "InitialTransMapping",
+    "location": "./src/InitialTransMapping.csx",
+    "code": "using System;\nusing System.Dynamic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\npublic class InitialTransMapping : ITransitionMapping\n{\n    public async Task<dynamic> Handler(ScriptContext context)\n    {\n        dynamic output = new ExpandoObject();\n        try\n        {\n            output.initial = new {\n                session = context.Body.session,\n                requestId = context.Headers?[\"x-request-id\"] ?? Guid.NewGuid().ToString(),\n                customer = context.Body.customer\n            };\n        \n\n            return output;\n        }\n        catch (Exception ex)\n        {\n            return output;\n        }\n    }\n}\n",
+    "encoding": "NAT"
+  }
+}

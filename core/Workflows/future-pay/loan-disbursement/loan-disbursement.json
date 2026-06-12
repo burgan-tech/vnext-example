@@ -1,0 +1,629 @@
+{
+  "key": "loan-disbursement",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "loan",
+    "disbursement",
+    "kredi-kullandirma"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "label": "Kredi Kullandırma",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Loan Disbursement",
+        "language": "en-US"
+      }
+    ],
+    "schema": {
+      "key": "loan-disbursement",
+      "domain": "core",
+      "flow": "sys-schemas",
+      "version": "1.0.0"
+    },
+    "extensions": [
+      {
+        "key": "customer-profile-enrichment",
+        "domain": "core",
+        "flow": "sys-extensions",
+        "version": "1.0.0"
+      }
+    ],
+    "functions": [
+      {
+        "key": "loan-product-lov",
+        "domain": "core",
+        "flow": "sys-functions",
+        "version": "1.0.0"
+      }
+    ],
+    "startTransition": {
+      "key": "start-application",
+      "target": "application-intake",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "label": "Başvuru Gönder",
+          "language": "tr-TR"
+        },
+        {
+          "label": "Submit Application",
+          "language": "en-US"
+        }
+      ],
+      "schema": null,
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "application-intake",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Başvuru Alımı",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Application Intake",
+            "language": "en-US"
+          }
+        ],
+        "view": {
+          "loadData": true,
+          "extensions": [
+            "customer-profile-enrichment"
+          ],
+          "view": {
+            "key": "application-intake-form",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "submit-application",
+            "target": "credit-bureau-inquiry",
+            "versionStrategy": "Minor",
+            "triggerType": 0,
+            "labels": [
+              {
+                "label": "Büro Sorgusuna Geç",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Proceed to Bureau Inquiry",
+                "language": "en-US"
+              }
+            ],
+            "schema": {
+              "key": "loan-application",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "validate-application",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/ValidateApplicationMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T1 (submit-application) order 1 — Script Task (type 7).\n/// Validates the incoming loan application and seeds the master `application` section\n/// plus a generated applicationId.\n/// </summary>\npublic class ValidateApplicationMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var body = context.Body;\n        var requestedAmount = (decimal?)(body?.requestedAmount) ?? 0m;\n        if (requestedAmount <= 0)\n        {\n            return Task.FromResult(new ScriptResponse\n            {\n                Key = \"validate-application-invalid\",\n                Data = new { valid = false, reason = \"requestedAmount must be greater than zero\" },\n                Tags = new[] { \"validation\", \"failure\" }\n            });\n        }\n\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                application = new\n                {\n                    applicationId = $\"APP-{Guid.NewGuid():N}\".Substring(0, 16),\n                    customerId = body?.customerId,\n                    productType = body?.productType,\n                    requestedAmount = body?.requestedAmount,\n                    currency = body?.currency ?? \"TRY\",\n                    termMonths = body?.termMonths,\n                    purpose = body?.purpose,\n                    monthlyIncome = body?.monthlyIncome\n                }\n            },\n            Tags = new[] { \"validation\", \"success\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse { Data = context.Body });\n    }\n}\n"
+                }
+              },
+              {
+                "order": 2,
+                "task": {
+                  "key": "notify-application-received",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/NotifyApplicationReceivedMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T1 (submit-application) order 2 — Notification Task (type 10).\n/// Notifies the customer that the application was received.\n/// </summary>\npublic class NotifyApplicationReceivedMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var data = context.Instance?.Data;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                recipient = data?.application?.customerId,\n                channel = \"email\",\n                template = \"loan-application-received\",\n                parameters = new\n                {\n                    applicationId = data?.application?.applicationId,\n                    requestedAmount = data?.application?.requestedAmount,\n                    currency = data?.application?.currency\n                }\n            },\n            Tags = new[] { \"notification\", \"application-received\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new { notified = context.Body?.isSuccess ?? true }\n        });\n    }\n}\n"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "credit-bureau-inquiry",
+        "stateType": 4,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Kredi Bürosu Sorgusu",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Credit Bureau Inquiry",
+            "language": "en-US"
+          }
+        ],
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "credit-bureau-inquiry",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.0"
+          },
+          "mapping": {
+            "type": "L",
+            "location": "./src/CreditBureauSubFlowMapping.csx",
+            "encoding": "NAT",
+            "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// State 2 (credit-bureau-inquiry, stateType 4) SubFlow mapping.\n/// Passes customerId/application into the credit-bureau-inquiry subflow; on completion,\n/// merges the bureau result (kkbScore, findeksNote, totalExistingDebt, inquiryDate) into\n/// the master `creditBureau` section.\n/// </summary>\npublic class CreditBureauSubFlowMapping : ScriptBase, ISubFlowMapping\n{\n    public Task<ScriptResponse> InputHandler(ScriptContext context)\n    {\n        var data = context.Instance?.Data;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new Dictionary<string, object>\n            {\n                { \"customerId\", data?.application?.customerId?.ToString() ?? string.Empty },\n                { \"application\", data?.application ?? (object)new { } }\n            }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        var result = context.Body?.data ?? context.Body?.attributes ?? context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                creditBureau = new\n                {\n                    kkbScore = result?.kkbScore,\n                    findeksNote = result?.findeksNote,\n                    totalExistingDebt = result?.totalExistingDebt,\n                    inquiryDate = result?.inquiryDate\n                }\n            },\n            Tags = new[] { \"subflow\", \"credit-bureau\" }\n        });\n    }\n}\n"
+          }
+        },
+        "transitions": [
+          {
+            "key": "bureau-completed",
+            "target": "assessment-pricing",
+            "versionStrategy": "Minor",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "labels": [
+              {
+                "label": "Değerlendirmeye Geç",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Proceed to Assessment",
+                "language": "en-US"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "assessment-pricing",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Değerlendirme ve Fiyatlama",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Assessment & Pricing",
+            "language": "en-US"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "core.kredi-tahsis",
+            "grant": "allow"
+          }
+        ],
+        "view": {
+          "loadData": true,
+          "view": {
+            "key": "assessment-pricing-form",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "submit-assessment",
+            "target": "approval",
+            "versionStrategy": "Minor",
+            "triggerType": 0,
+            "labels": [
+              {
+                "label": "Onaya Gönder",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Submit to Approval",
+                "language": "en-US"
+              }
+            ],
+            "schema": {
+              "key": "loan-assessment",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "roles": [
+              {
+                "role": "core.kredi-tahsis",
+                "grant": "allow"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "score-and-limit",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/ScoreAndLimitMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T3 (submit-assessment) order 1 — Script Task (type 7).\n/// Computes a risk score and approved limit from the bureau result + requested amount,\n/// merging assessor-confirmed values from the transition body into the master `assessment` section.\n/// </summary>\npublic class ScoreAndLimitMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var body = context.Body;\n        var data = context.Instance?.Data;\n\n        var kkbScore = (int?)(data?.creditBureau?.kkbScore) ?? 0;\n        var riskScore = body?.riskScore ?? (object)(kkbScore >= 1400 ? 85 : kkbScore >= 1000 ? 60 : 35);\n\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                assessment = new\n                {\n                    riskScore = riskScore,\n                    approvedLimit = body?.approvedLimit ?? data?.application?.requestedAmount,\n                    internalRating = body?.internalRating ?? (kkbScore >= 1400 ? \"A\" : kkbScore >= 1000 ? \"B\" : \"C\")\n                }\n            },\n            Tags = new[] { \"assessment\", \"scoring\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse { Data = context.Body });\n    }\n}\n"
+                }
+              },
+              {
+                "order": 2,
+                "task": {
+                  "key": "price-loan",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/PriceLoanMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T3 (submit-assessment) order 2 — Script Task (type 7).\n/// Derives pricing (interest rate, insurance premium, monthly installment, APR) and merges\n/// the assessor-confirmed pricing fields into the master `pricing` section.\n/// </summary>\npublic class PriceLoanMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var body = context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                pricing = new\n                {\n                    interestRate = body?.interestRate,\n                    insurancePremium = body?.insurancePremium,\n                    monthlyInstallment = body?.monthlyInstallment,\n                    apr = body?.apr\n                }\n            },\n            Tags = new[] { \"pricing\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse { Data = context.Body });\n    }\n}\n"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "approval",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Onay",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Approval",
+            "language": "en-US"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "$.data.approval.requiredApproverRole",
+            "grant": "allow"
+          }
+        ],
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "compute-required-approver",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/ComputeRequiredApproverMapping.csx",
+              "encoding": "NAT",
+              "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// approval state onEntry order 1 — Script Task (type 7).\n/// Model C-1: derives the required approver role from the approved limit and writes it to\n/// approval.requiredApproverRole. The approval state/transition roleGrant references this value\n/// via JSONPath ($.data.approval.requiredApproverRole) for dynamic, limit-based authorization.\n/// </summary>\npublic class ComputeRequiredApproverMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var data = context.Instance?.Data;\n        decimal approvedLimit = 0m;\n        try { approvedLimit = (decimal?)(data?.assessment?.approvedLimit) ?? 0m; } catch { }\n\n        // Tiered approval authority (Model C-1).\n        string role;\n        if (approvedLimit <= 100000m) role = \"core.onay-sube\";\n        else if (approvedLimit <= 500000m) role = \"core.onay-bolge\";\n        else if (approvedLimit <= 2000000m) role = \"core.onay-genel-mudur-yardimcisi\";\n        else role = \"core.onay-kredi-komitesi\";\n\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                approval = new { requiredApproverRole = role }\n            },\n            Tags = new[] { \"approval\", \"required-approver\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse { Data = context.Body });\n    }\n}\n"
+            }
+          }
+        ],
+        "view": {
+          "loadData": true,
+          "view": {
+            "key": "approval-decision-form",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "approve",
+            "target": "collateral-establishment",
+            "versionStrategy": "Minor",
+            "triggerType": 0,
+            "labels": [
+              {
+                "label": "Onayla",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Approve",
+                "language": "en-US"
+              }
+            ],
+            "schema": {
+              "key": "loan-approval-decision",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "roles": [
+              {
+                "role": "$.data.approval.requiredApproverRole",
+                "grant": "allow"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "notify-approval",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/NotifyApprovalMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T4 (approve) order 1 — Notification Task (type 10).\n/// Records the approval decision onto the master `approval` section and notifies the customer.\n/// </summary>\npublic class NotifyApprovalMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var body = context.Body;\n        var data = context.Instance?.Data;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                approval = new\n                {\n                    decision = \"approved\",\n                    decisionReason = body?.decisionReason,\n                    conditions = body?.conditions,\n                    approverUserId = body?.approverUserId\n                },\n                recipient = data?.application?.customerId,\n                channel = \"email\",\n                template = \"loan-approved\"\n            },\n            Tags = new[] { \"notification\", \"approval\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new { notified = context.Body?.isSuccess ?? true }\n        });\n    }\n}\n"
+                }
+              }
+            ]
+          },
+          {
+            "key": "reject",
+            "target": "rejected",
+            "versionStrategy": "Minor",
+            "triggerType": 0,
+            "labels": [
+              {
+                "label": "Reddet",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Reject",
+                "language": "en-US"
+              }
+            ],
+            "schema": {
+              "key": "loan-rejection",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "roles": [
+              {
+                "role": "$.data.approval.requiredApproverRole",
+                "grant": "allow"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "notify-rejection",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/NotifyRejectionMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T5 (reject) order 1 — Notification Task (type 10).\n/// Records the rejection onto the master `approval` section and notifies the customer.\n/// </summary>\npublic class NotifyRejectionMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var body = context.Body;\n        var data = context.Instance?.Data;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                approval = new\n                {\n                    decision = \"rejected\",\n                    decisionReason = body?.rejectionReason\n                },\n                rejectionCode = body?.rejectionCode,\n                recipient = data?.application?.customerId,\n                channel = \"email\",\n                template = \"loan-rejected\"\n            },\n            Tags = new[] { \"notification\", \"rejection\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new { notified = context.Body?.isSuccess ?? true }\n        });\n    }\n}\n"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "collateral-establishment",
+        "stateType": 4,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Teminat Tesisi",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Collateral Establishment",
+            "language": "en-US"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "core.operasyon",
+            "grant": "allow"
+          }
+        ],
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "collateral-establishment",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.0"
+          },
+          "mapping": {
+            "type": "L",
+            "location": "./src/CollateralSubFlowMapping.csx",
+            "encoding": "NAT",
+            "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// State 5 (collateral-establishment, stateType 4) SubFlow mapping.\n/// Seeds the collateral subflow from the application/approval context and, on completion,\n/// merges the collateral detail (type, value, status) into the master `collateral` section.\n/// </summary>\npublic class CollateralSubFlowMapping : ScriptBase, ISubFlowMapping\n{\n    public Task<ScriptResponse> InputHandler(ScriptContext context)\n    {\n        var data = context.Instance?.Data;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new Dictionary<string, object>\n            {\n                { \"customerId\", data?.application?.customerId?.ToString() ?? string.Empty },\n                { \"approvedLimit\", data?.assessment?.approvedLimit ?? (object)0 },\n                { \"productType\", data?.application?.productType?.ToString() ?? string.Empty }\n            }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        var result = context.Body?.data ?? context.Body?.attributes ?? context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                collateral = new\n                {\n                    collateralType = result?.collateralType,\n                    collateralValue = result?.collateralValue,\n                    establishmentStatus = result?.establishmentStatus\n                }\n            },\n            Tags = new[] { \"subflow\", \"collateral\" }\n        });\n    }\n}\n"
+          }
+        },
+        "transitions": [
+          {
+            "key": "collateral-completed",
+            "target": "disbursement",
+            "versionStrategy": "Minor",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "labels": [
+              {
+                "label": "Kullandırıma Geç",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Proceed to Disbursement",
+                "language": "en-US"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "disbursement",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Kullandırım",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Disbursement",
+            "language": "en-US"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "core.operasyon",
+            "grant": "allow"
+          }
+        ],
+        "view": {
+          "loadData": true,
+          "view": {
+            "key": "disbursement-summary",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "execute-disbursement",
+            "target": "disbursed",
+            "versionStrategy": "Minor",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "labels": [
+              {
+                "label": "Kullandırımı Gerçekleştir",
+                "language": "tr-TR"
+              },
+              {
+                "label": "Execute Disbursement",
+                "language": "en-US"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "release-block",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/ReleaseBlockMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T7 (execute-disbursement) order 1 — HTTP Task (type 6), MockLab.\n/// Releases any cash block held against the customer before transferring funds.\n/// </summary>\npublic class ReleaseBlockMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var httpTask = task as HttpTask;\n        if (httpTask == null)\n            throw new InvalidOperationException(\"Task must be an HttpTask\");\n\n        var data = context.Instance?.Data;\n        httpTask.SetBody(new\n        {\n            customerId = data?.application?.customerId,\n            amount = data?.assessment?.approvedLimit,\n            currency = data?.application?.currency\n        });\n        httpTask.SetHeaders(new Dictionary<string, string?>\n        {\n            [\"Accept\"] = \"application/json\",\n            [\"Content-Type\"] = \"application/json\"\n        });\n\n        return Task.FromResult(new ScriptResponse());\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        var payload = context.Body?.data ?? context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new { blockReleased = context.Body?.isSuccess ?? true, releaseRef = payload?.releaseRef },\n            Tags = new[] { \"disbursement\", \"release-block\" }\n        });\n    }\n}\n"
+                }
+              },
+              {
+                "order": 2,
+                "task": {
+                  "key": "transfer-to-account",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/TransferToAccountMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T7 (execute-disbursement) order 2 — HTTP Task (type 6), MockLab.\n/// Transfers the approved loan amount to the customer's account and records the disbursement\n/// detail (disbursedAmount, accountNumber, transactionRef, disbursementDate) on the master section.\n/// </summary>\npublic class TransferToAccountMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var httpTask = task as HttpTask;\n        if (httpTask == null)\n            throw new InvalidOperationException(\"Task must be an HttpTask\");\n\n        var data = context.Instance?.Data;\n        httpTask.SetBody(new\n        {\n            customerId = data?.application?.customerId,\n            amount = data?.assessment?.approvedLimit,\n            currency = data?.application?.currency\n        });\n        httpTask.SetHeaders(new Dictionary<string, string?>\n        {\n            [\"Accept\"] = \"application/json\",\n            [\"Content-Type\"] = \"application/json\"\n        });\n\n        return Task.FromResult(new ScriptResponse());\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        var payload = context.Body?.data ?? context.Body;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                disbursement = new\n                {\n                    disbursedAmount = payload?.disbursedAmount,\n                    accountNumber = payload?.accountNumber,\n                    transactionRef = payload?.transactionRef,\n                    disbursementDate = DateTime.UtcNow.ToString(\"o\")\n                }\n            },\n            Tags = new[] { \"disbursement\", \"transfer\" }\n        });\n    }\n}\n"
+                }
+              },
+              {
+                "order": 3,
+                "task": {
+                  "key": "notify-disbursed",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/NotifyDisbursedMapping.csx",
+                  "encoding": "NAT",
+                  "code": "using System;\nusing System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\nusing BBT.Workflow.Definitions;\n\n/// <summary>\n/// T7 (execute-disbursement) order 3 — Notification Task (type 10).\n/// Notifies the customer (SMS) that the loan has been disbursed to their account.\n/// </summary>\npublic class NotifyDisbursedMapping : ScriptBase, IMapping\n{\n    public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)\n    {\n        var data = context.Instance?.Data;\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new\n            {\n                recipient = data?.application?.customerId,\n                channel = \"sms\",\n                template = \"loan-disbursed\",\n                parameters = new\n                {\n                    disbursedAmount = data?.disbursement?.disbursedAmount,\n                    accountNumber = data?.disbursement?.accountNumber,\n                    transactionRef = data?.disbursement?.transactionRef\n                }\n            },\n            Tags = new[] { \"notification\", \"disbursed\" }\n        });\n    }\n\n    public Task<ScriptResponse> OutputHandler(ScriptContext context)\n    {\n        return Task.FromResult(new ScriptResponse\n        {\n            Data = new { notified = context.Body?.isSuccess ?? true }\n        });\n    }\n}\n"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "disbursed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Kullandırıldı",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Disbursed",
+            "language": "en-US"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "disbursed-result",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        }
+      },
+      {
+        "key": "rejected",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "Reddedildi",
+            "language": "tr-TR"
+          },
+          {
+            "label": "Rejected",
+            "language": "en-US"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "rejected-result",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        }
+      }
+    ]
+  }
+}

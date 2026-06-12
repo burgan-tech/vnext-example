@@ -2,6 +2,9 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using BBT.Workflow.Scripting.Functions;
+using BBT.Workflow.Scripting;
+using BBT.Workflow.Definitions;
 
 public class AccountTypeSelectionGetInstanceMapping : ScriptBase, IMapping
 {

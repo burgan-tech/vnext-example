@@ -1,0 +1,53 @@
+{
+  "key": "loan-application",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "application", "transition-payload"],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      { "label": "Kredi Başvurusu", "language": "tr-TR" },
+      { "label": "Loan Application", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:loan-application",
+      "title": "Loan Application Payload",
+      "description": "Payload submitted on the submit-application transition (T1).",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string", "x-labels": { "tr": "Müşteri No", "en": "Customer ID" } },
+        "productType": {
+          "type": "string",
+          "enum": ["ihtiyac", "tasit", "konut", "ticari"],
+          "x-labels": { "tr": "Ürün Tipi", "en": "Product Type" },
+          "x-enum": {
+            "ihtiyac": { "tr": "İhtiyaç Kredisi", "en": "Personal Loan" },
+            "tasit": { "tr": "Taşıt Kredisi", "en": "Auto Loan" },
+            "konut": { "tr": "Konut Kredisi", "en": "Mortgage" },
+            "ticari": { "tr": "Ticari Kredi", "en": "Commercial Loan" }
+          }
+        },
+        "requestedAmount": { "type": "number", "exclusiveMinimum": 0, "x-labels": { "tr": "Talep Edilen Tutar", "en": "Requested Amount" } },
+        "currency": {
+          "type": "string",
+          "enum": ["TRY", "USD", "EUR"],
+          "default": "TRY",
+          "x-labels": { "tr": "Para Birimi", "en": "Currency" },
+          "x-enum": {
+            "TRY": { "tr": "Türk Lirası", "en": "Turkish Lira" },
+            "USD": { "tr": "ABD Doları", "en": "US Dollar" },
+            "EUR": { "tr": "Euro", "en": "Euro" }
+          }
+        },
+        "termMonths": { "type": "integer", "minimum": 1, "maximum": 360, "x-labels": { "tr": "Vade (Ay)", "en": "Term (Months)" } },
+        "purpose": { "type": "string", "maxLength": 500, "x-labels": { "tr": "Kredi Amacı", "en": "Purpose" } },
+        "monthlyIncome": { "type": "number", "minimum": 0, "x-labels": { "tr": "Aylık Gelir", "en": "Monthly Income" } }
+      },
+      "required": ["customerId", "productType", "requestedAmount", "termMonths", "monthlyIncome"],
+      "additionalProperties": false
+    }
+  }
+}

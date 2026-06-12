@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "description": "core Domain Definition Configuration",
   "domain": "core",
-  "runtimeVersion": "0.0.32",
-  "schemaVersion": "0.0.42",
+  "runtimeVersion": "0.0.59",
+  "schemaVersion": "0.0.45",
   "paths": {
     "componentsRoot": "core",
     "tasks": "Tasks",
@@ -11,7 +11,8 @@
     "functions": "Functions",
     "extensions": "Extensions",
     "workflows": "Workflows",
-    "schemas": "Schemas"
+    "schemas": "Schemas",
+    "mappings": "Mappings"
   },
   "exports": {
     "functions": [],
@@ -20,6 +21,7 @@
     "views": [],
     "schemas": [],
     "extensions": [],
+    "mappings": [],
     "visibility": "public",
     "metadata": {
       "description": "Exported components for core domain",

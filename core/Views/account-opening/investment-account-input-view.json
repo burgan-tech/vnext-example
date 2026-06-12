@@ -20,7 +20,7 @@
     "renderer": "pseudo-ui",
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
-      "dataSchema": "urn:amorphie:res:schema:core:investment-account-input",
+      "dataSchema": "urn:vnext:res:schema:core:investment-account-input",
       "lookups": ["branchDetail"],
       "view": {
         "type": "ScrollView",
@@ -123,7 +123,7 @@
                     "label": { "en": "Cancel", "tr": "İptal" },
                     "variant": "outlined",
                     "action": "cancel",
-                    "command": "urn:amorphie:wf:account-opening:transition:cancel-account-opening"
+                    "command": "urn:vnext:flow:transition:core:account-opening:cancel-account-opening"
                   },
                   {
                     "type": "Button",
@@ -131,7 +131,7 @@
                     "variant": "filled",
                     "icon": "arrow_forward",
                     "action": "submit",
-                    "command": "urn:amorphie:wf:account-opening:transition:submit-investment-account-info"
+                    "command": "urn:vnext:flow:transition:core:account-opening:submit-investment-account-info"
                   }
                 ]
               }

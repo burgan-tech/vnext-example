@@ -1,0 +1,108 @@
+{
+  "key": "money-transfer-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "money-transfer",
+    "transition",
+    "input",
+    "schema"
+  ],
+  "attributes": {
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:money-transfer-input",
+      "title": "Money Transfer Input",
+      "description": "Transition payload the user fills to submit a money transfer.",
+      "type": "object",
+      "required": [
+        "sourceAccountId",
+        "targetIban",
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "sourceAccountId": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Kaynak Hesap",
+            "en": "Source Account"
+          },
+          "x-lov": {
+            "source": "urn:vnext:fn:core:get-source-accounts",
+            "valueField": "$.data[*].accountId",
+            "displayField": "$.data[*].displayName"
+          }
+        },
+        "targetIban": {
+          "type": "string",
+          "pattern": "^TR[0-9]{24}$",
+          "x-labels": {
+            "tr": "Alıcı IBAN",
+            "en": "Target IBAN"
+          },
+          "x-lookup": {
+            "source": "urn:vnext:fn:core:get-favorite-beneficiaries",
+            "resultField": "$.data"
+          }
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0.01,
+          "x-labels": {
+            "tr": "Tutar",
+            "en": "Amount"
+          }
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "TRY",
+            "USD",
+            "EUR"
+          ],
+          "default": "TRY",
+          "x-labels": {
+            "tr": "Para Birimi",
+            "en": "Currency"
+          }
+        },
+        "saveBeneficiary": {
+          "type": "boolean",
+          "default": false,
+          "x-labels": {
+            "tr": "Alıcıyı Kaydet",
+            "en": "Save Beneficiary"
+          }
+        },
+        "beneficiaryAlias": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Alıcı Takma Adı",
+            "en": "Beneficiary Alias"
+          },
+          "x-conditional": {
+            "showIf": {
+              "field": "saveBeneficiary",
+              "operator": "equals",
+              "value": true
+            }
+          }
+        }
+      }
+    },
+    "type": "schema",
+    "labels": [
+      {
+        "label": "Para Transferi (Giriş Formu)",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Money Transfer (Input)",
+        "language": "en-US"
+      }
+    ]
+  }
+}

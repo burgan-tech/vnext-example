@@ -1,0 +1,12 @@
+{
+  "key": "score-and-limit",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "script", "scoring"],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

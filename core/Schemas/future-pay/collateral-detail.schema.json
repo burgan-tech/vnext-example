@@ -1,0 +1,39 @@
+{
+  "key": "collateral-detail",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["collateral", "subflow", "master"],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      { "label": "Teminat Detayı", "language": "tr-TR" },
+      { "label": "Collateral Detail", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:collateral-detail",
+      "title": "Collateral Establishment Detail",
+      "description": "Master data for the collateral-establishment subflow.",
+      "type": "object",
+      "properties": {
+        "collateralType": {
+          "type": "string",
+          "enum": ["ipotek", "rehin", "kefalet", "nakit_blokaj"],
+          "x-labels": { "tr": "Teminat Tipi", "en": "Collateral Type" },
+          "x-enum": {
+            "ipotek": { "tr": "İpotek", "en": "Mortgage Lien" },
+            "rehin": { "tr": "Rehin", "en": "Pledge" },
+            "kefalet": { "tr": "Kefalet", "en": "Surety" },
+            "nakit_blokaj": { "tr": "Nakit Blokaj", "en": "Cash Block" }
+          }
+        },
+        "collateralValue": { "type": "number", "x-labels": { "tr": "Teminat Değeri", "en": "Collateral Value" } },
+        "establishmentStatus": { "type": "string", "x-labels": { "tr": "Tesis Durumu", "en": "Establishment Status" } },
+        "titleDeedRef": { "type": "string", "x-labels": { "tr": "Tapu Referansı", "en": "Title Deed Reference" } }
+      },
+      "additionalProperties": true
+    }
+  }
+}

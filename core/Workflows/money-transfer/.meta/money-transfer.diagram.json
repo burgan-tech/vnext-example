@@ -1,0 +1,44 @@
+{
+  "nodePos": {
+    "__start__": {
+      "x": 160,
+      "y": 30
+    },
+    "enter-transfer-details": {
+      "x": 70,
+      "y": 220
+    },
+    "review-and-confirm": {
+      "x": 70,
+      "y": 440
+    },
+    "evaluate-push-requirement": {
+      "x": 70,
+      "y": 660
+    },
+    "awaiting-push-approval": {
+      "x": 150,
+      "y": 880
+    },
+    "executing-transfer": {
+      "x": 290,
+      "y": 1100
+    },
+    "transfer-completed": {
+      "x": 300,
+      "y": 1320
+    },
+    "transfer-failed": {
+      "x": 0,
+      "y": 1320
+    },
+    "transfer-cancelled": {
+      "x": 280,
+      "y": 0
+    },
+    "__wf_cancel__": {
+      "x": -200,
+      "y": 0
+    }
+  }
+}

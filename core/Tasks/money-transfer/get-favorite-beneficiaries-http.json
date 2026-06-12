@@ -1,0 +1,19 @@
+{
+  "key": "get-favorite-beneficiaries-http",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "lov", "beneficiaries", "http"],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/payments/beneficiaries/favorites",
+      "method": "GET",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "timeoutSeconds": 15
+    }
+  }
+}

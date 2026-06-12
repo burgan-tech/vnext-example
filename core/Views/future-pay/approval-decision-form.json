@@ -1,0 +1,49 @@
+{
+  "key": "approval-decision-form",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["loan", "pseudo-ui", "form", "approval"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Onay Ekranı", "language": "tr-TR" },
+      { "label": "Approval Screen", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:loan-approval-decision",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Icon", "name": "gavel" },
+            { "type": "Text", "content": { "tr": "Kredi Onayı", "en": "Loan Approval" }, "variant": "headlineMedium" }
+          ]},
+          { "type": "Card", "variant": "filled", "children": [
+            { "type": "ListTile", "title": { "tr": "Onaylanan Limit", "en": "Approved Limit" }, "trailing": "$instance.assessment.approvedLimit" },
+            { "type": "ListTile", "title": { "tr": "Aylık Taksit", "en": "Monthly Installment" }, "trailing": "$instance.pricing.monthlyInstallment" },
+            { "type": "ListTile", "title": { "tr": "Yıllık Maliyet Oranı", "en": "APR" }, "trailing": "$instance.pricing.apr" },
+            { "type": "ListTile", "title": { "tr": "Gerekli Onay Mercii", "en": "Required Approver" }, "trailing": "$instance.approval.requiredApproverRole" }
+          ]},
+          { "type": "TextArea", "bind": "decisionReason" },
+          { "type": "TextArea", "bind": "conditions" },
+          { "type": "TextField", "bind": "approverUserId" },
+          { "type": "Row", "gap": "sm", "children": [
+            { "type": "Button", "label": { "tr": "Reddet", "en": "Reject" }, "variant": "outlined",
+              "action": "dispatch",
+              "command": "urn:vnext:flow:transition:core:loan-disbursement:reject" },
+            { "type": "Button", "label": { "tr": "Onayla", "en": "Approve" },
+              "action": "dispatch",
+              "command": "urn:vnext:flow:transition:core:loan-disbursement:approve",
+              "validate": true }
+          ]}
+        ]
+      }
+    }
+  }
+}
