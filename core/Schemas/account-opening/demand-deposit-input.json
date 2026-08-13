@@ -11,7 +11,6 @@
     "demand-deposit"
   ],
   "attributes": {
-    "type": "workflow",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "urn:vnext:res:schema:core:demand-deposit-input",
@@ -59,6 +58,9 @@
               "en": "An account with this name already exists",
               "tr": "Bu isimde bir hesap zaten var"
             }
+          },
+          "x-context-source": {
+            "const": null
           }
         },
         "currency": {
@@ -107,6 +109,9 @@
               "en": "Solomon Islands Dollar",
               "tr": "Solomon Adaları Doları"
             }
+          },
+          "x-context-source": {
+            "const": null
           }
         },
         "branchCode": {
@@ -133,7 +138,11 @@
             "valueField": "$.data[*].code",
             "displayField": "$.data[*].name",
             "filter": [
-              { "param": "currency", "value": "$form.currency", "required": true }
+              {
+                "param": "currency",
+                "value": "$form.currency",
+                "required": true
+              }
             ]
           }
         },
@@ -146,7 +155,11 @@
             "source": "urn:vnext:fn:core:get-branch-detail",
             "resultField": "$.data",
             "filter": [
-              { "param": "code", "value": "$form.branchCode", "required": true }
+              {
+                "param": "code",
+                "value": "$form.branchCode",
+                "required": true
+              }
             ]
           }
         },
@@ -238,6 +251,7 @@
         }
       },
       "additionalProperties": false
-    }
+    },
+    "type": "workflow"
   }
 }

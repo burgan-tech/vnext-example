@@ -19,9 +19,13 @@ public class CustomerProfileEnrichmentMapping : IMapping
                 throw new InvalidOperationException("Task must be an HttpTask");
 
             // Resolve customerId from the instance data so we enrich the right profile.
+            // The submit-application payload lands at the root of instance data; the `application`
+            // section only exists once validate-application has projected it.
             string? customerId = null;
             try { customerId = context.Instance?.Data?.application?.customerId?.ToString(); } catch { }
+            try { customerId ??= context.Instance?.Data?.customerId?.ToString(); } catch { }
             try { customerId ??= context.Body?.application?.customerId?.ToString(); } catch { }
+            try { customerId ??= context.Body?.customerId?.ToString(); } catch { }
 
             if (!string.IsNullOrEmpty(customerId))
             {
@@ -52,14 +56,18 @@ public class CustomerProfileEnrichmentMapping : IMapping
         try
         {
             var statusCode = (int?)(context.Body?.statusCode) ?? 200;
+            // MockLab answers with { "data": { ... } }; without this second unwrap the profile
+            // lands as customerProfile.data.fullName instead of customerProfile.fullName.
             dynamic payload = context.Body?.data ?? context.Body;
+            dynamic profile = null;
+            try { profile = payload?.data ?? payload; } catch { profile = payload; }
 
-            if (statusCode >= 200 && statusCode < 300 && payload != null)
+            if (statusCode >= 200 && statusCode < 300 && profile != null)
             {
                 return Task.FromResult(new ScriptResponse
                 {
                     Key = "customerProfile",
-                    Data = new { customerProfile = payload },
+                    Data = new { customerProfile = profile },
                     Tags = new[] { "enrichment", "customer", "success" }
                 });
             }

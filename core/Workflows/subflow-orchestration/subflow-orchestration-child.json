@@ -78,7 +78,6 @@
           "label": "Update Parent Data from Child"
         }
       ],
-      "availableIn": [],
       "onExecutionTasks": [
         {
           "order": 1,

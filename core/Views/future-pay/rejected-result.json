@@ -25,7 +25,7 @@
           ]},
           { "type": "Text", "content": { "tr": "Kredi başvurunuz reddedildi", "en": "Your loan application was rejected" }, "variant": "headlineSmall" },
           { "type": "Card", "variant": "outlined", "children": [
-            { "type": "ListTile", "title": { "tr": "Karar Gerekçesi", "en": "Decision Reason" }, "trailing": "$instance.approval.decisionReason" }
+            { "type": "ListTile", "title": { "tr": "Ret Gerekçesi", "en": "Rejection Reason" }, "trailing": "$instance.approval.decisionReason" }
           ]}
         ]
       }

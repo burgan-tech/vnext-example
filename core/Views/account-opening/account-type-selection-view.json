@@ -14,10 +14,19 @@
   "attributes": {
     "type": 1,
     "labels": [
-      { "language": "en-US", "label": "Select Account Type" },
-      { "language": "tr-TR", "label": "Hesap Türü Seçimi" }
+      {
+        "language": "en-US",
+        "label": "Select Account Type"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Hesap Türü Seçimi"
+      }
     ],
-    "display": "full-page",
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
     "renderer": "pseudo-ui",
     "content": {
       "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
@@ -31,12 +40,18 @@
             "children": [
               {
                 "type": "Text",
-                "content": { "en": "Step 1 of 4 — Account Type", "tr": "Adım 1 / 4 — Hesap Türü" },
+                "content": {
+                  "en": "Step 1 of 4 — Account Type",
+                  "tr": "Adım 1 / 4 — Hesap Türü"
+                },
                 "variant": "labelLarge"
               },
               {
                 "type": "Text",
-                "content": { "en": "Choose Your Account Type", "tr": "Hesap Türünüzü Seçin" },
+                "content": {
+                  "en": "Choose Your Account Type",
+                  "tr": "Hesap Türünüzü Seçin"
+                },
                 "variant": "headlineMedium"
               },
               {
@@ -55,19 +70,22 @@
                   {
                     "type": "Card",
                     "variant": "outlined",
-                    "onTap": {
-                      "action": "dispatch",
-                      "command": "urn:vnext:flow:transition:core:account-opening:select-demand-deposit"
-                    },
                     "children": [
                       {
                         "type": "Column",
                         "gap": "sm",
                         "children": [
-                          { "type": "Icon", "name": "home", "size": "lg" },
+                          {
+                            "type": "Icon",
+                            "name": "home",
+                            "size": "lg"
+                          },
                           {
                             "type": "Text",
-                            "content": { "en": "Demand Deposit", "tr": "Vadesiz Mevduat" },
+                            "content": {
+                              "en": "Demand Deposit",
+                              "tr": "Vadesiz Mevduat"
+                            },
                             "variant": "titleMedium"
                           },
                           {
@@ -80,24 +98,31 @@
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "action": {
+                      "action": "dispatch",
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-demand-deposit"
+                    }
                   },
                   {
                     "type": "Card",
                     "variant": "outlined",
-                    "onTap": {
-                      "action": "dispatch",
-                      "command": "urn:vnext:flow:transition:core:account-opening:select-savings-account"
-                    },
                     "children": [
                       {
                         "type": "Column",
                         "gap": "sm",
                         "children": [
-                          { "type": "Icon", "name": "star", "size": "lg" },
+                          {
+                            "type": "Icon",
+                            "name": "star",
+                            "size": "lg"
+                          },
                           {
                             "type": "Text",
-                            "content": { "en": "Savings Account", "tr": "Birikim Hesabı" },
+                            "content": {
+                              "en": "Savings Account",
+                              "tr": "Birikim Hesabı"
+                            },
                             "variant": "titleMedium"
                           },
                           {
@@ -110,24 +135,31 @@
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "action": {
+                      "action": "dispatch",
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-savings-account"
+                    }
                   },
                   {
                     "type": "Card",
                     "variant": "outlined",
-                    "onTap": {
-                      "action": "dispatch",
-                      "command": "urn:vnext:flow:transition:core:account-opening:select-time-deposit"
-                    },
                     "children": [
                       {
                         "type": "Column",
                         "gap": "sm",
                         "children": [
-                          { "type": "Icon", "name": "schedule", "size": "lg" },
+                          {
+                            "type": "Icon",
+                            "name": "schedule",
+                            "size": "lg"
+                          },
                           {
                             "type": "Text",
-                            "content": { "en": "Time Deposit", "tr": "Vadeli Mevduat" },
+                            "content": {
+                              "en": "Time Deposit",
+                              "tr": "Vadeli Mevduat"
+                            },
                             "variant": "titleMedium"
                           },
                           {
@@ -140,24 +172,31 @@
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "action": {
+                      "action": "dispatch",
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-time-deposit"
+                    }
                   },
                   {
                     "type": "Card",
                     "variant": "outlined",
-                    "onTap": {
-                      "action": "dispatch",
-                      "command": "urn:vnext:flow:transition:core:account-opening:select-investment-account"
-                    },
                     "children": [
                       {
                         "type": "Column",
                         "gap": "sm",
                         "children": [
-                          { "type": "Icon", "name": "show_chart", "size": "lg" },
+                          {
+                            "type": "Icon",
+                            "name": "show_chart",
+                            "size": "lg"
+                          },
                           {
                             "type": "Text",
-                            "content": { "en": "Investment Account", "tr": "Yatırım Hesabı" },
+                            "content": {
+                              "en": "Investment Account",
+                              "tr": "Yatırım Hesabı"
+                            },
                             "variant": "titleMedium"
                           },
                           {
@@ -170,7 +209,11 @@
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "action": {
+                      "action": "dispatch",
+                      "command": "urn:vnext:flow:transition:core:account-opening:select-investment-account"
+                    }
                   }
                 ]
               }

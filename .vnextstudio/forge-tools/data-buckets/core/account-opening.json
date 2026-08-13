@@ -1,0 +1,75 @@
+{
+  "key": "account-opening",
+  "globalHeaders": {
+    "role": "morph-core.maker",
+    "sub": "34987491780",
+    "act_sub": "34987491781",
+    "X-Device-Id": "3dcaaac4-b846-404e-8342-fd480e20f6d8",
+    "X-Token-Id": "a0000f64-5717-0000-b3fc-2d963f660001",
+    "X-Installation-Id": "a0000f64-5717-0000-b3fc-2d963f660001",
+    "user_reference": "34987491780",
+    "X-Device-Info": "IOS 16",
+    "X-Request-Id": "3dcaaac4-b846-404e-8342-fd480e20f6d8",
+    "Accept-Language": "tr-TR"
+  },
+  "start": {
+    "headers": {},
+    "queryStrings": {
+      "sync": false
+    },
+    "body": {
+      "key": "17fb8c80-d3ac-4efe-a895-02036c86da09",
+      "attributes": {
+        "session": "aG88rLS",
+        "customer": {
+          "ownerUserId": "9CEiz"
+        }
+      }
+    }
+  },
+  "transitions": [
+    {
+      "key": "select-demand-deposit",
+      "headers": {},
+      "queryStrings": {},
+      "body": {
+        "attributes": {}
+      }
+    },
+    {
+      "key": "submit-demand-deposit-info",
+      "headers": {},
+      "queryStrings": {},
+      "body": {
+        "attributes": {
+          "accountName": "vdsz",
+          "currency": "TRY",
+          "branchCode": "1001",
+          "initialDeposit": 9000,
+          "accountPurpose": "personal-banking",
+          "notifications": {
+            "smsNotifications": true,
+            "emailNotifications": true,
+            "pushNotifications": true
+          }
+        }
+      }
+    },
+    {
+      "key": "approve-account-opening",
+      "headers": {},
+      "queryStrings": {},
+      "body": {
+        "attributes": {
+          "confirmed": true,
+          "termsAccepted": true,
+          "privacyPolicyAccepted": true
+        }
+      }
+    }
+  ],
+  "retryState": {
+    "headers": {},
+    "attributes": {}
+  }
+}

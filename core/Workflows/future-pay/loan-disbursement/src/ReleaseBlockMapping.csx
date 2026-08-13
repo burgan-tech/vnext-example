@@ -7,6 +7,8 @@ using BBT.Workflow.Definitions;
 /// <summary>
 /// T7 (execute-disbursement) order 1 — HTTP Task (type 6), MockLab.
 /// Releases any cash block held against the customer before transferring funds.
+/// MockLab answers with { "data": { ... } }, so the response body is unwrapped one extra level
+/// (StandardTaskResponse.data → body.data) before the fields are read.
 /// </summary>
 public class ReleaseBlockMapping : ScriptBase, IMapping
 {
@@ -34,11 +36,21 @@ public class ReleaseBlockMapping : ScriptBase, IMapping
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
+        var statusCode = (int?)(context.Body?.statusCode) ?? 200;
         var payload = context.Body?.data ?? context.Body;
+        dynamic inner = null;
+        try { inner = payload?.data ?? payload; } catch { inner = payload; }
+
+        var isSuccess = statusCode >= 200 && statusCode < 300;
+
         return Task.FromResult(new ScriptResponse
         {
-            Data = new { blockReleased = context.Body?.isSuccess ?? true, releaseRef = payload?.releaseRef },
-            Tags = new[] { "disbursement", "release-block" }
+            Data = new
+            {
+                blockReleased = isSuccess,
+                releaseRef = inner?.releaseRef
+            },
+            Tags = new[] { "disbursement", "release-block", isSuccess ? "success" : "failure" }
         });
     }
 }

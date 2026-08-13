@@ -1,0 +1,60 @@
+{
+  "key": "start-online-payload",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "online-flow",
+    "start-transition",
+    "input-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:start-online-payload",
+      "title": "Start Online Document Flow Payload",
+      "description": "Start payload for online-flow, prepared by contract-flow per document. contractInstanceId is the parent (contract) instance id; renderReady/approvalReceived are the DirectTrigger callback targets on the parent.",
+      "type": "object",
+      "required": ["documentId", "contractInstanceId", "renderReady", "approvalReceived"],
+      "properties": {
+        "documentId": { "type": "string", "title": "Document Id", "minLength": 1, "x-labels": { "en": "Document Id", "tr": "Doküman Id" } },
+        "contractInstanceId": {
+          "type": "string",
+          "title": "Contract Instance Id",
+          "minLength": 1,
+          "description": "Parent contract-flow instance id — DirectTrigger target.",
+          "x-labels": { "en": "Contract Instance Id", "tr": "Sözleşme Akış Örnek Id" }
+        },
+        "contractCode": { "type": "string", "title": "Contract Code", "x-labels": { "en": "Contract Code", "tr": "Sözleşme Kodu" } },
+        "renderReady": {
+          "type": "object",
+          "title": "Render Ready Transition",
+          "description": "Parent transition to trigger when this document is rendered.",
+          "required": ["domain", "flow", "key"],
+          "properties": {
+            "domain": { "type": "string", "minLength": 1 },
+            "flow": { "type": "string", "minLength": 1 },
+            "key": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        },
+        "approvalReceived": {
+          "type": "object",
+          "title": "Approval Received Transition",
+          "description": "Parent transition to trigger when the user approves this document.",
+          "required": ["domain", "flow", "key"],
+          "properties": {
+            "domain": { "type": "string", "minLength": 1 },
+            "flow": { "type": "string", "minLength": 1 },
+            "key": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "key": "soap-task-test-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "soap",
+    "sms",
+    "master-schema",
+    "core"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:soap-task-test-master",
+      "title": "SOAP Task Test Master Schema",
+      "description": "Master schema for the soap-task-test workflow instance data.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "gsmNo": {
+          "type": "string",
+          "title": "GSM No",
+          "x-labels": {
+            "tr": "GSM No",
+            "en": "Mobile Number"
+          }
+        },
+        "message": {
+          "type": "string",
+          "title": "Message",
+          "x-labels": {
+            "tr": "Mesaj",
+            "en": "Message"
+          }
+        },
+        "header": {
+          "type": "string",
+          "title": "Header",
+          "x-labels": {
+            "tr": "Başlık",
+            "en": "Header"
+          }
+        },
+        "duration": {
+          "type": "integer",
+          "title": "Duration",
+          "x-labels": {
+            "tr": "Geçerlilik (sn)",
+            "en": "Duration (s)"
+          }
+        },
+        "isEncrypted": {
+          "type": "boolean",
+          "title": "Encrypted",
+          "x-labels": {
+            "tr": "Şifreli",
+            "en": "Encrypted"
+          }
+        },
+        "isNotification": {
+          "type": "boolean",
+          "title": "Notification",
+          "x-labels": {
+            "tr": "Bildirim",
+            "en": "Notification"
+          }
+        },
+        "smsResult": {
+          "type": "object",
+          "title": "SMS Result",
+          "additionalProperties": true,
+          "x-labels": {
+            "tr": "SMS Sonucu",
+            "en": "SMS Result"
+          },
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "title": "Success",
+              "x-labels": {
+                "tr": "Başarılı",
+                "en": "Success"
+              }
+            },
+            "statusCode": {
+              "type": "integer",
+              "title": "Status Code",
+              "x-labels": {
+                "tr": "HTTP Kodu",
+                "en": "Status Code"
+              }
+            },
+            "returnCode": {
+              "type": "string",
+              "title": "Return Code",
+              "x-labels": {
+                "tr": "Dönüş Kodu",
+                "en": "Return Code"
+              }
+            },
+            "returnMessage": {
+              "type": "string",
+              "title": "Return Message",
+              "x-labels": {
+                "tr": "Dönüş Mesajı",
+                "en": "Return Message"
+              }
+            },
+            "responseText": {
+              "type": "string",
+              "title": "Response",
+              "x-labels": {
+                "tr": "Yanıt",
+                "en": "Response"
+              }
+            },
+            "faultCode": {
+              "type": "string",
+              "title": "Fault Code",
+              "x-labels": {
+                "tr": "Hata Kodu",
+                "en": "Fault Code"
+              }
+            },
+            "faultString": {
+              "type": "string",
+              "title": "Fault Message",
+              "x-labels": {
+                "tr": "Hata Mesajı",
+                "en": "Fault Message"
+              }
+            },
+            "messageId": {
+              "type": "string",
+              "title": "Message ID",
+              "x-labels": {
+                "tr": "Mesaj ID",
+                "en": "Message ID"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+
+### ─────────────────────────────────────────────────────────────────────────
+### Login + Contract (SubProcess) + Online (SubProcess ×N) orchestration
+###
+### Handshake (v1.1.0 — yeni updateData/lock modeli):
+###   Login.start ─(SubProcess 14)→ Contract.start (contractId = Login.id)
+###   Contract ─(HTTP)→ resolve N docs ─(invoke-loop, $self auto ×N SubProcess)→ Online ×N
+###   Online ─(DirectTrigger 12 → Contract.updateData "contract-progress" {kind:render})→
+###     Contract stamps rr_{documentId}; her kabul autos'u değerlendirir; awaiting-renders
+###     gate'i TIMER'SIZ ateşlenir (park-Busy devralınır) ─(shared login-ready)→ Login
+###   USER ─(pre-approve)→ each Online ─(contract-progress {kind:approval})→ Contract
+###     stamps ap_{documentId} — updateData koşulsuz kabul: hızlı onayda 409/Busy YOK
+###   Contract: ap_ == N ─(shared login-approvals-done)→ Login                    (ONCE)
+###   USER ─(login-finalize)→ Login ─(contract-finalize)→ Contract
+###   Contract: finalize-loop ($self auto ×N online-finalize) → Contract.completed
+###   Contract.completed ─(updateData contract-status)→ Login.completed
+###
+### Yeni model notları:
+###   • contract-progress workflow-level updateData'dır (target $self): Busy'de bile kabul
+###     edilir, her kabulde state'in autos'u taze veriyle değerlendirilir, park-Busy devralınır.
+###   • Sayaçlar yok: her callback kendi rr_/ap_{documentId} anahtarını damgalar (delta-only) —
+###     eşzamanlı yazımlar ayrık anahtarlara dokunur, artış kaybı yapısal olarak imkânsız.
+###   • $self auto loop'lar (invoke-loop / finalize-loop) güvenli: job adları invocation-scoped.
+###   • errorBoundary errorCodes: ["409"] — status artık task hatasında taşınıyor (F5 fix).
+###   • Online child key'leri deterministik: {contractInstanceId}-doc-{documentId}.
+### ─────────────────────────────────────────────────────────────────────────
+
+### 1) Start the Login flow (top-level). contractCode drives doc resolution.
+# @name startLogin
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/login-flow/instances/start
+Content-Type: application/json
+
+{
+  "sub": "user-123",
+  "act_sub": "user-123",
+  "contractCode": "CONTRACT-001"
+}
+
+### Capture the Login instance id
+@loginInstanceId = {{startLogin.response.body.id}}
+
+### 2) Poll Login state — after children auto-render and call back, Login should be at
+###    "waiting-approval-doc" (shared transition login-ready fired by the contract subprocess).
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/login-flow/instances/{{loginInstanceId}}/functions/state
+
+### 3) Find the Contract subprocess instance id (Login instance data → contractInstanceId).
+###    Read it from the state response above, then set it here:
+@contractInstanceId = REPLACE_WITH_contractInstanceId
+
+### 4) Inspect the Contract instance — onlineInstanceIds[] lists the started Online subprocesses.
+###    renderedCount must equal documentCount (3 for CONTRACT-001); state = approval-waiting.
+###    rr_ damgalari documentCount'a esitse tum render callback'leri islenmis demektir.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/functions/state
+
+### 5) User approves each rendered document on its Online subprocess (pre-approve).
+###    Take the ids from contract.onlineInstanceIds[] above.
+###    ▸ LOCK TEST: fire these three back-to-back (VS Code REST Client "Run All" / no wait between
+###      them) so the three Online children hit contract-flow's contract-progress concurrently.
+###      updateData kosulsuz kabul eder: ap_ damgalari 3'e yakinsar — 409/Busy penceresi yok.
+@online1 = REPLACE_WITH_onlineInstanceIds_0
+@online2 = REPLACE_WITH_onlineInstanceIds_1
+@online3 = REPLACE_WITH_onlineInstanceIds_2
+
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/online-flow/instances/{{online1}}/transitions/pre-approve
+Content-Type: application/json
+
+{}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/online-flow/instances/{{online2}}/transitions/pre-approve
+Content-Type: application/json
+
+{}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/online-flow/instances/{{online3}}/transitions/pre-approve
+Content-Type: application/json
+
+{}
+
+### 6) Verify Contract.approvedCount == documentCount and that the aggregate signal fired:
+###    Contract → awaiting-finalize, Login → all-documents-approved.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/functions/state
+
+###
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/login-flow/instances/{{loginInstanceId}}/functions/state
+
+### 7) User initiates the final finalize on the Login flow. This DirectTriggers
+###    contract-finalize on the Contract instance, which loops online-finalize over every child.
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/login-flow/instances/{{loginInstanceId}}/transitions/login-finalize
+Content-Type: application/json
+
+{}
+
+### 8) Final state — Login should be at login-completed-state (login-completed fired by Contract).
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/login-flow/instances/{{loginInstanceId}}/functions/state
+
+### Contract should be at contract-completed, every Online at online-completed.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/functions/state
+
+### ─────────────────────────────────────────────────────────────────────────
+### Lock-mechanism probes (manual, run against a live contract instance)
+### ─────────────────────────────────────────────────────────────────────────
+
+### P1) Invoke the updateData transition directly. Same endpoint shape as any transition.
+###     Body {kind, documentId} — her kabul kendi rr_/ap_ damgasini basar ve autos'u degerlendirir.
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/transitions/contract-progress
+Content-Type: application/json
+
+{
+  "kind": "render",
+  "documentId": "probe-doc"
+}
+
+### P2) Same call again, immediately — this is the collision the errorBoundary is there to absorb.
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/transitions/contract-progress
+Content-Type: application/json
+
+{
+  "kind": "render",
+  "documentId": "probe-doc"
+}
+
+### P3) Re-read data after the burst: rr_probe-doc damgasi ve ardisik data versiyonlari gorulmeli.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/functions/state
+
+### P4) Retry a transition that failed after exhausting its errorBoundary retries.
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/contract-flow/instances/{{contractInstanceId}}/retry
+
+### ── Cancel paths (optional) ──
+### PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/login-flow/instances/{{loginInstanceId}}/transitions/cancel-login

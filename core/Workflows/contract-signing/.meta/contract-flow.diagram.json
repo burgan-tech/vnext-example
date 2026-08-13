@@ -1,0 +1,56 @@
+{
+  "nodePos": {
+    "__start__": {
+      "x": 90,
+      "y": 30
+    },
+    "contract-initial": {
+      "x": 0,
+      "y": 220
+    },
+    "received-documents": {
+      "x": 0,
+      "y": 440
+    },
+    "invoke-iteration": {
+      "x": 0,
+      "y": 660
+    },
+    "need-more-iteration": {
+      "x": 0,
+      "y": 880
+    },
+    "awaiting-renders": {
+      "x": 0,
+      "y": 1100
+    },
+    "render-ready-done": {
+      "x": 0,
+      "y": 1320
+    },
+    "approval-waiting": {
+      "x": 0,
+      "y": 1540
+    },
+    "finalize-loop": {
+      "x": 0,
+      "y": 1760
+    },
+    "contract-completed": {
+      "x": 0,
+      "y": 1980
+    },
+    "contract-cancelled": {
+      "x": 210,
+      "y": 0
+    },
+    "__wf_cancel__": {
+      "x": -200,
+      "y": 0
+    },
+    "__wf_shared_render-ready__": {
+      "x": -200,
+      "y": 55
+    }
+  }
+}

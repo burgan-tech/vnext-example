@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
-/// <summary>
+///<summary>
 /// State 2 (credit-bureau-inquiry, stateType 4) SubFlow mapping.
 /// Passes customerId/application into the credit-bureau-inquiry subflow; on completion,
 /// merges the bureau result (kkbScore, findeksNote, totalExistingDebt, inquiryDate) into
@@ -19,28 +20,23 @@ public class CreditBureauSubFlowMapping : ScriptBase, ISubFlowMapping
         {
             Data = new Dictionary<string, object>
             {
-                { "customerId", data?.application?.customerId?.ToString() ?? string.Empty },
-                { "application", data?.application ?? (object)new { } }
+                { "customerId", data?.customerId?.ToString() ?? string.Empty }
             }
         });
     }
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
-        var result = context.Body?.data ?? context.Body?.attributes ?? context.Body;
-        return Task.FromResult(new ScriptResponse
-        {
-            Data = new
-            {
-                creditBureau = new
-                {
-                    kkbScore = result?.kkbScore,
-                    findeksNote = result?.findeksNote,
-                    totalExistingDebt = result?.totalExistingDebt,
-                    inquiryDate = result?.inquiryDate
-                }
-            },
-            Tags = new[] { "subflow", "credit-bureau" }
-        });
+        dynamic result = context.Body;
+        var creditBureau = CreateObject();
+        SetProperty(creditBureau, "kkbScore", result?.kkbScore);
+        SetProperty(creditBureau, "findeksNote", result?.findeksNote);
+        SetProperty(creditBureau, "totalExistingDebt", result?.totalExistingDebt);
+        SetProperty(creditBureau, "inquiryDate", result?.inquiryDate);
+
+        var data = CreateObject();
+        SetProperty(data, "creditBureau", creditBureau);
+
+        return Task.FromResult(new ScriptResponse { Data = data, Tags = new[] { "subflow", "credit-bureau" } });
     }
 }

@@ -1,0 +1,30 @@
+{
+  "key": "lab-probe-task-3",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "data-integrity-lab",
+    "http",
+    "mocklab",
+    "parallel-branch"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "http://localhost:3001/api/test/process",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "data-integrity-lab",
+        "branch": 3
+      },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "key": "soap-sms-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "soap",
+    "sms",
+    "input-schema",
+    "core"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:soap-sms-input",
+      "title": "SOAP SMS Input Schema",
+      "description": "Input schema for sending a VIP SMS via the SOAP task test workflow.",
+      "type": "object",
+      "required": [
+        "gsmNo",
+        "message"
+      ],
+      "properties": {
+        "gsmNo": {
+          "type": "string",
+          "title": "Mobile Number",
+          "pattern": "^90[0-9]{10}$",
+          "minLength": 12,
+          "maxLength": 12,
+          "x-labels": {
+            "tr": "GSM No",
+            "en": "Mobile Number"
+          },
+          "x-errorMessages": {
+            "required": {
+              "tr": "Lütfen GSM numarası girin",
+              "en": "Please enter a mobile number"
+            },
+            "pattern": {
+              "tr": "905XXXXXXXXX formatında geçerli bir numara girin",
+              "en": "Enter a valid number in 905XXXXXXXXX format"
+            }
+          }
+        },
+        "message": {
+          "type": "string",
+          "title": "Message",
+          "minLength": 1,
+          "maxLength": 500,
+          "x-labels": {
+            "tr": "Mesaj",
+            "en": "Message"
+          },
+          "x-errorMessages": {
+            "required": {
+              "tr": "Lütfen mesaj metnini girin",
+              "en": "Please enter the message text"
+            },
+            "maxLength": {
+              "tr": "Mesaj en fazla 500 karakter olabilir",
+              "en": "Message must be at most 500 characters"
+            }
+          }
+        },
+        "header": {
+          "type": "string",
+          "title": "Header",
+          "default": "BURGAN BANK",
+          "maxLength": 20,
+          "x-labels": {
+            "tr": "Başlık",
+            "en": "Header"
+          }
+        },
+        "duration": {
+          "type": "integer",
+          "title": "Validity Duration (s)",
+          "default": 300,
+          "minimum": 1,
+          "maximum": 86400,
+          "x-labels": {
+            "tr": "Geçerlilik Süresi (sn)",
+            "en": "Validity Duration (s)"
+          }
+        },
+        "isNotification": {
+          "type": "boolean",
+          "title": "Send as Notification",
+          "default": true,
+          "x-labels": {
+            "tr": "Bildirim Olarak Gönder",
+            "en": "Send as Notification"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

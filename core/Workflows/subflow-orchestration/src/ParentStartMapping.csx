@@ -19,6 +19,16 @@ public class ParentStartMapping : ScriptBase, IMapping
         {
             result.testId = data.testId;
         }
+
+        // updateData concurrency probe: seed the fan-in counter and carry the
+        // caller-provided threshold (default 5) for the parent-collect gate.
+        result.updateCount = 0;
+        result.updateThreshold = 5;
+        if (data != null && HasProperty(data, "updateThreshold"))
+        {
+            result.updateThreshold = data.updateThreshold;
+        }
+
         LogInformation("ParentStartMapping: parentStarted set");
         return Task.FromResult(new ScriptResponse { Data = result });
     }

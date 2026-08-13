@@ -1,0 +1,154 @@
+{
+  "key": "contract-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "contract-flow",
+    "master-schema",
+    "subprocess-orchestration"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:contract-master",
+      "title": "Contract Flow Master Schema",
+      "description": "Master schema for contract-flow instance data. Contract resolves documents by contractCode, fans out one online-flow subprocess per document, aggregates render-ready and approval callbacks, then finalizes each child on the parent's request.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sub": {
+          "type": "string",
+          "description": "Subject",
+          "x-labels": {
+            "en": "Subject",
+            "tr": "Özne"
+          }
+        },
+        "act_sub": {
+          "type": "string",
+          "description": "Acting subject",
+          "x-labels": {
+            "en": "Acting Subject",
+            "tr": "Vekil Özne"
+          }
+        },
+        "contractCode": {
+          "type": "string",
+          "description": "Business contract code",
+          "x-labels": {
+            "en": "Contract Code",
+            "tr": "Sözleşme Kodu"
+          }
+        },
+        "contractId": {
+          "type": "string",
+          "description": "Parent (login-flow) instance id, passed at start. Also serves as the idempotency key. Target instanceId for the ready/completed DirectTrigger callbacks.",
+          "x-labels": {
+            "en": "Parent Instance Id",
+            "tr": "Üst Akış Örnek Id"
+          }
+        },
+        "readyTransition": {
+          "type": "object",
+          "description": "DirectTrigger target for notifying the parent that documents are ready.",
+          "additionalProperties": true,
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "flow": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string",
+              "description": "Transition name on the parent (readyTransitionKey)"
+            }
+          }
+        },
+        "completedTransition": {
+          "type": "object",
+          "description": "DirectTrigger target for notifying the parent that the contract has completed.",
+          "additionalProperties": true,
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "flow": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string",
+              "description": "Transition name on the parent (completedTransitionKey)"
+            }
+          }
+        },
+        "documentCount": {
+          "type": "integer",
+          "description": "Number of documents resolved for the contractCode",
+          "default": 0
+        },
+        "documents": {
+          "type": "array",
+          "description": "Documents resolved for the contractCode",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "documentId": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "onlineInstanceIds": {
+          "type": "array",
+          "description": "Instance ids of the started online-flow subprocesses (one per document), captured from each SubProcess start response.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "iterIndex": {
+          "type": "integer",
+          "description": "Fan-out loop cursor",
+          "default": 0
+        },
+        "finIndex": {
+          "type": "integer",
+          "description": "Finalize loop cursor",
+          "default": 0
+        },
+        "renderedCount": {
+          "type": "integer",
+          "description": "Count of render-ready callbacks received from children",
+          "default": 0
+        },
+        "approvedCount": {
+          "type": "integer",
+          "description": "Count of approval-received callbacks received from children",
+          "default": 0
+        },
+        "approvalsDoneTransition": {
+          "type": "object",
+          "description": "DirectTrigger target for notifying the parent that all documents were approved.",
+          "additionalProperties": true,
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "flow": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string",
+              "description": "Transition name on the parent (approvalsDoneTransitionKey)"
+            }
+          }
+        }
+      }
+    }
+  }
+}

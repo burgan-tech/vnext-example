@@ -1,0 +1,21 @@
+{
+  "key": "trigger-transition",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "direct-trigger",
+    "callback",
+    "orchestration"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "login-flow",
+      "transitionName": "login-ready"
+    }
+  }
+}

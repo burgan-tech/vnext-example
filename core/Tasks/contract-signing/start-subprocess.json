@@ -1,0 +1,20 @@
+{
+  "key": "start-subprocess",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "subprocess",
+    "orchestration"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "core",
+      "flow": "contract-flow",
+      "version": "1.0.0"
+    }
+  }
+}

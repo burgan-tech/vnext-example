@@ -1,0 +1,374 @@
+{
+  "key": "login-flow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.1.0",
+  "tags": [
+    "contract-signing",
+    "login-flow",
+    "orchestration",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Login Flow"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "sharedTransitions": [
+      {
+        "_comment": "contract-flow reports that every document finished rendering.",
+        "key": "login-ready",
+        "target": "waiting-approval-doc",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "availableIn": [
+          "awaiting-ready"
+        ],
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Contract Documents Ready (callback)"
+          }
+        ],
+        "onExecutionTasks": []
+      },
+      {
+        "_comment": "contract-flow reports that every document has been approved (single aggregate signal).",
+        "key": "login-approvals-done",
+        "target": "all-documents-approved",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "availableIn": [
+          "waiting-approval-doc"
+        ],
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "All Documents Approved (callback)"
+          }
+        ],
+        "onExecutionTasks": []
+      }
+    ],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-login",
+      "target": "login-initial",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Login Flow"
+        }
+      ],
+      "schema": {
+        "key": "start-login-payload",
+        "version": "1.0.0",
+        "domain": "core",
+        "flow": "sys-schemas"
+      }
+    },
+    "cancel": {
+      "key": "cancel-login",
+      "target": "login-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Login"
+        }
+      ]
+    },
+    "updateData": {
+      "_comment": "contract-flow pushes a contractCompleted flag here just before closing itself. Data-only handoff: login-flow decides when to move on via the gated auto transition on awaiting-completed.",
+      "key": "contract-status",
+      "target": "$self",
+      "versionStrategy": "Minor",
+      "triggerType": 0,
+      "schema": null,
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Contract Status Update (from child)"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "signing-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/LoginContractStatusMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCi8vIG9uRXhlY3V0aW9uIG9mIGxvZ2luLWZsb3cncyB1cGRhdGVEYXRhIHRyYW5zaXRpb24gKGNvbnRyYWN0LXN0YXR1cykuCi8vIGNvbnRyYWN0LWZsb3cgY2FsbHMgdGhpcyBvbmNlLCBqdXN0IGJlZm9yZSBjb21wbGV0aW5nLCB0byBoYW5kIHRoZSBwYXJlbnQgYQovLyAiY29udHJhY3QgZmluaXNoZWQiIGZsYWcuIFRoZSB0cmFuc2l0aW9uIHBheWxvYWQgaXMgbWVyZ2VkIGludG8gaW5zdGFuY2UgZGF0YSBhdCB0aGUKLy8gcm9vdCwgc28gY29udHJhY3RDb21wbGV0ZWQgYXJyaXZlcyB0aGVyZTsgd2UgZGVmYXVsdCB0byB0cnVlIHdoZW4gdGhlIGNhbGxlciBzZW5kcwovLyBubyBib2R5LCBiZWNhdXNlIHRoZSBvbmx5IHJlYXNvbiB0byBpbnZva2UgdGhpcyB0cmFuc2l0aW9uIGlzIHRvIHJlcG9ydCBjb21wbGV0aW9uLgovLyBSZXR1cm4gT05MWSB0aGUgZGVsdGE6IHdyaXRpbmcgYmFjayBhIGZ1bGwgc25hcHNob3Qgd291bGQgY2xvYmJlciBjb25jdXJyZW50IHdyaXRlcy4KcHVibGljIGNsYXNzIExvZ2luQ29udHJhY3RTdGF0dXNNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgYm9vbCBjb21wbGV0ZWQgPSB0cnVlOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgiY29udHJhY3RDb21wbGV0ZWQiLCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGlmICghYm9vbC5UcnlQYXJzZSh2LlRvU3RyaW5nKCksIG91dCBjb21wbGV0ZWQpKSBjb21wbGV0ZWQgPSB0cnVlOwogICAgICAgIH0KICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkxvZ2luQ29udHJhY3RTdGF0dXNNYXBwaW5nOiBjb250cmFjdENvbXBsZXRlZD17Y29tcGxldGVkfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG5ldyB7IGNvbnRyYWN0Q29tcGxldGVkID0gY29tcGxldGVkIH0gfSk7CiAgICB9Cn0K",
+            "encoding": "B64"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "login-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Login Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "start-subprocess",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/LoginStartContractMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBvbkVudHJ5IG9mIGxvZ2luLWluaXRpYWw6IHN0YXJ0IHRoZSBjb250cmFjdC1mbG93IFN1YlByb2Nlc3MgKHR5cGUgMTQpLAovLyBwYXNzaW5nIHRoaXMgTG9naW4gaW5zdGFuY2UgaWQgYXMgY29udHJhY3RJZCArIHRoZSBwYXJlbnQgY2FsbGJhY2sgdHJhbnNpdGlvbiByZWZzLgovLyBPdXRwdXRIYW5kbGVyIGNhcHR1cmVzIHRoZSBzdGFydGVkIGNvbnRyYWN0IGluc3RhbmNlIGlkIChyZXNwb25zZS5pZCkgaW50byBpbnN0YW5jZSBkYXRhLgpwdWJsaWMgY2xhc3MgTG9naW5TdGFydENvbnRyYWN0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc3ViID0gdGFzayBhcyBTdWJQcm9jZXNzVGFzazsKICAgICAgICBpZiAoc3ViID09IG51bGwpIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBTdWJQcm9jZXNzVGFzayIpOwoKICAgICAgICBzdWIuU2V0RG9tYWluKCJjb3JlIik7CiAgICAgICAgc3ViLlNldEZsb3coImNvbnRyYWN0LWZsb3ciKTsKICAgICAgICBzdWIuU2V0VmVyc2lvbigiMS4xLjAiKTsKCiAgICAgICAgc3ViLlNldEJvZHkobmV3CiAgICAgICAgewogICAgICAgICAgICBzdWIgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEuc3ViLAogICAgICAgICAgICBhY3Rfc3ViID0gY29udGV4dC5JbnN0YW5jZS5EYXRhLmFjdF9zdWIsCiAgICAgICAgICAgIGNvbnRyYWN0Q29kZSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5jb250cmFjdENvZGUsCiAgICAgICAgICAgIGNvbnRyYWN0SWQgPSBjb250ZXh0Lkluc3RhbmNlLklkLCAgICAgICAgICAgICAgLy8gdGhpcyBMb2dpbiBpbnN0YW5jZSBpZCA9IGlkZW1wb3RlbmN5IGtleSArIGNhbGxiYWNrIHRhcmdldAogICAgICAgICAgICByZWFkeVRyYW5zaXRpb24gPSBuZXcgeyBkb21haW4gPSAiY29yZSIsIGZsb3cgPSAibG9naW4tZmxvdyIsIGtleSA9ICJsb2dpbi1yZWFkeSIgfSwKICAgICAgICAgICAgYXBwcm92YWxzRG9uZVRyYW5zaXRpb24gPSBuZXcgeyBkb21haW4gPSAiY29yZSIsIGZsb3cgPSAibG9naW4tZmxvdyIsIGtleSA9ICJsb2dpbi1hcHByb3ZhbHMtZG9uZSIgfSwKICAgICAgICAgICAgY29tcGxldGVkVHJhbnNpdGlvbiA9IG5ldyB7IGRvbWFpbiA9ICJjb3JlIiwgZmxvdyA9ICJsb2dpbi1mbG93Iiwga2V5ID0gImNvbnRyYWN0LXN0YXR1cyIgfQogICAgICAgIH0pOwoKICAgICAgICBzdWIuU2V0S2V5KGNvbnRleHQuSW5zdGFuY2UuSWQuVG9TdHJpbmcoKSk7CiAgICAgICAgc3ViLlNldFN5bmMoZmFsc2UpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJMb2dpblN0YXJ0Q29udHJhY3RNYXBwaW5nOiBjb250cmFjdCBzdWJwcm9jZXNzIHN0YXJ0ZWQsIGNvbnRyYWN0SW5zdGFuY2VJZCBjYXB0dXJlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG5ldwogICAgICAgIHsKICAgICAgICAgICAgY29udHJhY3RJbnN0YW5jZUlkID0gY29udGV4dC5Cb2R5LmRhdGEudmFsdWUuaWQKICAgICAgICB9IH0pOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "errorBoundary": {
+              "onError": [
+                {
+                  "action": 1,
+                  "errorCodes": [
+                    "409"
+                  ],
+                  "priority": 10,
+                  "retryPolicy": {
+                    "maxRetries": 8,
+                    "initialDelay": "PT0.5S",
+                    "backoffType": 1,
+                    "backoffMultiplier": 2,
+                    "maxDelay": "PT10S",
+                    "useJitter": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "login-initial-to-awaiting-ready",
+            "target": "awaiting-ready",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Awaiting Ready"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "awaiting-ready",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting Contract Ready"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "waiting-approval-doc",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting Document Approval"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "all-documents-approved",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "All Documents Approved"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "login-finalize",
+            "target": "awaiting-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finalize Contract"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "trigger-transition",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LoginTriggerContractFinalizeMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8gb25FeGVjdXRpb24gb2YgbG9naW4tZmluYWxpemU6IERpcmVjdFRyaWdnZXIgKHR5cGUgMTIpIHRoZSBjb250cmFjdC1mbG93J3MKLy8gY29udHJhY3QtZmluYWxpemUgdHJhbnNpdGlvbiBvbiB0aGUgY2hpbGQgaW5zdGFuY2UgY2FwdHVyZWQgYXQgc3RhcnQuCnB1YmxpYyBjbGFzcyBMb2dpblRyaWdnZXJDb250cmFjdEZpbmFsaXplTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZyA9IHRhc2sgYXMgRGlyZWN0VHJpZ2dlclRhc2s7CiAgICAgICAgaWYgKHRyaWcgPT0gbnVsbCkgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIERpcmVjdFRyaWdnZXJUYXNrIik7CgogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBvYmplY3QgaW5zdGFuY2VJZCA9IG51bGw7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCkgZGF0YS5UcnlHZXRWYWx1ZSgiY29udHJhY3RJbnN0YW5jZUlkIiwgb3V0IGluc3RhbmNlSWQpOwoKICAgICAgICB0cmlnLlNldERvbWFpbigiY29yZSIpOwogICAgICAgIHRyaWcuU2V0RmxvdygiY29udHJhY3QtZmxvdyIpOwogICAgICAgIHRyaWcuU2V0VHJhbnNpdGlvbk5hbWUoImNvbnRyYWN0LWZpbmFsaXplIik7CiAgICAgICAgdHJpZy5TZXRJbnN0YW5jZShpbnN0YW5jZUlkPy5Ub1N0cmluZygpKTsKICAgICAgICB0cmlnLlNldFN5bmMoZmFsc2UpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJMb2dpblRyaWdnZXJDb250cmFjdEZpbmFsaXplTWFwcGluZzogY29udHJhY3QtZmluYWxpemUgdHJpZ2dlcmVkIG9uIGNoaWxkIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KfQo=",
+                  "encoding": "B64"
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 1,
+                      "errorCodes": [
+                        "409"
+                      ],
+                      "priority": 10,
+                      "retryPolicy": {
+                        "maxRetries": 8,
+                        "initialDelay": "PT0.5S",
+                        "backoffType": 1,
+                        "backoffMultiplier": 2,
+                        "maxDelay": "PT10S",
+                        "useJitter": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "awaiting-completed",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting Contract Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "login-contract-done",
+            "target": "login-completed-state",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Contract Reported Completed"
+              }
+            ],
+            "rule": {
+              "location": "./src/ContractCompletedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBjb250cmFjdENvbXBsZXRlZCA9PSB0cnVlICDihpIgY29udHJhY3QtZmxvdyByZXBvcnRlZCB0aGF0IGl0IGZpbmFsaXplZCBldmVyeSBkb2N1bWVudAovLyBhbmQgaXMgY2xvc2luZyBpdHNlbGYsIHNvIGxvZ2luIG1heSBjb250aW51ZS4KcHVibGljIGNsYXNzIENvbnRyYWN0Q29tcGxldGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoZCAhPSBudWxsICYmIGQuVHJ5R2V0VmFsdWUoImNvbnRyYWN0Q29tcGxldGVkIiwgb3V0IHZhciB2KSAmJiB2ICE9IG51bGwKICAgICAgICAgICAgJiYgYm9vbC5UcnlQYXJzZSh2LlRvU3RyaW5nKCksIG91dCB2YXIgZG9uZSkpIHJldHVybiBUYXNrLkZyb21SZXN1bHQoZG9uZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChmYWxzZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "login-completed",
+            "target": "login-completed-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Contract Completed (manual override)"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "login-completed-state",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Login Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "login-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Login Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

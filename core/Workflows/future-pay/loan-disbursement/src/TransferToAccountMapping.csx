@@ -8,6 +8,8 @@ using BBT.Workflow.Definitions;
 /// T7 (execute-disbursement) order 2 — HTTP Task (type 6), MockLab.
 /// Transfers the approved loan amount to the customer's account and records the disbursement
 /// detail (disbursedAmount, accountNumber, transactionRef, disbursementDate) on the master section.
+/// MockLab answers with { "data": { ... } }, so the response body is unwrapped one extra level
+/// (StandardTaskResponse.data → body.data) before the fields are read.
 /// </summary>
 public class TransferToAccountMapping : ScriptBase, IMapping
 {
@@ -35,20 +37,26 @@ public class TransferToAccountMapping : ScriptBase, IMapping
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
+        var statusCode = (int?)(context.Body?.statusCode) ?? 200;
         var payload = context.Body?.data ?? context.Body;
+        dynamic inner = null;
+        try { inner = payload?.data ?? payload; } catch { inner = payload; }
+
+        var isSuccess = statusCode >= 200 && statusCode < 300;
+
         return Task.FromResult(new ScriptResponse
         {
             Data = new
             {
                 disbursement = new
                 {
-                    disbursedAmount = payload?.disbursedAmount,
-                    accountNumber = payload?.accountNumber,
-                    transactionRef = payload?.transactionRef,
+                    disbursedAmount = inner?.disbursedAmount,
+                    accountNumber = inner?.accountNumber,
+                    transactionRef = inner?.transactionRef,
                     disbursementDate = DateTime.UtcNow.ToString("o")
                 }
             },
-            Tags = new[] { "disbursement", "transfer" }
+            Tags = new[] { "disbursement", "transfer", isSuccess ? "success" : "failure" }
         });
     }
 }

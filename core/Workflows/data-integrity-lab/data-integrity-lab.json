@@ -1,0 +1,333 @@
+{
+  "key": "data-integrity-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.2",
+  "tags": [
+    "integration-test",
+    "data-integrity-lab",
+    "sequential-tasks",
+    "parallel-tasks",
+    "datahash-dedup",
+    "lock-contention"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Data Integrity Lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-data-integrity-lab",
+      "target": "lab-sequential",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Data Integrity Lab"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "lab-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/LabStartMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdGFydCB0YXNrIGZvciBkYXRhLWludGVncml0eS1sYWI6IHNlZWRzIHRoZSBjb3VudGVyIGFuZCBjYXJyaWVzIHRoZSBjYWxsZXItcHJvdmlkZWQKLy8vIHRocmVzaG9sZCAoZGVmYXVsdCA0KS4gT25lIGRhdGEgcm93IGlzIGV4cGVjdGVkIGZyb20gdGhpcyB0YXNrICh2ZXJzaW9uIDEuMC4wKS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIExhYlN0YXJ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgidGVzdElkIiwgb3V0IHZhciB0ZXN0SWQpICYmIHRlc3RJZCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGFyZ2V0WyJ0ZXN0SWQiXSA9IHRlc3RJZC5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgdmFyIHRocmVzaG9sZCA9IDQ7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJsYWJUaHJlc2hvbGQiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCB0aHJlc2hvbGQpOwogICAgICAgIH0KCiAgICAgICAgdGFyZ2V0WyJsYWJTdGFydGVkIl0gPSB0cnVlOwogICAgICAgIHRhcmdldFsibGFiVXBkYXRlQ291bnQiXSA9IDA7CiAgICAgICAgdGFyZ2V0WyJsYWJUaHJlc2hvbGQiXSA9IHRocmVzaG9sZDsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJMYWJTdGFydE1hcHBpbmc6IHNlZWRlZCBsYWJUaHJlc2hvbGQ9e3RocmVzaG9sZH0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "lab-sequential",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Sequential (ordered task chain)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "run-sequential",
+            "target": "lab-parallel",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Run Sequential Chain (seq1..3 + dedup echo)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "lab-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabSeqStep1Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNlcXVlbnRpYWwgc3RlcCAxOiBtZXJnZXMgY3VycmVudCBkYXRhIGFuZCBzdGFtcHMgc2VxMS4gSW1tZWRpYXRlLXBlcnNpc3QgbW9kZWw6Ci8vLyB0aGlzIHJvdyBpcyBvbiBkaXNrIGJlZm9yZSBzdGVwIDIgc3RhcnRzLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTGFiU2VxU3RlcDFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIC8vIERlbHRhLW9ubHkgYnkgZGVzaWduOiB0aGUgd3JpdGUgc2VydmljZSBtZXJnZXMgdGhpcyBpbnRvIHRoZSBEQiBoZWFkIHVuZGVyIHRoZQogICAgICAgIC8vIHJvdyBsb2NrLCBzbyBlY2hvaW5nIGV4aXN0aW5nIGRhdGEgaXMgbm90IG9ubHkgdW5uZWNlc3Nhcnkg4oCUIHVuZGVyIGNvbmN1cnJlbnQKICAgICAgICAvLyB3cml0ZXJzIGEgc3RhbGUgZWNob2VkIHZhbHVlIHdvdWxkIG92ZXJ3cml0ZSBhIGZyZXNoZXIgb25lLgogICAgICAgIHRhcmdldFsic2VxMSJdID0gdHJ1ZTsKICAgICAgICB0YXJnZXRbInNlcTFBdCJdID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkxhYlNlcVN0ZXAxTWFwcGluZzogc2VxMSBzdGFtcGVkIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+                }
+              },
+              {
+                "order": 2,
+                "task": {
+                  "key": "lab-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabSeqStep2Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNlcXVlbnRpYWwgc3RlcCAyIOKAlCBvcmRlcmluZyBwcm9iZTogcmVjb3JkcyB3aGV0aGVyIHN0ZXAgMSdzIG91dHB1dCAoc2VxMSkgaXMgdmlzaWJsZQovLy8gaW4gdGhlIHNuYXBzaG90LiBVbmRlciB0aGUgaW1tZWRpYXRlLXBlcnNpc3QgbW9kZWwgZXZlcnkgZWFybGllciBzZXF1ZW50aWFsIHRhc2sncyByb3cKLy8vIGlzIHBlcnNpc3RlZCBBTkQgcmVmbGVjdGVkIGludG8gdGhlIFNjcmlwdENvbnRleHQgc25hcHNob3QgYmVmb3JlIHRoZSBuZXh0IHRhc2sgcnVucywKLy8vIHNvIHNlcTFTZWVuQnlTZXEyIG11c3QgYWx3YXlzIGJlIHRydWUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJTZXFTdGVwMk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgLy8gRGVsdGEtb25seTogcmVhZCB0aGUgc25hcHNob3QgZm9yIHRoZSBwcm9iZSwgYnV0IHJldHVybiBPTkxZIG91ciBvd24ga2V5cy4KICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIHNlcTFTZWVuID0gZGF0YSAhPSBudWxsICYmIGRhdGEuQ29udGFpbnNLZXkoInNlcTEiKTsKCiAgICAgICAgdGFyZ2V0WyJzZXEyIl0gPSB0cnVlOwogICAgICAgIHRhcmdldFsic2VxMkF0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICB0YXJnZXRbInNlcTFTZWVuQnlTZXEyIl0gPSBzZXExU2VlbjsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkxhYlNlcVN0ZXAyTWFwcGluZzogc2VxMiBzdGFtcGVkLCBzZXExU2Vlbj17c2VxMVNlZW59Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+                }
+              },
+              {
+                "order": 3,
+                "task": {
+                  "key": "lab-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabSeqStep3Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNlcXVlbnRpYWwgc3RlcCAzOiBtZXJnZXMgY3VycmVudCBkYXRhIGFuZCBzdGFtcHMgc2VxMy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIExhYlNlcVN0ZXAzTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICAvLyBEZWx0YS1vbmx5IGJ5IGRlc2lnbjogdGhlIHdyaXRlIHNlcnZpY2UgbWVyZ2VzIHRoaXMgaW50byB0aGUgREIgaGVhZCB1bmRlciB0aGUKICAgICAgICAvLyByb3cgbG9jaywgc28gZWNob2luZyBleGlzdGluZyBkYXRhIGlzIG5vdCBvbmx5IHVubmVjZXNzYXJ5IOKAlCB1bmRlciBjb25jdXJyZW50CiAgICAgICAgLy8gd3JpdGVycyBhIHN0YWxlIGVjaG9lZCB2YWx1ZSB3b3VsZCBvdmVyd3JpdGUgYSBmcmVzaGVyIG9uZS4KICAgICAgICB0YXJnZXRbInNlcTMiXSA9IHRydWU7CiAgICAgICAgdGFyZ2V0WyJzZXEzQXQiXSA9IERhdGVUaW1lLlV0Y05vdy5Ub1N0cmluZygibyIpOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCJMYWJTZXFTdGVwM01hcHBpbmc6IHNlcTMgc3RhbXBlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+                }
+              },
+              {
+                "order": 4,
+                "task": {
+                  "key": "lab-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabDupEchoMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEYXRhSGFzaCBkZWR1cCBwcm9iZTogcmUtc3RhbXBzIGtleXMgdGhhdCBhbHJlYWR5IGNhcnJ5IGV4YWN0bHkgdGhlc2UgdmFsdWVzCi8vLyAoYW4gaWRlbXBvdGVudCBkdXBsaWNhdGUgY2FsbGJhY2spLiBUaGUgd3JpdGUgc2VydmljZSBtZXJnZXMgdGhpcyBkZWx0YSBpbnRvIHRoZSBoZWFkLAovLy8gY29tcHV0ZXMgdGhlIG1lcmdlZCBjb250ZW50J3MgaGFzaCwgZmluZHMgaXQgZXF1YWwgdG8gdGhlIGhlYWQncyBEYXRhSGFzaCBhbmQgbXVzdCBOT1QKLy8vIGNyZWF0ZSBhIG5ldyB2ZXJzaW9uIHJvdy4gVGhlIHRlc3QgYXNzZXJ0cyB0aGUgc2VxdWVudGlhbCB0cmFuc2l0aW9uIHByb2R1Y2VkIGV4YWN0bHkKLy8vIDMgcm93cywgbm90IDQuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJEdXBFY2hvTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInNlcTEiXSA9IHRydWU7CiAgICAgICAgdGFyZ2V0WyJzZXEzIl0gPSB0cnVlOwogICAgICAgIHRhcmdldFsibGFiU3RhcnRlZCJdID0gdHJ1ZTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkxhYkR1cEVjaG9NYXBwaW5nOiByZS1zdGFtcGluZyBhbHJlYWR5LXNldCBrZXlzIChleHBlY3QgZGVkdXAsIG5vIG5ldyB2ZXJzaW9uKSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "lab-parallel",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Parallel (4 concurrent branches)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "run-parallel",
+            "target": "lab-collect",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Run Parallel Branches (par1..4, same order)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "lab-probe-task-1",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabParStep1Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFBhcmFsbGVsIGJyYW5jaCAxOiBydW5zIGNvbmN1cnJlbnRseSB3aXRoIHRoZSBvdGhlciB0aHJlZSBicmFuY2hlcyAoc2FtZSBvcmRlciksCi8vLyBlYWNoIGluIGl0cyBvd24gREkgc2NvcGUgLyBEYkNvbnRleHQuIFRoZSBwZXItaW5zdGFuY2UgRk9SIFVQREFURSByb3cgbG9jayBtdXN0Ci8vLyBzZXJpYWxpemUgdGhlIGZvdXIgd3JpdGVzOiBWZXJzaW9uTm8gc3RheXMgc2VxdWVudGlhbCBhbmQgbm8gYnJhbmNoJ3Mga2V5IGlzIGxvc3QuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJQYXJTdGVwMU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgLy8gRGVsdGEtb25seSBieSBkZXNpZ246IHRoZSB3cml0ZSBzZXJ2aWNlIG1lcmdlcyB0aGlzIGludG8gdGhlIERCIGhlYWQgdW5kZXIgdGhlCiAgICAgICAgLy8gcm93IGxvY2ssIHNvIGVjaG9pbmcgZXhpc3RpbmcgZGF0YSBpcyBub3Qgb25seSB1bm5lY2Vzc2FyeSDigJQgdW5kZXIgY29uY3VycmVudAogICAgICAgIC8vIHdyaXRlcnMgYSBzdGFsZSBlY2hvZWQgdmFsdWUgd291bGQgb3ZlcndyaXRlIGEgZnJlc2hlciBvbmUuCiAgICAgICAgdGFyZ2V0WyJwYXIxIl0gPSB0cnVlOwogICAgICAgIHRhcmdldFsicGFyMUF0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGFiUGFyU3RlcDFNYXBwaW5nOiBwYXIxIHN0YW1wZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              },
+              {
+                "order": 1,
+                "task": {
+                  "key": "lab-probe-task-2",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabParStep2Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFBhcmFsbGVsIGJyYW5jaCAyOiBydW5zIGNvbmN1cnJlbnRseSB3aXRoIHRoZSBvdGhlciB0aHJlZSBicmFuY2hlcyAoc2FtZSBvcmRlciksCi8vLyBlYWNoIGluIGl0cyBvd24gREkgc2NvcGUgLyBEYkNvbnRleHQuIFRoZSBwZXItaW5zdGFuY2UgRk9SIFVQREFURSByb3cgbG9jayBtdXN0Ci8vLyBzZXJpYWxpemUgdGhlIGZvdXIgd3JpdGVzOiBWZXJzaW9uTm8gc3RheXMgc2VxdWVudGlhbCBhbmQgbm8gYnJhbmNoJ3Mga2V5IGlzIGxvc3QuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJQYXJTdGVwMk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgLy8gRGVsdGEtb25seSBieSBkZXNpZ246IHRoZSB3cml0ZSBzZXJ2aWNlIG1lcmdlcyB0aGlzIGludG8gdGhlIERCIGhlYWQgdW5kZXIgdGhlCiAgICAgICAgLy8gcm93IGxvY2ssIHNvIGVjaG9pbmcgZXhpc3RpbmcgZGF0YSBpcyBub3Qgb25seSB1bm5lY2Vzc2FyeSDigJQgdW5kZXIgY29uY3VycmVudAogICAgICAgIC8vIHdyaXRlcnMgYSBzdGFsZSBlY2hvZWQgdmFsdWUgd291bGQgb3ZlcndyaXRlIGEgZnJlc2hlciBvbmUuCiAgICAgICAgdGFyZ2V0WyJwYXIyIl0gPSB0cnVlOwogICAgICAgIHRhcmdldFsicGFyMkF0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGFiUGFyU3RlcDJNYXBwaW5nOiBwYXIyIHN0YW1wZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              },
+              {
+                "order": 1,
+                "task": {
+                  "key": "lab-probe-task-3",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabParStep3Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFBhcmFsbGVsIGJyYW5jaCAzOiBydW5zIGNvbmN1cnJlbnRseSB3aXRoIHRoZSBvdGhlciB0aHJlZSBicmFuY2hlcyAoc2FtZSBvcmRlciksCi8vLyBlYWNoIGluIGl0cyBvd24gREkgc2NvcGUgLyBEYkNvbnRleHQuIFRoZSBwZXItaW5zdGFuY2UgRk9SIFVQREFURSByb3cgbG9jayBtdXN0Ci8vLyBzZXJpYWxpemUgdGhlIGZvdXIgd3JpdGVzOiBWZXJzaW9uTm8gc3RheXMgc2VxdWVudGlhbCBhbmQgbm8gYnJhbmNoJ3Mga2V5IGlzIGxvc3QuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJQYXJTdGVwM01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgLy8gRGVsdGEtb25seSBieSBkZXNpZ246IHRoZSB3cml0ZSBzZXJ2aWNlIG1lcmdlcyB0aGlzIGludG8gdGhlIERCIGhlYWQgdW5kZXIgdGhlCiAgICAgICAgLy8gcm93IGxvY2ssIHNvIGVjaG9pbmcgZXhpc3RpbmcgZGF0YSBpcyBub3Qgb25seSB1bm5lY2Vzc2FyeSDigJQgdW5kZXIgY29uY3VycmVudAogICAgICAgIC8vIHdyaXRlcnMgYSBzdGFsZSBlY2hvZWQgdmFsdWUgd291bGQgb3ZlcndyaXRlIGEgZnJlc2hlciBvbmUuCiAgICAgICAgdGFyZ2V0WyJwYXIzIl0gPSB0cnVlOwogICAgICAgIHRhcmdldFsicGFyM0F0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGFiUGFyU3RlcDNNYXBwaW5nOiBwYXIzIHN0YW1wZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              },
+              {
+                "order": 1,
+                "task": {
+                  "key": "lab-probe-task-4",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/LabParStep4Mapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFBhcmFsbGVsIGJyYW5jaCA0OiBydW5zIGNvbmN1cnJlbnRseSB3aXRoIHRoZSBvdGhlciB0aHJlZSBicmFuY2hlcyAoc2FtZSBvcmRlciksCi8vLyBlYWNoIGluIGl0cyBvd24gREkgc2NvcGUgLyBEYkNvbnRleHQuIFRoZSBwZXItaW5zdGFuY2UgRk9SIFVQREFURSByb3cgbG9jayBtdXN0Ci8vLyBzZXJpYWxpemUgdGhlIGZvdXIgd3JpdGVzOiBWZXJzaW9uTm8gc3RheXMgc2VxdWVudGlhbCBhbmQgbm8gYnJhbmNoJ3Mga2V5IGlzIGxvc3QuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJQYXJTdGVwNE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgLy8gRGVsdGEtb25seSBieSBkZXNpZ246IHRoZSB3cml0ZSBzZXJ2aWNlIG1lcmdlcyB0aGlzIGludG8gdGhlIERCIGhlYWQgdW5kZXIgdGhlCiAgICAgICAgLy8gcm93IGxvY2ssIHNvIGVjaG9pbmcgZXhpc3RpbmcgZGF0YSBpcyBub3Qgb25seSB1bm5lY2Vzc2FyeSDigJQgdW5kZXIgY29uY3VycmVudAogICAgICAgIC8vIHdyaXRlcnMgYSBzdGFsZSBlY2hvZWQgdmFsdWUgd291bGQgb3ZlcndyaXRlIGEgZnJlc2hlciBvbmUuCiAgICAgICAgdGFyZ2V0WyJwYXI0Il0gPSB0cnVlOwogICAgICAgIHRhcmdldFsicGFyNEF0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGFiUGFyU3RlcDRNYXBwaW5nOiBwYXI0IHN0YW1wZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "lab-collect",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Collect (updateData fan-in)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-lab-complete",
+            "target": "lab-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Lab Threshold Reached"
+              }
+            ],
+            "rule": {
+              "location": "./src/LabThresholdRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBHYXRlIGZvciBsYWItY29sbGVjdDogZmlyZXMgd2hlbiBsYWJVcGRhdGVDb3VudCByZWFjaGVzIGxhYlRocmVzaG9sZC4gRXZhbHVhdGVkIGJ5IHRoZQovLy8gYXV0b21hdGljLXRyYW5zaXRpb24gc3RlcCBhZnRlciBldmVyeSB1cGRhdGVEYXRhIOKAlCB2YWxpZGF0ZXMgdGhhdCB1cGRhdGVEYXRhIGFsd2F5cwovLy8gcmUtcnVucyBhdXRvIGV2YWx1YXRpb24gd2l0aCB0aGUgZnJlc2hseSBwZXJzaXN0ZWQgZGF0YS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIExhYlRocmVzaG9sZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjb3VudCA9IDA7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJsYWJVcGRhdGVDb3VudCIsIG91dCB2YXIgcmF3Q291bnQpICYmIHJhd0NvdW50ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3Q291bnQuVG9TdHJpbmcoKSwgb3V0IGNvdW50KTsKICAgICAgICB9CgogICAgICAgIHZhciB0aHJlc2hvbGQgPSA0OwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgibGFiVGhyZXNob2xkIiwgb3V0IHZhciByYXdUaHJlc2hvbGQpICYmIHJhd1RocmVzaG9sZCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhd1RocmVzaG9sZC5Ub1N0cmluZygpLCBvdXQgdGhyZXNob2xkKTsKICAgICAgICB9CgogICAgICAgIHZhciBzYXRpc2ZpZWQgPSBjb3VudCA+PSB0aHJlc2hvbGQ7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJMYWJUaHJlc2hvbGRSdWxlOiBsYWJVcGRhdGVDb3VudD17Y291bnR9IHRocmVzaG9sZD17dGhyZXNob2xkfSBzYXRpc2ZpZWQ9e3NhdGlzZmllZH0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHNhdGlzZmllZCk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "lab-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "lab-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "cancel": {
+      "key": "cancel-lab",
+      "target": "lab-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Lab"
+        }
+      ]
+    },
+    "updateData": {
+      "key": "update-lab-progress",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Lab Progress (counter + noop dedup probe)"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "lab-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/LabUpdateCounterMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIENvdW50ZXIgdGFzayBmb3IgdGhlIHVwZGF0ZS1sYWItcHJvZ3Jlc3MgdXBkYXRlRGF0YSB0cmFuc2l0aW9uLiBUd28gbW9kZXM6Ci8vLyAgIC0gbm9ybWFsOiBtZXJnZXMgY3VycmVudCBkYXRhIGFuZCBpbmNyZW1lbnRzIGxhYlVwZGF0ZUNvdW50IGJ5IGV4YWN0bHkgb25lIOKAlAovLy8gICAgIGlmIGFueSBhY2NlcHRlZCAoMjAyKSByZXF1ZXN0IGlzIGxvc3Qgb3IgZG91YmxlLWFwcGxpZWQsIHRoZSBmaW5hbCBjb3VudCB3aWxsCi8vLyAgICAgbm90IG1hdGNoIHRoZSBudW1iZXIgb2YgYWNjZXB0YW5jZXMuCi8vLyAgIC0gbm9vcCBwcm9iZSAoYm9keTogeyJub29wIjogdHJ1ZX0pOiBlY2hvZXMgdGhlIGN1cnJlbnQgZGF0YSB1bmNoYW5nZWQgc28gdGhlCi8vLyAgICAgd3JpdGUgc2VydmljZSdzIG1lcmdlZC1oYXNoIGRlZHVwIG11c3Qgc3dhbGxvdyBpdCDigJQgdGhlIHBpcGVsaW5lIGNvbXBsZXRlcyBidXQKLy8vICAgICBOTyBuZXcgZGF0YSB2ZXJzaW9uIG1heSBhcHBlYXIuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBMYWJVcGRhdGVDb3VudGVyTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICAvLyBEZWx0YS1vbmx5OiByZXR1cm4gT05MWSB0aGUga2V5cyB0aGlzIHRhc2sgb3ducy4gRWNob2luZyB0aGUgd2hvbGUgc25hcHNob3Qgd291bGQKICAgICAgICAvLyBvdmVyd3JpdGUgY29uY3VycmVudCB3cml0ZXJzJyBmcmVzaGVyIHZhbHVlcyB3aXRoIHN0YWxlIG9uZXMuCiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIGlzTm9vcCA9IGZhbHNlOwogICAgICAgIGlmIChib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgibm9vcCIsIG91dCB2YXIgcmF3Tm9vcCkgJiYgcmF3Tm9vcCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgYm9vbC5UcnlQYXJzZShyYXdOb29wLlRvU3RyaW5nKCksIG91dCBpc05vb3ApOwogICAgICAgIH0KCiAgICAgICAgaWYgKGlzTm9vcCkKICAgICAgICB7CiAgICAgICAgICAgIC8vIFJlLXN0YW1wIGFuIGFscmVhZHktc2V0IGtleSB3aXRoIHRoZSBzYW1lIHZhbHVlOiBtZXJnZWQgY29udGVudCA9PSBoZWFkLAogICAgICAgICAgICAvLyB0aGUgd3JpdGUgc2VydmljZSBkZWR1cHMsIG5vIG5ldyB2ZXJzaW9uIHJvdy4KICAgICAgICAgICAgdGFyZ2V0WyJsYWJTdGFydGVkIl0gPSB0cnVlOwogICAgICAgICAgICBMb2dJbmZvcm1hdGlvbigiTGFiVXBkYXRlQ291bnRlck1hcHBpbmc6IG5vb3AgcHJvYmUgKGV4cGVjdCBkZWR1cCkiKTsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgICAgIH0KCiAgICAgICAgdmFyIGN1cnJlbnQgPSAwOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgibGFiVXBkYXRlQ291bnQiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBjdXJyZW50KTsKICAgICAgICB9CgogICAgICAgIHRhcmdldFsibGFiVXBkYXRlQ291bnQiXSA9IGN1cnJlbnQgKyAxOwogICAgICAgIHRhcmdldFsibGFzdExhYlVwZGF0ZUF0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBpZiAoYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoInVwZGF0ZU5vbmNlIiwgb3V0IHZhciBub25jZSkgJiYgbm9uY2UgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIHRhcmdldFsibGFzdExhYk5vbmNlIl0gPSBub25jZS5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJMYWJVcGRhdGVDb3VudGVyTWFwcGluZzogbGFiVXBkYXRlQ291bnQge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        }
+      ]
+    }
+  }
+}

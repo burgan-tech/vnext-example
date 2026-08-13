@@ -1,0 +1,119 @@
+{
+  "key": "soap-sms-result-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "soap",
+    "sms",
+    "result",
+    "display",
+    "ui-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "SMS Sonucu"
+      },
+      {
+        "language": "en-US",
+        "label": "SMS Result"
+      }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:soap-task-test-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "check_circle"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "SMS Sonucu",
+                      "en": "SMS Result"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.success.label",
+                        "subtitle": "$instance.smsResult.success"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.statusCode.label",
+                        "subtitle": "$instance.smsResult.statusCode"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.returnCode.label",
+                        "subtitle": "$instance.smsResult.returnCode"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.returnMessage.label",
+                        "subtitle": "$instance.smsResult.returnMessage"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.messageId.label",
+                        "subtitle": "$instance.smsResult.messageId"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.gsmNo.label",
+                        "subtitle": "$instance.gsmNo"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.message.label",
+                        "subtitle": "$instance.message"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.faultString.label",
+                        "subtitle": "$instance.smsResult.faultString"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.smsResult.responseText.label",
+                        "subtitle": "$instance.smsResult.responseText"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "key": "completed-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "deposit",
+    "authorization",
+    "yetki",
+    "ui-view",
+    "success"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      { "language": "en-US", "label": "Completed" },
+      { "language": "tr-TR", "label": "Tamamlandı" }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "",
+      "view": {
+        "type": "Center",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              { "type": "Icon", "name": "check_circle", "variant": "displayLarge" },
+              { "type": "Text", "content": { "en": "Authorizations Saved", "tr": "Yetkiler Kaydedildi" }, "variant": "headlineMedium" },
+              { "type": "Text", "content": { "en": "The account view permissions have been updated successfully.", "tr": "Hesap görüntüleme yetkileri başarıyla güncellendi." }, "variant": "bodyMedium" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+ 

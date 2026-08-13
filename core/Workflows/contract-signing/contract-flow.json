@@ -1,0 +1,658 @@
+{
+  "key": "contract-flow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.1.0",
+  "tags": [
+    "contract-signing",
+    "contract-flow",
+    "subprocess",
+    "fan-out",
+    "orchestration"
+  ],
+  "attributes": {
+    "type": "P",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Contract Flow"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "sharedTransitions": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-contract",
+      "target": "contract-initial",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Contract Flow"
+        }
+      ],
+      "schema": {
+        "key": "start-contract-payload",
+        "version": "1.0.0",
+        "domain": "core",
+        "flow": "sys-schemas"
+      }
+    },
+    "cancel": {
+      "key": "cancel-contract",
+      "target": "contract-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Contract"
+        }
+      ]
+    },
+    "updateData": {
+      "_comment": "Render-ready fan-in from N online-flow children. Declared as the workflow-level updateData transition so every child callback goes through the runtime's instance-lock / data-update path instead of a normal shared transition.",
+      "key": "contract-progress",
+      "target": "$self",
+      "versionStrategy": "Minor",
+      "triggerType": 0,
+      "schema": null,
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Contract progress (render/approval callbacks)"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "signing-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/ContractProgressMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBvbkV4ZWN1dGlvbiBvZiB0aGUgY29udHJhY3QtcHJvZ3Jlc3MgdXBkYXRlRGF0YSB0cmFuc2l0aW9uIOKAlCB0aGUgU0lOR0xFIHByb2dyZXNzIGNoYW5uZWwKLy8gZnJvbSBvbmxpbmUtZmxvdyBjaGlsZHJlbiB0byB0aGUgY29udHJhY3Q6IGJvZHkge2tpbmQ6ICJyZW5kZXIifCJhcHByb3ZhbCIsIGRvY3VtZW50SWR9LgovLwovLyBXaHkgb25lIHVwZGF0ZURhdGEgZm9yIGJvdGggc2lnbmFsczogdXBkYXRlRGF0YSBpcyBhY2NlcHRlZCB1bmNvbmRpdGlvbmFsbHkgKG5vIEJ1c3kgNDA5KSwKLy8gYWx3YXlzIGV2YWx1YXRlcyB0aGUgY3VycmVudCBzdGF0ZSdzIGF1dG9tYXRpYyB0cmFuc2l0aW9ucyB3aXRoIHRoZSBmcmVzaCBkYXRhLCBhbmQgaGFuZHMgYQovLyBzYXRpc2ZpZWQgZ2F0ZSB0byBhIHJlYWwgb3duZXIgKHBhcmtlZC1CdXN5IHRha2VvdmVyKS4gRWFjaCBzdGF0ZSBnYXRlcyBvbiBpdHMgb3duIHJ1bGU6Ci8vIGF3YWl0aW5nLXJlbmRlcnMgY291bnRzIHJyXyBzdGFtcHMsIGFwcHJvdmFsLXdhaXRpbmcgY291bnRzIGFwXyBzdGFtcHMg4oCUIGEgcmVuZGVyIGNhbGxiYWNrCi8vIGxhbmRpbmcgaW4gYXBwcm92YWwtd2FpdGluZyBzdGFtcHMgcnJfIGFuZCBzaW1wbHkgZG9lc24ndCBzYXRpc2Z5IEFsbEFwcHJvdmVkUnVsZS4KLy8KLy8gQSBzaGFyZWQgImNvdW50ICsgMSIgY291bnRlciBMT1NFUyBJTkNSRU1FTlRTIHVuZGVyIGNvbmN1cnJlbmN5IChlYWNoIGNhbGxiYWNrIHJlYWRzIHRoZQovLyBzYW1lIHByZS13cml0ZSBzbmFwc2hvdCk7IGluc3RlYWQgZWFjaCBjaGlsZCBzdGFtcHMgaXRzIE9XTiBrZXkgKHJyXy9hcF97ZG9jdW1lbnRJZH0pLgovLyBDb25jdXJyZW50IGNhbGxiYWNrcyB0b3VjaCBkaXNqb2ludCBrZXlzIGFuZCByZXBlYXRzIGFyZSBuYXR1cmFsbHkgaWRlbXBvdGVudC4KLy8gUmV0dXJuIE9OTFkgdGhlIGRlbHRhIOKAlCBhIG1lcmdlZCBzbmFwc2hvdCB3b3VsZCBjbG9iYmVyIGNvbmN1cnJlbnQgd3JpdGVzLgpwdWJsaWMgY2xhc3MgQ29udHJhY3RQcm9ncmVzc01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgc3RyaW5nIGtpbmQgPSBTdHIoaW5zdCwgImtpbmQiKTsKICAgICAgICBpZiAoa2luZCAhPSAiYXBwcm92YWwiKSBraW5kID0gInJlbmRlciI7CiAgICAgICAgdmFyIHByZWZpeCA9IGtpbmQgPT0gImFwcHJvdmFsIiA/ICJhcF8iIDogInJyXyI7CgogICAgICAgIHN0cmluZyBkb2NJZCA9IFN0cihpbnN0LCAiZG9jdW1lbnRJZCIpOwogICAgICAgIGlmIChzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGRvY0lkKSkKICAgICAgICB7CiAgICAgICAgICAgIExvZ0luZm9ybWF0aW9uKCQiQ29udHJhY3RQcm9ncmVzc01hcHBpbmc6IFdBUk4gbm8gZG9jdW1lbnRJZCBpbiBwYXlsb2FkOyBzdGFtcGluZyB7cHJlZml4fXVua25vd24iKTsKICAgICAgICAgICAgZG9jSWQgPSAidW5rbm93biI7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIGRlbHRhID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilkZWx0YTsKICAgICAgICB0YXJnZXRbcHJlZml4ICsgZG9jSWRdID0gdHJ1ZTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oCiAgICAgICAgICAgICQiQ29udHJhY3RQcm9ncmVzc01hcHBpbmc6IHN0YW1wZWQge3ByZWZpeH17ZG9jSWR9ICIgKwogICAgICAgICAgICAkIih7a2luZH09e0NvdW50UHJlZml4KGluc3QsIHByZWZpeCkgKyAxfS97U3RyKGluc3QsICJkb2N1bWVudENvdW50Iil9KSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRlbHRhIH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIHN0cmluZyBTdHIoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGQsIHN0cmluZyBrKQogICAgICAgID0+IChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrLCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCkgPyB2LlRvU3RyaW5nKCkgOiBudWxsOwoKICAgIHByaXZhdGUgc3RhdGljIGludCBDb3VudFByZWZpeChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZCwgc3RyaW5nIHByZWZpeCkKICAgIHsKICAgICAgICBpbnQgbiA9IDA7CiAgICAgICAgaWYgKGQgPT0gbnVsbCkgcmV0dXJuIDA7CiAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGQpCiAgICAgICAgICAgIGlmIChrdi5LZXkuU3RhcnRzV2l0aChwcmVmaXgsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbCkKICAgICAgICAgICAgICAgICYmIGt2LlZhbHVlICE9IG51bGwgJiYgYm9vbC5UcnlQYXJzZShrdi5WYWx1ZS5Ub1N0cmluZygpLCBvdXQgdmFyIGIpICYmIGIpIG4rKzsKICAgICAgICByZXR1cm4gbjsKICAgIH0KfQo=",
+            "encoding": "B64"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "contract-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Contract Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "get-contract-documents",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ContractGetDocumentsMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5MaW5xOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8gb25FbnRyeSBvZiBjb250cmFjdC1pbml0aWFsOiBjYWxsIHRoZSBkb2N1bWVudHMgc2VydmljZSAoSFRUUCB0eXBlIDYpIHdpdGggY29udHJhY3RDb2RlLAovLyB0aGVuIHNlZWQgZG9jdW1lbnRDb3VudC9kb2N1bWVudHMgYW5kIHplcm8gdGhlIGxvb3AgY3Vyc29ycyArIGNvdW50ZXJzLgpwdWJsaWMgY2xhc3MgQ29udHJhY3RHZXREb2N1bWVudHNNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBodHRwID0gdGFzayBhcyBIdHRwVGFzazsKICAgICAgICBzdHJpbmcgY29kZSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5jb250cmFjdENvZGU7CiAgICAgICAgaWYgKGh0dHAgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGh0dHAuU2V0VXJsKCQiaHR0cDovL2xvY2FsaG9zdDozMDAxL2FwaS9jb250cmFjdC1zaWduaW5nL2NvbnRyYWN0cy9kb2N1bWVudHM/Y29udHJhY3RDb2RlPXtjb2RlfSIpOwogICAgICAgIH0KICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIG1lcmdlZCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbWVyZ2VkOwogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsKSBmb3JlYWNoICh2YXIga3YgaW4gaW5zdCkgdGFyZ2V0W2t2LktleV0gPSBrdi5WYWx1ZTsKCiAgICAgICAgdmFyIGNvdW50ID0gTGlzdENvdW50KGNvbnRleHQuQm9keS5kYXRhLmRvY3VtZW50cyk7CiAgICAgICAgdGFyZ2V0WyJkb2N1bWVudHMiXSA9IGNvbnRleHQuQm9keS5kYXRhLmRvY3VtZW50czsKICAgICAgICB0YXJnZXRbImRvY3VtZW50Q291bnQiXSA9IGNvdW50OwogICAgICAgIHRhcmdldFsiaXRlckluZGV4Il0gPSAwOwogICAgICAgIHRhcmdldFsiZmluSW5kZXgiXSA9IDA7CiAgICAgICAgdGFyZ2V0WyJvbmxpbmVJbnN0YW5jZUlkcyJdID0gbmV3IExpc3Q8b2JqZWN0PigpOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiQ29udHJhY3RHZXREb2N1bWVudHNNYXBwaW5nOiByZXNvbHZlZCB7Y291bnR9IGRvY3VtZW50cyIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG1lcmdlZCB9KTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "contract-initial-to-received",
+            "target": "received-documents",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Received Documents"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "received-documents",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Received Documents"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "received-to-loop",
+            "target": "invoke-loop",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "To invoke loop"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "invoke-loop",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Invoke loop (parallel online starts)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "_comment": "Single $self auto loop: invocation-scoped job names make consecutive iterations safe (the old invoke-iteration/need-more-iteration alternation workaround is gone). A contract-progress updateData landing mid-loop evaluates these autos but its continuation is dropped while the loop's own hop jobs are live.",
+        "transitions": [
+          {
+            "key": "invoke-next",
+            "target": "$self",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Start next online (iterIndex < documentCount)"
+              }
+            ],
+            "rule": {
+              "location": "./src/NeedMoreIterationRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIGl0ZXJJbmRleCA8IGRvY3VtZW50Q291bnQgIOKGkiBtb3JlIGRvY3VtZW50cyByZW1haW4gdG8gc3RhcnQKcHVibGljIGNsYXNzIE5lZWRNb3JlSXRlcmF0aW9uUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBsb25nIGl0ZXIgPSBUb0xvbmcoZCwgIml0ZXJJbmRleCIpOwogICAgICAgIGxvbmcgY291bnQgPSBUb0xvbmcoZCwgImRvY3VtZW50Q291bnQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KGl0ZXIgPCBjb3VudCk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgbG9uZyBUb0xvbmcoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGQsIHN0cmluZyBrZXkpCiAgICB7CiAgICAgICAgaWYgKGQgIT0gbnVsbCAmJiBkLlRyeUdldFZhbHVlKGtleSwgb3V0IHZhciB2KSAmJiB2ICE9IG51bGwgJiYgbG9uZy5UcnlQYXJzZSh2LlRvU3RyaW5nKCksIG91dCB2YXIgbikpIHJldHVybiBuOwogICAgICAgIHJldHVybiAwOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "start-subprocess",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/ContractStartOnlineMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIG9uRXhlY3V0aW9uIG9mIHRoZSBpbnZva2UtbG9vcCAkc2VsZiB0cmFuc2l0aW9uIChpbnZva2UtbmV4dCk6IHN0YXJ0IG9uZSBvbmxpbmUtZmxvdwovLyBTdWJQcm9jZXNzIGZvciBkb2N1bWVudHNbaXRlckluZGV4XSwKLy8gcGFzc2luZyB0aGlzIENvbnRyYWN0IGluc3RhbmNlIGlkICsgcmVuZGVyLXJlYWR5IC8gYXBwcm92YWwtcmVjZWl2ZWQgY2FsbGJhY2sgcmVmcy4KLy8gT3V0cHV0SGFuZGxlciBhcHBlbmRzIHRoZSBzdGFydGVkIG9ubGluZSBpbnN0YW5jZSBpZCBhbmQgYWR2YW5jZXMgaXRlckluZGV4LgpwdWJsaWMgY2xhc3MgQ29udHJhY3RTdGFydE9ubGluZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN1YiA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2s7CiAgICAgICAgaWYgKHN1YiA9PSBudWxsKSB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgU3ViUHJvY2Vzc1Rhc2siKTsKCiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGludCBpdGVyID0gVG9JbnQoZGF0YSwgIml0ZXJJbmRleCIpOwogICAgICAgIHN0cmluZyBjb2RlID0gU3RyKGRhdGEsICJjb250cmFjdENvZGUiKTsKICAgICAgICBzdHJpbmcgZG9jdW1lbnRJZCA9IG51bGw7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJkb2N1bWVudHMiLCBvdXQgdmFyIGRvY3NPYmopICYmIGRvY3NPYmogaXMgU3lzdGVtLkNvbGxlY3Rpb25zLklMaXN0IGRvY0xpc3QgJiYgaXRlciA8IGRvY0xpc3QuQ291bnQpCiAgICAgICAgewogICAgICAgICAgICB2YXIgZG9jID0gZG9jTGlzdFtpdGVyXSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgICAgIGlmIChkb2MgIT0gbnVsbCAmJiBkb2MuVHJ5R2V0VmFsdWUoImRvY3VtZW50SWQiLCBvdXQgdmFyIGRpZCkgJiYgZGlkICE9IG51bGwpIGRvY3VtZW50SWQgPSBkaWQuVG9TdHJpbmcoKTsKICAgICAgICB9CgogICAgICAgIHN1Yi5TZXREb21haW4oImNvcmUiKTsKICAgICAgICBzdWIuU2V0Rmxvdygib25saW5lLWZsb3ciKTsKICAgICAgICBzdWIuU2V0VmVyc2lvbigiMS4xLjAiKTsKICAgICAgICAvLyBEZXRlcm1pbmlzdGljIGlkZW1wb3RlbmN5IGtleTogYSBkdXBsaWNhdGUgc3RhcnQgYXR0ZW1wdCBmb3IgdGhlIHNhbWUgZG9jdW1lbnQKICAgICAgICAvLyAocmV0cnksIHJhY2UpIGNvYWxlc2NlcyBvbnRvIHRoZSBzYW1lIGNoaWxkIGluc3RlYWQgb2Ygc3Bhd25pbmcgYSBzZWNvbmQgb25lLgogICAgICAgIHN1Yi5TZXRLZXkoZG9jdW1lbnRJZCAhPSBudWxsCiAgICAgICAgICAgID8gJCJ7Y29udGV4dC5JbnN0YW5jZS5JZH0tZG9jLXtkb2N1bWVudElkfSIKICAgICAgICAgICAgOiBHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpKTsKICAgICAgICBzdWIuU2V0Qm9keShuZXcKICAgICAgICB7CiAgICAgICAgICAgIGRvY3VtZW50SWQgPSBkb2N1bWVudElkLAogICAgICAgICAgICBjb250cmFjdEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlLklkLAogICAgICAgICAgICBjb250cmFjdENvZGUgPSBjb2RlLAogICAgICAgICAgICByZW5kZXJSZWFkeSA9IG5ldyB7IGRvbWFpbiA9ICJjb3JlIiwgZmxvdyA9ICJjb250cmFjdC1mbG93Iiwga2V5ID0gImNvbnRyYWN0LXByb2dyZXNzIiB9LAogICAgICAgICAgICBhcHByb3ZhbFJlY2VpdmVkID0gbmV3IHsgZG9tYWluID0gImNvcmUiLCBmbG93ID0gImNvbnRyYWN0LWZsb3ciLCBrZXkgPSAiY29udHJhY3QtcHJvZ3Jlc3MiIH0KICAgICAgICB9KTsKICAgICAgICBzdWIuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBtZXJnZWQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KW1lcmdlZDsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCkgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CgogICAgICAgIHZhciBpZHMgPSBuZXcgTGlzdDxvYmplY3Q+KCk7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJvbmxpbmVJbnN0YW5jZUlkcyIsIG91dCB2YXIgaWRzT2JqKSAmJiBpZHNPYmogaXMgU3lzdGVtLkNvbGxlY3Rpb25zLklFbnVtZXJhYmxlIGVuKQogICAgICAgICAgICBmb3JlYWNoICh2YXIgeCBpbiBlbikgaWRzLkFkZCh4KTsKCiAgICAgICAgLy8gU3ViUHJvY2VzcyBzdGFydCByZXNwb25zZSBuZXN0cyB0aGUgY3JlYXRlZCBpbnN0YW5jZSB1bmRlciBkYXRhLnZhbHVlLmlkCiAgICAgICAgLy8gKHNhbWUgc2hhcGUgTG9naW5TdGFydENvbnRyYWN0TWFwcGluZyByZWFkcykuIGRhdGEuaWQgaXMgdGhlIGxlZ2FjeS9mYWxsYmFjayBzaGFwZSDigJQKICAgICAgICAvLyByZWFkaW5nIG9ubHkgZGF0YS5pZCBzaWxlbnRseSB5aWVsZGVkIG51bGwgYW5kIGxlZnQgb25saW5lSW5zdGFuY2VJZHMgZW1wdHksIHdoaWNoIGluCiAgICAgICAgLy8gdHVybiBtYWRlIGZpbmFsaXplLWxvb3AgdHJpZ2dlciBvbmxpbmUtZmluYWxpemUgYWdhaW5zdCBhIG51bGwgaW5zdGFuY2UgaWQuCiAgICAgICAgb2JqZWN0IHN0YXJ0ZWRJZCA9IG51bGw7CiAgICAgICAgdHJ5IHsgc3RhcnRlZElkID0gY29udGV4dC5Cb2R5Py5kYXRhPy52YWx1ZT8uaWQ7IH0gY2F0Y2ggeyBzdGFydGVkSWQgPSBudWxsOyB9CiAgICAgICAgaWYgKHN0YXJ0ZWRJZCA9PSBudWxsKSB7IHRyeSB7IHN0YXJ0ZWRJZCA9IGNvbnRleHQuQm9keT8uZGF0YT8uaWQ7IH0gY2F0Y2ggeyBzdGFydGVkSWQgPSBudWxsOyB9IH0KICAgICAgICBpZiAoc3RhcnRlZElkID09IG51bGwpIExvZ0luZm9ybWF0aW9uKCJDb250cmFjdFN0YXJ0T25saW5lTWFwcGluZzogV0FSTiBjb3VsZCBub3QgcmVhZCBzdGFydGVkIG9ubGluZSBpbnN0YW5jZSBpZCBmcm9tIHJlc3BvbnNlIik7CiAgICAgICAgZWxzZSBpZHMuQWRkKHN0YXJ0ZWRJZCk7CgogICAgICAgIHRhcmdldFsib25saW5lSW5zdGFuY2VJZHMiXSA9IGlkczsKICAgICAgICB0YXJnZXRbIml0ZXJJbmRleCJdID0gVG9JbnQoaW5zdCwgIml0ZXJJbmRleCIpICsgMTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkNvbnRyYWN0U3RhcnRPbmxpbmVNYXBwaW5nOiBvbmxpbmUgc3VicHJvY2VzcyBzdGFydGVkICh7aWRzLkNvdW50fSB0b3RhbCkiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBtZXJnZWQgfSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgaW50IFRvSW50KElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkLCBzdHJpbmcga2V5KQogICAgewogICAgICAgIGlmIChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrZXksIG91dCB2YXIgdikgJiYgdiAhPSBudWxsICYmIGludC5UcnlQYXJzZSh2LlRvU3RyaW5nKCksIG91dCB2YXIgbikpIHJldHVybiBuOwogICAgICAgIHJldHVybiAwOwogICAgfQogICAgcHJpdmF0ZSBzdGF0aWMgc3RyaW5nIFN0cihJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZCwgc3RyaW5nIGtleSkKICAgIHsKICAgICAgICBpZiAoZCAhPSBudWxsICYmIGQuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCkgcmV0dXJuIHYuVG9TdHJpbmcoKTsKICAgICAgICByZXR1cm4gbnVsbDsKICAgIH0KfQo=",
+                  "encoding": "B64"
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 1,
+                      "errorCodes": [
+                        "409"
+                      ],
+                      "priority": 10,
+                      "retryPolicy": {
+                        "maxRetries": 8,
+                        "initialDelay": "PT0.5S",
+                        "backoffType": 1,
+                        "backoffMultiplier": 2,
+                        "maxDelay": "PT10S",
+                        "useJitter": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "key": "invoke-done",
+            "target": "awaiting-renders",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "All children started"
+              }
+            ],
+            "rule": {
+              "location": "./src/NoMoreIterationRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIGl0ZXJJbmRleCA+PSBkb2N1bWVudENvdW50ICDihpIgYWxsIGRvY3VtZW50cyBzdGFydGVkLCBzdG9wIGl0ZXJhdGluZwpwdWJsaWMgY2xhc3MgTm9Nb3JlSXRlcmF0aW9uUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBsb25nIGl0ZXIgPSBUb0ludChkLCAiaXRlckluZGV4Iik7CiAgICAgICAgbG9uZyBjb3VudCA9IFRvSW50KGQsICJkb2N1bWVudENvdW50Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChpdGVyID49IGNvdW50KTsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBsb25nIFRvSW50KElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkLCBzdHJpbmcga2V5KQogICAgewogICAgICAgIGlmIChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrZXksIG91dCB2YXIgdikgJiYgdiAhPSBudWxsICYmIGxvbmcuVHJ5UGFyc2Uodi5Ub1N0cmluZygpLCBvdXQgdmFyIG4pKSByZXR1cm4gbjsKICAgICAgICByZXR1cm4gMDsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "awaiting-renders",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting Document Renders"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "render-all-done",
+            "target": "render-ready-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "All documents rendered"
+              }
+            ],
+            "rule": {
+              "location": "./src/AllRenderedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBFdmVyeSBkb2N1bWVudCByZXBvcnRlZCByZW5kZXItcmVhZHkuCi8vIENvdW50cyBwZXItZG9jdW1lbnQgc3RhbXBzICgicnJfe2RvY3VtZW50SWR9IikgaW5zdGVhZCBvZiBhIHNoYXJlZCBjb3VudGVyLCBiZWNhdXNlCi8vIGNvbmN1cnJlbnQgZmFuLWluIGNhbGxiYWNrcyBsb3NlIGluY3JlbWVudHMgb24gYSBzaGFyZWQgcmVhZC1tb2RpZnktd3JpdGUga2V5LgpwdWJsaWMgY2xhc3MgQWxsUmVuZGVyZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGQgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGludCBzdGFtcGVkID0gMCwgdG90YWwgPSAwOwogICAgICAgIGlmIChkICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gZCkKICAgICAgICAgICAgICAgIGlmIChrdi5LZXkuU3RhcnRzV2l0aCgicnJfIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsKQogICAgICAgICAgICAgICAgICAgICYmIGt2LlZhbHVlICE9IG51bGwgJiYgYm9vbC5UcnlQYXJzZShrdi5WYWx1ZS5Ub1N0cmluZygpLCBvdXQgdmFyIGIpICYmIGIpIHN0YW1wZWQrKzsKICAgICAgICAgICAgaWYgKGQuVHJ5R2V0VmFsdWUoImRvY3VtZW50Q291bnQiLCBvdXQgdmFyIGMpICYmIGMgIT0gbnVsbCkgaW50LlRyeVBhcnNlKGMuVG9TdHJpbmcoKSwgb3V0IHRvdGFsKTsKICAgICAgICB9CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCh0b3RhbCA+IDAgJiYgc3RhbXBlZCA+PSB0b3RhbCk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ],
+        "_comment": "Gate fires directly from contract-progress updateData: autos are evaluated on every accepted callback and the parked Busy is taken over. The former render-poll timer + render-check pair is obsolete."
+      },
+      {
+        "key": "render-ready-done",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Render Ready Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notify-parent-transition",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ContractTriggerLoginReadyMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8gb25FbnRyeSBvZiByZW5kZXItcmVhZHktZG9uZTogRGlyZWN0VHJpZ2dlciB0aGUgcGFyZW50J3MgcmVhZHlUcmFuc2l0aW9uIChsb2dpbi1yZWFkeSksCi8vIHVzaW5nIHRoZSB0cmFuc2l0aW9uIHJlZiArIHBhcmVudCBpbnN0YW5jZSBpZCAoY29udHJhY3RJZCkgcGFzc2VkIGF0IHN0YXJ0LgpwdWJsaWMgY2xhc3MgQ29udHJhY3RUcmlnZ2VyTG9naW5SZWFkeU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHRyaWcgPSB0YXNrIGFzIERpcmVjdFRyaWdnZXJUYXNrOwogICAgICAgIGlmICh0cmlnID09IG51bGwpIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBEaXJlY3RUcmlnZ2VyVGFzayIpOwoKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIHJ0ID0gUmVmKGRhdGEsICJyZWFkeVRyYW5zaXRpb24iKTsKICAgICAgICB0cmlnLlNldERvbWFpbihydC5kb21haW4gPz8gImNvcmUiKTsKICAgICAgICB0cmlnLlNldEZsb3cocnQuZmxvdyA/PyAibG9naW4tZmxvdyIpOwogICAgICAgIHRyaWcuU2V0VHJhbnNpdGlvbk5hbWUocnQua2V5ID8/ICJsb2dpbi1yZWFkeSIpOwogICAgICAgIHRyaWcuU2V0SW5zdGFuY2UoU3RyKGRhdGEsICJjb250cmFjdElkIikpOwogICAgICAgIHRyaWcuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNvbnRyYWN0VHJpZ2dlckxvZ2luUmVhZHlNYXBwaW5nOiBwYXJlbnQgbG9naW4tcmVhZHkgdHJpZ2dlcmVkIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyAoc3RyaW5nIGRvbWFpbiwgc3RyaW5nIGZsb3csIHN0cmluZyBrZXkpIFJlZihJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZCwgc3RyaW5nIGtleSkKICAgIHsKICAgICAgICBpZiAoZCAhPSBudWxsICYmIGQuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHYpICYmIHYgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IHIpCiAgICAgICAgICAgIHJldHVybiAoR2V0KHIsICJkb21haW4iKSwgR2V0KHIsICJmbG93IiksIEdldChyLCAia2V5IikpOwogICAgICAgIHJldHVybiAobnVsbCwgbnVsbCwgbnVsbCk7CiAgICB9CiAgICBwcml2YXRlIHN0YXRpYyBzdHJpbmcgR2V0KElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkLCBzdHJpbmcgaykKICAgICAgICA9PiAoZCAhPSBudWxsICYmIGQuVHJ5R2V0VmFsdWUoaywgb3V0IHZhciB2KSAmJiB2ICE9IG51bGwpID8gdi5Ub1N0cmluZygpIDogbnVsbDsKICAgIHByaXZhdGUgc3RhdGljIHN0cmluZyBTdHIoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGQsIHN0cmluZyBrKQogICAgICAgID0+IChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrLCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCkgPyB2LlRvU3RyaW5nKCkgOiBudWxsOwp9Cg==",
+              "encoding": "B64"
+            },
+            "errorBoundary": {
+              "onError": [
+                {
+                  "action": 1,
+                  "errorCodes": [
+                    "409"
+                  ],
+                  "priority": 10,
+                  "retryPolicy": {
+                    "maxRetries": 8,
+                    "initialDelay": "PT0.5S",
+                    "backoffType": 1,
+                    "backoffMultiplier": 2,
+                    "maxDelay": "PT10S",
+                    "useJitter": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "render-done-to-approval",
+            "target": "approval-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Approval Waiting"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "approval-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Approval Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "all-approved",
+            "target": "approval-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "All Documents Approved"
+              }
+            ],
+            "rule": {
+              "location": "./src/AllApprovedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBFdmVyeSBkb2N1bWVudCBoYXMgYmVlbiBhcHByb3ZlZC4KLy8gQ291bnRzIHBlci1kb2N1bWVudCBzdGFtcHMgKCJhcF97ZG9jdW1lbnRJZH0iKSBpbnN0ZWFkIG9mIGEgc2hhcmVkIGNvdW50ZXIsIGJlY2F1c2UKLy8gY29uY3VycmVudCBmYW4taW4gY2FsbGJhY2tzIGxvc2UgaW5jcmVtZW50cyBvbiBhIHNoYXJlZCByZWFkLW1vZGlmeS13cml0ZSBrZXkuCnB1YmxpYyBjbGFzcyBBbGxBcHByb3ZlZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgaW50IHN0YW1wZWQgPSAwLCB0b3RhbCA9IDA7CiAgICAgICAgaWYgKGQgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkKQogICAgICAgICAgICAgICAgaWYgKGt2LktleS5TdGFydHNXaXRoKCJhcF8iLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWwpCiAgICAgICAgICAgICAgICAgICAgJiYga3YuVmFsdWUgIT0gbnVsbCAmJiBib29sLlRyeVBhcnNlKGt2LlZhbHVlLlRvU3RyaW5nKCksIG91dCB2YXIgYikgJiYgYikgc3RhbXBlZCsrOwogICAgICAgICAgICBpZiAoZC5UcnlHZXRWYWx1ZSgiZG9jdW1lbnRDb3VudCIsIG91dCB2YXIgYykgJiYgYyAhPSBudWxsKSBpbnQuVHJ5UGFyc2UoYy5Ub1N0cmluZygpLCBvdXQgdG90YWwpOwogICAgICAgIH0KICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRvdGFsID4gMCAmJiBzdGFtcGVkID49IHRvdGFsKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "approval-done",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Approval Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notify-parent-transition",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ContractTriggerLoginApprovalsDoneMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCi8vIG9uRW50cnkgb2YgYXBwcm92YWwtZG9uZTogZXZlcnkgY2hpbGQgcmVwb3J0ZWQgYXBwcm92YWwtcmVjZWl2ZWQsIHNvIG5vdGlmeSB0aGUgcGFyZW50Ci8vIGV4YWN0bHkgb25jZSB2aWEgRGlyZWN0VHJpZ2dlciBvbiB0aGUgYXBwcm92YWxzRG9uZVRyYW5zaXRpb24gcmVmIChsb2dpbi1hcHByb3ZhbHMtZG9uZSksCi8vIHRhcmdldGluZyB0aGUgcGFyZW50IGluc3RhbmNlIGlkIChjb250cmFjdElkKSBwYXNzZWQgYXQgc3RhcnQuCi8vIFBlci1kb2N1bWVudCBhcHByb3ZhbHMgYXJlIE5PVCBmb3J3YXJkZWQgdXB3YXJkIOKAlCBvbmx5IHRoaXMgc2luZ2xlIGFnZ3JlZ2F0ZSBzaWduYWwuCnB1YmxpYyBjbGFzcyBDb250cmFjdFRyaWdnZXJMb2dpbkFwcHJvdmFsc0RvbmVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciB0cmlnID0gdGFzayBhcyBEaXJlY3RUcmlnZ2VyVGFzazsKICAgICAgICBpZiAodHJpZyA9PSBudWxsKSB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgRGlyZWN0VHJpZ2dlclRhc2siKTsKCiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIHZhciBhZCA9IFJlZihkYXRhLCAiYXBwcm92YWxzRG9uZVRyYW5zaXRpb24iKTsKICAgICAgICB0cmlnLlNldERvbWFpbihhZC5kb21haW4gPz8gImNvcmUiKTsKICAgICAgICB0cmlnLlNldEZsb3coYWQuZmxvdyA/PyAibG9naW4tZmxvdyIpOwogICAgICAgIHRyaWcuU2V0VHJhbnNpdGlvbk5hbWUoYWQua2V5ID8/ICJsb2dpbi1hcHByb3ZhbHMtZG9uZSIpOwogICAgICAgIHRyaWcuU2V0SW5zdGFuY2UoU3RyKGRhdGEsICJjb250cmFjdElkIikpOwogICAgICAgIHRyaWcuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNvbnRyYWN0VHJpZ2dlckxvZ2luQXBwcm92YWxzRG9uZU1hcHBpbmc6IHBhcmVudCBsb2dpbi1hcHByb3ZhbHMtZG9uZSB0cmlnZ2VyZWQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIChzdHJpbmcgZG9tYWluLCBzdHJpbmcgZmxvdywgc3RyaW5nIGtleSkgUmVmKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkLCBzdHJpbmcga2V5KQogICAgewogICAgICAgIGlmIChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrZXksIG91dCB2YXIgdikgJiYgdiBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gcikKICAgICAgICAgICAgcmV0dXJuIChHZXQociwgImRvbWFpbiIpLCBHZXQociwgImZsb3ciKSwgR2V0KHIsICJrZXkiKSk7CiAgICAgICAgcmV0dXJuIChudWxsLCBudWxsLCBudWxsKTsKICAgIH0KICAgIHByaXZhdGUgc3RhdGljIHN0cmluZyBHZXQoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGQsIHN0cmluZyBrKQogICAgICAgID0+IChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrLCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCkgPyB2LlRvU3RyaW5nKCkgOiBudWxsOwogICAgcHJpdmF0ZSBzdGF0aWMgc3RyaW5nIFN0cihJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZCwgc3RyaW5nIGspCiAgICAgICAgPT4gKGQgIT0gbnVsbCAmJiBkLlRyeUdldFZhbHVlKGssIG91dCB2YXIgdikgJiYgdiAhPSBudWxsKSA/IHYuVG9TdHJpbmcoKSA6IG51bGw7Cn0K",
+              "encoding": "B64"
+            },
+            "errorBoundary": {
+              "onError": [
+                {
+                  "action": 1,
+                  "errorCodes": [
+                    "409"
+                  ],
+                  "priority": 10,
+                  "retryPolicy": {
+                    "maxRetries": 8,
+                    "initialDelay": "PT0.5S",
+                    "backoffType": 1,
+                    "backoffMultiplier": 2,
+                    "maxDelay": "PT10S",
+                    "useJitter": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "approval-done-to-awaiting-finalize",
+            "target": "awaiting-finalize",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Awaiting Finalize"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "awaiting-finalize",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting Finalize"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "contract-finalize",
+            "target": "finalize-loop",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finalize (parent-triggered)"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "finalize-loop",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Finalize loop (close online children)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "finalize-next",
+            "target": "$self",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finalize next online (finIndex < documentCount)"
+              }
+            ],
+            "rule": {
+              "location": "./src/MoreToFinalizeRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIGZpbkluZGV4IDwgZG9jdW1lbnRDb3VudCAg4oaSIG1vcmUgY2hpbGQgc3VicHJvY2Vzc2VzIHJlbWFpbiB0byBmaW5hbGl6ZQpwdWJsaWMgY2xhc3MgTW9yZVRvRmluYWxpemVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGQgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGludCBmaW4gPSBUb0ludChkLCAiZmluSW5kZXgiKTsKICAgICAgICBpbnQgY291bnQgPSBUb0ludChkLCAiZG9jdW1lbnRDb3VudCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoZmluIDwgY291bnQpOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIGludCBUb0ludChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZCwgc3RyaW5nIGtleSkKICAgIHsKICAgICAgICBpZiAoZCAhPSBudWxsICYmIGQuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCAmJiBpbnQuVHJ5UGFyc2Uodi5Ub1N0cmluZygpLCBvdXQgdmFyIG4pKSByZXR1cm4gbjsKICAgICAgICByZXR1cm4gMDsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "trigger-transition",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/ContractFinalizeOnlineMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBvbkV4ZWN1dGlvbiBvZiB0aGUgZmluYWxpemUtbG9vcCAkc2VsZiB0cmFuc2l0aW9uIChmaW5hbGl6ZS1uZXh0KTogRGlyZWN0VHJpZ2dlcgovLyBvbmxpbmUtZmluYWxpemUgb24gb25saW5lSW5zdGFuY2VJZHNbZmluSW5kZXhdLCB0aGVuIGFkdmFuY2UgZmluSW5kZXguIFRoZSAkc2VsZiBhdXRvIGxvb3AKLy8gcmUtZmlyZXMgdW50aWwgQWxsRmluYWxpemVkUnVsZSByb3V0ZXMgdG8gY29udHJhY3QtY29tcGxldGVkIChpbnZvY2F0aW9uLXNjb3BlZCBqb2IgbmFtZXMKLy8gbWFrZSBjb25zZWN1dGl2ZSBpdGVyYXRpb25zIHNhZmUpLgpwdWJsaWMgY2xhc3MgQ29udHJhY3RGaW5hbGl6ZU9ubGluZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHRyaWcgPSB0YXNrIGFzIERpcmVjdFRyaWdnZXJUYXNrOwogICAgICAgIGlmICh0cmlnID09IG51bGwpIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBEaXJlY3RUcmlnZ2VyVGFzayIpOwoKICAgICAgICBsb25nIGZpbiA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5maW5JbmRleDsKICAgICAgICBzdHJpbmcgb25saW5lSWQgPSBudWxsOwoKICAgICAgICBpZiAoSGFzUHJvcGVydHkoY29udGV4dC5JbnN0YW5jZS5EYXRhLCAib25saW5lSW5zdGFuY2VJZHMiKSkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBpZHMgPSBBc0xpc3QoY29udGV4dC5JbnN0YW5jZS5EYXRhLm9ubGluZUluc3RhbmNlSWRzKTsKICAgICAgICAgICAgLy8gTGlzdDxvYmplY3Q+IGluZGV4ZXMgd2l0aCBpbnQsIG5vdCBsb25nIOKAlCBgaWRzW2Zpbl1gIHRocm93cwogICAgICAgICAgICAvLyAiYmVzdCBvdmVybG9hZGVkIG1ldGhvZCBtYXRjaCAuLi4gaGFzIHNvbWUgaW52YWxpZCBhcmd1bWVudHMiLgogICAgICAgICAgICBpbnQgaWR4ID0gKGludClmaW47CiAgICAgICAgICAgIGlmIChpZHggPj0gMCAmJiBpZHggPCBpZHMuQ291bnQpIG9ubGluZUlkID0gaWRzW2lkeF0/LlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICBpZiAoc3RyaW5nLklzTnVsbE9yRW1wdHkob25saW5lSWQpKQogICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigkIkNvbnRyYWN0RmluYWxpemVPbmxpbmVNYXBwaW5nOiBubyBvbmxpbmUgaW5zdGFuY2UgaWQgYXQgZmluSW5kZXgge2Zpbn0iKTsKCiAgICAgICAgdHJpZy5TZXREb21haW4oImNvcmUiKTsKICAgICAgICB0cmlnLlNldEZsb3coIm9ubGluZS1mbG93Iik7CiAgICAgICAgdHJpZy5TZXRUcmFuc2l0aW9uTmFtZSgib25saW5lLWZpbmFsaXplIik7CiAgICAgICAgdHJpZy5TZXRJbnN0YW5jZShvbmxpbmVJZCk7CiAgICAgICAgdHJpZy5TZXRTeW5jKGZhbHNlKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBsb25nIGZpbiA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YS5maW5JbmRleCArIDE7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJDb250cmFjdEZpbmFsaXplT25saW5lTWFwcGluZzogZmluYWxpemVkIGNoaWxkIHtmaW59Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZmluSW5kZXggPSBmaW4KICAgICAgICAgICAgfQogICAgICAgIH0pOwogICAgfQp9",
+                  "encoding": "B64"
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 1,
+                      "errorCodes": [
+                        "409"
+                      ],
+                      "priority": 10,
+                      "retryPolicy": {
+                        "maxRetries": 8,
+                        "initialDelay": "PT0.5S",
+                        "backoffType": 1,
+                        "backoffMultiplier": 2,
+                        "maxDelay": "PT10S",
+                        "useJitter": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "key": "finalize-done",
+            "target": "contract-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "All children finalized"
+              }
+            ],
+            "rule": {
+              "location": "./src/AllFinalizedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLyBmaW5JbmRleCA+PSBkb2N1bWVudENvdW50ICDihpIgZXZlcnkgY2hpbGQgc3VicHJvY2VzcyBoYXMgYmVlbiBmaW5hbGl6ZWQKcHVibGljIGNsYXNzIEFsbEZpbmFsaXplZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KGNvbnRleHQuSW5zdGFuY2UuRGF0YS5maW5JbmRleCA+PSBjb250ZXh0Lkluc3RhbmNlLkRhdGEuZG9jdW1lbnRDb3VudCk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "contract-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Contract Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "notify-parent-transition",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ContractTriggerLoginCompletedMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCi8vIG9uRW50cnkgb2YgY29udHJhY3QtY29tcGxldGVkOiBEaXJlY3RUcmlnZ2VyIHRoZSBwYXJlbnQncyBjb21wbGV0ZWRUcmFuc2l0aW9uIChsb2dpbi1jb21wbGV0ZWQpLAovLyB1c2luZyB0aGUgdHJhbnNpdGlvbiByZWYgKyBwYXJlbnQgaW5zdGFuY2UgaWQgKGNvbnRyYWN0SWQpIHBhc3NlZCBhdCBzdGFydC4KLy8gVGhlIHBhcmVudCB0YXJnZXQgaXMgbG9naW4tZmxvdydzIHVwZGF0ZURhdGEgdHJhbnNpdGlvbiAoY29udHJhY3Qtc3RhdHVzKTogY29udHJhY3QtZmxvdwovLyBoYW5kcyB1cCBhIGNvbnRyYWN0Q29tcGxldGVkIGZsYWcgaW5zdGVhZCBvZiBkcml2aW5nIHRoZSBwYXJlbnQncyBzdGF0ZSBkaXJlY3RseSwgYW5kCi8vIGxvZ2luLWZsb3cgZGVjaWRlcyBmb3IgaXRzZWxmIHdoZW4gdG8gbW92ZSBvbi4KcHVibGljIGNsYXNzIENvbnRyYWN0VHJpZ2dlckxvZ2luQ29tcGxldGVkTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgdHJpZyA9IHRhc2sgYXMgRGlyZWN0VHJpZ2dlclRhc2s7CiAgICAgICAgaWYgKHRyaWcgPT0gbnVsbCkgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIERpcmVjdFRyaWdnZXJUYXNrIik7CgogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY3QgPSBSZWYoZGF0YSwgImNvbXBsZXRlZFRyYW5zaXRpb24iKTsKICAgICAgICB0cmlnLlNldERvbWFpbihjdC5kb21haW4gPz8gImNvcmUiKTsKICAgICAgICB0cmlnLlNldEZsb3coY3QuZmxvdyA/PyAibG9naW4tZmxvdyIpOwogICAgICAgIHRyaWcuU2V0VHJhbnNpdGlvbk5hbWUoY3Qua2V5ID8/ICJjb250cmFjdC1zdGF0dXMiKTsKICAgICAgICB0cmlnLlNldEluc3RhbmNlKFN0cihkYXRhLCAiY29udHJhY3RJZCIpKTsKICAgICAgICB0cmlnLlNldEJvZHkobmV3IHsgY29udHJhY3RDb21wbGV0ZWQgPSB0cnVlIH0pOwogICAgICAgIHRyaWcuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIkNvbnRyYWN0VHJpZ2dlckxvZ2luQ29tcGxldGVkTWFwcGluZzogY29udHJhY3Qtc3RhdHVzIHVwZGF0ZURhdGEgc2VudCAoY29udHJhY3RDb21wbGV0ZWQ9dHJ1ZSkiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIChzdHJpbmcgZG9tYWluLCBzdHJpbmcgZmxvdywgc3RyaW5nIGtleSkgUmVmKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkLCBzdHJpbmcga2V5KQogICAgewogICAgICAgIGlmIChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrZXksIG91dCB2YXIgdikgJiYgdiBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gcikKICAgICAgICAgICAgcmV0dXJuIChHZXQociwgImRvbWFpbiIpLCBHZXQociwgImZsb3ciKSwgR2V0KHIsICJrZXkiKSk7CiAgICAgICAgcmV0dXJuIChudWxsLCBudWxsLCBudWxsKTsKICAgIH0KICAgIHByaXZhdGUgc3RhdGljIHN0cmluZyBHZXQoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGQsIHN0cmluZyBrKQogICAgICAgID0+IChkICE9IG51bGwgJiYgZC5UcnlHZXRWYWx1ZShrLCBvdXQgdmFyIHYpICYmIHYgIT0gbnVsbCkgPyB2LlRvU3RyaW5nKCkgOiBudWxsOwogICAgcHJpdmF0ZSBzdGF0aWMgc3RyaW5nIFN0cihJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZCwgc3RyaW5nIGspCiAgICAgICAgPT4gKGQgIT0gbnVsbCAmJiBkLlRyeUdldFZhbHVlKGssIG91dCB2YXIgdikgJiYgdiAhPSBudWxsKSA/IHYuVG9TdHJpbmcoKSA6IG51bGw7Cn0=",
+              "encoding": "B64"
+            },
+            "errorBoundary": {
+              "onError": [
+                {
+                  "action": 1,
+                  "errorCodes": [
+                    "409"
+                  ],
+                  "priority": 10,
+                  "retryPolicy": {
+                    "maxRetries": 8,
+                    "initialDelay": "PT0.5S",
+                    "backoffType": 1,
+                    "backoffMultiplier": 2,
+                    "maxDelay": "PT10S",
+                    "useJitter": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "contract-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Contract Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

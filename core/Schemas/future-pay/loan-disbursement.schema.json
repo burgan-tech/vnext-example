@@ -98,7 +98,9 @@
             },
             "approverUserId": { "type": "string", "x-labels": { "tr": "Onaylayan Kullanıcı", "en": "Approver User ID" } },
             "decisionReason": { "type": "string", "x-labels": { "tr": "Karar Gerekçesi", "en": "Decision Reason" } },
-            "conditions": { "type": "string", "x-labels": { "tr": "Koşullar", "en": "Conditions" } }
+            "conditions": { "type": "string", "x-labels": { "tr": "Koşullar", "en": "Conditions" } },
+            "rejectionCode": { "type": "string", "x-labels": { "tr": "Ret Kodu", "en": "Rejection Code" } },
+            "decisionDate": { "type": "string", "format": "date-time", "x-labels": { "tr": "Karar Tarihi", "en": "Decision Date" } }
           }
         },
         "collateral": {

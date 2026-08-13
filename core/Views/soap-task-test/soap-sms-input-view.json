@@ -1,0 +1,99 @@
+{
+  "key": "soap-sms-input-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "soap",
+    "sms",
+    "input",
+    "ui-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "SMS Bilgileri"
+      },
+      {
+        "language": "en-US",
+        "label": "SMS Details"
+      }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:soap-sms-input",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "SMS Gönder",
+                  "en": "Send SMS"
+                },
+                "variant": "headlineMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "TextField",
+                        "bind": "gsmNo",
+                        "variant": "outlined"
+                      },
+                      {
+                        "type": "TextField",
+                        "bind": "message",
+                        "variant": "outlined",
+                        "multiline": true
+                      },
+                      {
+                        "type": "TextField",
+                        "bind": "header",
+                        "variant": "outlined"
+                      },
+                      {
+                        "type": "NumberField",
+                        "bind": "duration",
+                        "variant": "outlined"
+                      },
+                      {
+                        "type": "Switch",
+                        "bind": "isNotification"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Gönder",
+                  "en": "Send"
+                },
+                "variant": "filled",
+                "icon": "send",
+                "action": "submit",
+                "command": "urn:vnext:flow:transition:core:soap-task-test:submit-sms-details"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

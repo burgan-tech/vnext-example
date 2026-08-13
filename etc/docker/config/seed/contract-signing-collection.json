@@ -1,0 +1,47 @@
+{
+  "collection": {
+    "name": "contract-signing",
+    "description": "Mocks for the login/contract/online subprocess orchestration",
+    "color": "#0ea5e9"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "GET",
+      "route": "api/contract-signing/contracts/documents",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"contractCode\": \"{{request.query.contractCode}}\",\n  \"count\": 3,\n  \"documents\": [\n    { \"documentId\": \"DOC-{{request.query.contractCode}}-1\", \"name\": \"Terms & Conditions\" },\n    { \"documentId\": \"DOC-{{request.query.contractCode}}-2\", \"name\": \"Privacy Notice\" },\n    { \"documentId\": \"DOC-{{request.query.contractCode}}-3\", \"name\": \"Fee Schedule\" }\n  ]\n}",
+      "contentType": "application/json",
+      "description": "Resolves the document set for a contractCode. Default returns 3 documents.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "query.contractCode",
+          "conditionOperator": "equals",
+          "conditionValue": "SINGLE",
+          "statusCode": 200,
+          "responseBody": "{\n  \"contractCode\": \"SINGLE\",\n  \"count\": 1,\n  \"documents\": [\n    { \"documentId\": \"DOC-SINGLE-1\", \"name\": \"Single Document\" }\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "query.contractCode",
+          "conditionOperator": "equals",
+          "conditionValue": "FIVE",
+          "statusCode": 200,
+          "responseBody": "{\n  \"contractCode\": \"FIVE\",\n  \"count\": 5,\n  \"documents\": [\n    { \"documentId\": \"DOC-FIVE-1\" },\n    { \"documentId\": \"DOC-FIVE-2\" },\n    { \"documentId\": \"DOC-FIVE-3\" },\n    { \"documentId\": \"DOC-FIVE-4\" },\n    { \"documentId\": \"DOC-FIVE-5\" }\n  ]\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    }
+  ]
+}

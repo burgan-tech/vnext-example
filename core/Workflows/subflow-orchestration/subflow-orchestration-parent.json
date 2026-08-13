@@ -89,7 +89,7 @@
           },
           "mapping": {
             "location": "./src/ParentStartMapping.csx",
-            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBQYXJlbnRTdGFydE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQucGFyZW50U3RhcnRlZCA9IHRydWU7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpCiAgICAgICAgewogICAgICAgICAgICByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgfQogICAgICAgIExvZ0luZm9ybWF0aW9uKCJQYXJlbnRTdGFydE1hcHBpbmc6IHBhcmVudFN0YXJ0ZWQgc2V0Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBQYXJlbnRTdGFydE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQucGFyZW50U3RhcnRlZCA9IHRydWU7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpCiAgICAgICAgewogICAgICAgICAgICByZXN1bHQudGVzdElkID0gZGF0YS50ZXN0SWQ7CiAgICAgICAgfQoKICAgICAgICAvLyB1cGRhdGVEYXRhIGNvbmN1cnJlbmN5IHByb2JlOiBzZWVkIHRoZSBmYW4taW4gY291bnRlciBhbmQgY2FycnkgdGhlCiAgICAgICAgLy8gY2FsbGVyLXByb3ZpZGVkIHRocmVzaG9sZCAoZGVmYXVsdCA1KSBmb3IgdGhlIHBhcmVudC1jb2xsZWN0IGdhdGUuCiAgICAgICAgcmVzdWx0LnVwZGF0ZUNvdW50ID0gMDsKICAgICAgICByZXN1bHQudXBkYXRlVGhyZXNob2xkID0gNTsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIEhhc1Byb3BlcnR5KGRhdGEsICJ1cGRhdGVUaHJlc2hvbGQiKSkKICAgICAgICB7CiAgICAgICAgICAgIHJlc3VsdC51cGRhdGVUaHJlc2hvbGQgPSBkYXRhLnVwZGF0ZVRocmVzaG9sZDsKICAgICAgICB9CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCJQYXJlbnRTdGFydE1hcHBpbmc6IHBhcmVudFN0YXJ0ZWQgc2V0Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
           }
         }
       ]
@@ -112,19 +112,54 @@
         "onExits": [],
         "transitions": [
           {
-            "key": "auto-parent-to-subflow",
+            "key": "auto-parent-to-collect",
+            "target": "parent-collect",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Parent Collect"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "parent-collect",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Parent Collect (updateData fan-in)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-collect-threshold-reached",
             "target": "parent-subflow-state",
             "triggerType": 1,
             "versionStrategy": "Minor",
             "labels": [
               {
                 "language": "en-US",
-                "label": "Auto to Parent SubFlow State"
+                "label": "Collect Threshold Reached"
               }
             ],
             "rule": {
-              "location": "./src/AlwaysTrueRule.csx",
-              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+              "location": "./src/CollectThresholdRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBGYW4taW4gZ2F0ZSBmb3IgdGhlIHBhcmVudC1jb2xsZWN0IHN0YXRlOiBmaXJlcyB3aGVuIHVwZGF0ZUNvdW50IHJlYWNoZXMKLy8vIHVwZGF0ZVRocmVzaG9sZCAoZGVmYXVsdCA1KS4gRXZhbHVhdGVkIGJ5IHRoZSBhdXRvbWF0aWMtdHJhbnNpdGlvbiBzdGVwIGFmdGVyCi8vLyBFVkVSWSB1cGRhdGVEYXRhIOKAlCB2YWxpZGF0aW5nIHRoYXQgdXBkYXRlRGF0YSBhbHdheXMgcmUtcnVucyBhdXRvIGV2YWx1YXRpb24KLy8vIHdpdGggdGhlIGZyZXNobHkgd3JpdHRlbiBkYXRhLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQ29sbGVjdFRocmVzaG9sZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjb3VudCA9IDA7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJ1cGRhdGVDb3VudCIsIG91dCB2YXIgcmF3Q291bnQpICYmIHJhd0NvdW50ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3Q291bnQuVG9TdHJpbmcoKSwgb3V0IGNvdW50KTsKICAgICAgICB9CgogICAgICAgIHZhciB0aHJlc2hvbGQgPSA1OwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgidXBkYXRlVGhyZXNob2xkIiwgb3V0IHZhciByYXdUaHJlc2hvbGQpICYmIHJhd1RocmVzaG9sZCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhd1RocmVzaG9sZC5Ub1N0cmluZygpLCBvdXQgdGhyZXNob2xkKTsKICAgICAgICB9CgogICAgICAgIHZhciBzYXRpc2ZpZWQgPSBjb3VudCA+PSB0aHJlc2hvbGQ7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJDb2xsZWN0VGhyZXNob2xkUnVsZTogdXBkYXRlQ291bnQ9e2NvdW50fSB0aHJlc2hvbGQ9e3RocmVzaG9sZH0gc2F0aXNmaWVkPXtzYXRpc2ZpZWR9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChzYXRpc2ZpZWQpOwogICAgfQp9Cg=="
             },
             "onExecutionTasks": []
           }
@@ -250,6 +285,33 @@
         "onExits": [],
         "transitions": []
       }
-    ]
+    ],
+    "updateData": {
+      "key": "update-parent-progress",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Parent Progress (concurrency probe)"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "subflow-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/UpdateProgressCounterMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIENvdW50ZXIgdGFzayBmb3IgdGhlIHBhcmVudCdzIHVwZGF0ZURhdGEgdHJhbnNpdGlvbiAodXBkYXRlLXBhcmVudC1wcm9ncmVzcykuCi8vLyBNZXJnZXMgdGhlIGN1cnJlbnQgaW5zdGFuY2UgZGF0YSBhbmQgaW5jcmVtZW50cyB1cGRhdGVDb3VudCBieSBleGFjdGx5IG9uZS4KLy8vIENvbmN1cnJlbnQtY29uc2lzdGVuY3kgcHJvYmU6IGlmIGFueSBpbmNyZW1lbnQgaXMgbG9zdCBvciBkdXBsaWNhdGVkLCB0aGUgZmluYWwKLy8vIHVwZGF0ZUNvdW50IHdpbGwgbm90IG1hdGNoIHRoZSBudW1iZXIgb2YgYWNjZXB0ZWQgKDIwMikgdXBkYXRlRGF0YSByZXF1ZXN0cy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFVwZGF0ZVByb2dyZXNzQ291bnRlck1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CgogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoInVwZGF0ZUNvdW50Iiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY3VycmVudCk7CiAgICAgICAgfQoKICAgICAgICB0YXJnZXRbInVwZGF0ZUNvdW50Il0gPSBjdXJyZW50ICsgMTsKICAgICAgICB0YXJnZXRbImxhc3RVcGRhdGVBdCJdID0gRGF0ZVRpbWUuVXRjTm93LlRvU3RyaW5nKCJvIik7CgogICAgICAgIC8vIENhcnJ5IHRoZSBjYWxsZXIncyBub25jZSAoaWYgYW55KSBzbyBlYWNoIGFjY2VwdGVkIHJlcXVlc3QgbGVhdmVzIGEgdHJhY2UuCiAgICAgICAgdmFyIGJvZHkgPSBjb250ZXh0LkJvZHkgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGlmIChib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidXBkYXRlTm9uY2UiLCBvdXQgdmFyIG5vbmNlKSAmJiBub25jZSAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGFyZ2V0WyJsYXN0VXBkYXRlTm9uY2UiXSA9IG5vbmNlLlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlVwZGF0ZVByb2dyZXNzQ291bnRlck1hcHBpbmc6IHVwZGF0ZUNvdW50IHtjdXJyZW50fSAtPiB7Y3VycmVudCArIDF9Iik7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+          }
+        }
+      ]
+    }
   }
 }

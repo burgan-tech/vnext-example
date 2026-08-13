@@ -1,0 +1,143 @@
+{
+  "key": "start-contract-payload",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "contract-flow",
+    "start-transition",
+    "input-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:start-contract-payload",
+      "title": "Start Contract Flow Payload",
+      "description": "Start payload for contract-flow, prepared by login-flow. contractId is the parent (login) instance id and idempotency key; readyTransition/completedTransition are the DirectTrigger callback targets on the parent.",
+      "type": "object",
+      "required": [
+        "contractCode",
+        "contractId",
+        "readyTransition",
+        "approvalsDoneTransition",
+        "completedTransition"
+      ],
+      "properties": {
+        "sub": {
+          "type": "string",
+          "title": "Subject",
+          "x-labels": {
+            "en": "Subject",
+            "tr": "Özne"
+          }
+        },
+        "act_sub": {
+          "type": "string",
+          "title": "Acting Subject",
+          "x-labels": {
+            "en": "Acting Subject",
+            "tr": "Vekil Özne"
+          }
+        },
+        "contractCode": {
+          "type": "string",
+          "title": "Contract Code",
+          "minLength": 1,
+          "x-labels": {
+            "en": "Contract Code",
+            "tr": "Sözleşme Kodu"
+          }
+        },
+        "contractId": {
+          "type": "string",
+          "title": "Parent Instance Id",
+          "minLength": 1,
+          "description": "Login instance id — idempotency key and DirectTrigger target.",
+          "x-labels": {
+            "en": "Parent Instance Id",
+            "tr": "Üst Akış Örnek Id"
+          }
+        },
+        "readyTransition": {
+          "type": "object",
+          "title": "Ready Transition",
+          "description": "Parent transition to trigger when documents are ready.",
+          "required": [
+            "domain",
+            "flow",
+            "key"
+          ],
+          "properties": {
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            },
+            "flow": {
+              "type": "string",
+              "minLength": 1
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "approvalsDoneTransition": {
+          "type": "object",
+          "title": "Approvals Done Transition",
+          "description": "Parent transition to trigger once every document has been approved (single aggregate signal).",
+          "required": [
+            "domain",
+            "flow",
+            "key"
+          ],
+          "properties": {
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            },
+            "flow": {
+              "type": "string",
+              "minLength": 1
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "completedTransition": {
+          "type": "object",
+          "title": "Completed Transition",
+          "description": "Parent transition to trigger when the contract has completed.",
+          "required": [
+            "domain",
+            "flow",
+            "key"
+          ],
+          "properties": {
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            },
+            "flow": {
+              "type": "string",
+              "minLength": 1
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

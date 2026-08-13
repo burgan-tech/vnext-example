@@ -70,11 +70,6 @@
       "target": "transfer-cancelled",
       "triggerType": 0,
       "versionStrategy": "Minor",
-      "availableIn": [
-        "enter-transfer-details",
-        "review-and-confirm",
-        "awaiting-push-approval"
-      ],
       "labels": [
         {
           "label": "Transferi İptal Et",

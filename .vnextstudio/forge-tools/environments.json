@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "environments": [
+    {
+      "id": "0ca1a0ad-637a-495c-bc14-a95261a1cd08",
+      "name": "Local (core)",
+      "baseUrl": "http://localhost:4201",
+      "dbName": "Aether_WorkflowDb",
+      "kind": "remote"
+    }
+  ],
+  "activeEnvironmentId": "0ca1a0ad-637a-495c-bc14-a95261a1cd08"
+}

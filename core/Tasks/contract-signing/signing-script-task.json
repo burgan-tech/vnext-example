@@ -1,0 +1,17 @@
+{
+  "key": "signing-script-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "script",
+    "counter",
+    "data-mapping"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

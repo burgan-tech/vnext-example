@@ -282,3 +282,6 @@ jmeter/results/
 # vnext-forge LSP scaffold
 .vnext-forge-lsp/
 core.link.json
+
+# vNext Forge managed local runtime
+.vnext-runtime/

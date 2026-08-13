@@ -1,0 +1,46 @@
+{
+  "key": "login-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "login-flow",
+    "master-schema",
+    "subprocess-orchestration"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:login-master",
+      "title": "Login Flow Master Schema",
+      "description": "Master schema for login-flow instance data. Login starts the contract-flow subprocess and waits for its ready/completed callbacks.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sub": {
+          "type": "string",
+          "description": "Subject (authenticated principal)",
+          "x-labels": { "en": "Subject", "tr": "Özne" }
+        },
+        "act_sub": {
+          "type": "string",
+          "description": "Acting subject (delegated principal)",
+          "x-labels": { "en": "Acting Subject", "tr": "Vekil Özne" }
+        },
+        "contractCode": {
+          "type": "string",
+          "description": "Business contract code used to resolve documents",
+          "x-labels": { "en": "Contract Code", "tr": "Sözleşme Kodu" }
+        },
+        "contractInstanceId": {
+          "type": "string",
+          "description": "Instance id of the started contract-flow subprocess, captured from the SubProcess task start response (used later to DirectTrigger contract-finalize).",
+          "x-labels": { "en": "Contract Instance Id", "tr": "Sözleşme Akış Örnek Id" }
+        }
+      }
+    }
+  }
+}

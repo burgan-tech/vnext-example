@@ -31,13 +31,17 @@ public class InquireKkbMapping : ScriptBase, IMapping
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
+        // MockLab answers with { "data": { ... } }, so unwrap one level past StandardTaskResponse.data.
         var payload = context.Body?.data ?? context.Body;
+        dynamic inner = null;
+        try { inner = payload?.data ?? payload; } catch { inner = payload; }
+
         return Task.FromResult(new ScriptResponse
         {
             Data = new
             {
-                kkbScore = payload?.kkbScore,
-                totalExistingDebt = payload?.totalExistingDebt,
+                kkbScore = inner?.kkbScore,
+                totalExistingDebt = inner?.totalExistingDebt,
                 inquiryDate = DateTime.UtcNow.ToString("o"),
                 inquiryStatus = "kkb-completed"
             },

@@ -31,12 +31,16 @@ public class InquireFindeksMapping : ScriptBase, IMapping
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
+        // MockLab answers with { "data": { ... } }, so unwrap one level past StandardTaskResponse.data.
         var payload = context.Body?.data ?? context.Body;
+        dynamic inner = null;
+        try { inner = payload?.data ?? payload; } catch { inner = payload; }
+
         return Task.FromResult(new ScriptResponse
         {
             Data = new
             {
-                findeksNote = payload?.findeksNote,
+                findeksNote = inner?.findeksNote,
                 inquiryStatus = "findeks-completed"
             },
             Tags = new[] { "credit-bureau", "findeks" }

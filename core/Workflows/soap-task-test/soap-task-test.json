@@ -1,0 +1,230 @@
+{
+  "key": "soap-task-test",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "soap",
+    "sms",
+    "vip-sender",
+    "integration-test",
+    "core"
+  ],
+  "attributes": {
+    "type": "F",
+    "schema": {
+      "key": "soap-task-test-master",
+      "domain": "core",
+      "flow": "sys-schemas",
+      "version": "1.0.0"
+    },
+    "functions": [],
+    "extensions": [],
+    "labels": [
+      {
+        "label": "SOAP Görev Testi",
+        "language": "tr"
+      },
+      {
+        "label": "SOAP Task Test",
+        "language": "en"
+      }
+    ],
+    "startTransition": {
+      "key": "start",
+      "target": "enter-sms-details",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "label": "Başlat",
+          "language": "tr"
+        },
+        {
+          "label": "Start",
+          "language": "en"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "enter-sms-details",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "SMS Bilgileri",
+            "language": "tr"
+          },
+          {
+            "label": "Enter SMS Details",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "soap-sms-input-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": [
+          {
+            "key": "submit-sms-details",
+            "target": "sending-sms",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "Gönder",
+                "language": "tr"
+              },
+              {
+                "label": "Send",
+                "language": "en"
+              }
+            ],
+            "schema": {
+              "key": "soap-sms-input",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sending-sms",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "SMS Gönderiliyor",
+            "language": "tr"
+          },
+          {
+            "label": "Sending SMS",
+            "language": "en"
+          }
+        ],
+        "view": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "vip-sender",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/SendVipSmsMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlNlY3VyaXR5Owp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBTeXN0ZW0uWG1sOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBCdWlsZHMgYW5kIHNlbmRzIHRoZSBWSVAgU01TIFNPQVAgcmVxdWVzdCwgdGhlbiBwYXJzZXMgdGhlIFNPQVAgcmVzcG9uc2UgaW4gT3V0cHV0SGFuZGxlci4KLy8gU0VDVVJJVFk6IHRoZSBwYXNzd29yZCBpcyBhIHBsYWNlaG9sZGVyIChfX1RFU1RfUEFTU1dPUkRfXykgb3IgcmVhZCBmcm9tIGluc3RhbmNlIGRhdGE7Ci8vIG5ldmVyIGhhcmRjb2RlIGEgcmVhbCBjcmVkZW50aWFsIGhlcmUuIFVTRVJDT0RFIGlzIHRoZSBmaXhlZCBpbnRlZ3JhdGlvbiB1c2VyICJFVVJPQkFOSyIuCnB1YmxpYyBjbGFzcyBTZW5kVmlwU21zTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHByaXZhdGUgY29uc3Qgc3RyaW5nIFVzZXJDb2RlID0gIkVVUk9CQU5LIjsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgc29hcFRhc2sgPSB0YXNrIGFzIFNvYXBUYXNrOwogICAgICAgICAgICBpZiAoc29hcFRhc2sgPT0gbnVsbCkKICAgICAgICAgICAgICAgIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBTb2FwVGFzayIpOwoKICAgICAgICAgICAgdmFyIGdzbU5vID0gKHN0cmluZyljb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5nc21ObyA/PyBzdHJpbmcuRW1wdHk7CiAgICAgICAgICAgIHZhciBtZXNzYWdlID0gKHN0cmluZyljb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5tZXNzYWdlID8/IHN0cmluZy5FbXB0eTsKICAgICAgICAgICAgdmFyIGhlYWRlciA9IChzdHJpbmcpY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uaGVhZGVyID8/ICJCVVJHQU4gQkFOSyI7CiAgICAgICAgICAgIHZhciBkdXJhdGlvbiA9IChpbnQ/KWNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LmR1cmF0aW9uID8/IDMwMDsKCiAgICAgICAgICAgIGJvb2wgaXNOb3RpZmljYXRpb24gPSB0cnVlOwogICAgICAgICAgICB0cnkgeyBpc05vdGlmaWNhdGlvbiA9IChib29sPykoY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uaXNOb3RpZmljYXRpb24pID8/IHRydWU7IH0gY2F0Y2ggeyBpc05vdGlmaWNhdGlvbiA9IHRydWU7IH0KCiAgICAgICAgICAgIC8vIFBhc3N3b3JkIHBsYWNlaG9sZGVyOyByZWFsIHZhbHVlIGlzIGluamVjdGVkIG91dHNpZGUgc291cmNlIGNvbnRyb2wgb3IgdmlhIGluc3RhbmNlIGRhdGEuCiAgICAgICAgICAgIHN0cmluZyBwYXNzd29yZCA9ICJfX1RFU1RfUEFTU1dPUkRfXyI7CiAgICAgICAgICAgIHRyeQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB2YXIgaW5zdGFuY2VQYXNzd29yZCA9IChzdHJpbmcpY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ucGFzc3dvcmQ7CiAgICAgICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPcldoaXRlU3BhY2UoaW5zdGFuY2VQYXNzd29yZCkpCiAgICAgICAgICAgICAgICAgICAgcGFzc3dvcmQgPSBpbnN0YW5jZVBhc3N3b3JkOwogICAgICAgICAgICB9CiAgICAgICAgICAgIGNhdGNoIHsgfQoKICAgICAgICAgICAgdmFyIHhtbCA9CiAgICAgICAgICAgICAgICAiPFNNUz4iICsKICAgICAgICAgICAgICAgICAgICAiPFVTRVJDT0RFPiIgKyBTZWN1cml0eUVsZW1lbnQuRXNjYXBlKFVzZXJDb2RlKSArICI8L1VTRVJDT0RFPiIgKwogICAgICAgICAgICAgICAgICAgICI8UEFTU1dPUkQ+IiArIFNlY3VyaXR5RWxlbWVudC5Fc2NhcGUocGFzc3dvcmQpICsgIjwvUEFTU1dPUkQ+IiArCiAgICAgICAgICAgICAgICAgICAgIjxHU01OTz4iICsgU2VjdXJpdHlFbGVtZW50LkVzY2FwZShnc21ObykgKyAiPC9HU01OTz4iICsKICAgICAgICAgICAgICAgICAgICAiPE1FU1NBR0U+IiArIFNlY3VyaXR5RWxlbWVudC5Fc2NhcGUobWVzc2FnZSkgKyAiPC9NRVNTQUdFPiIgKwogICAgICAgICAgICAgICAgICAgICI8SEVBREVSPiIgKyBTZWN1cml0eUVsZW1lbnQuRXNjYXBlKGhlYWRlcikgKyAiPC9IRUFERVI+IiArCiAgICAgICAgICAgICAgICAgICAgIjxEVVJBVElPTj4iICsgZHVyYXRpb24gKyAiPC9EVVJBVElPTj4iICsKICAgICAgICAgICAgICAgICAgICAiPElTTk9USUZJQ0FUSU9OPiIgKyAoaXNOb3RpZmljYXRpb24gPyAidHJ1ZSIgOiAiZmFsc2UiKSArICI8L0lTTk9USUZJQ0FUSU9OPiIgKwogICAgICAgICAgICAgICAgICAgICI8T05ORVRTSU1DSEFOR0U+VHJ1ZTwvT05ORVRTSU1DSEFOR0U+IiArCiAgICAgICAgICAgICAgICAgICAgIjxPTk5FVFBPUlRJTkNPTlRST0w+VHJ1ZTwvT05ORVRQT1JUSU5DT05UUk9MPiIgKyAKICAgICAgICAgICAgICAgICI8L1NNUz4iOwoKICAgICAgICAgICAgc29hcFRhc2suU2V0Qm9keSh4bWwpOwogICAgICAgICAgICBzb2FwVGFzay5BZGRIZWFkZXIoIkNvbnRlbnQtVHlwZSIsICJ0ZXh0L3htbDsgY2hhcnNldD11dGYtOCIpOwogICAgICAgICAgICBzb2FwVGFzay5TZXRTb2FwQWN0aW9uKCJWaXBTbXNTZW5kZXIiKTsKCiAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInNlbmQtdmlwLXNtcy1pbnB1dC1lcnJvciIsCiAgICAgICAgICAgICAgICBEYXRhID0gbmV3IHsgZXJyb3IgPSBleC5NZXNzYWdlIH0KICAgICAgICAgICAgfSk7CiAgICAgICAgfQogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBzdGF0dXNDb2RlID0gKGludD8pKGNvbnRleHQuQm9keT8uc3RhdHVzQ29kZSkgPz8gMjAwOwoKICAgICAgICAgICAgc3RyaW5nIHJhd1htbCA9IG51bGw7CiAgICAgICAgICAgIHRyeSB7IHJhd1htbCA9IChzdHJpbmcpKGNvbnRleHQuQm9keT8uZGF0YSk7IH0gY2F0Y2ggeyByYXdYbWwgPSBudWxsOyB9CiAgICAgICAgICAgIGlmIChzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKHJhd1htbCkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRyeSB7IHJhd1htbCA9IChzdHJpbmcpKGNvbnRleHQuQm9keSk7IH0gY2F0Y2ggeyByYXdYbWwgPSBudWxsOyB9CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGJvb2wgaGFzRmF1bHQgPSBmYWxzZTsKICAgICAgICAgICAgYm9vbCBwYXJzZUVycm9yID0gZmFsc2U7CiAgICAgICAgICAgIHN0cmluZyBmYXVsdENvZGUgPSBudWxsOwogICAgICAgICAgICBzdHJpbmcgZmF1bHRTdHJpbmcgPSBudWxsOwogICAgICAgICAgICBzdHJpbmcgbWVzc2FnZUlkID0gbnVsbDsKICAgICAgICAgICAgLy8gVmlwU21zU2VuZGVyIGJ1c2luZXNzIHJlc3VsdDogPFZJUFNNUz48U01TPjxSRVRVUk5DT0RFPjA8L1JFVFVSTkNPREU+CiAgICAgICAgICAgIC8vIDxSRVRVUk5NRVNTQUdFPi4uLjwvUkVUVVJOTUVTU0FHRT48TUVTU0FHRUlEPi4uLjwvTUVTU0FHRUlEPjwvU01TPjwvVklQU01TPgogICAgICAgICAgICAvLyBSRVRVUk5DT0RFID09ICIwIiBtZWFucyBhY2NlcHRlZCBieSB0aGUgU01TIGNlbnRlcjsgYW55dGhpbmcgZWxzZSBpcyBhIGJ1c2luZXNzIGZhaWx1cmUuCiAgICAgICAgICAgIHN0cmluZyByZXR1cm5Db2RlID0gbnVsbDsKICAgICAgICAgICAgc3RyaW5nIHJldHVybk1lc3NhZ2UgPSBudWxsOwoKICAgICAgICAgICAgaWYgKCFzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKHJhd1htbCkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRyeQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgIHZhciBkb2MgPSBuZXcgWG1sRG9jdW1lbnQoKTsKICAgICAgICAgICAgICAgICAgICBkb2MuTG9hZFhtbChyYXdYbWwpOwoKICAgICAgICAgICAgICAgICAgICAvLyBUcmFuc3BvcnQtbGV2ZWwgU09BUCBmYXVsdCAoZS5nLiBIVFRQIDUwMCkg4oCUIGtlZXAgYXMgYSBmYWxsYmFjay4KICAgICAgICAgICAgICAgICAgICB2YXIgZmF1bHROb2RlID0gZG9jLlNlbGVjdFNpbmdsZU5vZGUoIi8vKltsb2NhbC1uYW1lKCk9J0ZhdWx0J10iKTsKICAgICAgICAgICAgICAgICAgICBpZiAoZmF1bHROb2RlICE9IG51bGwpCiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBoYXNGYXVsdCA9IHRydWU7CiAgICAgICAgICAgICAgICAgICAgICAgIHZhciBmYXVsdENvZGVOb2RlID0gZmF1bHROb2RlLlNlbGVjdFNpbmdsZU5vZGUoIi4vLypbbG9jYWwtbmFtZSgpPSdmYXVsdGNvZGUnXSIpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICA/PyBmYXVsdE5vZGUuU2VsZWN0U2luZ2xlTm9kZSgiLi8vKltsb2NhbC1uYW1lKCk9J0NvZGUnXSIpOwogICAgICAgICAgICAgICAgICAgICAgICB2YXIgZmF1bHRTdHJpbmdOb2RlID0gZmF1bHROb2RlLlNlbGVjdFNpbmdsZU5vZGUoIi4vLypbbG9jYWwtbmFtZSgpPSdmYXVsdHN0cmluZyddIikKICAgICAgICAgICAgICAgICAgICAgICAgICAgID8/IGZhdWx0Tm9kZS5TZWxlY3RTaW5nbGVOb2RlKCIuLy8qW2xvY2FsLW5hbWUoKT0nUmVhc29uJ10iKTsKICAgICAgICAgICAgICAgICAgICAgICAgZmF1bHRDb2RlID0gZmF1bHRDb2RlTm9kZT8uSW5uZXJUZXh0OwogICAgICAgICAgICAgICAgICAgICAgICBmYXVsdFN0cmluZyA9IGZhdWx0U3RyaW5nTm9kZT8uSW5uZXJUZXh0OwogICAgICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICAgICAgLy8gVmlwU21zU2VuZGVyIGFwcGxpY2F0aW9uIHJlc3VsdC4KICAgICAgICAgICAgICAgICAgICB2YXIgcmV0dXJuQ29kZU5vZGUgPSBkb2MuU2VsZWN0U2luZ2xlTm9kZSgiLy8qW2xvY2FsLW5hbWUoKT0nUkVUVVJOQ09ERSddIik7CiAgICAgICAgICAgICAgICAgICAgdmFyIHJldHVybk1lc3NhZ2VOb2RlID0gZG9jLlNlbGVjdFNpbmdsZU5vZGUoIi8vKltsb2NhbC1uYW1lKCk9J1JFVFVSTk1FU1NBR0UnXSIpOwogICAgICAgICAgICAgICAgICAgIHZhciBtZXNzYWdlSWROb2RlID0gZG9jLlNlbGVjdFNpbmdsZU5vZGUoIi8vKltsb2NhbC1uYW1lKCk9J01FU1NBR0VJRCddIikKICAgICAgICAgICAgICAgICAgICAgICAgPz8gZG9jLlNlbGVjdFNpbmdsZU5vZGUoIi8vKltsb2NhbC1uYW1lKCk9J01lc3NhZ2VJZCddIikKICAgICAgICAgICAgICAgICAgICAgICAgPz8gZG9jLlNlbGVjdFNpbmdsZU5vZGUoIi8vKltsb2NhbC1uYW1lKCk9J21lc3NhZ2VJZCddIik7CgogICAgICAgICAgICAgICAgICAgIHJldHVybkNvZGUgPSByZXR1cm5Db2RlTm9kZT8uSW5uZXJUZXh0Py5UcmltKCk7CiAgICAgICAgICAgICAgICAgICAgcmV0dXJuTWVzc2FnZSA9IHJldHVybk1lc3NhZ2VOb2RlPy5Jbm5lclRleHQ/LlRyaW0oKTsKICAgICAgICAgICAgICAgICAgICBtZXNzYWdlSWQgPSBtZXNzYWdlSWROb2RlPy5Jbm5lclRleHQ/LlRyaW0oKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGNhdGNoIChFeGNlcHRpb24gcGFyc2VFeCkKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBwYXJzZUVycm9yID0gdHJ1ZTsKICAgICAgICAgICAgICAgICAgICBmYXVsdFN0cmluZyA9ICJSZXNwb25zZSBwYXJzZSBlcnJvcjogIiArIHBhcnNlRXguTWVzc2FnZTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQoKICAgICAgICAgICAgLy8gQnVzaW5lc3Mgc3VjY2VzcyByZXF1aXJlcyBhIDJ4eCB0cmFuc3BvcnQgc3RhdHVzLCBubyBTT0FQIGZhdWx0LCBubyBwYXJzZSBlcnJvciwKICAgICAgICAgICAgLy8gYW5kIFJFVFVSTkNPREUgZXhwbGljaXRseSAiMCIuIEEgbWlzc2luZy9ub24temVybyBSRVRVUk5DT0RFIGlzIHRyZWF0ZWQgYXMgZmFpbHVyZS4KICAgICAgICAgICAgYm9vbCByZXR1cm5PayA9IHJldHVybkNvZGUgPT0gIjAiOwogICAgICAgICAgICBib29sIHN1Y2NlZWRlZCA9IHN0YXR1c0NvZGUgPj0gMjAwICYmIHN0YXR1c0NvZGUgPCAzMDAgJiYgIWhhc0ZhdWx0ICYmICFwYXJzZUVycm9yICYmIHJldHVybk9rOwoKICAgICAgICAgICAgLy8gU3VyZmFjZSB0aGUgYnVzaW5lc3MgcmV0dXJuIGNvZGUvbWVzc2FnZSBhcyBmYXVsdCBpbmZvIHdoZW4gdGhlIGNhbGwgZGlkIG5vdCBzdWNjZWVkLgogICAgICAgICAgICBpZiAoIXN1Y2NlZWRlZCAmJiAhaGFzRmF1bHQgJiYgIXBhcnNlRXJyb3IgJiYgcmV0dXJuQ29kZSAhPSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBmYXVsdENvZGUgPSByZXR1cm5Db2RlOwogICAgICAgICAgICAgICAgZmF1bHRTdHJpbmcgPSByZXR1cm5NZXNzYWdlOwogICAgICAgICAgICB9CgogICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBLZXkgPSBzdWNjZWVkZWQgPyAidmlwLXNtcy1zdWNjZWVkZWQiIDogInZpcC1zbXMtZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzbXNSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSBzdWNjZWVkZWQsCiAgICAgICAgICAgICAgICAgICAgICAgIHN0YXR1c0NvZGUgPSBzdGF0dXNDb2RlLAogICAgICAgICAgICAgICAgICAgICAgICByZXR1cm5Db2RlID0gcmV0dXJuQ29kZSwKICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuTWVzc2FnZSA9IHJldHVybk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgICAgIHJlc3BvbnNlVGV4dCA9IHJhd1htbCwKICAgICAgICAgICAgICAgICAgICAgICAgZmF1bHRDb2RlID0gZmF1bHRDb2RlLAogICAgICAgICAgICAgICAgICAgICAgICBmYXVsdFN0cmluZyA9IGZhdWx0U3RyaW5nLAogICAgICAgICAgICAgICAgICAgICAgICBtZXNzYWdlSWQgPSBtZXNzYWdlSWQKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgVGFncyA9IG5ld1tdIHsgInNvYXAiLCAic21zIiwgc3VjY2VlZGVkID8gInN1Y2Nlc3MiIDogKGhhc0ZhdWx0IHx8IHBhcnNlRXJyb3IgPyAiZmF1bHQiIDogImZhaWx1cmUiKSB9CiAgICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgS2V5ID0gInZpcC1zbXMtZmFpbGVkIiwKICAgICAgICAgICAgICAgIERhdGEgPSBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBzbXNSZXN1bHQgPSBuZXcKICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIHN1Y2Nlc3MgPSBmYWxzZSwKICAgICAgICAgICAgICAgICAgICAgICAgc3RhdHVzQ29kZSA9IDAsCiAgICAgICAgICAgICAgICAgICAgICAgIHJlc3BvbnNlVGV4dCA9IChzdHJpbmcpbnVsbCwKICAgICAgICAgICAgICAgICAgICAgICAgZmF1bHRDb2RlID0gKHN0cmluZyludWxsLAogICAgICAgICAgICAgICAgICAgICAgICBmYXVsdFN0cmluZyA9IGV4Lk1lc3NhZ2UsCiAgICAgICAgICAgICAgICAgICAgICAgIG1lc3NhZ2VJZCA9IChzdHJpbmcpbnVsbAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBUYWdzID0gbmV3W10geyAic29hcCIsICJzbXMiLCAiZmFpbHVyZSIgfQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICB9Cn0=",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "key": "sms-succeeded",
+            "target": "sms-sent",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "SMS Başarılı",
+                "language": "tr"
+              },
+              {
+                "label": "SMS Succeeded",
+                "language": "en"
+              }
+            ],
+            "rule": {
+              "type": "L",
+              "location": "./src/SmsSucceededRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBBVVRPLVBBSVI6IGZpcmVzIHdoZW4gdGhlIFZJUCBTTVMgU09BUCB0YXNrIHJlcG9ydGVkIHN1Y2Nlc3MuCnB1YmxpYyBjbGFzcyBTbXNTdWNjZWVkZWRSdWxlIDogSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgYm9vbCBvayA9IGZhbHNlOwogICAgICAgIHRyeSB7IG9rID0gKGJvb2w/KShjb250ZXh0Lkluc3RhbmNlPy5EYXRhPy5zbXNSZXN1bHQ/LnN1Y2Nlc3MpID8/IGZhbHNlOyB9IGNhdGNoIHsgb2sgPSBmYWxzZTsgfQogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQob2spOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "key": "sms-failed",
+            "target": "sms-failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "label": "SMS Başarısız",
+                "language": "tr"
+              },
+              {
+                "label": "SMS Failed",
+                "language": "en"
+              }
+            ],
+            "rule": {
+              "type": "L",
+              "location": "./src/SmsFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBBVVRPLVBBSVI6IGNvbXBsZW1lbnQgb2YgU21zU3VjY2VlZGVkUnVsZS4gRmlyZXMgd2hlbiB0aGUgVklQIFNNUyBTT0FQIHRhc2sgZGlkIG5vdCBzdWNjZWVkLgpwdWJsaWMgY2xhc3MgU21zRmFpbGVkUnVsZSA6IElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGJvb2wgb2sgPSBmYWxzZTsKICAgICAgICB0cnkgeyBvayA9IChib29sPykoY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uc21zUmVzdWx0Py5zdWNjZXNzKSA/PyBmYWxzZTsgfSBjYXRjaCB7IG9rID0gZmFsc2U7IH0KICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KCFvayk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "sms-sent",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "SMS Gönderildi",
+            "language": "tr"
+          },
+          {
+            "label": "SMS Sent",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "soap-sms-result-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": []
+      },
+      {
+        "key": "sms-failed",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "label": "SMS Başarısız",
+            "language": "tr"
+          },
+          {
+            "label": "SMS Failed",
+            "language": "en"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "soap-sms-result-view",
+            "domain": "core",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "transitions": []
+      }
+    ]
+  }
+}

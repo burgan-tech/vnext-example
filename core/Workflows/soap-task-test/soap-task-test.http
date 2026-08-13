@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = soap-task-test
+
+### Start instance
+# @name startInstance
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{}
+
+###
+@instanceKey = {{startInstance.response.body.$.id}}
+
+### Get state (should be enter-sms-details with the input view)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+
+### Submit SMS details (manual transition -> sending-sms -> auto routing)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/transitions/submit-sms-details
+Content-Type: application/json
+
+{
+  "gsmNo": "905392314593",
+  "message": "Test OTP: 123456",
+  "header": "BURGAN BANK",
+  "duration": 300,
+  "isNotification": true
+}
+
+### Poll state (expect sms-sent or sms-failed with the result view)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/functions/state
+
+### Retry the last failed transition (if the SOAP task transport failed)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceKey}}/retry
+
+### Query instances landed in sms-sent
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?state=sms-sent

@@ -55,7 +55,11 @@ public class GetSourceAccountsLovMapping : IMapping
             {
                 Key = "source-accounts-lov-failure",
                 Data = new { error = "Failed", statusCode = statusCode },
-                Tags = new[] { "lov", "money-transfer", "failure" }
+                Tags = new[] { "lov", "money-transfer", "failure" },
+                Headers = new Dictionary<string, string>()
+                {
+                    {"content-type", "application/json"}
+                }
             });
         }
         catch (Exception ex)

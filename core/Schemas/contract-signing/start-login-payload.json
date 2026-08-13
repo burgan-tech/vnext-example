@@ -1,0 +1,30 @@
+{
+  "key": "start-login-payload",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "contract-signing",
+    "login-flow",
+    "start-transition",
+    "input-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:start-login-payload",
+      "title": "Start Login Flow Payload",
+      "description": "Start payload for login-flow. The contractCode drives document resolution in the contract subprocess.",
+      "type": "object",
+      "required": ["contractCode"],
+      "properties": {
+        "sub": { "type": "string", "title": "Subject", "x-labels": { "en": "Subject", "tr": "Özne" } },
+        "act_sub": { "type": "string", "title": "Acting Subject", "x-labels": { "en": "Acting Subject", "tr": "Vekil Özne" } },
+        "contractCode": { "type": "string", "title": "Contract Code", "minLength": 1, "x-labels": { "en": "Contract Code", "tr": "Sözleşme Kodu" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

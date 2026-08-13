@@ -1,14 +1,32 @@
 ### loan-disbursement — full lifecycle driver
 ### Start runtime (localhost:4201) and MockLab (docker compose up -d mocklab) first.
+###
+### Data model note: the runtime merges each transition payload into instance data at ROOT level.
+### The Script Tasks (validate-application, score-and-limit, price-loan, compute-required-approver)
+### project those root fields into the master sections (application / assessment / pricing / approval)
+### from their OutputHandler — an InputHandler result is never persisted for a Script Task.
 
 @baseUrl = http://localhost:4201
 @apiVersion = 1
 @domain = core
 @workflowKey = loan-disbursement
 
-### 1. Start an instance (submit-application — start transition, schema loan-application)
+### 1. Start an instance (start-application — no payload schema; lands on application-intake)
 # @name startInstance
 POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/start?sync=true
+Content-Type: application/json
+
+{}
+
+### Capture the new instance id
+@instanceId = {{startInstance.response.body.id}}
+
+### 2. Get the instance (application-intake; customer-profile-enrichment extension attaches the profile)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}
+
+### 3. submit-application (T1 — schema loan-application; validate-application projects `application`)
+###    Target state credit-bureau-inquiry runs the subflow, which auto-completes and fills `creditBureau`.
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/submit-application?sync=true
 Content-Type: application/json
 
 {
@@ -21,16 +39,15 @@ Content-Type: application/json
   "purpose": "Ev tadilatı"
 }
 
-### Capture the new instance id
-@instanceId = {{startInstance.response.body.id}}
-
-### 2. Get the instance (application-intake; auto-advances through credit-bureau-inquiry subflow)
+### 4. Get the instance (expect state assessment-pricing, attributes.application + attributes.creditBureau)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}
 
-### 3. List available transitions (expect submit-assessment once in assessment-pricing)
+### 5. List available transitions (expect submit-assessment)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions
 
-### 4. submit-assessment (T3 — schema loan-assessment; score-and-limit + price-loan)
+### 6. submit-assessment (T3 — schema loan-assessment; score-and-limit + price-loan)
+###    Fills attributes.assessment and attributes.pricing; on entering `approval`,
+###    compute-required-approver fills attributes.approval.requiredApproverRole.
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/submit-assessment?sync=true
 Content-Type: application/json
 
@@ -44,7 +61,7 @@ Content-Type: application/json
   "riskScore": 72
 }
 
-### 5. approve (T4 — schema loan-approval-decision; dynamic approver role from limit)
+### 7. approve (T4 — schema loan-approval-decision; dynamic approver role from limit)
 PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/approve?sync=true
 Content-Type: application/json
 
@@ -54,10 +71,31 @@ Content-Type: application/json
   "approverUserId": "USER-APPROVER-1"
 }
 
-### 6. Get the instance (collateral-establishment subflow → disbursement → disbursed)
+### 8. The parent now waits in collateral-establishment on the collateral-establishment subflow.
+###    That child flow's first state (contract-signing) needs a MANUAL sign-contract transition —
+###    find the child instance and drive it, otherwise the parent never reaches disbursement.
+# @name collateralChild
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/collateral-establishment/instances
+
+### Capture the child instance id (newest item)
+@collateralInstanceId = {{collateralChild.response.body.items[0].id}}
+
+### 9. sign-contract on the child (schema collateral-detail) — child auto-completes afterwards,
+###    which releases the parent: collateral-completed → disbursement → execute-disbursement.
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/collateral-establishment/instances/{{collateralInstanceId}}/transitions/sign-contract?sync=true
+Content-Type: application/json
+
+{
+  "collateralType": "nakit_blokaj",
+  "collateralValue": 80000,
+  "establishmentStatus": "established",
+  "titleDeedRef": "TD-2026-0001"
+}
+
+### 10. Get the parent instance (expect disbursed; attributes.collateral + attributes.disbursement)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}
 
-### --- Rejection path (alternative to step 5) ---
+### --- Rejection path (alternative to step 7) ---
 ### reject (T5 — schema loan-rejection)
 # PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instances/{{instanceId}}/transitions/reject?sync=true
 # Content-Type: application/json
@@ -67,5 +105,5 @@ GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflowKey}}/instanc
 #   "rejectionCode": "LOW_SCORE"
 # }
 
-### 7. Call the loan-product-lov function (domain scope D)
+### 11. Call the loan-product-lov function (domain scope D)
 GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/functions/loan-product-lov

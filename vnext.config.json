@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "description": "core Domain Definition Configuration",
   "domain": "core",
-  "runtimeVersion": "0.0.59",
-  "schemaVersion": "0.0.45",
+  "runtimeVersion": "0.0.61",
+  "schemaVersion": "0.0.46",
   "paths": {
     "componentsRoot": "core",
     "tasks": "Tasks",
@@ -27,7 +27,12 @@
       "description": "Exported components for core domain",
       "maintainer": "vNext Team",
       "license": "MIT",
-      "keywords": ["core", "vnext", "workflow", "domain"]
+      "keywords": [
+        "core",
+        "vnext",
+        "workflow",
+        "domain"
+      ]
     }
   },
   "dependencies": {

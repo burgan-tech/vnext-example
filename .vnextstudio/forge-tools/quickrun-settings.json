@@ -1,0 +1,7 @@
+{
+  "globalHeaders": [],
+  "polling": {
+    "retryCount": 15,
+    "intervalMs": 4000
+  }
+}
