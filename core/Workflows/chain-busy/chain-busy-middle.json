@@ -1,0 +1,227 @@
+{
+  "key": "chain-busy-middle",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.3.0",
+  "tags": [
+    "integration-test",
+    "chain-busy",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Chain Busy Middle"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [
+      {
+        "key": "middle-shared-mark",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Middle Shared Mark ($self)"
+          }
+        ],
+        "availableIn": [
+          "middle-waiting"
+        ],
+        "onExecutionTasks": [
+          {
+            "order": 1,
+            "task": {
+              "key": "subflow-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/MiddleSharedMarkMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEInbmluIGtlbmRpIHNoYXJlZCB0cmFuc2l0aW9uJ2kuCi8vLyA8cGFyYT4KLy8vIERFTFRBLU9OTFk6IHlhbG5pemNhIHNhaGliaSBvbGR1Z3Ugc2F5YWNpIGRvbmR1cnVyLiBGdWxsLWVjaG8geWFwc2F5ZGksIGVzemFtYW5saQovLy8geWF6aWNpbGFyaW4gdGF6ZSBkZWdlcmxlcmluaSBiYXlhdCBzbmFwc2hvdCBkZWdlcml5bGUgZXplcmRpOyBtZXJnZSB6YXRlbiBoZWFkJ2kga29ydXIuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBNaWRkbGVTaGFyZWRNYXJrTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGluc3QgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgY3VycmVudCA9IDA7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJtaWRkbGVTaGFyZWRNYXJrcyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbIm1pZGRsZVNoYXJlZE1hcmtzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJNaWRkbGVTaGFyZWRNYXJrTWFwcGluZzogbWlkZGxlU2hhcmVkTWFya3Mge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      }
+    ],
+    "cancel": {
+      "key": "cancel-chain-busy-middle",
+      "target": "middle-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Chain Busy Middle"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-chain-busy-middle",
+      "target": "middle-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Chain Busy Middle"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "middle-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Middle Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-middle-to-waiting",
+            "target": "middle-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Middle Waiting"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "middle-waiting",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Middle Waiting On Leaf"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "chain-busy-leaf",
+            "domain": "core",
+            "version": "1.3.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/MiddleToLeafSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gQiAtPiBDIHN1YmZsb3cgZ2lyaXMvY2lraXMgbWFwcGluZydpLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTWlkZGxlVG9MZWFmU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyBzdWJJbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpCiAgICAgICAgewogICAgICAgICAgICBzdWJJbnB1dC50ZXN0SWQgPSBkYXRhLnRlc3RJZDsKICAgICAgICB9CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIk1pZGRsZVRvTGVhZlN1YkZsb3dNYXBwaW5nOiBwcmVwYXJlZCBzdWIgaW5wdXQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBzdWJJbnB1dCB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGJvZHkgPSBjb250ZXh0LkJvZHkgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGR5bmFtaWMgbWVyZ2VkID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiltZXJnZWQ7CgogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgaWYgKGJvZHkgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBib2R5KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0YXJnZXRba3YuS2V5XSA9IGt2LlZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICB0YXJnZXRbImxlYWZDb21wbGV0ZWQiXSA9IHRydWU7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIk1pZGRsZVRvTGVhZlN1YkZsb3dNYXBwaW5nOiBtZXJnZWQgc3ViIG91dHB1dCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG1lcmdlZCB9KTsKICAgIH0KfQo="
+          }
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "chain-entry-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/MiddleEntryMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIG1pZGRsZS13YWl0aW5nIG9uRW50cnkgc2F5YWNpLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTWlkZGxlRW50cnlNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoIm1pZGRsZUVudHJpZXMiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBjdXJyZW50KTsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJtaWRkbGVFbnRyaWVzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJNaWRkbGVFbnRyeU1hcHBpbmc6IG1pZGRsZUVudHJpZXMge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [
+          {
+            "order": 1,
+            "task": {
+              "key": "chain-exit-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/MiddleExitMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIG1pZGRsZS13YWl0aW5nIG9uRXhpdCBzYXlhY2kuCi8vLyA8cGFyYT4KLy8vIERFTFRBLU9OTFk6IHlhbG5pemNhIHNhaGliaSBvbGR1Z3Ugc2F5YWNpIGRvbmR1cnVyLiBGdWxsLWVjaG8geWFwc2F5ZGksIGVzemFtYW5saQovLy8geWF6aWNpbGFyaW4gdGF6ZSBkZWdlcmxlcmluaSBiYXlhdCBzbmFwc2hvdCBkZWdlcml5bGUgZXplcmRpOyBtZXJnZSB6YXRlbiBoZWFkJ2kga29ydXIuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBNaWRkbGVFeGl0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGluc3QgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgY3VycmVudCA9IDA7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJtaWRkbGVFeGl0cyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbIm1pZGRsZUV4aXRzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJNaWRkbGVFeGl0TWFwcGluZzogbWlkZGxlRXhpdHMge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "key": "auto-middle-to-done",
+            "target": "middle-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Middle Done"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "middle-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Middle Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "middle-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Middle Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

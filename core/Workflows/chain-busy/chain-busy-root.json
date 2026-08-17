@@ -1,0 +1,268 @@
+{
+  "key": "chain-busy-root",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.3.0",
+  "tags": [
+    "integration-test",
+    "chain-busy",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Chain Busy Root"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [
+      {
+        "key": "root-shared-mark",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Root Shared Mark ($self)"
+          }
+        ],
+        "availableIn": [
+          "root-waiting"
+        ],
+        "onExecutionTasks": [
+          {
+            "order": 1,
+            "task": {
+              "key": "subflow-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RootSharedMarkMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEEnbmluIEtFTkRJIHNoYXJlZCB0cmFuc2l0aW9uJ2kg4oCUIGFzYWdpIGZvcndhcmQgZWRpbG1lZGVuIEEnZGEgY2FsaXNtYWxpLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUm9vdFNoYXJlZE1hcmtNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoInJvb3RTaGFyZWRNYXJrcyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInJvb3RTaGFyZWRNYXJrcyJdID0gY3VycmVudCArIDE7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiUm9vdFNoYXJlZE1hcmtNYXBwaW5nOiByb290U2hhcmVkTWFya3Mge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      }
+    ],
+    "cancel": {
+      "key": "cancel-chain-busy-root",
+      "target": "root-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Chain Busy Root"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-chain-busy-root",
+      "target": "root-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Chain Busy Root"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "root-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Root Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "chain-entry-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RootInitialEntryMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHJvb3QtaW5pdGlhbCBvbkVudHJ5IHNheWFjaSDigJQgc3RhcnQgdHJhbnNpdGlvbidpbiBiYXNsYW5naWMgc3RhdGUnaW5lIEdJUklQIGdpcm1lZGlnaW5pIG9sY2VyLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUm9vdEluaXRpYWxFbnRyeU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIGN1cnJlbnQgPSAwOwogICAgICAgIGlmIChpbnN0ICE9IG51bGwgJiYgaW5zdC5UcnlHZXRWYWx1ZSgicm9vdEluaXRpYWxFbnRyaWVzIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY3VycmVudCk7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHRhcmdldFsicm9vdEluaXRpYWxFbnRyaWVzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJSb290SW5pdGlhbEVudHJ5TWFwcGluZzogcm9vdEluaXRpYWxFbnRyaWVzIHtjdXJyZW50fSAtPiB7Y3VycmVudCArIDF9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-root-to-waiting",
+            "target": "root-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Root Waiting"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "root-waiting",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Root Waiting On Middle"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "chain-busy-middle",
+            "domain": "core",
+            "version": "1.3.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/RootToMiddleSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gQSAtPiBCIHN1YmZsb3cgZ2lyaXMvY2lraXMgbWFwcGluZydpLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUm9vdFRvTWlkZGxlU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGE7CiAgICAgICAgZHluYW1pYyBzdWJJbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShkYXRhLCAidGVzdElkIikpCiAgICAgICAgewogICAgICAgICAgICBzdWJJbnB1dC50ZXN0SWQgPSBkYXRhLnRlc3RJZDsKICAgICAgICB9CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlJvb3RUb01pZGRsZVN1YkZsb3dNYXBwaW5nOiBwcmVwYXJlZCBzdWIgaW5wdXQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBzdWJJbnB1dCB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGJvZHkgPSBjb250ZXh0LkJvZHkgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGR5bmFtaWMgbWVyZ2VkID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiltZXJnZWQ7CgogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgaWYgKGJvZHkgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBib2R5KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB0YXJnZXRba3YuS2V5XSA9IGt2LlZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICB0YXJnZXRbIm1pZGRsZUNvbXBsZXRlZCJdID0gdHJ1ZTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigiUm9vdFRvTWlkZGxlU3ViRmxvd01hcHBpbmc6IG1lcmdlZCBzdWIgb3V0cHV0Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbWVyZ2VkIH0pOwogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "chain-entry-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RootEntryMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHJvb3Qtd2FpdGluZyBvbkVudHJ5IHNheWFjaSDigJQgdXBkYXRlRGF0YSBhcnRpcm1hbWFsaSwgJHNlbGYgc2hhcmVkIHRyYW5zaXRpb24gQVJUSVJNQUxJLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUm9vdEVudHJ5TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGluc3QgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgY3VycmVudCA9IDA7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJyb290RW50cmllcyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInJvb3RFbnRyaWVzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJSb290RW50cnlNYXBwaW5nOiByb290RW50cmllcyB7Y3VycmVudH0gLT4ge2N1cnJlbnQgKyAxfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [
+          {
+            "order": 1,
+            "task": {
+              "key": "chain-exit-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RootExitMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHJvb3Qtd2FpdGluZyBvbkV4aXQgc2F5YWNpIOKAlCB1cGRhdGVEYXRhIGFydGlybWFtYWxpLCAkc2VsZiBzaGFyZWQgdHJhbnNpdGlvbiBBUlRJUk1BTEkuCi8vLyA8cGFyYT4KLy8vIERFTFRBLU9OTFk6IHlhbG5pemNhIHNhaGliaSBvbGR1Z3Ugc2F5YWNpIGRvbmR1cnVyLiBGdWxsLWVjaG8geWFwc2F5ZGksIGVzemFtYW5saQovLy8geWF6aWNpbGFyaW4gdGF6ZSBkZWdlcmxlcmluaSBiYXlhdCBzbmFwc2hvdCBkZWdlcml5bGUgZXplcmRpOyBtZXJnZSB6YXRlbiBoZWFkJ2kga29ydXIuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBSb290RXhpdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIGN1cnJlbnQgPSAwOwogICAgICAgIGlmIChpbnN0ICE9IG51bGwgJiYgaW5zdC5UcnlHZXRWYWx1ZSgicm9vdEV4aXRzIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY3VycmVudCk7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHRhcmdldFsicm9vdEV4aXRzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJSb290RXhpdE1hcHBpbmc6IHJvb3RFeGl0cyB7Y3VycmVudH0gLT4ge2N1cnJlbnQgKyAxfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "key": "auto-root-to-done",
+            "target": "root-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Root Done"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "root-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Root Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "root-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Root Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "updateData": {
+      "key": "update-root-data",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Root Data"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "subflow-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/RootUpdateDataMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEEnbmluIHVwZGF0ZURhdGEgc2F5YWNpIChha3RpZiBzdWJmbG93J2RhIGRhdGEtb25seSBjYWxpc2lyKS4KLy8vIDxwYXJhPgovLy8gREVMVEEtT05MWTogeWFsbml6Y2Egc2FoaWJpIG9sZHVndSBzYXlhY2kgZG9uZHVydXIuIEZ1bGwtZWNobyB5YXBzYXlkaSwgZXN6YW1hbmxpCi8vLyB5YXppY2lsYXJpbiB0YXplIGRlZ2VybGVyaW5pIGJheWF0IHNuYXBzaG90IGRlZ2VyaXlsZSBlemVyZGk7IG1lcmdlIHphdGVuIGhlYWQnaSBrb3J1ci4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFJvb3RVcGRhdGVEYXRhTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGluc3QgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgY3VycmVudCA9IDA7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJyb290VXBkYXRlcyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInJvb3RVcGRhdGVzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJSb290VXBkYXRlRGF0YU1hcHBpbmc6IHJvb3RVcGRhdGVzIHtjdXJyZW50fSAtPiB7Y3VycmVudCArIDF9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+          }
+        }
+      ]
+    }
+  }
+}
