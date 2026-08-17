@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
 // loan-product-lov — REST LOV feeding the product dropdown in the application-intake form.
 // Renderer invokes via GET (x-lov). Output is wrapped as { data: [...] } so the renderer's
 // JsonPath $.data[*].code / $.data[*].label resolve cleanly.
-public class GetLoanProductsLovMapping : IMapping
+public class GetLoanProductsLovMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -16,6 +17,11 @@ public class GetLoanProductsLovMapping : IMapping
             var httpTask = task as HttpTask;
             if (httpTask == null)
                 throw new InvalidOperationException("Task must be an HttpTask");
+
+            // Base url is configuration-driven: task definitions ship the API_BASEURL
+            // placeholder so the same component runs against any environment.
+            var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
+            httpTask.SetUrl(httpTask.Url.Replace("API_BASEURL", apiBaseUrl));
 
             httpTask.SetHeaders(new Dictionary<string, string?>
             {

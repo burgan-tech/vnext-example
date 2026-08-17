@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Scripting.Functions;
 
-public class GetSourceAccountsLovMapping : IMapping
+public class GetSourceAccountsLovMapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
@@ -13,6 +14,11 @@ public class GetSourceAccountsLovMapping : IMapping
             var httpTask = task as HttpTask;
             if (httpTask == null)
                 throw new InvalidOperationException("Task must be an HttpTask");
+
+            // Base url is configuration-driven: task definitions ship the API_BASEURL
+            // placeholder so the same component runs against any environment.
+            var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
+            httpTask.SetUrl(httpTask.Url.Replace("API_BASEURL", apiBaseUrl));
 
             httpTask.SetHeaders(new Dictionary<string, string?>
             {

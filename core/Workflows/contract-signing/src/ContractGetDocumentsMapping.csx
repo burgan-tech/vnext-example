@@ -17,7 +17,13 @@ public class ContractGetDocumentsMapping : ScriptBase, IMapping
         string code = context.Instance.Data.contractCode;
         if (http != null)
         {
-            http.SetUrl($"http://localhost:3001/api/contract-signing/contracts/documents?contractCode={code}");
+            // Base url is configuration-driven: the task definition ships the API_BASEURL
+            // placeholder so the same component runs against any environment. Keep the path
+            // from the task config — only the host is substituted here.
+            var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
+            var baseUrl = http.Url.Replace("API_BASEURL", apiBaseUrl);
+            var separator = baseUrl.Contains("?") ? "&" : "?";
+            http.SetUrl($"{baseUrl}{separator}contractCode={code}");
         }
         return Task.FromResult(new ScriptResponse { Data = context.Instance?.Data });
     }

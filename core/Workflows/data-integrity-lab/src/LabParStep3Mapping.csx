@@ -14,6 +14,15 @@ public class LabParStep3Mapping : ScriptBase, IMapping
 {
     public Task<ScriptResponse> InputHandler(WorkflowTask task, ScriptContext context)
     {
+        var httpTask = task as HttpTask;
+        if (httpTask != null)
+        {
+            // Base url is configuration-driven: task definitions ship the API_BASEURL
+            // placeholder so the same component runs against any environment.
+            var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
+            httpTask.SetUrl(httpTask.Url.Replace("API_BASEURL", apiBaseUrl));
+        }
+
         return Task.FromResult(new ScriptResponse());
     }
 

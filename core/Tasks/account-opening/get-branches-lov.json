@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/banking/lov/branches",
+      "url": "API_BASEURL/api/banking/lov/branches",
       "method": "GET",
       "headers": {
         "Accept": "application/json"

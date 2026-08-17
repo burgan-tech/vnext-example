@@ -18,7 +18,7 @@
       "sync": false
     },
     "body": {
-      "key": "17fb8c80-d3ac-4efe-a895-02036c86da09",
+      "key": "c0c21426-ec29-46b8-b14a-2600e6a5eb11",
       "attributes": {
         "session": "aG88rLS",
         "customer": {
@@ -42,14 +42,14 @@
       "queryStrings": {},
       "body": {
         "attributes": {
-          "accountName": "vdsz",
+          "accountName": "vad",
           "currency": "TRY",
           "branchCode": "1001",
-          "initialDeposit": 9000,
-          "accountPurpose": "personal-banking",
+          "initialDeposit": 90000,
+          "accountPurpose": "business-expenses",
           "notifications": {
-            "smsNotifications": true,
             "emailNotifications": true,
+            "smsNotifications": true,
             "pushNotifications": true
           }
         }

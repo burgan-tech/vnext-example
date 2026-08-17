@@ -16,6 +16,11 @@ public class InquireFindeksMapping : ScriptBase, IMapping
         if (httpTask == null)
             throw new InvalidOperationException("Task must be an HttpTask");
 
+        // Base url is configuration-driven: task definitions ship the API_BASEURL
+        // placeholder so the same component runs against any environment.
+        var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
+        httpTask.SetUrl(httpTask.Url.Replace("API_BASEURL", apiBaseUrl));
+
         var data = context.Instance?.Data;
         var customerId = data?.customerId?.ToString() ?? data?.application?.customerId?.ToString();
 

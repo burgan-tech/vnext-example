@@ -8,7 +8,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/payments/beneficiaries/favorites",
+      "url": "API_BASEURL/api/payments/beneficiaries/favorites",
       "method": "GET",
       "headers": {
         "Accept": "application/json"

@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/banking/lookup/branches",
+      "url": "API_BASEURL/api/banking/lookup/branches",
       "method": "GET",
       "headers": {
         "Accept": "application/json"

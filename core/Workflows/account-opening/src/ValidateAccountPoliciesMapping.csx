@@ -19,6 +19,11 @@ public class ValidateAccountPoliciesMapping : ScriptBase, IMapping
                 throw new InvalidOperationException("Task must be an HttpTask for policy validation");
             }
 
+            // Base url is configuration-driven: task definitions ship the API_BASEURL
+            // placeholder so the same component runs against any environment.
+            var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
+            httpTask.SetUrl(httpTask.Url.Replace("API_BASEURL", apiBaseUrl));
+
             // Get user session and account details from workflow context
             var userSession = context.Instance?.Data?.userSession;
             var accountType = context.Instance?.Data?.accountType;

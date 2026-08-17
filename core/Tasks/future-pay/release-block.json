@@ -8,7 +8,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/core/disbursement/release-block",
+      "url": "API_BASEURL/api/core/disbursement/release-block",
       "method": "POST",
       "headers": { "Accept": "application/json", "Content-Type": "application/json" },
       "body": {},

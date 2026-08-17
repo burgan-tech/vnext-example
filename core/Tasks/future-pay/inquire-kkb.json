@@ -8,7 +8,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/core/credit-bureau/inquire-kkb",
+      "url": "API_BASEURL/api/core/credit-bureau/inquire-kkb",
       "method": "POST",
       "headers": { "Accept": "application/json", "Content-Type": "application/json" },
       "body": {},

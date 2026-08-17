@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/test/process",
+      "url": "API_BASEURL/api/test/process",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"

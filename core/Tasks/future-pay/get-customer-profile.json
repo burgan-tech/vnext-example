@@ -8,7 +8,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/core/customer/profile",
+      "url": "API_BASEURL/api/core/customer/profile",
       "method": "GET",
       "headers": { "Accept": "application/json" },
       "timeoutSeconds": 10,

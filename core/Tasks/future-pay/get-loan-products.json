@@ -8,7 +8,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/core/lov/loan-products",
+      "url": "API_BASEURL/api/core/lov/loan-products",
       "method": "GET",
       "headers": { "Accept": "application/json" },
       "timeoutSeconds": 10,

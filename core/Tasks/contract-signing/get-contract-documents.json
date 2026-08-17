@@ -13,7 +13,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/contract-signing/contracts/documents",
+      "url": "API_BASEURL/api/contract-signing/contracts/documents",
       "method": "GET",
       "headers": {
         "Content-Type": "application/json"
