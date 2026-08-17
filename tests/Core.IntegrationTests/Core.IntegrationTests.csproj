@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="VNext.Testing.Sdk" Version="0.0.5" />
+    <PackageReference Include="VNext.Testing.Sdk" Version="0.0.6" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
 

@@ -16,6 +16,50 @@ public class VNextTestEnvironment : VNext.Testing.Sdk.Infrastructure.VNextTestEn
     /// <summary>APP_DOMAIN value passed to vNext containers.</summary>
     protected override string Domain => "core";
 
+    /// <summary>
+    /// Publish this domain's components from local files with the SDK's own publisher.
+    /// <para>
+    /// <b>Caveat for the containerised path.</b> The SDK publisher uploads component JSON verbatim,
+    /// and every HTTP task in this domain points at <c>http://localhost:3001</c> — MockLab's
+    /// published port on a developer machine. That resolves correctly when the runtime also runs on
+    /// the host (<c>VNEXT_BASE_URL</c>), but inside the container stack <c>localhost</c> is the
+    /// runtime container itself, so those tasks fail with a connection error. Flows built only from
+    /// script tasks (chain-busy) are unaffected. Where a mapping overrides the URL it reads
+    /// <c>Example:ApiBaseUrl</c> from configuration instead of hard-coding the host.
+    /// </para>
+    /// </summary>
+    protected override bool EnableDomainPublish => true;
+
+    /// <summary>
+    /// MockLab request collections for this domain. The SDK defaults to a directory inside the
+    /// test project; the real collections live with the docker stack and are shared with local
+    /// development, so point at those rather than keeping a second copy in sync.
+    /// </summary>
+    protected override string MocklabSeedDirectory =>
+        Path.Combine(RepoRoot, "etc", "docker", "config", "seed");
+
+    // NOTE — there is deliberately no OnAfterEnvironmentReadyAsync override and no
+    // VNEXT_IT_SKIP_PUBLISH handling. Publishing is the SDK's job via EnableDomainPublish above, and
+    // it happens inside InitializeAsync BEFORE this hook would run (in the external-stack path the
+    // hook is never called at all). An override that logged "skipping publish" therefore suppressed
+    // nothing while reading as though it did — remove nothing here without checking the SDK's
+    // InitializeAsync first.
+
+    private static string RepoRoot
+    {
+        get
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory is not null)
+            {
+                if (File.Exists(Path.Combine(directory.FullName, "vnext.config.json"))) return directory.FullName;
+                directory = directory.Parent;
+            }
+
+            throw new InvalidOperationException("vnext.config.json not found above " + AppContext.BaseDirectory);
+        }
+    }
+
     /// <summary>PostgreSQL database name created during test setup.</summary>
     protected override string DatabaseName => "vNext_Core_Test";
 

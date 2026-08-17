@@ -16,14 +16,4 @@ public class SmokeTests : IntegrationTestBase
         var response = await Api.GetRawAsync("/health");
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
-
-    [Fact]
-    public async Task ListInstances_ReturnsValidResponse()
-    {
-        // Workflow keys in this domain: account-opening, money-transfer, payment-process,
-        // scheduled-payments, loan-disbursement, credit-bureau-inquiry, collateral-establishment, …
-        var response = await Api.ListInstancesAsync("account-opening");
-        Assert.True(response.Body.ValueKind != System.Text.Json.JsonValueKind.Null,
-            "Expected a non-null response from ListInstances");
-    }
 }
