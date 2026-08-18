@@ -333,7 +333,10 @@ def main():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--nonce", type=int, default=1,
                         help="output mapping kaynagina basilir; her yeni deger SOGUK cache key uretir")
-    parser.add_argument("--version", default="1.0.0", help="workflow component surumu")
+    # 1.0.1: runtime 1.0.0'i zaten tutuyor (ilk publish CS0246 ile derlenmeyen bir mapping
+    # icermisti) ve ayni surumu tekrar publish etmek 409 doner. Disk'teki artefaktlar bu
+    # varsayilanla uretilmistir; `--nonce 1` tek basina yeniden uretilebilir olmali.
+    parser.add_argument("--version", default="1.0.1", help="workflow component surumu")
     parser.add_argument("--filler", type=int, default=60,
                         help="output mapping'e eklenen dolgu uye sayisi = emit maliyeti")
     args = parser.parse_args()
