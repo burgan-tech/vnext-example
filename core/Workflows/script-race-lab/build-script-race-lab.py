@@ -58,11 +58,17 @@ public class AlwaysTrueRule : ScriptBase, IConditionMapping
 
 OUTPUT_MAPPING_HEAD = '''// nonce: __NONCE__
 // UYARI: bu dosya build-script-race-lab.py tarafindan URETILIR. Elle duzenlemeyin.
+//
+// UYARI 2: asagidaki using'ler DERLEMEYE GIRMEZ. CSharpEvaluator.CompileAndLoad,
+// `WithUsings(...)` ile kaynaktaki TUM using'leri ScriptEngine.DefaultUsings + helper
+// namespace'leri ile DEGISTIRIR. Yani burada yalnizca DefaultUsings icindeki namespace'ler
+// gercekten kullanilabilir; `System.Text` ORADA YOK (yalniz System.Text.Json* var), bu yuzden
+// StringBuilder kullanmak CS0246 verir. Yeni bir API kullanacaksan once DefaultUsings'e bak
+// ya da tam nitelikli yaz.
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
@@ -133,16 +139,16 @@ FILLER_TEMPLATE = '''
     /// <summary>Emit maliyetini artiran dolgu (__INDEX__). Cagrilmaz.</summary>
     public static string Filler__INDEX__(IEnumerable<string> source)
     {
-        var builder = new StringBuilder();
+        var parts = new List<string>();
         foreach (var item in source.Where(x => x != null && x.Length % __MOD__ == 0)
                                    .Select(x => $"__INDEX__:{x.ToUpperInvariant()}")
                                    .OrderBy(x => x, StringComparer.Ordinal)
                                    .Take(__TAKE__))
         {
-            builder.Append(item).Append(';');
+            parts.Add(item);
         }
 
-        return builder.ToString();
+        return parts.Count == 0 ? string.Empty : string.Join(";", parts) + ";";
     }
 '''
 
