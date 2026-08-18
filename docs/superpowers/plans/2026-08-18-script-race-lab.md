@@ -701,7 +701,10 @@ Append inside the class, after `Smoke_SingleInstance_CompletesAndCarriesTheHelpe
             $"{faulted.Count}/{ParallelStarts} parents faulted. On a pre-fix runtime this is the " +
             "reproduction — expect Instance:100030 with an inner FileLoadException naming " +
             "'Script_…' and 'Assembly with same name is already loaded'. Faulted instances:" +
-            Environment.NewLine + string.Join(Environment.NewLine, faulted));
+            // Fully qualified: the SDK's IntegrationTestBase<TEnvironment> exposes a protected
+            // `Environment` property that shadows System.Environment, so the bare name binds to
+            // the fixture object and does not compile.
+            System.Environment.NewLine + string.Join(System.Environment.NewLine, faulted));
 
         // Every survivor must also have actually run the mapping — an all-C run where the mapping
         // silently did nothing would prove nothing.
