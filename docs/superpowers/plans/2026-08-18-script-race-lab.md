@@ -935,4 +935,16 @@ git commit -m "docs(script-race-lab): record the pre-fix reproduction and the fi
   declaration has no effect on the path under test and the race becomes impossible.
 - **One cold window per nonce per process.** A second run at the same nonce against the same host
   process proves nothing — the entry is warm. Every measurement in Task 8 gets a fresh nonce.
+- **The nonce is coupled to the component version, and must stay coupled.** `definitions/publish`
+  rejects a re-publish of the same key+version with 409 **even when the content changed**. A nonce
+  bumped without a version bump therefore never reaches the runtime: the old mapping keeps being
+  served and "cold cache" is silently not achieved. The generator's `--version` defaults to
+  `1.0.<nonce>` for exactly this reason — do not pass `--version` in Task 8, and do not decouple the
+  two. (`1.0.0` is burned: the first publish carried a mapping that failed to compile.)
+- **A script's own `using` directives are discarded.** `CSharpEvaluator.CompileAndLoad` calls
+  `WithUsings(...)`, which replaces the source's usings with `ScriptEngine.DefaultUsings` plus the
+  helper namespaces. `System.Text` is **not** in that set — which is why the filler methods build
+  their output with `List<string>` + `string.Join` instead of `StringBuilder`. Anything added to the
+  mapping must resolve under `DefaultUsings`; a plausible-looking `using` in the source will not save
+  it, and the failure surfaces as `CS0246` inside a faulted instance's incident, not at validate time.
 - **Do not add a switch that disables the fix.** The comparison is made by running two runtime builds.

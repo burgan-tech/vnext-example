@@ -333,18 +333,25 @@ def main():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--nonce", type=int, default=1,
                         help="output mapping kaynagina basilir; her yeni deger SOGUK cache key uretir")
-    # 1.0.1: runtime 1.0.0'i zaten tutuyor (ilk publish CS0246 ile derlenmeyen bir mapping
-    # icermisti) ve ayni surumu tekrar publish etmek 409 doner. Disk'teki artefaktlar bu
-    # varsayilanla uretilmistir; `--nonce 1` tek basina yeniden uretilebilir olmali.
-    parser.add_argument("--version", default="1.0.1", help="workflow component surumu")
+    # Surum nonce'a BAGLI (varsayilan 1.0.<nonce>) ve bu bir kolaylik degil, zorunluluk:
+    # `definitions/publish` ayni key+version'i ICERIK DEGISSE DE 409 ile reddeder. Nonce'u
+    # surumu artirmadan bumplarsan yeni kaynak runtime'a HIC ULASMAZ, runtime eski mapping'i
+    # servis etmeye devam eder ve "soguk cache" sessizce saglanmamis olur.
+    #
+    # 1.0.0 kullanilmaz: ilk publish CS0246 ile derlenmeyen bir mapping icermisti ve runtime
+    # o surumu halen tutuyor. Disk'teki artefaktlar nonce=1 -> 1.0.1 ile uretilmistir.
+    parser.add_argument("--version", default=None,
+                        help="workflow component surumu (varsayilan: 1.0.<nonce>)")
     parser.add_argument("--filler", type=int, default=60,
                         help="output mapping'e eklenen dolgu uye sayisi = emit maliyeti")
     args = parser.parse_args()
 
+    version = args.version or "1.0.%d" % args.nonce
+
     written = write_sources(args.nonce, args.filler)
     print("wrote %d csx sources (nonce=%s, filler=%s)" % (len(written), args.nonce, args.filler))
-    build(args.version)
-    print("\nversion: %s — publish child-first, then re-initialize." % args.version)
+    build(version)
+    print("\nversion: %s — publish child-first, then re-initialize." % version)
 
 
 if __name__ == "__main__":
