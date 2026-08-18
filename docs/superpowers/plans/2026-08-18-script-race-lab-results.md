@@ -17,8 +17,9 @@ consequences — one of them silent.
 | A | master (pre-fix) | 1.0.2 / nonce 2 | **cold, incl. the auto-transition rule** | **28/30 stranded `B`** in `race-initial`, 1 `C`, **zero incidents** |
 | B | master (pre-fix) | 1.0.3 / nonce 3 | rule warm, **mapping cold** | **15/30 `F`** with the full signature, 15 `C` |
 | C | master (pre-fix) | 1.0.4 / nonce 4, `--parallel 1` | mapping cold | **1/1 `C`** in 2.9 s — control |
-| D | fix branch | 1.0.1 / nonce 1 | **warm** (smoke test compiled it first) | 156/156 `C` — see caveat below |
-| E | fix branch | pending | cold, 30-way as first touch | **not yet run** |
+| D | fix branch | 1.0.1 / nonce 1 | **warm** (smoke test compiled it first) | 156/156 `C` — proves less than it looks, see below |
+| E | fix branch | 1.0.5 / nonce 5 | **cold, fresh process — same condition as Run A** | **30/30 `C`**, all carrying `raceStamp` |
+| F | fix branch | 1.0.6 / nonce 6 | cold, xUnit test as first touch | **PASS** (17 s) |
 
 ## Run A — the silent failure mode
 
@@ -75,9 +76,29 @@ is process-lifetime, so those runs found a warm entry and never entered the race
 result is real but proves far less than it appears: it shows the fixed runtime handles 30-way
 concurrency on warm scripts, not that it survives a cold one.
 
-Run E is therefore required, and must mirror Run B exactly: a fresh nonce whose **first** touch is the
-30-way load run, with no smoke test in between. Expected outcome: 30/30 `C`, no fault, and — if any
-diagnostic surfaces — assembly names carrying the full cache key rather than 16 characters.
+## Runs E and F — the fix, measured under the condition that broke master
+
+The host was restarted from `fix/script-alc-double-compile-race`, giving a fresh process with an
+empty compile cache, and nonce 5's **first** touch was the 30-way load run — no smoke test in
+between. That is precisely Run A's condition: rule, input mapping and output mapping all cold, 30
+callers arriving together (dispatch spread 1.7 ms, accept window 346 ms).
+
+**Result: 30/30 `C`** in `race-done`, settle 18.8–20.4 s, and all 30 carry the `raceStamp` the output
+mapping writes — so the mapping genuinely ran on every one rather than being skipped. Run A, same
+condition on master, left 28 of 30 stranded.
+
+Run F repeats the measurement through the CI harness at a fresh nonce 6:
+`ScriptRaceLabTests.ParallelStarts_AllComplete_WithoutAnAssemblyLoadFault` passes in 17 s.
+
+Side-by-side, holding `--filler 60` and `--parallel 30` fixed:
+
+| Condition | master (pre-fix) | fix branch |
+|---|---|---|
+| Everything cold, fresh process | 28/30 stranded `B`, no incident (Run A) | **30/30 `C`** (Run E) |
+| Mapping cold, rule warm | 15/30 `F`, `Instance:100030` + `Instance:100023` (Run B) | — |
+| Single start, mapping cold | 1/1 `C` (Run C, control) | — |
+
+The fix holds under the exact condition that reproduced both failure modes.
 
 ## Findings worth carrying back to the runtime repo
 
