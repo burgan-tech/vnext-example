@@ -1,0 +1,17 @@
+{
+  "key": "role-matrix-summary-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "function",
+    "script-task"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

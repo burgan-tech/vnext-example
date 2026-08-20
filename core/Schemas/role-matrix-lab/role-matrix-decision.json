@@ -1,0 +1,58 @@
+{
+  "key": "role-matrix-decision",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "transition",
+    "input",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:role-matrix-decision",
+      "title": "Role Matrix Decision Input",
+      "description": "Payload for the approve/reject transitions. Carried by a transition that declares roles, so the schema function's per-transition lookup is exercised alongside the role gate.",
+      "type": "object",
+      "required": [
+        "decision"
+      ],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "reject"
+          ],
+          "x-labels": {
+            "tr": "Karar",
+            "en": "Decision"
+          }
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 500,
+          "x-labels": {
+            "tr": "Açıklama",
+            "en": "Comment"
+          }
+        }
+      }
+    },
+    "labels": [
+      {
+        "label": "Rol Matrisi Kararı",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Role Matrix Decision",
+        "language": "en-US"
+      }
+    ]
+  }
+}

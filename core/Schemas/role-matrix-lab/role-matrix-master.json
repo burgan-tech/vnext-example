@@ -1,0 +1,102 @@
+{
+  "key": "role-matrix-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:role-matrix-master",
+      "title": "Role Matrix Lab Master",
+      "description": "Instance data for the role-matrix-lab authorization fixture. Three of the properties carry x-roles so that field-level pruning is observable from the data function alone: an unguarded field, an allowlist field and a deny-bearing field.",
+      "type": "object",
+      "properties": {
+        "caseRef": {
+          "type": "string",
+          "description": "Unguarded. Every caller that passes the queryRoles gate sees this, so its presence proves the read succeeded and only the guarded fields were pruned.",
+          "x-labels": {
+            "tr": "Dosya Referansı",
+            "en": "Case Reference"
+          }
+        },
+        "decisionNote": {
+          "type": "string",
+          "description": "Deny-bearing set. approver and auditor are allowed; maker is explicitly denied. DENY wins, so a caller holding BOTH maker and approver still loses this field.",
+          "x-roles": [
+            {
+              "role": "morph-idm.approver",
+              "grant": "allow"
+            },
+            {
+              "role": "morph-idm.auditor",
+              "grant": "allow"
+            },
+            {
+              "role": "morph-idm.maker",
+              "grant": "deny"
+            }
+          ],
+          "x-labels": {
+            "tr": "Karar Notu",
+            "en": "Decision Note"
+          }
+        },
+        "auditTrail": {
+          "type": "string",
+          "description": "Allowlist set with a single ALLOW: only the auditor sees it. Everyone else — including the approver who may decide the case — is pruned.",
+          "x-roles": [
+            {
+              "role": "morph-idm.auditor",
+              "grant": "allow"
+            }
+          ],
+          "x-labels": {
+            "tr": "Denetim İzi",
+            "en": "Audit Trail"
+          }
+        },
+        "intakeEntries": {
+          "type": "integer",
+          "description": "onEntry counter for the intake state. Unguarded: lifecycle assertions must not depend on the caller's roles.",
+          "default": 0
+        },
+        "reviewEntries": {
+          "type": "integer",
+          "description": "onEntry counter for the review state.",
+          "default": 0
+        },
+        "noteMarks": {
+          "type": "integer",
+          "description": "Increment count of the record-note $self shared transition.",
+          "default": 0
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "reject"
+          ],
+          "description": "The submitted decision, echoed from the approve/reject transition payload."
+        }
+      }
+    },
+    "labels": [
+      {
+        "label": "Rol Matrisi Laboratuvarı (Ana Şema)",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Role Matrix Lab (Master)",
+        "language": "en-US"
+      }
+    ]
+  }
+}

@@ -1,0 +1,558 @@
+{
+  "key": "role-matrix-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "authorization",
+    "roles",
+    "query-roles"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Role Matrix Lab"
+      }
+    ],
+    "functions": [
+      {
+        "key": "role-matrix-summary",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-functions"
+      }
+    ],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "role-matrix-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "queryRoles": [
+      {
+        "role": "morph-idm.maker",
+        "grant": "allow"
+      },
+      {
+        "role": "morph-idm.approver",
+        "grant": "allow"
+      },
+      {
+        "role": "morph-idm.auditor",
+        "grant": "allow"
+      }
+    ],
+    "sharedTransitions": [
+      {
+        "key": "record-note",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Record Note ($self)"
+          }
+        ],
+        "roles": [
+          {
+            "role": "morph-idm.maker",
+            "grant": "allow"
+          },
+          {
+            "role": "morph-idm.approver",
+            "grant": "allow"
+          }
+        ],
+        "availableIn": [
+          "intake",
+          {
+            "state": "review",
+            "roles": [
+              {
+                "role": "morph-idm.approver",
+                "grant": "allow"
+              }
+            ]
+          }
+        ],
+        "onExecutionTasks": [
+          {
+            "order": 1,
+            "task": {
+              "key": "role-matrix-exec-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/RecordNoteMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHJlY29yZC1ub3RlICgkc2VsZiBzaGFyZWQgdHJhbnNpdGlvbikgc2F5YWNpLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUmVjb3JkTm90ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIGN1cnJlbnQgPSAwOwogICAgICAgIGlmIChpbnN0ICE9IG51bGwgJiYgaW5zdC5UcnlHZXRWYWx1ZSgibm90ZU1hcmtzIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY3VycmVudCk7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHRhcmdldFsibm90ZU1hcmtzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJSZWNvcmROb3RlTWFwcGluZzogbm90ZU1hcmtzIHtjdXJyZW50fSAtPiB7Y3VycmVudCArIDF9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          }
+        ]
+      }
+    ],
+    "cancel": {
+      "key": "cancel-role-matrix",
+      "target": "cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Role Matrix Lab"
+        }
+      ],
+      "onExecutionTasks": [],
+      "roles": [
+        {
+          "role": "morph-idm.maker",
+          "grant": "allow"
+        },
+        {
+          "role": "morph-idm.approver",
+          "grant": "allow"
+        }
+      ],
+      "availableIn": [
+        "intake",
+        "review"
+      ]
+    },
+    "updateData": {
+      "key": "update-role-matrix-data",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Role Matrix Data"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "role-matrix-exec-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/UpdateDataMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHVwZGF0ZURhdGEgd2VsbC1rbm93biB0cmFuc2l0aW9uIHNheWFjaS4KLy8vIDxwYXJhPgovLy8gREVMVEEtT05MWTogeWFsbml6Y2Egc2FoaWJpIG9sZHVndSBzYXlhY2kgZG9uZHVydXIuIEZ1bGwtZWNobyB5YXBzYXlkaSwgZXN6YW1hbmxpCi8vLyB5YXppY2lsYXJpbiB0YXplIGRlZ2VybGVyaW5pIGJheWF0IHNuYXBzaG90IGRlZ2VyaXlsZSBlemVyZGk7IG1lcmdlIHphdGVuIGhlYWQnaSBrb3J1ci4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFVwZGF0ZURhdGFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoInVwZGF0ZURhdGFNYXJrcyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInVwZGF0ZURhdGFNYXJrcyJdID0gY3VycmVudCArIDE7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiVXBkYXRlRGF0YU1hcHBpbmc6IHVwZGF0ZURhdGFNYXJrcyB7Y3VycmVudH0gLT4ge2N1cnJlbnQgKyAxfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+          }
+        }
+      ],
+      "roles": [
+        {
+          "role": "morph-idm.maker",
+          "grant": "allow"
+        }
+      ]
+    },
+    "exit": {
+      "key": "exit-role-matrix",
+      "target": "exited",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Exit Role Matrix Lab"
+        }
+      ],
+      "onExecutionTasks": [],
+      "roles": [
+        {
+          "role": "morph-idm.auditor",
+          "grant": "allow"
+        }
+      ],
+      "availableIn": [
+        {
+          "state": "review",
+          "roles": [
+            {
+              "role": "morph-idm.auditor",
+              "grant": "allow"
+            }
+          ]
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-role-matrix",
+      "target": "intake",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Role Matrix Lab"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "role-matrix-exec-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/SeedCaseMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNlZWRzIHRoZSB0aHJlZSBmaWVsZHMgdGhlIG1hc3RlciBzY2hlbWEgZ3VhcmRzIHdpdGggeC1yb2xlcywgb24gdGhlIHN0YXJ0IHRyYW5zaXRpb24uCi8vLyA8cGFyYT4KLy8vIFRoZSBzZWVkaW5nIGhhcyB0byBoYXBwZW4gaGVyZSByYXRoZXIgdGhhbiBmcm9tIHRoZSBzdGFydCBwYXlsb2FkOiBmaWVsZC1sZXZlbCBwcnVuaW5nIGlzIGFwcGxpZWQKLy8vIG9uIHRoZSB3YXkgT1VULCBzbyB0aGUgZml4dHVyZSBuZWVkcyB2YWx1ZXMgdGhhdCBleGlzdCBmb3IgZXZlcnkgY2FsbGVyIGFuZCBkaXNhcHBlYXIgb25seSB3aGVuCi8vLyB0aGUgcmVhZGVyJ3Mgcm9sZXMgc2F5IHNvLiBBIHBheWxvYWQtZHJpdmVuIHNlZWQgd291bGQgbGV0IGEgcHJ1bmVkIHJlYWQgYmUgY29uZnVzZWQgd2l0aCBhCi8vLyBjYWxsZXIgd2hvIHNpbXBseSBuZXZlciBzZW50IHRoZSBmaWVsZC4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNlZWRDYXNlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGluc3RhbmNlRGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgY2FzZVJlZiA9ICJjYXNlLXVua25vd24iOwogICAgICAgIGlmIChpbnN0YW5jZURhdGEgIT0gbnVsbCAmJiBpbnN0YW5jZURhdGEuVHJ5R2V0VmFsdWUoImNhc2VSZWYiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBjYXNlUmVmID0gcmF3LlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwoKICAgICAgICB0YXJnZXRbImNhc2VSZWYiXSA9IGNhc2VSZWY7CiAgICAgICAgdGFyZ2V0WyJkZWNpc2lvbk5vdGUiXSA9ICJzZWVkZWQtZGVjaXNpb24tbm90ZSI7CiAgICAgICAgdGFyZ2V0WyJhdWRpdFRyYWlsIl0gPSAic2VlZGVkLWF1ZGl0LXRyYWlsIjsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJTZWVkQ2FzZU1hcHBpbmc6IGd1YXJkZWQgZmllbGRzIHNlZWRlZCBmb3Ige2Nhc2VSZWZ9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "intake",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Intake"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "role-matrix-entry-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/IntakeEntryMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGludGFrZSBzdGF0ZSdpbmluIG9uRW50cnkgc2F5YWNpLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSW50YWtlRW50cnlNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoImludGFrZUVudHJpZXMiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBjdXJyZW50KTsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJpbnRha2VFbnRyaWVzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJJbnRha2VFbnRyeU1hcHBpbmc6IGludGFrZUVudHJpZXMge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "submit-for-review",
+            "target": "review",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Submit For Review"
+              }
+            ],
+            "onExecutionTasks": [],
+            "roles": [
+              {
+                "role": "morph-idm.maker",
+                "grant": "allow"
+              },
+              {
+                "role": "morph-idm.approver",
+                "grant": "allow"
+              },
+              {
+                "role": "morph-idm.viewer",
+                "grant": "deny"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "review",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Review"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "role-matrix-review-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true
+        },
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "role-matrix-entry-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ReviewEntryMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHJldmlldyBzdGF0ZSdpbmluIG9uRW50cnkgc2F5YWNpLgovLy8gPHBhcmE+Ci8vLyBERUxUQS1PTkxZOiB5YWxuaXpjYSBzYWhpYmkgb2xkdWd1IHNheWFjaSBkb25kdXJ1ci4gRnVsbC1lY2hvIHlhcHNheWRpLCBlc3phbWFubGkKLy8vIHlhemljaWxhcmluIHRhemUgZGVnZXJsZXJpbmkgYmF5YXQgc25hcHNob3QgZGVnZXJpeWxlIGV6ZXJkaTsgbWVyZ2UgemF0ZW4gaGVhZCdpIGtvcnVyLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUmV2aWV3RW50cnlNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaW5zdCA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoInJldmlld0VudHJpZXMiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBjdXJyZW50KTsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJyZXZpZXdFbnRyaWVzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJSZXZpZXdFbnRyeU1hcHBpbmc6IHJldmlld0VudHJpZXMge2N1cnJlbnR9IC0+IHtjdXJyZW50ICsgMX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "approve",
+            "target": "approved",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "role-matrix-exec-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/DecisionMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlY29yZHMgdGhlIHN1Ym1pdHRlZCBkZWNpc2lvbiBvbiB0aGUgYXBwcm92ZSAvIHJlamVjdCB0cmFuc2l0aW9ucy4KLy8vIDxwYXJhPgovLy8gREVMVEEtT05MWTogcmV0dXJucyBvbmx5IHRoZSBrZXlzIGl0IG93bnMuIEEgZnVsbCBlY2hvIHdvdWxkIG92ZXJ3cml0ZSBjb25jdXJyZW50IHdyaXRlcnMnCi8vLyBmcmVzaCB2YWx1ZXMgd2l0aCBhIHN0YWxlIHNuYXBzaG90OyB0aGUgbWVyZ2Uga2VlcHMgdGhlIGhlYWQgYXMgaXQgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBEZWNpc2lvbk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIGRlY2lzaW9uID0gInVua25vd24iOwogICAgICAgIGlmIChib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgiZGVjaXNpb24iLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBkZWNpc2lvbiA9IHJhdy5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbImRlY2lzaW9uIl0gPSBkZWNpc2lvbjsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJEZWNpc2lvbk1hcHBpbmc6IGRlY2lzaW9uIHJlY29yZGVkIGFzIHtkZWNpc2lvbn0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              }
+            ],
+            "roles": [
+              {
+                "role": "morph-idm.approver",
+                "grant": "allow"
+              }
+            ],
+            "schema": {
+              "key": "role-matrix-decision",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            }
+          },
+          {
+            "key": "reject",
+            "target": "rejected",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Reject"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "role-matrix-exec-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/DecisionMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlY29yZHMgdGhlIHN1Ym1pdHRlZCBkZWNpc2lvbiBvbiB0aGUgYXBwcm92ZSAvIHJlamVjdCB0cmFuc2l0aW9ucy4KLy8vIDxwYXJhPgovLy8gREVMVEEtT05MWTogcmV0dXJucyBvbmx5IHRoZSBrZXlzIGl0IG93bnMuIEEgZnVsbCBlY2hvIHdvdWxkIG92ZXJ3cml0ZSBjb25jdXJyZW50IHdyaXRlcnMnCi8vLyBmcmVzaCB2YWx1ZXMgd2l0aCBhIHN0YWxlIHNuYXBzaG90OyB0aGUgbWVyZ2Uga2VlcHMgdGhlIGhlYWQgYXMgaXQgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBEZWNpc2lvbk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIGRlY2lzaW9uID0gInVua25vd24iOwogICAgICAgIGlmIChib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgiZGVjaXNpb24iLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBkZWNpc2lvbiA9IHJhdy5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbImRlY2lzaW9uIl0gPSBkZWNpc2lvbjsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJEZWNpc2lvbk1hcHBpbmc6IGRlY2lzaW9uIHJlY29yZGVkIGFzIHtkZWNpc2lvbn0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              }
+            ],
+            "roles": [
+              {
+                "role": "morph-idm.auditor",
+                "grant": "deny"
+              }
+            ],
+            "schema": {
+              "key": "role-matrix-decision",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            }
+          },
+          {
+            "key": "escalate",
+            "target": "escalated",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Escalate"
+              }
+            ],
+            "onExecutionTasks": [],
+            "roles": [
+              {
+                "role": "$InstanceStarter",
+                "grant": "allow"
+              }
+            ]
+          },
+          {
+            "key": "open-review-note",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Open Review Note"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "morph-idm.approver",
+            "grant": "allow"
+          },
+          {
+            "role": "morph-idm.auditor",
+            "grant": "allow"
+          },
+          {
+            "role": "morph-idm.maker",
+            "grant": "deny"
+          }
+        ]
+      },
+      {
+        "key": "escalated",
+        "stateType": 2,
+        "subType": 4,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Escalated"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "resolve-escalation",
+            "target": "approved",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Resolve Escalation"
+              }
+            ],
+            "onExecutionTasks": [],
+            "roles": [
+              {
+                "role": "morph-idm.auditor",
+                "grant": "allow"
+              }
+            ]
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "morph-idm.auditor",
+            "grant": "allow"
+          }
+        ]
+      },
+      {
+        "key": "approved",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Approved"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "rejected",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Rejected"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "exited",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Exited"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

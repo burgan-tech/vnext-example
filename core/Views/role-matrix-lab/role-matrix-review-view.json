@@ -1,0 +1,63 @@
+{
+  "key": "role-matrix-review-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "review",
+    "pseudo-ui"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:role-matrix-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "İnceleme",
+                  "en": "Review"
+                },
+                "variant": "headlineMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.caseRef.label",
+                        "subtitle": "$instance.caseRef"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.decisionNote.label",
+                        "subtitle": "$instance.decisionNote"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
