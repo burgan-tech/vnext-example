@@ -58,6 +58,12 @@ vnext-template/
 npm test
 ```
 
+### Test Scenarios
+
+See **[TEST-SCENARIOS.md](TEST-SCENARIOS.md)** — the index of every behaviour scenario in this repo:
+which vNext feature set each one covers, why it was added, how to run its integration and load
+tests, and the known coverage gaps. Add a row there in the same commit as any new scenario.
+
 ## ⚙️ Configuration
 
 The `vnext.config.json` file allows you to customize paths and exports:

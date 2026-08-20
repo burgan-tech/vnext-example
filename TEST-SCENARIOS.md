@@ -1,0 +1,134 @@
+# Test Senaryoları — vNext Davranış Kontrol Noktaları
+
+Bu repo, vNext runtime'ında yapılan geliştirmelerin **gerçek etkisini ve geçerliliğini** ölçmek için
+platform ekibi tarafından kullanılır. Unit testler major değişikliklerde yeterli olmadığı için,
+temel süreçlerdeki (pipeline, admission, locking, subflow, instance data, script engine, error
+boundary) davranışlar burada uçtan uca doğrulanır.
+
+Bu dosya **indeks ve geçmiş kaydıdır**: hangi senaryonun neyi denetlediği, neden eklendiği ve nasıl
+çalıştırıldığı buradan görülür. Yeni senaryo eklendiğinde bu tablo **aynı commit'te** güncellenir;
+geçerliliğini yitiren senaryo **silinmez**, `deprecated` işaretlenip sebebi yazılır.
+
+---
+
+## Feature Matrisi
+
+| Senaryo | Test Edilen vNext Feature Seti | Neden Eklendi | Integration Test | Python Test | Durum |
+|---|---|---|---|---|---|
+| **chain-busy** | Accept-time subflow chain reserve · Busy-as-mutex · `$self` shared transition vs `updateData` lifecycle sınırı · start `initial → initial` semantiği · cancel propagasyonu (in-process ↕ distributed) · scheduled transition re-arm | `updateData`-only self-target profil sınırını pinlemek — `target: $self` "hook'ları atla" demek değil (2026-08-17) | `Tests/ChainBusy` (5 sınıf) | `api-tests/chain-busy/chain-busy-behaviour-test.py`, `chain-busy-accept-test.py` | ✅ Aktif |
+| **script-race-lab** | Script engine: paylaşılan `AssemblyLoadContext`'te çift-derleme yarışı · `scripts.helpers` · subflow output mapping · parent kalıcı fault riski | `Script_XXXX already loaded` / `FileLoadException` yarışının fixture'ı; fix'siz runtime'da kaybedenler parent'ı kalıcı fault'lar (2026-08-18) | `Tests/ScriptRaceLab` | `api-tests/script-race-lab/race-load.py` (yük), `publish.py` | ✅ Aktif |
+| **data-integrity-lab** | InstanceData v2: anında persist · lock altında kimlik · sıralı/paralel task yazımları · DataHash dedup (task + updateData) · versiyon satırı bütünlüğü | `feature/busy-as-mutex-locking` + InstanceData v2 geliştirmesini uçtan uca ölçmek (2026-08-13) | `Tests/DataIntegrityLab` | `api-tests/data-integrity-lab/integrity-lab-test.py` | ⚠️ Kısmen kırmızı — `run-parallel` konteynerli ortamda settle olmuyor (120s'te doğrulandı, hang) |
+| **subflow-orchestration** | 3 seviyeli subflow (parent → child → grandchild) · `updateData`'nın auto transition'ı tetiklemesi · aktif subflow'lu parent'ta `updateData` data-only kısa devresi · parent `$self` shared transition · eşzamanlı updateData tutarlılığı | Platformun subflow referans akışı; `feature/busy-as-mutex-locking` F1/F1a/F8 fix'lerinin doğrulaması (2026-04-28) | `Tests/SubflowOrchestration` | `api-tests/subflow-orchestration/updatedata-concurrency-test.py` | ✅ Aktif |
+| **contract-signing** | SubProcess (fire-and-forget) · `$self` auto loop ile N instance spawn · task ile kurulan çok-akışlı zincir (SubFlow korelasyonu **değil**) · instance data üzerinden zincir takibi · start mapping guard'sızlığında fault | Korelasyon yerine **task ile** kurulan akış zincirinin davranışını kapsamak <sup>1</sup> (2026-08-13) | `Tests/ContractSigning` | — | ✅ Aktif |
+| **future-pay** | SubFlow state'leri (auto-complete + açık korelasyon) · parent resume · şema doğrulama (transition + master schema) · transition erişilebilirlik sırası | Kredi kullandırım senaryosu üzerinden çok-akışlı SubFlow davranışı (2026-06-12) | `Tests/FuturePay` | — | ⚠️ Bilinçli kapsam boşluğu — `sign-contract` sonrası collateral subflow + parent resume bacağı domain'de fault'landığı için assert edilmiyor |
+| **money-transfer** | Rule-driven branching (auto transition) · scheduled/timeout timer arm · transition schema reddi · terminal HTTP task sonucunun instance data'ya yazılması | Tek akışlık referans süreç: kural, zamanlayıcı ve HTTP task kombinasyonu (2026-06-12) | `Tests/MoneyTransfer` | — | ✅ Aktif |
+| **account-opening** | Wizard state tipi · çok dallı ürün seçimi · auto gate'lerin geri gönderimi · rol bazlı state function erişimi (`403`) · cancel/exit well-known transition'ları | Template ile gelen ilk referans akış (2025-11-21) | `Tests/AccountOpening` | — | ⚠️ Bilinçli kırmızı — konteynerli ortamda start, `account-type-selection` onEntry task'larında (`notify-state`, `set-or-get-cache`) fault'luyor; testler doğru, boşluğun sinyali olarak kırmızı tutuluyor |
+| **soap-task-test** | `SoapTask` tipi · SOAP mapping (`SendVipSmsMapping.csx`) · başarı/hata rule'ları ile dallanma | SOAP task tipini uçtan uca doğrulamak <sup>1</sup> (2026-08-13) | — (yalnız `.http`) | — | ⚠️ Integration test yok — kapsam açığı |
+| **role-matrix-lab** | Yetkilendirme yüzeylerinin tutarlılığı: root vs state `queryRoles` (state EZER) · `transition.roles` allowlist / blacklist / predefined (`$InstanceStarter`) · `availableIn` rol daraltması (**AND**) · well-known transition'ların (`cancel`/`updateData`/`exit`) configured key + `kind` ile listelenmesi · master şemada `x-roles` alan budaması · `authorize` function'ının üç hedefi (transitionKey / functionKey / queryRoles) · custom function'da rol denetiminin **kaldırılmış** olması | Provider bazlı caller-role çözümü (`default` \| `morph-idm`) + custom function rol gate'inin kaldırılması; rol setinin KAYNAĞI değişirken grant motorunun davranışının değişmediğini pinlemek (2026-08-19, `feature/caller-role-provider`) | `Tests/RoleMatrixLab` (5 sınıf, 59 test) | — (bilinçli: doğruluk senaryosu, eşzamanlılık değil) | 🆕 Yazıldı, henüz koşulmadı |
+
+<sup>1</sup> Gerekçe git geçmişinde kayıtlı değil (commit mesajı `updated`); senaryonun kendi
+içeriğinden çıkarıldı. Doğrusunu bilen varsa bu satırı düzeltsin.
+
+---
+
+## Senaryo Detayları
+
+Her senaryonun ayrıntısı kendi README'sinde / test sınıfının XML özetinde durur. Öne çıkanlar:
+
+### chain-busy
+`chain-busy-root` (A) → `chain-busy-middle` (B) → `chain-busy-leaf` (C). Zincir tamamen auto
+transition ile kurulur; A ve B açık korelasyon boyunca **yapısal olarak** Busy, C `leaf-waiting`'de
+Active. Ata seviyelerin Busy'si bilgi taşımaz — client'ın gördüğü tek sinyal C'dir. Her
+onEntry/onExit/onExecute bir sayaç task'ı çalıştırır; `leaf-waiting`'de asla ateşlenmeyen 30
+dakikalık bir scheduled transition ARMED bırakılır (`executeAtUtc` değişmediyse re-arm olmamış
+demektir). Her şey public API'den doğrulanır, DB erişimi gerekmez.
+
+`ChainBusySharedTransitionTests` ile `ChainBusyUpdateDataTests` **birlikte** sınırı pinler: aynı
+state'lere karşı biri lifecycle'ın koştuğunu, diğeri koşmadığını iddia eder. **Birini diğeri olmadan
+değiştirmek bu sınırı sessizce siler.** Detay: [`tests/Core.IntegrationTests/Tests/ChainBusy/README.md`](tests/Core.IntegrationTests/Tests/ChainBusy/README.md)
+
+### script-race-lab
+Parent `scripts.helpers` bildirir; subflow output mapping'i helper set'inin paylaşılan, singleton
+ömürlü `AssemblyLoadContext`'inde derlenir. Parent ve child tamamen otomatik olduğu için N paralel
+start, aynı emit penceresinde aynı assembly adının N kez derlenmesi demektir. Fix'siz runtime'da
+kaybedenler `FileLoadException` alır ve parent **kalıcı** fault'lanır (`Instance:100030`); fix'li
+runtime'da 30/30 `C` beklenir.
+
+### data-integrity-lab
+Önemli olan state machine değil **veri**: paralel dallar kendi scope'larından yazar, kayıp veya
+mükerrer yazım başarısız transition olarak değil **eksik key** olarak görünür.
+
+### subflow-orchestration
+chain-busy'den farkı: zincir **gate'li**. Parent, yeterli sayıda `updateData` gelene kadar
+`parent-collect`'te bekler. Bu yüzden "updateData akışı İLERLETİR" iddiasının doğrulandığı yer
+burasıdır — kabul edilen updateData veri yazar, state'in auto transition'ları taze veriye karşı
+yeniden değerlendirilir.
+
+---
+
+## Çalıştırma
+
+### Integration testler
+
+Konteynerli ortam (varsayılan) — SDK postgres/redis/vault/dapr/orchestrator/execution/mocklab
+ayağa kaldırır, db-migrator'ı koşturur ve `core/**` bileşenlerini publish eder:
+
+```bash
+dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~ChainBusy"
+```
+
+**Lokalde derlenen runtime'a karşı (geliştirme sırasında doğru olan yol).** Henüz release edilmemiş
+bir geliştirme image üzerinden test edilemez — image eski kodu taşır.
+`tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL`'i aç:
+
+```xml
+<VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>
+```
+
+Öncesinde vNext çalışma alanında altyapı + 4 app ayakta olmalı (orchestration, execution, inbox,
+outbox — hepsi `--launch-profile http` ile), migration varsa db-migrator bir kez koşmalı.
+
+### Python davranış / yük testleri
+
+Senaryonun `api-tests/<senaryo>/` klasöründe dururlar. Çalışan bir runtime'a ihtiyaç duyarlar;
+`--publish` bayrağı bileşenleri publish eder.
+
+```bash
+python3 api-tests/script-race-lab/race-load.py --publish --parallel 30 --timeout 240
+python3 api-tests/data-integrity-lab/integrity-lab-test.py --publish --iterations 6 --threshold 4 --burst 4
+python3 api-tests/subflow-orchestration/updatedata-concurrency-test.py --iterations 20 --threshold 8 --burst 6
+python3 api-tests/chain-busy/chain-busy-behaviour-test.py --publish --iterations 3
+python3 api-tests/chain-busy/chain-busy-behaviour-test.py --list   # case listesi
+```
+
+> Kök [`README.md`](README.md)'de ayrıca **JMeter** tabanlı bir yük testi bölümü var. Buradaki Python
+> scriptleri onun yerine geçmez; senaryoya özel, **davranış doğrulayan** yük/eşzamanlılık
+> testleridir.
+
+---
+
+## Yeni Senaryo Eklerken
+
+1. `core/Workflows/<senaryo>/` altına akışı kur.
+2. `tests/Core.IntegrationTests/Tests/<Senaryo>/` altına integration testi yaz. Test sınıfının XML
+   özetinde **neyi denetlediğini ve neden var olduğunu** yaz — bilinen kırmızıları ve bilinçli
+   kapsam boşluklarını gerekçesiyle birlikte belirt.
+3. Yük/eşzamanlılık ölçülecekse Python scriptini `api-tests/<senaryo>/` altına koy; bağımlılıklar,
+   parametreli çalıştırma komutu, ölçülen metrik ve **başarısızlık eşiği** dokümante edilsin.
+4. Senaryonun kendi `README.md`'sini ekle (ne denetliyor / neden var / akış şeması / nasıl
+   çalıştırılır / başarı kriteri).
+5. **Bu dosyadaki tabloya aynı commit'te satır ekle.** "Test edilen feature seti" kolonunu vNext'in
+   gerçek kavramlarıyla yaz (pipeline step, profil, subflow lifecycle, admission, locking, state
+   function, instance data …) — genel ifade yazma.
+
+---
+
+## Bilinen Kapsam Açıkları
+
+| Açık | Etki | Not |
+|---|---|---|
+| `soap-task-test` için integration test yok | SOAP task davranışı regresyona açık | Yalnız `.http` ile elle doğrulanıyor |
+| `role-matrix-lab` henüz koşulmadı; `morph-idm` provider'ı ile hiç denenmedi | Yeni yetkilendirme yüzeyleri uçtan uca doğrulanmış değil | Aether'a `ICurrentUser.Position` eklendikten sonra `CallerRoleProvider:Provider = "morph-idm"` ile koşulmalı — asıl doğrulama odur |
+| `future-pay` collateral subflow + parent resume bacağı | Bu leg'in resume davranışı assert edilmiyor | Domain'deki fault izole edildiğinde kapatılmalı |
+| `account-opening` konteynerli ortamda kırmızı | Wizard/branch kapsamı fiilen ölçülmüyor | `notify-state` / `set-or-get-cache` onEntry task'ları fault'luyor |
+| `data-integrity-lab` `run-parallel` hang | Paralel task veri bütünlüğü ölçülmüyor | 120s'te settle olmadığı doğrulandı |

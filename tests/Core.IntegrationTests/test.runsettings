@@ -5,10 +5,10 @@
       <!--
         Set VNEXT_BASE_URL to an existing orchestrator URL to skip Testcontainers provisioning
         and run tests against an already-running environment (e.g. in CI).
-        Example: <VNEXT_BASE_URL>http://localhost:5000</VNEXT_BASE_URL>
+        Example: <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>
         When not set, Testcontainers spins up the full Docker stack automatically.
       -->
-      <!-- <VNEXT_BASE_URL>http://localhost:5000</VNEXT_BASE_URL> -->
+      <!-- <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL> -->
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>
