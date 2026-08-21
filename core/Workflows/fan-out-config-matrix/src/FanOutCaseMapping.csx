@@ -62,9 +62,15 @@ public class FanOutCaseMapping : ScriptBase, IFanOutMapping
             //   DOC-SLOW*   -> 200 after 1500ms   (the straggler the timeout cases need)
             // delayMs is a MOCK-level field in MockLab and cannot be expressed on a rule, which is
             // why the straggler is a separate route rather than a rule on the default one.
+            //
+            // The straggler lives under a SIBLING segment (slow-documents/process), not as a suffix
+            // of the fast route (documents/process-slow), because MockLab matches routes by PREFIX:
+            // anything starting with "documents/process" is answered by the fast mock, so the old
+            // suffix route was unreachable and the delay never applied. Do not "tidy" this back
+            // into a suffix — it silently makes every timeout and concurrency assertion vacuous.
             if (documentId.StartsWith("DOC-SLOW", StringComparison.Ordinal))
             {
-                url = url.Replace("/documents/process", "/documents/process-slow");
+                url = url.Replace("/documents/process", "/slow-documents/process");
             }
 
             httpTask.SetUrl(url + "?documentId=" + Uri.EscapeDataString(documentId));

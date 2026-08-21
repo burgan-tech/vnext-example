@@ -9,19 +9,32 @@
 **Run:** 2026-08-21, against the locally built runtime on `localhost:4201` (`VNEXT_BASE_URL` set, so
 no Testcontainers/image stack was involved).
 
-## Result: 17 tests, 12 passed, 5 failed
+## Result: 17 tests, 14 passed, 3 failed
+
+`dotnet test --filter "FullyQualifiedName~FanOut"` overall: **21 tests, 18 passed, 3 failed** —
+`FanOutConfigMatrixTests` 17 (14/3) plus the sibling `FanOutDocumentsTests` 4 (4/0, no regression
+from the mapping change and workflow bump).
 
 | # | Failing test | Category |
 |---|---|---|
+| F1 | `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | **genuine defect** |
 | F1 | `EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode` | **genuine defect** |
 | F2 | `DurableMode_IsRefusedWithAnActionableValidationError` | **genuine defect** |
-| E1 | `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | environment |
-| E1 | `BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut` | environment |
-| E1 | `MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget` | environment |
 
-Both defects have a dedicated failing test. **Going green on F1/F2 means the defect was fixed** — do
-not adjust the assertions to silence them. The three E1 tests are blocked by a broken mock, not by
-the runtime, and their guard says so in the failure message.
+Every failure is now a filed defect with a dedicated test; there are **no remaining environment
+blocks**. **Going green means the defect was fixed** — do not adjust the assertions to silence them.
+
+At the time of writing, a separate agent is fixing F1 and F2 in the runtime, and the four hosts are
+still serving the PRE-fix build, so these three are expected red until the hosts are rebuilt.
+
+### Run history
+
+| Run | Result | What changed |
+|---|---|---|
+| 1 | 16 tests, 0 passed | Workflow was never published (auto transitions need a `rule`; `abort` cannot carry a transition) |
+| 2 | 16 tests, 7 passed, 9 failed | Published. Fault-based observation of a failed join was wrong — see § Corrected test design |
+| 3 | 17 tests, 12 passed, 5 failed | Global `rollback` boundary → `case-failed`. 2 defects + 3 blocked by E1 |
+| 4 | **17 tests, 14 passed, 3 failed** | E1 fixed (prefix-shadowed mock route). `BatchTimeout` and `mdop` now pass **for real**; `ItemTimeout` got past the guard and exposed that F1 is broader than filed |
 
 ### What PASSED — the configurable surface that works
 
@@ -42,6 +55,9 @@ All four join policies on both sides of their verdict, `minSuccess`, and the emp
 | `firstSuccess` — empty batch ⇒ FAIL, same as `quorum(1)` | `{0,0,0}` → `case-failed` |
 | per-item `errorBoundary` `retry` — exhaustion contained to its own item | `{3,2,1}`, both siblings succeeded, → `case-settled` |
 | a failed join still carries its data | `TaskInvocationResult.Failure` is correctly avoided; rows survive |
+| **`batchTimeoutSeconds` fires and raises `summary.timedOut`** | serial `mdop 1` × three 1500ms items vs a 3s deadline → `{3,1,2}`, `timedOut: true`, ≥1 item `FanOut:BatchTimeout` |
+| **`maxDegreeOfParallelism` genuinely bounds concurrency** | same items, same config, ceiling 4 instead of 1 → `{3,3,0}`, `timedOut: false`. The matched pair is the whole proof: only the ceiling differs |
+| **`itemTimeoutSeconds` fires on the right item and does NOT raise `summary.timedOut`** | 1s item deadline / 30s batch → `{3,2,1}`, `timedOut: false`, siblings unaffected. Only the item's error CODE is wrong (F1) |
 
 **The join verdict propagates correctly.** An earlier reading of this run suggested it did not; that
 was a defect in the SCENARIO, not the runtime — see § Corrected test design below. `join.policy` is
@@ -49,64 +65,125 @@ fully load-bearing on flow control.
 
 ---
 
-## F1 — early-stop cancelled items leak a raw exception code instead of `FanOut:ItemCancelled`
+## F1 — an item cancelled WHILE IN FLIGHT leaks a raw exception code instead of its fan-out cause
 
-**Severity: medium.** Public-contract violation; silently breaks author branching.
+**Severity: medium-high.** Public-contract violation affecting **all three** cancellation causes, and
+it can additionally falsify the batch-level `summary.timedOut` flag (see § Amplifier).
+
+> **Scope widened after the MockLab fix (E1).** This was first filed as early-stop-only, because the
+> item- and batch-deadline paths could not be exercised at all while the straggler mock was
+> unreachable. With a working delay both were measured and the same leak is present. All three
+> `FanOut` cancellation codes are affected.
 
 ### Expected
 
-`FanOutErrorCodes.ItemCancelled` (`"FanOut:ItemCancelled"`) is documented as the code for
-"the item was cancelled by the join policy's early stop — `firstSuccess` already succeeded, or `all`
-already failed, and this item was still running", and `docs/domain/fan-out-task.md` § "Error codes
-and branching on partial failure" tells authors to branch on these strings. Every item cancelled by
-early stop should carry it.
+`FanOutErrorCodes` and `docs/domain/fan-out-task.md` § "Error codes and branching on partial failure"
+define these as the task's public contract and tell authors to branch on these strings:
 
-### Actual
+| Cause | Documented code |
+|---|---|
+| item exceeded `itemTimeoutSeconds` | `FanOut:ItemTimeout` |
+| item cut short by `batchTimeoutSeconds` | `FanOut:BatchTimeout` |
+| item cancelled by the join policy's early stop | `FanOut:ItemCancelled` |
 
-Codes are **inconsistent within a single batch**. Items already in flight when the early stop fires
-get the inner task's raw exception name; only an item cancelled before it started gets the
-documented code:
+### Actual — measured on all three paths
+
+The discriminator is **whether the item had already entered the inner task**. An item still queueing
+for a concurrency slot gets the correct code; an item in flight leaks
+`Task:Unknown:{taskKey}:TaskCanceledException`. The leaked string also **embeds the task key**, so it
+is not even stable to match on.
+
+**Item deadline** — `itemTimeoutSeconds 1`, `batchTimeoutSeconds 30`, one 1500ms straggler.
+`fanout-case-item-timeout-task@1.0.0`, instance `275f98d8-dd6a-44b3-b5f6-812f4ab43a2e`.
+**0 of 1 correct:**
 
 ```
-firstSuccess over 5 succeedable items -> case-settled, summary {total 5, succeeded 1, failed 4}
+state=case-settled  summary={"total":3,"failed":1,"timedOut":false,"succeeded":2}
+  DOC-1       isSuccess=True   errorCode=None
+  DOC-SLOW-A  isSuccess=False  errorCode=Task:Unknown:process-document-task:TaskCanceledException
+  DOC-3       isSuccess=True   errorCode=None       <-- DOC-SLOW-A expected FanOut:ItemTimeout
+```
+
+**Batch deadline** — `mdop 1`, `itemTimeoutSeconds 2`, `batchTimeoutSeconds 3`, three 1500ms items.
+`fanout-case-batch-timeout-serial-task@1.1.0`, instance `fea4cebb-1542-461b-bf71-1a1fc2fbb5e8`.
+**1 of 2 correct:**
+
+```
+state=case-settled  summary={"total":3,"failed":2,"timedOut":true,"succeeded":1}
+  DOC-SLOW-A  isSuccess=True   errorCode=None                  (finished at ~1.5s)
+  DOC-SLOW-B  isSuccess=False  errorCode=Task:Unknown:process-document-task:TaskCanceledException
+  DOC-SLOW-C  isSuccess=False  errorCode=FanOut:BatchTimeout    (never started — correct)
+```
+
+**Early stop** — `firstSuccess` over five succeedable items.
+`fanout-case-join-first-success-task@1.0.0`, instance `bccc762f-44bc-4e06-b645-822ca82223b8`.
+**1 of 4 correct:**
+
+```
+state=case-settled  summary={"total":5,"failed":4,"timedOut":false,"succeeded":1}
   DOC-1  isSuccess=True   errorCode=None
   DOC-2  isSuccess=False  errorCode=Task:Unknown:process-document-task:TaskCanceledException
   DOC-3  isSuccess=False  errorCode=Task:Unknown:process-document-task:TaskCanceledException
   DOC-4  isSuccess=False  errorCode=Task:Unknown:process-document-task:TaskCanceledException
-  DOC-5  isSuccess=False  errorCode=FanOut:ItemCancelled
+  DOC-5  isSuccess=False  errorCode=FanOut:ItemCancelled        (never started — correct)
 ```
 
-Note the leaked code also **embeds the task key**, so it is not even a stable string to match on.
+### Amplifier — the leak can silently falsify `summary.timedOut`
+
+`FanOutTaskExecutor` (~line 309) derives the batch flag from the per-item codes:
+
+```csharp
+var timedOut = ordered.Any(result => result.ErrorCode == FanOutErrorCodes.BatchTimeout);
+```
+
+`timedOut` is therefore true only because at least one cut item kept its correct code — above, the
+never-started `DOC-SLOW-C`. **If every batch-cut item is in flight when the deadline fires — the
+common shape once `maxDegreeOfParallelism >= item count` — all of them leak and `summary.timedOut`
+reads `false` for a batch that demonstrably timed out.** A flow branching on `timedOut` takes the
+wrong path with no error surfaced anywhere.
+
+`BatchTimeout_SerialBatch_…` passes today only because `mdop 1` guarantees a never-started item.
+That is not a lucky pass, but it is a narrow one: it would not survive raising `mdop` alone.
 
 ### Reproduction
 
-Component `core/Tasks/fan-out-config-matrix/fanout-case-join-first-success-task.json`
-(`join.policy: firstSuccess`, `maxDegreeOfParallelism: 4`, inner task `process-document-task`).
-
 ```
-POST /api/v1/core/workflows/fan-out-config-matrix/instances/start?sync=false
-  {"testId":"probe","documents":[{"id":"DOC-1"},{"id":"DOC-2"},{"id":"DOC-3"},{"id":"DOC-4"},{"id":"DOC-5"}]}
-PATCH .../instances/{id}/transitions/run-join-first-success?sync=false   {}
-GET   .../instances/{id}                 -> read attributes.caseResults[].errorCode
+POST  /api/v1/core/workflows/fan-out-config-matrix/instances/start?sync=false
+      {"testId":"probe","documents":[{"id":"DOC-1"},{"id":"DOC-SLOW-A"},{"id":"DOC-3"}]}
+      (poll GET .../instances/{id} until metadata.status != "B")
+PATCH .../instances/{id}/transitions/run-item-timeout?sync=false   {}
+      (poll until status != "B")
+GET   .../instances/{id}   -> attributes.caseResults[].errorCode
 ```
 
-Test: `FanOutConfigMatrixTests.EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode`.
-Observed instance `bccc762f-44bc-4e06-b645-822ca82223b8`; a later identical run reported
-`2 of 3 … did not carry 'FanOut:ItemCancelled'` (the exact split varies with which items are
-in flight, the leak does not).
+Swap the transition for `run-batch-timeout-serial` (three `DOC-SLOW-*`) or `run-join-first-success`
+(five `DOC-*`) to hit the other two paths. Requires MockLab's straggler route to be genuinely slow —
+see § E1, now resolved.
+
+Tests: `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` and
+`EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode`. Kept as two tests on purpose:
+they pin different causes, and a fix could plausibly address one without the other.
 
 ### Assessment
 
-`FanOutBatchCancellation.Classify` produces the right code, but it only gets consulted for an item
-whose cancellation is observed by the fan-out layer. An item that had already entered the inner
-`HttpTask` surfaces a `TaskCanceledException`, which the generic task pipeline normalizes into
-`Task:Unknown:{taskKey}:{exceptionName}` **before** the fan-out classifier can attribute it, so the
-fan-out attribution is lost for exactly the items the doc describes ("and this item was still
-running"). The fix is to let the item's settle path re-attribute a cancellation to
-`Classify(...)` when the batch's early-stop / deadline token is the cause, rather than accepting the
-inner task's normalized error verbatim. Relevant code: `FanOutTaskExecutor` lines ~460 and ~632-652
-(`engineResult.Error.Code ?? FanOutErrorCodes.ItemFailed`, and
-`execution.TaskError?.NormalizedError.Code ?? …`) plus `FanOutBatchCancellation.Classify`.
+`FanOutBatchCancellation.Classify` computes the right code — it is simply not consulted for an item
+whose cancellation surfaced from inside the inner task. An in-flight item's `TaskCanceledException`
+is normalized by the generic task pipeline into `Task:Unknown:{taskKey}:{exceptionName}` **before**
+the fan-out layer can attribute it, and the executor then accepts that verbatim:
+
+- `FanOutTaskExecutor` ~line 636: `engineResult.Error.Code ?? FanOutErrorCodes.ItemFailed`
+- `FanOutTaskExecutor` ~line 652: `execution.TaskError?.NormalizedError.Code ?? FanOutErrorCodes.ItemFailed`
+
+Both prefer the inner code whenever it is present. The fix is to consult the batch's cancellation
+state FIRST when the item's failure is a cancellation and let `Classify(item, window)` name the cause,
+falling back to the inner code only for genuine non-cancellation failures. `Classify`'s existing
+precedence (own deadline → batch deadline → early stop → not started) is already correct and needs no
+change. Fixing this also removes the `summary.timedOut` amplifier above for free.
+
+**What is NOT broken:** the timeouts and the early stop themselves all work. The right item fails at
+the right moment, siblings are unaffected, and `summary.timedOut` was correct on both runs above.
+This is purely error attribution — which is why the affected tests assert their sound claims before
+the code, so those stay verified while the defect stands.
 
 ---
 
@@ -218,46 +295,95 @@ dynamic role grants, where definition time is the only place it is visible.
 
 ---
 
-## E1 — ENVIRONMENT: MockLab is not applying `delayMs`
+## E1 — RESOLVED: the straggler mock was shadowed by MockLab's PREFIX route matching
 
-**Not a FanOutTask defect. Blocks three tests and silently degrades an existing load test.**
+**Not a FanOutTask defect. Was a seed-authoring bug in this repo; fixed here.**
 
-`etc/docker/config/seed/fan-out-documents-collection.json` configures the `process-slow` route with
-`"delayMs": 1500`. Measured directly against MockLab:
+### Symptom
+
+`etc/docker/config/seed/fan-out-documents-collection.json` configured the straggler with
+`"delayMs": 1500`, but it answered in 13-46ms — so `itemTimeoutSeconds`, `batchTimeoutSeconds` and
+`maxDegreeOfParallelism` could not be exercised at all, and the `mdop` control arm **passed
+vacuously** on the first run.
+
+### Root cause
+
+**MockLab matches routes by PREFIX, and the slow route was a suffix-extension of the fast one.**
+`mock[0]` was registered at `api/fan-out/documents/process`, so every path starting with that string
+was answered by it — including `api/fan-out/documents/process-slow`. The slow mock was
+**unreachable** and its `delayMs` was never in play. Proof against the live container:
 
 ```
-POST http://localhost:3001/api/fan-out/documents/process-slow?documentId=DOC-SLOW-A
-  attempt 1: 0.046862s  http=200
-  attempt 2: 0.022121s  http=200
-POST http://localhost:3001/api/fan-out/documents/process?documentId=DOC-1   (fast route)
-             0.008272s  http=200
+200  api/fan-out/documents/process-XYZQQ  -> {"pages":3}   <-- nonsense path, still the fast mock
+200  api/fan-out/documents/process-slow   -> {"pages":3}   <-- never reaches the slow mock
+404  api/fan-out/nonexistent              -> correctly absent
 ```
 
-~13-46ms instead of 1500ms. Rules DO work on the same collection (`DOC-FAIL*` correctly returns
-500), so the collection is imported — the delay specifically is not applied. MockLab exposes no
-admin surface to inspect the stored mock (`/__admin/mappings`, `/api/mocks`, `/admin/mocks`,
-`/api/collections` all 404), so whether the field was dropped at import or is unimplemented could
-not be determined from outside.
+So the earlier conclusion "MockLab is not applying delayMs" was wrong: the delayed mock was simply
+never the one answering. (Separately confirmed: no seed file in that directory puts a delay on a
+rule — rule objects carry only `conditionField`, `conditionOperator`, `conditionValue`, `statusCode`,
+`responseBody`, `contentType`, `priority`, `responseHeaders` — so a delayed response does have to be
+its own mock. That part of the earlier note stands.)
 
-### Consequences
+### Fix applied
 
-1. **`itemTimeoutSeconds` and `batchTimeoutSeconds` cannot be exercised at all.** Both are validated
-   as whole seconds `>= 1`, and every mock route answers in ~10ms, so no item can exceed any
-   deadline. `FanOut:ItemTimeout` / `FanOut:BatchTimeout` and `summary.timedOut` remain **unverified
-   end to end**.
-2. **`maxDegreeOfParallelism` cannot be verified either** — with instant items, every ceiling
-   produces the same outcome. This one is the trap: that test PASSED vacuously in the first run.
-   `AssertStragglerRouteIsActuallySlowAsync` now guards all three so a broken mock cannot be
-   mistaken for a passing concurrency proof.
-3. **The sibling scenario's load test is affected too.** `api-tests/fan-out-documents/fanout-load.py`
-   reports a "straggler ratio" built on `DOC-SLOW` ids; with no delay that metric measures jitter.
+The straggler moved to a **sibling segment** that cannot be swallowed:
+`api/fan-out/documents/process-slow` → **`api/fan-out/slow-documents/process`**. Both mappings that
+select it for `DOC-SLOW*` ids were updated, and both workflows bumped (`fan-out-documents` 1.0.1 →
+1.0.2, `fan-out-config-matrix` 1.1.0 → 1.2.0) because a published version is immutable — republishing
+the same version answers 409 and the runtime keeps serving the old embedded `.csx`.
 
-### To unblock
+Verified after recreating the container:
 
-Either fix `delayMs` in MockLab (or re-import the collection if it was dropped at import time —
-per `CLAUDE.md`, MockLab skips collections whose name already exists, so this needs
-`docker compose down -v && docker compose up -d mocklab`), or give the seed a route that is slow by
-another mechanism. Once the straggler is genuinely ~1500ms the three tests should run unchanged.
+```
+api/fan-out/slow-documents/process  -> 200 in 1.735s  {"pages":120,"slow":true}   <-- own body, real delay
+api/fan-out/documents/process       -> 200 in 0.038s  {"pages":3}
+api/fan-out/documents/process?documentId=DOC-FAIL-A -> 500                        <-- rule still works
+```
+
+**A plain `docker restart` is not enough** — MockLab persists mocks in a container-local DB and skips
+collections whose name already exists, so the container must be recreated to re-seed:
+`docker compose up -d --force-recreate mocklab`.
+
+### Guard against recurrence
+
+`AssertStragglerRouteIsActuallySlowAsync` fronts all three straggler-driven tests and now makes two
+checks:
+
+1. **the response BODY carries the slow mock's marker** (`"slow"`) — a non-timing check, and the one
+   that actually catches prefix shadowing;
+2. **elapsed >= 1s** — the floor is the largest `itemTimeoutSeconds` any straggler case configures,
+   not merely "some delay", because a delay below that floor cannot make an item miss its deadline
+   and the case would pass while proving nothing.
+
+The guard stays silent when MockLab is unreachable (the containerised path resolves it on a different
+host). It is deliberately kept even though the bug is fixed: it is what turned a vacuous green into a
+named failure.
+
+### Timeout values, and why
+
+The straggler delay stays **1500ms** — one slow mock reused by all three cases; since
+`itemTimeoutSeconds` must be a whole number `>= 1`, 1500ms is the smallest value that can overshoot
+the minimum deadline.
+
+| Case | mdop | itemTimeout | batchTimeout | Why |
+|---|---|---|---|---|
+| item timeout | 4 | **1s** | 30s | 1500ms overshoots the item deadline by 50%; 28.5s of batch budget left, so `timedOut` must stay false — that is what separates the two codes |
+| batch timeout (serial) | **1** | 2s | **3s** | Each item alone is 1500ms < 2s, so no item deadline can fire and only the batch deadline can cut. Serially: ~1.5s, ~3.0s, ~4.5s — item 3 is unambiguously past the deadline, so the assertion never depends on the borderline item 2 |
+| mdop control arm | **4** | 2s | **3s** | Same items, same everything but the ceiling: three concurrent 1500ms items finish ~1.5s inside a 3s deadline |
+
+`batchTimeoutSeconds` moved 2 → 3 on **both** mdop arms together (hence the task-component bump to
+1.1.0). At 2s the parallel arm had only 500ms of slack for three concurrent HTTP calls plus per-item
+engine overhead — the fragile arm was the *control* arm, the worst place for it. At 3s its slack
+triples while the serial arm's discriminating gap widens (3s deadline vs 4.5s of serial work). They
+must move together or the comparison stops being a concurrency claim.
+
+### Still worth doing
+
+`api-tests/fan-out-documents/fanout-load.py` reports a straggler ratio built on `DOC-SLOW` ids. It
+was measuring jitter for as long as the route was shadowed; with the route fixed and the workflow
+republished it should now measure something real, but the load test has **not been re-run** in this
+pass.
 
 ---
 

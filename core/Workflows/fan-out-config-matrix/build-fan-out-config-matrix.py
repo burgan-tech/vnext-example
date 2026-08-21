@@ -55,7 +55,35 @@ ROOT = Path(__file__).resolve().parent
 #         per-item errorBoundary, empty collection).
 # 1.1.0 — replaced the fault-based failed-join signal with a global abort boundary routing to
 #         `case-failed`; added the CaseSettledRule (auto transitions MUST carry a rule).
-VERSION = "1.1.0"
+# 1.2.0 — DOC-SLOW ids now route to api/fan-out/slow-documents/process (MockLab matches by PREFIX,
+#         so the old .../documents/process-slow was permanently shadowed and never delayed), and
+#         the mdop pair moved to batchTimeoutSeconds 3 — see TASK_VERSIONS below.
+VERSION = "1.2.0"
+
+# Task components whose version has moved past 1.0.0. A published component version is immutable
+# (re-publishing answers 409 and the runtime keeps serving the OLD definition), so any config change
+# needs a bump here AND in the component JSON, or the workflow silently keeps the previous config.
+#
+# 1.1.0 on the mdop pair: batchTimeoutSeconds 2 -> 3, on BOTH arms together.
+#
+#   The straggler is 1500ms and itemTimeoutSeconds must be a whole number >= 1, so 1500ms is the
+#   smallest usable "slow". With a 2s batch deadline the PARALLEL arm had only 500ms of slack for
+#   three concurrent HTTP calls plus per-item engine overhead — the fragile arm was the control arm,
+#   which is the worst place for it. At 3s:
+#
+#     serial (mdop 1):   item1 ~1.5s, item2 ~3.0s (at the deadline), item3 ~4.5s (well past it).
+#                        Each item alone is 1.5s < itemTimeoutSeconds 2, so ONLY the batch deadline
+#                        can cut anything — exactly the separation the two error codes need. The
+#                        assertion needs just one cut item, and item3 is unambiguous, so nothing
+#                        depends on how item2 lands.
+#     parallel (mdop 4): all three concurrent, ~1.5s against a 3s deadline. Slack triples.
+#
+#   Both arms move together on purpose: they must differ ONLY in maxDegreeOfParallelism, or the
+#   comparison stops being a concurrency claim.
+TASK_VERSIONS = {
+    "fanout-case-batch-timeout-serial-task": "1.1.0",
+    "fanout-case-parallel-baseline-task": "1.1.0",
+}
 
 SETTLED_STATE = "case-settled"
 FAILED_STATE = "case-failed"
@@ -77,7 +105,12 @@ def label(text):
 
 
 def task_ref(key):
-    return {"key": key, "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
+    return {
+        "key": key,
+        "domain": "core",
+        "version": TASK_VERSIONS.get(key, "1.0.0"),
+        "flow": "sys-tasks",
+    }
 
 
 # (transition key, state key, fan-out task component key, human label)

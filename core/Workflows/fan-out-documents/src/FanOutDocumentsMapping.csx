@@ -58,9 +58,15 @@ public class FanOutDocumentsMapping : ScriptBase, IFanOutMapping
             // DOC-SLOW ids go to MockLab's delayed route. MockLab can only express delayMs on a
             // MOCK, never on a rule, so a deliberate straggler has to be a different route — and
             // the load test needs one, because a batch's wall clock is set by its slowest item.
+            //
+            // That route is a SIBLING segment (slow-documents/process), not a suffix of the fast one
+            // (documents/process-slow), because MockLab matches routes by PREFIX: every path
+            // starting with "documents/process" is answered by the fast mock. While the straggler
+            // was authored as a suffix it was unreachable, the delay never applied, and this load
+            // test's straggler-ratio metric was measuring nothing but jitter. Do not move it back.
             if (documentId.StartsWith("DOC-SLOW", StringComparison.Ordinal))
             {
-                url = url.Replace("/documents/process", "/documents/process-slow");
+                url = url.Replace("/documents/process", "/slow-documents/process");
             }
 
             httpTask.SetUrl(url + "?documentId=" + Uri.EscapeDataString(documentId));

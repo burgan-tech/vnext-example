@@ -143,8 +143,11 @@ verdict gizlenirdi.
 
 ## Test matrisi ve SONUÇLAR
 
-**17 test · 12 geçti · 5 kaldı** (2026-08-21, lokal runtime `ccfcec01`).
-Kalan 5'in **2'si gerçek runtime defect'i** (bilinçli kırmızı), **3'ü ortam** (MockLab).
+**17 test · 14 geçti · 3 kaldı** (2026-08-22, lokal runtime `ccfcec01`).
+`--filter FanOut` bütünü: **21 test · 18 geçti · 3 kaldı** (kardeş `FanOutDocumentsTests` 4/4).
+
+Kalan 3'ün **tamamı gerçek runtime defect'i** ve bilinçli kırmızı — **ortam engeli kalmadı**.
+İkisi **aynı** defect'in (F1) iki farklı iptal nedenini pinliyor.
 
 | Test | Case transition | Item karışımı | İddia | Sonuç |
 | --- | --- | --- | --- | --- |
@@ -162,24 +165,39 @@ Kalan 5'in **2'si gerçek runtime defect'i** (bilinçli kırmızı), **3'ü orta
 | `PerItemErrorBoundary_Ignore_DoesNotConvertAFailedItemIntoASuccess` | `run-item-boundary-ignore` | 2 başarılı + 1 `DOC-FAIL` | **Karakterizasyon (F3):** wildcard `ignore` başarısız item'ı başarılıya **çevirmiyor** — hâlâ `failed`, hâlâ `all`'ı düşürüyor | ✅ |
 | `EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode` | `run-join-first-success` | 5 başarılabilir | Early-stop ile iptal edilen item'lar `FanOut:ItemCancelled` taşımalı | ❌ **F1 defect** |
 | `DurableMode_IsRefusedWithAnActionableValidationError` | — (doğrudan publish) | — | `durable` reddedilmeli **ve** sebebi actionable olmalı (4xx) | ❌ **F2 defect** |
-| `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | `run-item-timeout` | 2 hızlı + 1 `DOC-SLOW` | `itemTimeoutSeconds 1` / `batchTimeoutSeconds 30`: straggler `FanOut:ItemTimeout` alır, `timedOut` **false** kalır | ⛔ ortam (E1) |
-| `BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut` | `run-batch-timeout-serial` | 3 × `DOC-SLOW` | `mdop 1`, ikisi de 2s: en az bir item `FanOut:BatchTimeout`, `timedOut` **true** | ⛔ ortam (E1) |
-| `MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget` | `run-parallel-baseline` | 3 × `DOC-SLOW` | Üsttekinin **kontrol kolu**: aynı config, aynı item'lar, tek fark `mdop 4` → 3/3 başarılı | ⛔ ortam (E1) |
+| `BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut` | `run-batch-timeout-serial` | 3 × `DOC-SLOW` | `mdop 1`, itemTO 2s / batchTO 3s: en az bir item `FanOut:BatchTimeout`, `timedOut` **true** | ✅ |
+| `MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget` | `run-parallel-baseline` | 3 × `DOC-SLOW` | Üsttekinin **kontrol kolu**: aynı config, aynı item'lar, tek fark `mdop 4` → 3/3 başarılı | ✅ |
+| `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | `run-item-timeout` | 2 hızlı + 1 `DOC-SLOW` | `itemTO 1s` / `batchTO 30s`: doğru item düşer, `timedOut` **false** kalır (**ikisi de doğru**) — ama kod `FanOut:ItemTimeout` olmalı | ❌ **F1 defect** |
 
-**F1** — `firstSuccess` early-stop'ta uçuşta olan item'lar dokümante edilen `FanOut:ItemCancelled`
-yerine `Task:Unknown:process-document-task:TaskCanceledException` taşıyor; hiç başlamamış item ise
-doğru kodu alıyor. **Aynı batch'te iki farklı kod.**
+**F1** — **Uçuşta iptal edilen item kendi fan-out nedenini değil iç task'ın çıplak
+`Task:Unknown:<taskKey>:TaskCanceledException`'ını taşıyor.** Üç iptal nedeninin **hepsinde** var
+(item deadline 0/1 doğru, batch deadline 1/2, early-stop 1/4); ayrım, item'ın iç task'a girmiş olup
+olmaması — hiç başlamamış item doğru kodu alıyor. E1 çözülmeden önce yalnız early-stop ölçülebildiği
+için defect daha dar sanılmıştı.
+
+> **Yükseltici:** `summary.timedOut`, `FanOutTaskExecutor`'da item kodlarından türetiliyor
+> (`Any(ErrorCode == BatchTimeout)`). Batch deadline'ında kesilen **tüm** item'lar uçuştaysa
+> (`mdop >= item sayısı` — sık görülen şekil) hepsi kodu kaçırır ve `timedOut` gerçekten timeout olmuş
+> bir batch için **`false`** okunur. `BatchTimeout_SerialBatch` bugün geçiyor çünkü `mdop 1`
+> hiç-başlamamış bir item garantiliyor.
 
 **F2** — `mode: "durable"` publish'te **reddediliyor** (iyi haber: rezerve mod canlı definition
 olamıyor) ama `400` validation yerine **opak `500`** ile. `FanOutTask.Configure`'ın
 `ArgumentException`'ı component-validation yoluna map edilmemiş.
 
-**E1** — MockLab `delayMs`'i uygulamıyor (1500ms yerine ~13-46ms ölçüldü). `itemTimeoutSeconds`
-tam saniye ve ≥ 1 olduğundan gerçek gecikme olmadan hiçbir item deadline'ını aşamıyor.
+> **E1 (ÇÖZÜLDÜ) — MockLab route'ları PREFIX ile eşliyor.** Yavaş mock `documents/process-slow`
+> adresindeydi ve `documents/process` mock'u tarafından **yutuluyordu** (kanıt: `documents/process-XYZQQ`
+> gibi anlamsız bir path bile hızlı mock'un body'sini döndürüyordu). Yani `delayMs` "uygulanmıyor"
+> değildi — yavaş mock hiç **cevap veren taraf olmuyordu**. Route kardeş bir segmente taşındı:
+> **`api/fan-out/slow-documents/process`** (ölçüm: 1.735s, `pages:120, slow:true`).
+> `docker restart` yetmez, container **recreate** edilmeli (`up -d --force-recreate mocklab`).
 
-> `AssertStragglerRouteIsActuallySlowAsync` guard'ı bu üç testin başında duruyor. **En kritik olduğu
-> yer `mdop` kontrol kolu**: gecikme yokken her item milisaniyede bitiyor, her tavan aynı sonucu
-> veriyor ve o test **boş yere geçiyordu** — ilk koşuda tam olarak bu oldu.
+> `AssertStragglerRouteIsActuallySlowAsync` guard'ı bu üç testin başında **duruyor ve kalıyor**. İki
+> kontrol yapıyor: (1) body'de yavaş mock'un imzası (`"slow"`) — zamana bakmayan, prefix yutulmasını
+> yakalayan kontrol; (2) süre ≥ 1s — eşik, straggler'lı case'lerin en büyük `itemTimeoutSeconds`'ı,
+> "biraz gecikme oldu" değil. **En kritik olduğu yer `mdop` kontrol kolu**: gecikme yokken her item
+> milisaniyede bitiyor, her tavan aynı sonucu veriyor ve o test **boş yere geçiyordu** — ilk koşularda
+> tam olarak bu oldu.
 
 Ayrıntılı kanıt, reprodüksiyon ve severity:
 [`docs/fanout-configurable-surface-findings.md`](../../../../docs/fanout-configurable-surface-findings.md)
@@ -189,20 +207,28 @@ Ayrıntılı kanıt, reprodüksiyon ve severity:
 `mdop` çifti ve timeout case'leri **yalnızca gözlemlenebilir sonuç** üzerinden assert ediliyor:
 hata kodları ve sayılar. Hiçbir testte geçen süre ölçülmüyor.
 
-Tasarımın dayandığı çevresel önkoşul: MockLab'in `process-slow` route'unun **1500ms** gecikmesi,
-batch deadline **2s**. **Bu önkoşul şu anda SAĞLANMIYOR** (bkz. E1) — bu yüzden üç test de
-guard'da patlıyor, assertion'a hiç gelmiyor.
+Tasarımın dayandığı çevresel önkoşul: straggler route'unun **1500ms** gecikmesi. `itemTimeoutSeconds`
+tam saniye ve ≥ 1 olmak zorunda olduğundan 1500ms, minimum deadline'ı aşabilen en küçük değer — bu
+yüzden tek bir yavaş mock üç case'in tamamına hizmet ediyor.
 
-Önkoşul sağlandığında:
+| Case | mdop | itemTO | batchTO | Neden |
+| --- | --- | --- | --- | --- |
+| item timeout | 4 | **1s** | 30s | 1500ms item deadline'ını %50 aşıyor; batch'in 28.5s payı var, yani `timedOut` **false** kalmalı — iki kodu ayıran şey bu |
+| batch timeout (seri) | **1** | 2s | **3s** | Her item tek başına 1500ms < 2s, yani item deadline'ı ateşlenemez; **sadece** batch deadline kesebilir. Seri: ~1.5s, ~3.0s, ~4.5s → 3. item tartışmasız deadline'ın ötesinde, dolayısıyla assertion sınırdaki 2. item'a **bağlı değil** |
+| mdop kontrol kolu | **4** | 2s | **3s** | Aynı item'lar, tek fark tavan: 3 eşzamanlı 1500ms item 3s deadline'ın içinde ~1.5s'de biter |
 
-- **Seri kol** (`mdop 1`) sayıları **sınır** olarak assert ediyor (`failed >= 1`, en az bir
-  `FanOut:BatchTimeout`), tam sayı olarak değil — 2s deadline ateşlendiğinde hangi item'ın uçtuğunu
-  bir sonuç assertion'ının bildiğini varsayması doğru olmazdı.
-- **Paralel kontrol kolu** 3/3 başarılı bekliyor; marjı dar olan (1500ms vs 2000ms) kol bu.
+`batchTimeoutSeconds` **iki kolda birlikte** 2 → 3 yapıldı (task bileşenleri 1.1.0'a bump edildi).
+2s'de paralel kolun payı 3 eşzamanlı HTTP çağrısı + item başına engine yükü için sadece 500ms'ti —
+yani **kırılgan olan kol kontrol koluydu**, en kötü yer. 3s'de payı üçe katlanıyor, seri kolun ayırt
+edici aralığı da genişliyor (3s deadline vs 4.5s seri iş).
 
-> Paralel kol flake ederse **iki kolun** `batchTimeoutSeconds`'ını **birlikte** yükseltin
-> (ve seri kola bir `DOC-SLOW` daha ekleyin). İkisi eşleştirilmiş bir çift; tek farkları
-> `maxDegreeOfParallelism` olmalı, yoksa iddia eşzamanlılık iddiası olmaktan çıkar.
+> İkisi **birlikte** hareket etmeli; tek farkları `maxDegreeOfParallelism` olmalı, yoksa iddia
+> eşzamanlılık iddiası olmaktan çıkar.
+
+- **Seri kol** sayıları **sınır** olarak assert ediyor (`failed >= 1`, en az bir
+  `FanOut:BatchTimeout`), tam sayı olarak değil — deadline ateşlendiğinde hangi item'ın uçtuğunu bir
+  sonuç assertion'ının bildiğini varsayması doğru olmazdı.
+- **Paralel kontrol kolu** 3/3 başarılı bekliyor.
 
 Guard'daki `Stopwatch` sınıftaki **tek** saat ölçümü ve runtime'ı değil **mock'u** ölçüyor:
 fixture'ın önkoşulunun geçerli olduğunu doğruluyor. Runtime davranışına dair hiçbir iddia duvar

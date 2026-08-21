@@ -32,20 +32,27 @@ namespace Core.IntegrationTests.Tests.FanOut;
 /// <c>caseResults</c> / <c>caseResultsSummary</c> are the executor's own <c>BuildDefaultOutput</c>.
 /// </para>
 /// <para>
-/// <b>Known-red tests document filed defects.</b> Two tests here are expected to fail against the
-/// current runtime and are deliberately NOT weakened —
-/// <see cref="EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode"/> (F1) and
-/// <see cref="DurableMode_IsRefusedWithAnActionableValidationError"/> (F2). Both are written up in
+/// <b>Known-red tests document filed defects.</b> Three tests are expected to fail against the
+/// current runtime and are deliberately NOT weakened — two of them for the SAME defect (F1), which
+/// is exactly why they stay separate: they pin two different cancellation causes.
+/// <see cref="ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut"/> and
+/// <see cref="EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode"/> both show that
+/// an item cancelled while IN FLIGHT reports the inner task's raw
+/// <c>Task:Unknown:{taskKey}:TaskCanceledException</c> instead of the fan-out cause;
+/// <see cref="DurableMode_IsRefusedWithAnActionableValidationError"/> is F2. All are written up in
 /// <c>docs/fanout-configurable-surface-findings.md</c>. Going green means the defect was fixed.
 /// </para>
 /// <para>
-/// <b>Environment dependency.</b> The item/batch-timeout and concurrency cases need MockLab's
-/// <c>process-slow</c> route to actually take ~1500ms, because <c>itemTimeoutSeconds</c> is a whole
-/// number of seconds and the fast route answers in ~10ms. MockLab is currently NOT applying its
-/// configured <c>delayMs</c> (measured ~23-46ms), so those three cases cannot be exercised here.
-/// <see cref="AssertStragglerRouteIsActuallySlowAsync"/> guards them so the failure names that
-/// cause instead of surfacing as an unexplained count mismatch — and, importantly, so the
-/// concurrency CONTROL arm cannot pass vacuously.
+/// <b>Environment dependency — and the bug it hid.</b> The item/batch-timeout and concurrency cases
+/// need MockLab's straggler route to genuinely take ~1500ms, because <c>itemTimeoutSeconds</c> is a
+/// whole number of seconds and the fast route answers in ~10ms. That route was originally authored
+/// as <c>documents/process-slow</c> — and MockLab matches routes by PREFIX, so it sat permanently
+/// shadowed behind <c>documents/process</c> and its <c>delayMs</c> never applied. It now lives under
+/// a sibling segment (<c>slow-documents/process</c>).
+/// <see cref="AssertStragglerRouteIsActuallySlowAsync"/> guards all three against a recurrence,
+/// checking the response BODY as well as the elapsed time. It matters most on the concurrency
+/// CONTROL arm, which passed vacuously while the delay was missing — instant items make every
+/// ceiling equivalent.
 /// </para>
 /// </summary>
 public class FanOutConfigMatrixTests : WorkflowTestBase
@@ -61,9 +68,25 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     private const string BatchTimeoutCode = "FanOut:BatchTimeout";
     private const string ItemCancelledCode = "FanOut:ItemCancelled";
 
-    /// <summary>MockLab's deliberately delayed route, and the delay its seed configures.</summary>
-    private const string StragglerUrl = "http://localhost:3001/api/fan-out/documents/process-slow?documentId=DOC-SLOW-PROBE";
+    /// <summary>
+    /// MockLab's deliberately delayed route, the delay its seed configures, and a marker unique to
+    /// that mock's response body.
+    /// <para>
+    /// The route lives under a SIBLING segment (<c>slow-documents/process</c>) rather than as a
+    /// suffix of the fast one (<c>documents/process-slow</c>) because MockLab matches routes by
+    /// PREFIX — see <see cref="AssertStragglerRouteIsActuallySlowAsync"/>.
+    /// </para>
+    /// </summary>
+    private const string StragglerUrl = "http://localhost:3001/api/fan-out/slow-documents/process?documentId=DOC-SLOW-PROBE";
+    private const string StragglerBodyMarker = "\"slow\"";
     private static readonly TimeSpan ConfiguredStragglerDelay = TimeSpan.FromMilliseconds(1500);
+
+    /// <summary>
+    /// The largest <c>itemTimeoutSeconds</c> any straggler-driven case configures. The mock's delay
+    /// must EXCEED this or the item can never blow its deadline and the case is vacuous — which is
+    /// the real floor the guard has to enforce, not merely "some delay was applied".
+    /// </summary>
+    private static readonly TimeSpan StragglerFloor = TimeSpan.FromSeconds(1);
 
     private static readonly TimeSpan CaseBudget = TimeSpan.FromSeconds(90);
 
@@ -236,11 +259,19 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
 
         var straggler = Row(attributes, "DOC-SLOW-A");
         Assert.False(straggler.GetProperty("isSuccess").GetBoolean());
-        Assert.Equal(ItemTimeoutCode, Text(straggler, "errorCode"));
 
+        // Asserted BEFORE the error code on purpose. Everything above and this line is CORRECT
+        // today — the deadline fires, the right item fails, the siblings survive, and the batch flag
+        // stays down. Only the code attribution below is broken (F1), so ordering the sound claims
+        // first keeps them genuinely verified on every run instead of being skipped by the failure.
         Assert.False(Summary(attributes).GetProperty("timedOut").GetBoolean(),
             "summary.timedOut reports the BATCH deadline. An item timeout with 29s of batch budget " +
             "left must not raise it, or a flow cannot tell a slow item from a blown batch.");
+
+        // KNOWN RED — finding F1. Measured: Task:Unknown:process-document-task:TaskCanceledException.
+        // The item DID time out; only its attribution is wrong, because the inner task's
+        // TaskCanceledException is normalized before the fan-out layer can name the cause.
+        Assert.Equal(ItemTimeoutCode, Text(straggler, "errorCode"));
     }
 
     [Fact]
@@ -491,33 +522,45 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     /// </summary>
     private static async Task AssertStragglerRouteIsActuallySlowAsync()
     {
-        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-        var clock = Stopwatch.StartNew();
+        string body;
+        Stopwatch clock;
 
-        try
+        using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
         {
-            using var content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
-            using var response = await client.PostAsync(StragglerUrl, content);
-            if (!response.IsSuccessStatusCode) return;
+            clock = Stopwatch.StartNew();
+            try
+            {
+                using var content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+                using var response = await client.PostAsync(StragglerUrl, content);
+                clock.Stop();
+                if (!response.IsSuccessStatusCode) return;
+                body = await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception)
+            {
+                return; // not reachable from here — nothing to assert
+            }
         }
-        catch (Exception)
-        {
-            return; // not reachable from here — nothing to assert
-        }
 
-        clock.Stop();
+        // Check 1 — is the STRAGGLER mock the one answering? This is the non-timing check, and it is
+        // the one that actually caught the original bug: MockLab matches routes by PREFIX, so while
+        // the slow mock was authored at "documents/process-slow" every request to it was answered by
+        // the "documents/process" mock registered before it. Proof at the time: a nonsense path
+        // "documents/process-XYZQQ" also returned the fast mock's body. The slow mock was
+        // unreachable, so its delayMs never applied and the "straggler" came back in 13-46ms.
+        Assert.Contains(StragglerBodyMarker, body);
 
-        // Half the configured delay is slack enough to absorb scheduling noise while still catching
-        // "the delay is not applied at all", which is what was measured (~23-46ms vs 1500ms).
-        var floor = ConfiguredStragglerDelay / 2;
-
-        Assert.True(clock.Elapsed >= floor,
-            $"ENVIRONMENT: MockLab's straggler route answered in {clock.ElapsedMilliseconds}ms but its " +
-            $"seed configures delayMs={ConfiguredStragglerDelay.TotalMilliseconds:0}. " +
-            "itemTimeoutSeconds is a whole number of seconds >= 1, so without a real delay no item " +
-            "can exceed its deadline and this case cannot be exercised at all. This is not a " +
-            "FanOutTask defect — see the findings doc, § MockLab delayMs. The same broken delay " +
-            "also makes the sibling scenario's load-test straggler ratio meaningless.");
+        // Check 2 — is the delay actually applied? The floor is the largest itemTimeoutSeconds any
+        // straggler case configures, not merely "more than zero": a delay under that floor cannot
+        // make an item miss its deadline, so the case would pass while proving nothing.
+        Assert.True(clock.Elapsed >= StragglerFloor,
+            $"ENVIRONMENT: MockLab's straggler route answered in {clock.ElapsedMilliseconds}ms; its seed " +
+            $"configures delayMs={ConfiguredStragglerDelay.TotalMilliseconds:0} and this case needs more " +
+            $"than {StragglerFloor.TotalMilliseconds:0}ms to mean anything. itemTimeoutSeconds is a whole " +
+            "number of seconds >= 1, so without a real delay no item can exceed its deadline. This is " +
+            "not a FanOutTask defect. Recreate the container so it re-seeds — a plain `docker restart` " +
+            "does NOT (MockLab persists mocks in a container-local DB and skips collections whose name " +
+            "already exists): docker compose up -d --force-recreate mocklab");
     }
 
     // ── readers ──────────────────────────────────────────────────────────────

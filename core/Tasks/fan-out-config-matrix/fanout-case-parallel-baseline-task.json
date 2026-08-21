@@ -1,6 +1,6 @@
 {
   "key": "fanout-case-parallel-baseline-task",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -27,7 +27,7 @@
       "execution": {
         "maxDegreeOfParallelism": 4,
         "itemTimeoutSeconds": 2,
-        "batchTimeoutSeconds": 2
+        "batchTimeoutSeconds": 3
       },
       "join": {
         "policy": "allSettled",

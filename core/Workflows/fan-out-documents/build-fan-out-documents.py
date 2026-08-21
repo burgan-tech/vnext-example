@@ -19,7 +19,11 @@ ROOT = Path(__file__).resolve().parent
 # the runtime keeps serving the OLD embedded scripts, so an edited mapping silently does nothing.
 # 1.0.1 — dropped the redundant IFanOutMapping.OutputHandler (the runtime's default packaging is
 #         what the scenario asserts now) and bracketed the batch with the before/after stamp pair.
-VERSION = "1.0.1"
+# 1.0.2 — DOC-SLOW ids now route to api/fan-out/slow-documents/process. MockLab matches by PREFIX,
+#         so the old api/fan-out/documents/process-slow was permanently shadowed by
+#         api/fan-out/documents/process: the straggler answered in ~15ms, the delay never applied,
+#         and fanout-load.py's straggler-ratio metric was measuring jitter.
+VERSION = "1.0.2"
 
 
 def code(name):

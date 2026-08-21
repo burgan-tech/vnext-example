@@ -1,7 +1,7 @@
 {
   "collection": {
     "name": "fan-out-documents",
-    "description": "Per-document processing endpoints for the fan-out (TaskType 21) scenario. The default route succeeds; document ids starting with DOC-FAIL fail deterministically so the partial-failure leg is exercised without timing games, and ids starting with DOC-SLOW are routed by the mapping to a delayed route so the load test's straggler ratio measures something real instead of jitter.",
+    "description": "Per-document processing endpoints for the fan-out (TaskType 21) scenarios. The default route succeeds; document ids starting with DOC-FAIL fail deterministically so the partial-failure leg is exercised without timing games, and ids starting with DOC-SLOW are routed by the mapping to a DELAYED route so item/batch timeouts and the concurrency ceiling can be exercised at all. NOTE — MockLab matches routes by PREFIX: any path beginning with a registered route is answered by that mock. The slow route therefore must NOT be a suffix-extension of the fast one (a route like 'documents/process-slow' is permanently unreachable behind 'documents/process'), which is why it lives under a sibling segment instead.",
     "color": "#a855f7"
   },
   "folders": [],
@@ -35,13 +35,13 @@
     },
     {
       "httpMethod": "POST",
-      "route": "api/fan-out/documents/process-slow",
+      "route": "api/fan-out/slow-documents/process",
       "queryString": null,
       "requestBody": "",
       "statusCode": 200,
       "responseBody": "{\n  \"documentId\": \"{{request.query.documentId}}\",\n  \"status\": \"processed\",\n  \"pages\": 120,\n  \"slow\": true\n}",
       "contentType": "application/json",
-      "description": "Deliberate straggler. A fan-out batch's wall clock is dominated by its single slowest item, so the load test needs one item that is reliably slow rather than hoping for jitter. delayMs is a mock-level field — it cannot be expressed on a rule — which is why this is a separate route the mapping selects for DOC-SLOW ids.",
+      "description": "Deliberate straggler, selected by the mappings for DOC-SLOW* ids. delayMs is a MOCK-level field — no seed file in this directory has a delay on a rule, and rule objects carry only conditionField/conditionOperator/conditionValue/statusCode/responseBody/contentType/priority/responseHeaders — so a delayed response has to be its own mock. WHY THIS ROUTE IS UNDER 'slow-documents' AND NOT 'documents/process-slow': MockLab matches by PREFIX. While this mock lived at 'api/fan-out/documents/process-slow' every request to it was answered by the 'api/fan-out/documents/process' mock registered above (proven: 'documents/process-XYZQQ' also returns that mock's body), so it was UNREACHABLE and the delay never applied — the straggler answered in 13-46ms and silently made every timeout and concurrency assertion vacuous. Verify after any change to this file that the route returns THIS body (pages 120, slow true) and takes >= 1.4s; 'pages: 3' means the fast mock is still answering. Also note MockLab persists mocks in a container-local DB and skips collections whose name already exists, so a plain 'docker restart' does not re-seed — the container must be recreated (docker compose up -d --force-recreate mocklab).",
       "delayMs": 1500,
       "isActive": true,
       "isSequential": false,
