@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "tags": [
     "integration-test",
     "fan-out-config-matrix",
@@ -27,6 +27,15 @@
     "functions": [],
     "features": [],
     "extensions": [],
+    "errorBoundary": {
+      "onError": [
+        {
+          "action": "rollback",
+          "transition": "to-case-failed",
+          "priority": 999
+        }
+      ]
+    },
     "startTransition": {
       "key": "start-fan-out-config-matrix",
       "target": "matrix-ready",
@@ -217,6 +226,23 @@
                 "label": "Case Settled"
               }
             ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
+              }
+            ],
             "onExecutionTasks": []
           }
         ]
@@ -260,6 +286,23 @@
               {
                 "language": "en-US",
                 "label": "Case Settled"
+              }
+            ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
               }
             ],
             "onExecutionTasks": []
@@ -307,6 +350,23 @@
                 "label": "Case Settled"
               }
             ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
+              }
+            ],
             "onExecutionTasks": []
           }
         ]
@@ -350,6 +410,23 @@
               {
                 "language": "en-US",
                 "label": "Case Settled"
+              }
+            ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
               }
             ],
             "onExecutionTasks": []
@@ -397,6 +474,23 @@
                 "label": "Case Settled"
               }
             ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
+              }
+            ],
             "onExecutionTasks": []
           }
         ]
@@ -440,6 +534,23 @@
               {
                 "language": "en-US",
                 "label": "Case Settled"
+              }
+            ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
               }
             ],
             "onExecutionTasks": []
@@ -487,6 +598,23 @@
                 "label": "Case Settled"
               }
             ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
+              }
+            ],
             "onExecutionTasks": []
           }
         ]
@@ -530,6 +658,23 @@
               {
                 "language": "en-US",
                 "label": "Case Settled"
+              }
+            ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
               }
             ],
             "onExecutionTasks": []
@@ -577,6 +722,23 @@
                 "label": "Case Settled"
               }
             ],
+            "rule": {
+              "location": "./src/CaseSettledRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFVuY29uZGl0aW9uYWwgYXV0by10cmFuc2l0aW9uIGdhdGUgc2hhcmVkIGJ5IGV2ZXJ5IGNhc2Ugc3RhdGU6IG9uY2UgdGhlIGNhc2UncyBmYW4tb3V0IGJhdGNoIGhhcwovLy8gcnVuLCBtb3ZlIHRvIDxjPmNhc2Utc2V0dGxlZDwvYz4uCi8vLyA8cGFyYT4KLy8vIDxiPldoeSBpdCByZXR1cm5zIGEgYmFyZSA8Yz50cnVlPC9jPiwgYW5kIHdoeSB0aGF0IGlzIG5vdCBsYXppbmVzcy48L2I+IEVhY2ggY2FzZSBzdGF0ZSBob2xkcwovLy8gZXhhY3RseSBPTkUgb25FbnRyeSB0YXNrIOKAlCB0aGF0IGNhc2UncyBmYW4tb3V0IGJhdGNoIOKAlCBhbmQgdGhlIHdvcmtmbG93IGRlY2xhcmVzIG5vIGVycm9yCi8vLyBib3VuZGFyeSBhdCBhbnkgbGV2ZWwuIFNvIGEgZmFpbGVkIGpvaW4gZmFpbHMgdGhlIHRhc2ssIGZhaWxzIHRoZSB0cmFuc2l0aW9uLCBhbmQgZmF1bHRzIHRoZQovLy8gaW5zdGFuY2U7IGF1dG9tYXRpYyB0cmFuc2l0aW9ucyAoPGM+UnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwPC9jPiwgb3JkZXIgOTApIGFyZSBuZXZlcgovLy8gZXZhbHVhdGVkIGF0IGFsbC4gUmVhY2hpbmcgdGhpcyBydWxlIHRoZXJlZm9yZSBhbHJlYWR5IG1lYW5zIHRoZSBqb2luIHN1Y2NlZWRlZCwgYW5kIHRoZXJlIGlzCi8vLyBub3RoaW5nIGxlZnQgZm9yIHRoZSBydWxlIHRvIGRlY2lkZS4gUmUtZGVyaXZpbmcgImRpZCB0aGUgYmF0Y2ggc3VjY2VlZD8iIGZyb20gdGhlIHN1bW1hcnkgaGVyZQovLy8gd291bGQgYmUgd29yc2UgdGhhbiByZWR1bmRhbnQ6IGl0IHdvdWxkIGxldCBhIHJ1bGUgYnVnIG1hc2sgYSBqb2luIHZlcmRpY3QsIGFuZCB0aGUgd2hvbGUgdGVzdAovLy8gY2xhc3MgcmVhZHMgdGhlIGpvaW4gdmVyZGljdCBvZmYgd2hpY2ggc3RhdGUgdGhlIGluc3RhbmNlIGxhbmRzIGluLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yj5XaHkgdGhlIHJ1bGUgZXhpc3RzIGF0IGFsbC48L2I+IDxjPldvcmtmbG93VmFsaWRhdG9yPC9jPiByZXF1aXJlcyBFVkVSWSA8Yz50cmlnZ2VyVHlwZTogMTwvYz4KLy8vIHRyYW5zaXRpb24gdG8gY2FycnkgYSBydWxlIOKAlCAiQXV0byB0cmFuc2l0aW9uICfigKYnIG11c3QgaGF2ZSBhIHJ1bGUgZGVmaW5lZC4iIEFuIGVhcmxpZXIgcmV2aXNpb24KLy8vIG9mIHRoaXMgd29ya2Zsb3cgb21pdHRlZCB0aGUgcnVsZSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGEgbG9uZSBhdXRvIHRyYW5zaXRpb24gY291bGQgYmUKLy8vIHVuY29uZGl0aW9uYWwgYnkgb21pc3Npb247IHB1Ymxpc2ggcmVqZWN0ZWQgaXQgd2l0aCA0MDAgZm9yIGFsbCBuaW5lIGNhc2Ugc3RhdGVzLiBVbmNvbmRpdGlvbmFsCi8vLyBtZWFucyAiYSBydWxlIHRoYXQgYWx3YXlzIHJldHVybnMgdHJ1ZSIsIG5vdCAibm8gcnVsZSIuIERvIG5vdCByZW1vdmUgdGhpcyBmaWxlIHRvIHRpZHkgdXAuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIENvbnRyYXN0IHdpdGggdGhlIHNpYmxpbmcgPGM+ZmFuLW91dC1kb2N1bWVudHM8L2M+IGZsb3csIHdob3NlIHR3byBhdXRvIHRyYW5zaXRpb25zCi8vLyAoPGM+QWxsU3VjY2VlZGVkUnVsZTwvYz4gLyA8Yz5QYXJ0aWFsRmFpbHVyZVJ1bGU8L2M+KSBhcmUgYSBnZW51aW5lbHkgY29tcGxlbWVudGFyeSBwYWlyIGJlY2F1c2UKLy8vIHRoYXQgc2NlbmFyaW8gYnJhbmNoZXMgb24gdGhlIGJhdGNoJ3Mgc3VtbWFyeS4gVGhpcyBvbmUgZG9lcyBub3QgYnJhbmNoIOKAlCB0aGUgZmF1bHQgZG9lcyB0aGUKLy8vIGJyYW5jaGluZy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENhc2VTZXR0bGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJDYXNlU2V0dGxlZFJ1bGU6IHVuY29uZGl0aW9uYWwg4oCUIHRoZSBiYXRjaCBhbHJlYWR5IHN1Y2NlZWRlZCB0byBnZXQgaGVyZS4iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-case-failed",
+            "target": "case-failed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Case Failed (join failed)"
+              }
+            ],
             "onExecutionTasks": []
           }
         ]
@@ -590,6 +752,23 @@
           {
             "language": "en-US",
             "label": "Case Settled (join succeeded)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "case-failed",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Case Failed (join failed)"
           }
         ],
         "view": null,

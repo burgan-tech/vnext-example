@@ -100,59 +100,113 @@ başarısız / yavaş) start body'sinden geldiği için **çağıran tarafından
 
 ## Join verdict'i nasıl gözlemleniyor
 
-Case state'inde tek bir onEntry task'ı (batch) ve state'e bağlı **koşulsuz** tek bir auto transition
-var. Akışın **hiçbir seviyesinde errorBoundary tanımlı değil** — bu bilinçli:
+Case state'inde tek bir onEntry task'ı (batch) ve `case-settled`'a giden **koşulsuz** tek bir auto
+transition var; akışta ayrıca `case-failed`'a yönlendiren **tek bir global errorBoundary** bulunuyor:
 
-| Join | Task | Instance |
-| --- | --- | --- |
-| başarılı | başarılı | auto transition ateşlenir → `case-settled` (status `C`) |
-| başarısız | başarısız | boundary yok → **Faulted** (status `F`), case state'inde kalır |
+| Join | Instance |
+| --- | --- |
+| başarılı | auto transition ateşlenir → `case-settled` |
+| başarısız | global boundary (`rollback` → `to-case-failed`) → `case-failed` |
 
-> Akışa state ya da workflow seviyesinde bir `errorBoundary` **eklemeyin**. Başarısız-join
-> case'lerinin tamamı sessizce "başarılı"ya döner ve bu sınıf hiçbir şeyi denetlemez hâle gelir.
+**İki taraf da POZİTİF assert ediliyor.** Bu önemli, çünkü ilk revizyon böyle değildi.
 
-`WorkflowTestBase.WaitForInstanceStateAsync` fault görünce **hızlı patlar** — diğer bütün suite'ler
-için doğru, burada tam tersine yanlış (altı case için fault *beklenen* sonuç). Bu yüzden sınıfın
-kendi `WaitForFaultAsync`'i var; o da ters hatayı yakalıyor: instance `case-settled`'a ulaştıysa
-join başarılı olmuş demektir ve bütçeyi yakıp "timeout" demek yerine bunu adıyla raporluyor.
+> ### Ölçülmüş tuzak — fault'a bakmayın
+>
+> İlk revizyon akışta **hiç** errorBoundary tanımlamıyordu ve başarısız join'i **Faulted instance**
+> olarak gözlemliyordu. Bu **yanlış**: boundary tanımlı değilken başarısız bir onEntry task'ı
+> **hiç işleme alınmıyor** ve koşulsuz auto transition yine ateşleniyor.
+>
+> Kontrol deneyi: `documents`'a array yerine **string** vermek `FanOutItemsResolver`'ı fırlatıyor —
+> yani elde edilebilecek en sert hata, `Result<TaskInvocationResult>.Fail` — ve instance buna rağmen
+> `case-settled`'a ulaştı, `caseResults` hiç yazılmadan. Yani **beş başarısız-join case'i sessizce
+> geçiyordu.**
+>
+> Boundary'nin yokluğu "hata instance'ı fault'lar" değil, "**hata işleme alınmaz**" demek.
+> Bu akışta başarısızlığı asla başarının yokluğundan çıkarmayın.
 
-## Test matrisi
+`action: "abort"` bir transition taşıyamıyor — validator *"Transition must not be specified when
+Action is Abort."* diyor, çünkü transition'sız abort **fault yolunun kendisi**. Transition taşıyan
+aksiyon `rollback`.
 
-| Test | Case transition | Item karışımı | İddia |
-| --- | --- | --- | --- |
-| `JoinAll_EveryItemSucceeds_SettlesWithAFullResultSet` | `run-join-all` | 3 başarılı | `all` tam başarıda geçer; özet `{3,3,0}`, `timedOut` false |
-| `JoinAll_OneItemFails_FailsTheJoinAndFaultsTheInstance` | `run-join-all` | 2 başarılı + 1 `DOC-FAIL` | `all` **atomik**: tek başarısızlık batch'i düşürür → Faulted |
-| `JoinAll_EmptyCollection_SucceedsVacuously` | `run-join-all` | `[]` | Boş batch `all` altında **vacuously başarılı** (yazarlık tuzağı — bilinçli pinlendi) |
-| `JoinAllSettled_EmptyCollection_Succeeds` | `run-join-all-settled` | `[]` | `allSettled` her zaman başarılı; boş batch özel bir durum değil |
-| `JoinQuorum_MinSuccessMet_SettlesEvenThoughItemsFailed` | `run-join-quorum` | 2 başarılı + 2 `DOC-FAIL` | `minSuccess: 2` tutuyor → içinde başarısızlık **olan** batch başarılı |
-| `JoinQuorum_MinSuccessNotMet_FailsTheJoinAndFaultsTheInstance` | `run-join-quorum` | 1 başarılı + 2 `DOC-FAIL` | Eşiğin bir altı → Faulted. Üstteki testten **tek farkı item karışımı**: ikisi de geçse eşik hiç karşılaştırılmıyor demektir |
-| `JoinQuorum_EmptyCollection_FailsBecauseZeroCannotMeetAThreshold` | `run-join-quorum` | `[]` | `all` ile asimetri: quorum'un boş-batch özel durumu yok, 0 başarı eşiği geçemez |
-| `JoinFirstSuccess_OneItemSucceeds_SettlesDespiteTheFailures` | `run-join-first-success` | 1 başarılı + 2 `DOC-FAIL` | Bir başarı yeter |
-| `JoinFirstSuccess_NoItemSucceeds_FailsTheJoinAndFaultsTheInstance` | `run-join-first-success` | 2 `DOC-FAIL` | Hiç başarı yok → Faulted |
-| `JoinFirstSuccess_EmptyCollection_FailsLikeQuorumWithMinSuccessOne` | `run-join-first-success` | `[]` | `firstSuccess` ≡ `quorum(minSuccess=1)`; aynı girdide **asla** ayrışmamalı |
-| `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | `run-item-timeout` | 2 hızlı + 1 `DOC-SLOW` | `itemTimeoutSeconds 1` / `batchTimeoutSeconds 30`: straggler `FanOut:ItemTimeout` alır, özet `timedOut` **false** kalır |
-| `BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut` | `run-batch-timeout-serial` | 3 × `DOC-SLOW` | `mdop 1`, ikisi de 2s: en az bir item `FanOut:BatchTimeout`, `timedOut` **true**; `allSettled` olduğu için task yine başarılı |
-| `MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget` | `run-parallel-baseline` | 3 × `DOC-SLOW` | Üsttekinin **kontrol kolu**: aynı config, aynı item'lar, tek fark `mdop 4` → 3/3 başarılı, `timedOut` false |
-| `PerItemErrorBoundary_Ignore_KeepsAFailingItemFromTakingTheBatchDown` | `run-item-boundary-ignore` | 2 başarılı + 1 `DOC-FAIL` | **Item bazlı boundary'nin en güçlü kanıtı**: `join: all` + wildcard `ignore`. Aynı karışım boundary'siz `all`'da fault ediyor; burada settle etmeli |
-| `PerItemErrorBoundary_Retry_ContainsExhaustionToItsOwnItem` | `run-item-boundary-retry` | 2 başarılı + 1 `DOC-FAIL` | `retry(maxRetries 2)` tükenen item **bir** başarısız satır olur; kardeşleri ve batch'i düşürmez |
-| `DurableMode_IsRefusedRatherThanSilentlyAccepted` | — (doğrudan publish) | — | `mode: "durable"` rezerve; publish reddetmeli |
+Ayrıca aynı yolla öğrenilen iki yazarlık kuralı (builder script'inde de yazılı):
+
+- **Her `triggerType: 1` transition bir `rule` taşımak ZORUNDA.** "Tek başına auto transition, rule'ı
+  her zaman true dönüyorsa geçerlidir" ifadesi *true dönen bir rule* demek, *rule'ın yokluğu* değil.
+  Rule'sız publish 400 + `"Auto transition '…' must have a rule defined."` veriyor — dolayısıyla
+  `src/CaseSettledRule.csx`.
+- **Case transition'ı ateşlemeden önce start transition'ın settle etmesi gerekiyor**, yoksa runtime
+  409 (Busy) dönüyor. `RunCaseAsync` önce non-Busy bekliyor.
+
+`WaitForTerminalAsync` beklenen terminal state'i beklerken **ötekini** görürse anında patlıyor: ikisi
+de terminal olduğu için yanlış olana düşmek bütçeyi yakıp "timeout" olarak raporlanırdı ve gerçek
+verdict gizlenirdi.
+
+## Test matrisi ve SONUÇLAR
+
+**17 test · 12 geçti · 5 kaldı** (2026-08-21, lokal runtime `ccfcec01`).
+Kalan 5'in **2'si gerçek runtime defect'i** (bilinçli kırmızı), **3'ü ortam** (MockLab).
+
+| Test | Case transition | Item karışımı | İddia | Sonuç |
+| --- | --- | --- | --- | --- |
+| `JoinAll_EveryItemSucceeds_SettlesWithAFullResultSet` | `run-join-all` | 3 başarılı | `all` tam başarıda geçer; özet `{3,3,0}`, `timedOut` false | ✅ |
+| `JoinAll_OneItemFails_FailsTheJoin` | `run-join-all` | 2 başarılı + 1 `DOC-FAIL` | `all` **atomik**: tek başarısızlık batch'i düşürür → `case-failed`; **ve sonuç seti yine yazılır** | ✅ |
+| `JoinAll_EmptyCollection_SucceedsVacuously` | `run-join-all` | `[]` | Boş batch `all` altında **vacuously başarılı** (yazarlık tuzağı — bilinçli pinlendi) | ✅ |
+| `JoinAllSettled_EmptyCollection_Succeeds` | `run-join-all-settled` | `[]` | `allSettled` her zaman başarılı; boş batch özel bir durum değil | ✅ |
+| `JoinQuorum_MinSuccessMet_SettlesEvenThoughItemsFailed` | `run-join-quorum` | 2 başarılı + 2 `DOC-FAIL` | `minSuccess: 2` tutuyor → içinde başarısızlık **olan** batch başarılı | ✅ |
+| `JoinQuorum_MinSuccessNotMet_FailsTheJoin` | `run-join-quorum` | 1 başarılı + 2 `DOC-FAIL` | Eşiğin bir altı → `case-failed`. Üstteki testten **tek farkı item karışımı** | ✅ |
+| `JoinQuorum_EmptyCollection_FailsBecauseZeroCannotMeetAThreshold` | `run-join-quorum` | `[]` | `all` ile asimetri: quorum'un boş-batch özel durumu yok, 0 başarı eşiği geçemez | ✅ |
+| `JoinFirstSuccess_OneItemSucceeds_SettlesDespiteTheFailures` | `run-join-first-success` | 1 başarılı + 2 `DOC-FAIL` | Bir başarı yeter | ✅ |
+| `JoinFirstSuccess_NoItemSucceeds_FailsTheJoin` | `run-join-first-success` | 2 `DOC-FAIL` | Hiç başarı yok → `case-failed` | ✅ |
+| `JoinFirstSuccess_EmptyCollection_FailsLikeQuorumWithMinSuccessOne` | `run-join-first-success` | `[]` | `firstSuccess` ≡ `quorum(minSuccess=1)`; aynı girdide **asla** ayrışmamalı | ✅ |
+| `PerItemErrorBoundary_Retry_ContainsExhaustionToItsOwnItem` | `run-item-boundary-retry` | 2 başarılı + 1 `DOC-FAIL` | `retry(maxRetries 2)` tükenen item **bir** başarısız satır olur; kardeşleri ve batch'i düşürmez | ✅ |
+| `PerItemErrorBoundary_Ignore_DoesNotConvertAFailedItemIntoASuccess` | `run-item-boundary-ignore` | 2 başarılı + 1 `DOC-FAIL` | **Karakterizasyon (F3):** wildcard `ignore` başarısız item'ı başarılıya **çevirmiyor** — hâlâ `failed`, hâlâ `all`'ı düşürüyor | ✅ |
+| `EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode` | `run-join-first-success` | 5 başarılabilir | Early-stop ile iptal edilen item'lar `FanOut:ItemCancelled` taşımalı | ❌ **F1 defect** |
+| `DurableMode_IsRefusedWithAnActionableValidationError` | — (doğrudan publish) | — | `durable` reddedilmeli **ve** sebebi actionable olmalı (4xx) | ❌ **F2 defect** |
+| `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | `run-item-timeout` | 2 hızlı + 1 `DOC-SLOW` | `itemTimeoutSeconds 1` / `batchTimeoutSeconds 30`: straggler `FanOut:ItemTimeout` alır, `timedOut` **false** kalır | ⛔ ortam (E1) |
+| `BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut` | `run-batch-timeout-serial` | 3 × `DOC-SLOW` | `mdop 1`, ikisi de 2s: en az bir item `FanOut:BatchTimeout`, `timedOut` **true** | ⛔ ortam (E1) |
+| `MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget` | `run-parallel-baseline` | 3 × `DOC-SLOW` | Üsttekinin **kontrol kolu**: aynı config, aynı item'lar, tek fark `mdop 4` → 3/3 başarılı | ⛔ ortam (E1) |
+
+**F1** — `firstSuccess` early-stop'ta uçuşta olan item'lar dokümante edilen `FanOut:ItemCancelled`
+yerine `Task:Unknown:process-document-task:TaskCanceledException` taşıyor; hiç başlamamış item ise
+doğru kodu alıyor. **Aynı batch'te iki farklı kod.**
+
+**F2** — `mode: "durable"` publish'te **reddediliyor** (iyi haber: rezerve mod canlı definition
+olamıyor) ama `400` validation yerine **opak `500`** ile. `FanOutTask.Configure`'ın
+`ArgumentException`'ı component-validation yoluna map edilmemiş.
+
+**E1** — MockLab `delayMs`'i uygulamıyor (1500ms yerine ~13-46ms ölçüldü). `itemTimeoutSeconds`
+tam saniye ve ≥ 1 olduğundan gerçek gecikme olmadan hiçbir item deadline'ını aşamıyor.
+
+> `AssertStragglerRouteIsActuallySlowAsync` guard'ı bu üç testin başında duruyor. **En kritik olduğu
+> yer `mdop` kontrol kolu**: gecikme yokken her item milisaniyede bitiyor, her tavan aynı sonucu
+> veriyor ve o test **boş yere geçiyordu** — ilk koşuda tam olarak bu oldu.
+
+Ayrıntılı kanıt, reprodüksiyon ve severity:
+[`docs/fanout-configurable-surface-findings.md`](../../../../docs/fanout-configurable-surface-findings.md)
 
 ## Eşzamanlılık ve timeout iddiaları — duvar saati YOK
 
 `mdop` çifti ve timeout case'leri **yalnızca gözlemlenebilir sonuç** üzerinden assert ediliyor:
 hata kodları ve sayılar. Hiçbir testte geçen süre ölçülmüyor.
 
-Tek çevresel hassasiyet: MockLab'in `process-slow` route'u **1500ms** gecikiyor, batch deadline
-**2s**. Marj 500ms.
+Tasarımın dayandığı çevresel önkoşul: MockLab'in `process-slow` route'unun **1500ms** gecikmesi,
+batch deadline **2s**. **Bu önkoşul şu anda SAĞLANMIYOR** (bkz. E1) — bu yüzden üç test de
+guard'da patlıyor, assertion'a hiç gelmiyor.
+
+Önkoşul sağlandığında:
 
 - **Seri kol** (`mdop 1`) sayıları **sınır** olarak assert ediyor (`failed >= 1`, en az bir
   `FanOut:BatchTimeout`), tam sayı olarak değil — 2s deadline ateşlendiğinde hangi item'ın uçtuğunu
   bir sonuç assertion'ının bildiğini varsayması doğru olmazdı.
-- **Paralel kontrol kolu** 3/3 başarılı bekliyor; marjı dar olan kol bu.
+- **Paralel kontrol kolu** 3/3 başarılı bekliyor; marjı dar olan (1500ms vs 2000ms) kol bu.
 
 > Paralel kol flake ederse **iki kolun** `batchTimeoutSeconds`'ını **birlikte** yükseltin
 > (ve seri kola bir `DOC-SLOW` daha ekleyin). İkisi eşleştirilmiş bir çift; tek farkları
 > `maxDegreeOfParallelism` olmalı, yoksa iddia eşzamanlılık iddiası olmaktan çıkar.
+
+Guard'daki `Stopwatch` sınıftaki **tek** saat ölçümü ve runtime'ı değil **mock'u** ölçüyor:
+fixture'ın önkoşulunun geçerli olduğunu doğruluyor. Runtime davranışına dair hiçbir iddia duvar
+saatine dayanmıyor.
 
 ## Neden `mode: durable` bileşeni diskte değil
 

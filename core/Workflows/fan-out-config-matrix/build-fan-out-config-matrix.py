@@ -20,16 +20,26 @@ The item mix (which documents succeed / fail / straggle) comes from instance dat
 IS caller-parameterised. That is the smallest possible set: 1 workflow, N task components,
 1 test class — instead of N near-identical workflows.
 
-Each case state carries ONE unconditional auto transition to the shared `case-settled` finish
-state. That makes the join outcome directly observable without reading task internals:
+Each case state carries ONE unconditional auto transition to `case-settled`, and the workflow
+carries ONE global error boundary that aborts to `case-failed`. The join outcome is therefore
+observable as WHICH TERMINAL STATE the instance reaches — a positive signal on both sides:
 
-  * join SUCCEEDED -> the onEntry task succeeds -> the auto transition fires -> `case-settled` (C)
-  * join FAILED    -> the onEntry task fails -> no error boundary is configured anywhere in this
-                      workflow (deliberately: the fault IS the observable) -> instance Faulted (F),
-                      still sitting in the case state.
+  * join SUCCEEDED -> the onEntry task succeeds -> the auto transition fires -> `case-settled`
+  * join FAILED    -> the onEntry task fails -> the global boundary aborts to the `to-case-failed`
+                      transition -> `case-failed`
 
-Do NOT add a state-level or workflow-level errorBoundary here. It would convert every failed-join
-case into a silent success and half this matrix would stop testing anything.
+WHY NOT "the instance faults"
+-----------------------------
+The first revision of this workflow declared NO error boundary anywhere and treated a Faulted
+instance as the failed-join signal. That was measured and is WRONG: with no boundary configured, a
+failing onEntry task is not acted on at all and the unconditional auto transition fires anyway. A
+control experiment settled it — feeding `documents` a STRING instead of an array makes
+FanOutItemsResolver throw, i.e. a hard `Result<TaskInvocationResult>.Fail`, and the instance still
+reached `case-settled` with no `caseResults` written. Absence of a boundary means "the failure is
+not acted on", not "the failure faults the instance".
+
+So every failed-join case silently passed against the old shape. Both terminal states must be
+POSITIVELY asserted; never infer failure from the absence of success here.
 """
 
 import base64
@@ -43,7 +53,15 @@ ROOT = Path(__file__).resolve().parent
 # the runtime keeps serving the OLD embedded scripts, so an edited mapping silently does nothing.
 # 1.0.0 — initial configurable-surface matrix (join policies, minSuccess, timeouts, mdop,
 #         per-item errorBoundary, empty collection).
-VERSION = "1.0.0"
+# 1.1.0 — replaced the fault-based failed-join signal with a global abort boundary routing to
+#         `case-failed`; added the CaseSettledRule (auto transitions MUST carry a rule).
+VERSION = "1.1.0"
+
+SETTLED_STATE = "case-settled"
+FAILED_STATE = "case-failed"
+# Boundary transition key. The same key lives on every case state — transition keys are scoped to
+# their state, so one global boundary rule can name one key and reach all of them.
+FAIL_TRANSITION = "to-case-failed"
 
 
 def code(name):
@@ -123,9 +141,6 @@ CASES = [
     ),
 ]
 
-SETTLED_STATE = "case-settled"
-
-
 def dispatcher_transitions():
     return [
         {
@@ -155,9 +170,15 @@ def case_state(transition_key, state_key, task_key, text):
             {"order": 1, "task": task_ref(task_key), "mapping": code("FanOutCaseMapping.csx")},
         ],
         "onExits": [],
-        # Unconditional (no `rule`) — a lone auto transition is valid precisely when it always
-        # fires. It only gets the chance if the onEntry batch succeeded, which is the whole point:
-        # reaching `case-settled` == the join succeeded.
+        # Unconditional auto transition. It only gets the CHANCE to run if the onEntry batch
+        # succeeded — a failed join faults the instance before RunAutomaticTransitionsStep (order
+        # 90) is reached — which is the whole point: landing on `case-settled` IS the join verdict.
+        #
+        # The rule is a bare `true`, and it is REQUIRED to be present: WorkflowValidator rejects
+        # any triggerType 1 transition without one ("Auto transition '…' must have a rule
+        # defined."). An earlier revision omitted it, assuming a lone auto transition could be
+        # unconditional by omission, and publish answered 400 for all nine case states.
+        # "Unconditional" means a rule that always returns true, not the absence of a rule.
         "transitions": [
             {
                 "key": f"auto-settled-from-{state_key}",
@@ -165,8 +186,19 @@ def case_state(transition_key, state_key, task_key, text):
                 "triggerType": 1,
                 "versionStrategy": "Patch",
                 "labels": label("Case Settled"),
+                "rule": code("CaseSettledRule.csx"),
                 "onExecutionTasks": [],
-            }
+            },
+            # The global error boundary's abort target. Manual triggerType: the runtime drives it
+            # itself (IsErrorBoundaryTransition, ErrorBoundary profile), no client ever fires it.
+            {
+                "key": FAIL_TRANSITION,
+                "target": FAILED_STATE,
+                "triggerType": 0,
+                "versionStrategy": "Patch",
+                "labels": label("Case Failed (join failed)"),
+                "onExecutionTasks": [],
+            },
         ],
     }
 
@@ -195,7 +227,27 @@ workflow = {
         "functions": [],
         "features": [],
         "extensions": [],
-        # NO errorBoundary — see the module docstring. The fault IS the observable.
+        # ONE global boundary: any task error aborts to `to-case-failed`, which every case state
+        # declares. This is what makes a failed join positively observable as `case-failed` instead
+        # of relying on fault semantics — see the module docstring for the control experiment that
+        # forced this design.
+        #
+        # Wildcard rule (no errorCodes/errorTypes => IsWildcard), so it catches whatever the
+        # fan-out task reports without the test having to know the code in advance.
+        #
+        # Action is `rollback`, NOT `abort`: the validator rejects a transition on an abort rule
+        # ("Transition must not be specified when Action is Abort.") because abort-without-transition
+        # is the fault path. `rollback` is the transition-carrying action, and it maps to
+        # BoundaryOutcomeHandler's "transition set => RequestNextTransition + SkipToFinalize".
+        "errorBoundary": {
+            "onError": [
+                {
+                    "action": "rollback",
+                    "transition": FAIL_TRANSITION,
+                    "priority": 999,
+                }
+            ]
+        },
         "startTransition": {
             "key": "start-fan-out-config-matrix",
             "target": "matrix-ready",
@@ -226,6 +278,18 @@ workflow = {
                 "subType": 1,
                 "versionStrategy": "Major",
                 "labels": label("Case Settled (join succeeded)"),
+                "view": None,
+                "subFlow": None,
+                "onEntries": [],
+                "onExits": [],
+                "transitions": [],
+            },
+            {
+                "key": FAILED_STATE,
+                "stateType": 3,
+                "subType": 2,
+                "versionStrategy": "Major",
+                "labels": label("Case Failed (join failed)"),
                 "view": None,
                 "subFlow": None,
                 "onEntries": [],

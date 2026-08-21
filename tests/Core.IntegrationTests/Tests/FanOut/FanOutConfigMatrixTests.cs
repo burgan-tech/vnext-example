@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using Core.IntegrationTests.Infrastructure;
@@ -11,70 +12,59 @@ namespace Core.IntegrationTests.Tests.FanOut;
 /// (<c>allSettled</c>); nothing before this class exercised what happens when the configuration
 /// changes.
 /// <para>
-/// <b>What this asserts.</b> All four <c>join.policy</c> values on both sides of their verdict;
-/// <c>join.minSuccess</c> met and not met; the empty-collection rule (<c>all</c> / <c>allSettled</c>
-/// succeed vacuously, <c>quorum</c> / <c>firstSuccess</c> fail because a threshold of at least one
-/// cannot be met by zero items); <c>itemTimeoutSeconds</c> and <c>batchTimeoutSeconds</c> producing
-/// DISTINCT error codes and disagreeing about <c>summary.timedOut</c>;
-/// <c>maxDegreeOfParallelism</c> actually bounding concurrency; a per-item <c>errorBoundary</c>
-/// applying per item without taking the batch down; and <c>mode: "durable"</c> being refused.
+/// <b>How a join verdict is observed — and how NOT to.</b> Each case state runs exactly one onEntry
+/// task (that case's batch) and carries an unconditional auto transition to <c>case-settled</c>; the
+/// workflow carries one global <c>rollback</c> error boundary routing to <c>case-failed</c>. So:
+/// join succeeded ⇒ <c>case-settled</c>, join failed ⇒ <c>case-failed</c>. BOTH are asserted
+/// positively.
 /// </para>
 /// <para>
-/// <b>How a join verdict is observed.</b> The flow puts exactly one thing in each case state's
-/// onEntry — that case's fan-out batch — and hangs ONE unconditional auto transition off the
-/// state. So the join's verdict is the instance's fate, with nothing else able to produce it:
-/// </para>
-/// <list type="bullet">
-///   <item>join succeeded ⇒ the onEntry task succeeded ⇒ the auto transition fires ⇒
-///   <c>case-settled</c>.</item>
-///   <item>join failed ⇒ the onEntry task failed ⇒ the workflow declares NO error boundary at any
-///   level ⇒ the instance Faults in the case state.</item>
-/// </list>
-/// <para>
-/// Do not "fix" the workflow by adding an error boundary to stop the faulting. Every failed-join
-/// case here would turn into a silent success and this class would stop testing anything.
+/// The first revision of this class inferred a failed join from the instance FAULTING, with no
+/// boundary declared. That was measured and is wrong: with no boundary configured a failing onEntry
+/// task is not acted on at all and the auto transition fires regardless. The control that settled it
+/// — feeding <c>documents</c> a string instead of an array, which makes <c>FanOutItemsResolver</c>
+/// throw a hard <c>Result.Fail</c> — still reached <c>case-settled</c>. Every failed-join case
+/// silently passed. Never infer failure from the absence of success in this flow.
 /// </para>
 /// <para>
 /// <b>Every shape asserted here is produced by the RUNTIME.</b> <c>FanOutCaseMapping</c> overrides
-/// <c>ItemInputHandler</c> only (an <c>HttpTask</c>'s per-item URL lives on the cloned task and no
-/// other hook can reach it) and deliberately leaves <c>OutputHandler</c> unoverridden, so
-/// <c>caseResults</c> and <c>caseResultsSummary</c> are the executor's own
-/// <c>BuildDefaultOutput</c> packaging.
+/// <c>ItemInputHandler</c> only and deliberately leaves <c>OutputHandler</c> unoverridden, so
+/// <c>caseResults</c> / <c>caseResultsSummary</c> are the executor's own <c>BuildDefaultOutput</c>.
 /// </para>
 /// <para>
-/// <b>No wall-clock assertions.</b> The concurrency and timeout cases assert on error codes and
-/// counts only. The two timeout arms do rely on MockLab's 1500ms straggler route being slower than
-/// a 2s batch deadline; that margin is the one environmental sensitivity in this class and is
-/// documented in the scenario README. If the parallel control arm ever flakes, raise
-/// <c>batchTimeoutSeconds</c> on BOTH arms together — they are a matched pair and differ only in
-/// <c>maxDegreeOfParallelism</c>.
+/// <b>Known-red tests document filed defects.</b> Two tests here are expected to fail against the
+/// current runtime and are deliberately NOT weakened —
+/// <see cref="EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode"/> (F1) and
+/// <see cref="DurableMode_IsRefusedWithAnActionableValidationError"/> (F2). Both are written up in
+/// <c>docs/fanout-configurable-surface-findings.md</c>. Going green means the defect was fixed.
 /// </para>
 /// <para>
-/// <b>What is deliberately NOT asserted.</b> Retry ATTEMPT counts. A per-item retry's attempts are
-/// visible only in the <c>InstanceTask</c> journal row keyed <c>{fanOutTaskKey}#{index}</c>, which
-/// is reachable only through the monitoring host (port 4203) that neither the SDK's container stack
-/// nor the local dev stack starts, and MockLab's sequential-response feature is per-mock rather
-/// than per-item so it cannot express "fail once then succeed" under concurrency. The retry case
-/// therefore asserts the claim that IS observable and load-bearing — retry exhaustion stays
-/// contained to its own item — rather than faking the attempt count.
+/// <b>Environment dependency.</b> The item/batch-timeout and concurrency cases need MockLab's
+/// <c>process-slow</c> route to actually take ~1500ms, because <c>itemTimeoutSeconds</c> is a whole
+/// number of seconds and the fast route answers in ~10ms. MockLab is currently NOT applying its
+/// configured <c>delayMs</c> (measured ~23-46ms), so those three cases cannot be exercised here.
+/// <see cref="AssertStragglerRouteIsActuallySlowAsync"/> guards them so the failure names that
+/// cause instead of surfacing as an unexplained count mismatch — and, importantly, so the
+/// concurrency CONTROL arm cannot pass vacuously.
 /// </para>
 /// </summary>
 public class FanOutConfigMatrixTests : WorkflowTestBase
 {
     private const string Workflow = "fan-out-config-matrix";
     private const string SettledState = "case-settled";
+    private const string FailedState = "case-failed";
     private const string ResultKey = "caseResults";
     private const string SummaryKey = "caseResultsSummary";
 
     // FanOutErrorCodes — the task's PUBLIC contract (BBT.Workflow.Tasks.Executors.FanOutErrorCodes).
-    // Workflow authors branch on these strings, so they are asserted literally.
     private const string ItemTimeoutCode = "FanOut:ItemTimeout";
     private const string BatchTimeoutCode = "FanOut:BatchTimeout";
+    private const string ItemCancelledCode = "FanOut:ItemCancelled";
 
-    /// <summary>
-    /// Generous enough for the serial arm (three 1500ms items behind a concurrency limit of 1) plus
-    /// the async accept, the auto transition and polling slack.
-    /// </summary>
+    /// <summary>MockLab's deliberately delayed route, and the delay its seed configures.</summary>
+    private const string StragglerUrl = "http://localhost:3001/api/fan-out/documents/process-slow?documentId=DOC-SLOW-PROBE";
+    private static readonly TimeSpan ConfiguredStragglerDelay = TimeSpan.FromMilliseconds(1500);
+
     private static readonly TimeSpan CaseBudget = TimeSpan.FromSeconds(90);
 
     public FanOutConfigMatrixTests(VNextTestEnvironment environment) : base(environment) { }
@@ -93,19 +83,23 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     }
 
     [Fact]
-    public async Task JoinAll_OneItemFails_FailsTheJoinAndFaultsTheInstance()
+    public async Task JoinAll_OneItemFails_FailsTheJoin()
     {
         // 'all' is the atomic policy: one failure is the batch's failure. Contrast with
         // FanOutDocumentsTests, where the same item mix under 'allSettled' branches instead.
         var instanceId = await RunCaseAsync("run-join-all", "DOC-1", "DOC-FAIL-A", "DOC-3");
-        await WaitForFaultAsync(instanceId, "join policy 'all' must fail the batch on a failed item");
+        await WaitForFailedAsync(instanceId, "join policy 'all' must fail the batch on a failed item");
+
+        // A failed join still lands its result set: FanOutTaskExecutor deliberately does NOT use
+        // TaskInvocationResult.Failure, precisely so a caller can branch on WHICH items failed.
+        AssertFailedJoinStillCarriedItsData(await GetAttributesAsync(Workflow, instanceId));
     }
 
     [Fact]
     public async Task JoinAll_EmptyCollection_SucceedsVacuously()
     {
-        // Vacuous truth: with no items there is no item that failed. This is a real authoring
-        // hazard — a batch over an empty list silently "succeeds" — so it is pinned deliberately.
+        // Vacuous truth: with no items there is no item that failed. A real authoring hazard — a
+        // batch over an empty list silently "succeeds" — so it is pinned deliberately.
         var instanceId = await RunCaseAsync("run-join-all");
         await WaitForSettledAsync(instanceId);
 
@@ -117,7 +111,6 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     [Fact]
     public async Task JoinAllSettled_EmptyCollection_Succeeds()
     {
-        // allSettled always succeeds; an empty batch is not a special case for it.
         var instanceId = await RunCaseAsync("run-join-all-settled");
         await WaitForSettledAsync(instanceId);
 
@@ -138,12 +131,17 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     }
 
     [Fact]
-    public async Task JoinQuorum_MinSuccessNotMet_FailsTheJoinAndFaultsTheInstance()
+    public async Task JoinQuorum_MinSuccessNotMet_FailsTheJoin()
     {
         // One short of minSuccess = 2. The only difference from the test above is the item mix, so
         // a pair that both passed would prove the threshold is never actually compared.
         var instanceId = await RunCaseAsync("run-join-quorum", "DOC-1", "DOC-FAIL-A", "DOC-FAIL-B");
-        await WaitForFaultAsync(instanceId, "quorum minSuccess=2 was met by only 1 success");
+        await WaitForFailedAsync(instanceId, "quorum minSuccess=2 was met by only 1 success");
+
+        var summary = Summary(await GetAttributesAsync(Workflow, instanceId));
+        Assert.Equal(3, summary.GetProperty("total").GetInt32());
+        Assert.True(summary.GetProperty("succeeded").GetInt32() < 2,
+            "the case is only meaningful while fewer than minSuccess items succeed");
     }
 
     [Fact]
@@ -152,7 +150,7 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         // The asymmetry with 'all' above is the interesting part: quorum has no empty-batch special
         // case, it just cannot clear a threshold of >= 1 with 0 successes.
         var instanceId = await RunCaseAsync("run-join-quorum");
-        await WaitForFaultAsync(instanceId, "an empty batch cannot meet quorum minSuccess=2");
+        await WaitForFailedAsync(instanceId, "an empty batch cannot meet quorum minSuccess=2");
     }
 
     // ── join.policy: firstSuccess ────────────────────────────────────────────
@@ -170,10 +168,10 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     }
 
     [Fact]
-    public async Task JoinFirstSuccess_NoItemSucceeds_FailsTheJoinAndFaultsTheInstance()
+    public async Task JoinFirstSuccess_NoItemSucceeds_FailsTheJoin()
     {
         var instanceId = await RunCaseAsync("run-join-first-success", "DOC-FAIL-A", "DOC-FAIL-B");
-        await WaitForFaultAsync(instanceId, "firstSuccess needs one success and got none");
+        await WaitForFailedAsync(instanceId, "firstSuccess needs one success and got none");
     }
 
     [Fact]
@@ -182,7 +180,42 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         // firstSuccess IS quorum(minSuccess = 1). The two must never disagree on the same input,
         // and the empty batch is the input where a special case would make them diverge.
         var instanceId = await RunCaseAsync("run-join-first-success");
-        await WaitForFaultAsync(instanceId, "an empty batch cannot produce the one success firstSuccess needs");
+        await WaitForFailedAsync(instanceId, "an empty batch cannot produce the one success firstSuccess needs");
+    }
+
+    // ── early stop ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// KNOWN RED — finding F1. <c>firstSuccess</c> cancels the remaining items once one succeeds,
+    /// and <c>FanOutErrorCodes.ItemCancelled</c> plus the developer guide both promise
+    /// <c>FanOut:ItemCancelled</c> on those items. Measured: items already in flight get
+    /// <c>Task:Unknown:process-document-task:TaskCanceledException</c> — the inner task's raw
+    /// exception name, with the task key embedded — while an item cancelled before it started gets
+    /// the documented code. Both codes appear in ONE batch, so an author branching on the
+    /// documented string silently misses most cancelled items.
+    /// </summary>
+    [Fact]
+    public async Task EarlyStop_CancelledItems_CarryTheDocumentedFanOutItemCancelledCode()
+    {
+        var instanceId = await RunCaseAsync(
+            "run-join-first-success", "DOC-1", "DOC-2", "DOC-3", "DOC-4", "DOC-5");
+        await WaitForSettledAsync(instanceId);
+
+        var attributes = await GetAttributesAsync(Workflow, instanceId);
+        var cancelled = Rows(attributes).Where(row => !row.GetProperty("isSuccess").GetBoolean()).ToArray();
+
+        Assert.True(cancelled.Length >= 1,
+            "firstSuccess over five succeedable items must early-stop at least one sibling, " +
+            "otherwise this test cannot say anything about the cancellation code");
+
+        var wrong = cancelled.Where(row => Text(row, "errorCode") != ItemCancelledCode).ToArray();
+
+        Assert.True(wrong.Length == 0,
+            $"{wrong.Length} of {cancelled.Length} early-stop-cancelled items did not carry " +
+            $"'{ItemCancelledCode}'. FanOutErrorCodes and docs/domain/fan-out-task.md both name it " +
+            "as the code for an item cancelled by the join policy's early stop, and workflow " +
+            "authors branch on that string. Codes seen: " +
+            string.Join(", ", cancelled.Select(row => $"{Key(row)}={Text(row, "errorCode")}")));
     }
 
     // ── timeouts: itemTimeoutSeconds vs batchTimeoutSeconds ──────────────────
@@ -190,9 +223,11 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     [Fact]
     public async Task ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut()
     {
-        // itemTimeoutSeconds 1, batchTimeoutSeconds 30: the 1500ms straggler blows its OWN deadline
-        // while the batch has 30s to spare. The two codes must not be conflated, and
-        // summary.timedOut is the batch's flag — an item timeout must NOT set it.
+        // itemTimeoutSeconds 1, batchTimeoutSeconds 30: the straggler blows its OWN deadline while
+        // the batch has 29s to spare. The two codes must not be conflated, and summary.timedOut is
+        // the BATCH's flag — an item timeout must not raise it.
+        await AssertStragglerRouteIsActuallySlowAsync();
+
         var instanceId = await RunCaseAsync("run-item-timeout", "DOC-1", "DOC-SLOW-A", "DOC-3");
         await WaitForSettledAsync(instanceId);
 
@@ -200,7 +235,7 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         AssertSummary(attributes, total: 3, succeeded: 2, failed: 1);
 
         var straggler = Row(attributes, "DOC-SLOW-A");
-        Assert.False(straggler.GetProperty("isSuccess").GetBoolean(), "the 1500ms item must not succeed under a 1s item deadline");
+        Assert.False(straggler.GetProperty("isSuccess").GetBoolean());
         Assert.Equal(ItemTimeoutCode, Text(straggler, "errorCode"));
 
         Assert.False(Summary(attributes).GetProperty("timedOut").GetBoolean(),
@@ -211,9 +246,10 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     [Fact]
     public async Task BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut()
     {
-        // maxDegreeOfParallelism 1 with three 1500ms items cannot finish inside a 2s batch
-        // deadline, so the deadline is reached with items still outstanding. allSettled means the
-        // TASK still succeeds — the batch timing out is data, not an error.
+        // maxDegreeOfParallelism 1 with three ~1500ms items cannot finish inside a 2s batch
+        // deadline. allSettled means the TASK still succeeds — a timed-out batch is data.
+        await AssertStragglerRouteIsActuallySlowAsync();
+
         var instanceId = await RunCaseAsync("run-batch-timeout-serial", "DOC-SLOW-A", "DOC-SLOW-B", "DOC-SLOW-C");
         await WaitForSettledAsync(instanceId);
 
@@ -224,12 +260,10 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         Assert.True(summary.GetProperty("timedOut").GetBoolean(),
             "the batch deadline fired with items outstanding, so summary.timedOut must be true");
 
-        // Counts are asserted as bounds rather than exact numbers on purpose: exactly which item is
-        // in flight when a 2s deadline fires is not something an outcome assertion should pretend
-        // to know. The load-bearing claims are that the concurrency limit prevented some items from
-        // finishing, and that the cut items are attributed to the BATCH deadline, not their own.
+        // Bounds, not exact counts: which item is in flight when a 2s deadline fires is not
+        // something an outcome assertion should pretend to know.
         Assert.True(summary.GetProperty("failed").GetInt32() >= 1,
-            "a serial batch of three 1500ms items cannot settle all of them inside 2s");
+            "a serial batch of three ~1500ms items cannot settle all of them inside 2s");
 
         var batchTimedOut = Rows(attributes).Where(row => Text(row, "errorCode") == BatchTimeoutCode).ToArray();
         Assert.True(batchTimedOut.Length >= 1,
@@ -241,11 +275,15 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
     public async Task MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget()
     {
         // The control arm for the test above. IDENTICAL config and IDENTICAL items — only
-        // maxDegreeOfParallelism differs (4 instead of 1). Three 1500ms items run concurrently and
-        // all settle inside the same 2s batch deadline that the serial arm blew.
+        // maxDegreeOfParallelism differs (4 instead of 1). Three ~1500ms items run concurrently and
+        // all settle inside the same 2s batch deadline the serial arm blew. The observable is how
+        // many items SUCCEEDED and the only variable is the ceiling, which is what makes this a
+        // concurrency assertion rather than a timing one.
         //
-        // This is what makes the pair a concurrency assertion rather than a timing one: the
-        // observable is how many items SUCCEEDED, and the only variable is the ceiling.
+        // The guard is load-bearing HERE above all: without a real delay every item finishes in
+        // milliseconds at any ceiling, and this arm passes while proving nothing.
+        await AssertStragglerRouteIsActuallySlowAsync();
+
         var instanceId = await RunCaseAsync("run-parallel-baseline", "DOC-SLOW-A", "DOC-SLOW-B", "DOC-SLOW-C");
         await WaitForSettledAsync(instanceId);
 
@@ -257,20 +295,32 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
 
     // ── per-item errorBoundary ───────────────────────────────────────────────
 
+    /// <summary>
+    /// Characterization of a per-item <c>ignore</c> rule — see finding F3. MEASURED behaviour: a
+    /// wildcard <c>ignore</c> does NOT convert a failed item into a successful one. The item stays
+    /// <c>isSuccess: false</c>, still counts toward <c>failed</c>, and therefore still fails a
+    /// <c>join: all</c> batch exactly as it would with no boundary at all.
+    /// <para>
+    /// This test pins that observation rather than the intent, because the intent is undocumented:
+    /// the developer guide spells out only the <c>retry</c> case ("a retry-exhausted item becomes
+    /// one Failed entry"), and <c>ErrorAction.Ignore</c> maps to <c>ShouldContinue</c>, which is
+    /// about not propagating the error rather than about fabricating success. If the intended
+    /// semantics turn out to be "an ignored item counts as successful", THIS is the test to invert —
+    /// do not delete it.
+    /// </para>
+    /// </summary>
     [Fact]
-    public async Task PerItemErrorBoundary_Ignore_KeepsAFailingItemFromTakingTheBatchDown()
+    public async Task PerItemErrorBoundary_Ignore_DoesNotConvertAFailedItemIntoASuccess()
     {
-        // The strongest available proof that the per-item boundary is applied PER ITEM: this case
-        // uses join.policy 'all', under which JoinAll_OneItemFails (same item mix) faults. The only
-        // difference is the component's errorBoundary — a wildcard 'ignore'. If the boundary is
-        // honoured for each item, the failing item is not a failure, so 'all' is satisfied and the
-        // instance settles. If it is ignored, this test faults exactly like the 'all' test does.
         var instanceId = await RunCaseAsync("run-item-boundary-ignore", "DOC-1", "DOC-FAIL-A", "DOC-3");
-        await WaitForSettledAsync(instanceId);
+        await WaitForFailedAsync(instanceId,
+            "a wildcard per-item 'ignore' does not rescue the item, so join 'all' still fails");
 
         var attributes = await GetAttributesAsync(Workflow, instanceId);
         Assert.Equal(3, Summary(attributes).GetProperty("total").GetInt32());
-        Assert.Equal(0, Summary(attributes).GetProperty("failed").GetInt32());
+        Assert.False(Row(attributes, "DOC-FAIL-A").GetProperty("isSuccess").GetBoolean(),
+            "measured contract: 'ignore' leaves the item failed. If this now passes as a success, " +
+            "the semantics changed — see finding F3 and invert this test deliberately.");
     }
 
     [Fact]
@@ -279,6 +329,10 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         // A permanently failing item with a retry rule (maxRetries 2) exhausts its retries and
         // becomes ONE failed entry. The claim under test is containment: the retried item must not
         // take its siblings, or the batch, with it.
+        //
+        // Retry ATTEMPT counts are deliberately not asserted — they live only in the InstanceTask
+        // journal row {fanOutTaskKey}#{index}, reachable only via the monitoring host (4203) that
+        // no test stack starts. See the findings doc.
         var instanceId = await RunCaseAsync("run-item-boundary-retry", "DOC-1", "DOC-FAIL-A", "DOC-3");
         await WaitForSettledAsync(instanceId);
 
@@ -294,18 +348,22 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
 
     // ── mode ─────────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// KNOWN RED — finding F2. <c>mode: "durable"</c> IS refused at publish (so the reserved mode
+    /// never becomes a live definition — good), but it is refused with an opaque HTTP 500
+    /// "An internal error occurred during your request!" rather than the 400 validation problem
+    /// every other bad component gets. <c>FanOutTask.Configure</c>'s <c>ArgumentException</c> is
+    /// evidently not mapped into the component-validation path, so the author is told nothing about
+    /// what is wrong with their component.
+    /// </summary>
     [Fact]
-    public async Task DurableMode_IsRefusedRatherThanSilentlyAccepted()
+    public async Task DurableMode_IsRefusedWithAnActionableValidationError()
     {
-        // 'durable' is RESERVED: FanOutTask.Configure throws
-        //   "FanOutTask mode 'durable' is not supported yet. Only 'inline' is available"
-        // so a component declaring it must never become a live definition. The component is posted
-        // from the test rather than kept on disk on purpose — an intentionally invalid file under
-        // core/Tasks/ would be published by the SDK's LocalDomainPublisher on every fixture start
-        // and its FAIL line would read like a real regression forever after.
-        //
-        // The version is unique per run so a 409 "already exists" can never be mistaken for the
-        // rejection under test.
+        // Version is unique per run so a 409 "already exists" can never be mistaken for the
+        // rejection under test. The component is posted from the test rather than kept on disk: an
+        // intentionally invalid file under core/Tasks/ would be published by the SDK's
+        // LocalDomainPublisher on every fixture start and its FAIL line would read like a real
+        // regression forever after.
         var uniqueVersion = $"9.0.{(int)DateTime.UtcNow.TimeOfDay.TotalSeconds}";
         var component = new
         {
@@ -323,25 +381,9 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
                     mode = "durable",
                     itemsPath = "$.documents",
                     itemAlias = "document",
-                    task = new
-                    {
-                        key = "process-document-task",
-                        domain = "core",
-                        flow = "sys-tasks",
-                        version = "1.0.0"
-                    },
-                    execution = new
-                    {
-                        maxDegreeOfParallelism = 4,
-                        itemTimeoutSeconds = 10,
-                        batchTimeoutSeconds = 60
-                    },
-                    join = new
-                    {
-                        policy = "allSettled",
-                        resultKey = ResultKey,
-                        ordered = true
-                    }
+                    task = new { key = "process-document-task", domain = "core", flow = "sys-tasks", version = "1.0.0" },
+                    execution = new { maxDegreeOfParallelism = 4, itemTimeoutSeconds = 10, batchTimeoutSeconds = 60 },
+                    join = new { policy = "allSettled", resultKey = ResultKey, ordered = true }
                 }
             }
         };
@@ -349,31 +391,37 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         var (status, body) = await SendRawAsync(
             HttpMethod.Post, "api/v1/definitions/publish", component, Headers());
 
+        // Part 1 — it must be refused. This part PASSES: durable never becomes a live definition.
         Assert.True((int)status >= 400,
             $"publish ACCEPTED mode 'durable' with {(int)status}. The mode is reserved and " +
-            "FanOutTask.Configure throws on it, so accepting the definition defers the failure to " +
-            $"the first execution of whatever flow references it. Response: {Trim(body)}");
+            "FanOutTask.Configure throws on it, so accepting the definition would defer the failure " +
+            $"to the first execution of whatever flow references it. Response: {Trim(body)}");
+
+        // Part 2 — the refusal must tell the author what is wrong. This part is the filed defect:
+        // measured 500 + "An internal error occurred during your request!".
+        Assert.True((int)status < 500,
+            $"publish refused mode 'durable' with {(int)status} — an unhandled-exception shape, not " +
+            "a validation error. A bad workflow gets 400 App:900006 naming the exact field; a task " +
+            "whose config throws in Configure gets an opaque 500 with nothing actionable in it. " +
+            $"See finding F2. Response: {Trim(body)}");
 
         Assert.True(
             body.Contains("durable", StringComparison.OrdinalIgnoreCase) ||
             body.Contains("not supported", StringComparison.OrdinalIgnoreCase) ||
             body.Contains("inline", StringComparison.OrdinalIgnoreCase),
-            $"publish refused the component with {(int)status} but for an unrecognisable reason — " +
-            "this test must fail on the durable-mode rejection, not on some unrelated validation " +
-            $"error that would mask it. Response: {Trim(body)}");
+            $"the refusal body named neither the offending mode nor the supported one. Response: {Trim(body)}");
     }
 
     // ── plumbing ─────────────────────────────────────────────────────────────
 
     /// <summary>
     /// Starts a matrix instance carrying <paramref name="documentIds"/> as its <c>documents</c>
-    /// array and fires the case transition, whose target state's onEntry IS the fan-out batch under
-    /// test. Pass no ids for the empty-collection cases.
+    /// array and fires the case transition, whose target state's onEntry IS the batch under test.
+    /// Pass no ids for the empty-collection cases.
     /// <para>
-    /// The transition is only required to be ACCEPTED here, not to succeed: half the matrix expects
-    /// the batch to fail, and a failing onEntry task is a failing transition. Settling is therefore
-    /// awaited by the caller via <see cref="WaitForSettledAsync"/> or
-    /// <see cref="WaitForFaultAsync"/>, which is where the actual verdict is asserted.
+    /// The transition is only required to be ACCEPTED, not to succeed: half the matrix expects the
+    /// batch to fail. The verdict is asserted by the caller via <see cref="WaitForSettledAsync"/> or
+    /// <see cref="WaitForFailedAsync"/>.
     /// </para>
     /// </summary>
     private async Task<string> RunCaseAsync(string caseTransition, params string[] documentIds)
@@ -386,6 +434,9 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
                 .ToArray()
         });
 
+        // The start transition runs its own pipeline; firing the case transition while the instance
+        // is still Busy is refused with 409. Wait for it to settle first.
+        await WaitUntilSettledAsync(Workflow, instanceId);
         await AssertNotFaultedAsync(Workflow, instanceId);
 
         var url = $"api/v1/core/workflows/{Workflow}/instances/{instanceId}" +
@@ -400,34 +451,74 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
 
     /// <summary>The join succeeded: the case state's auto transition fired.</summary>
     private Task WaitForSettledAsync(string instanceId) =>
-        WaitForInstanceStateAsync(Workflow, instanceId, SettledState, timeout: CaseBudget);
+        WaitForTerminalAsync(instanceId, SettledState, FailedState,
+            "the join was expected to SUCCEED but the boundary routed it to case-failed");
+
+    /// <summary>The join failed: the global rollback boundary routed to <c>case-failed</c>.</summary>
+    private Task WaitForFailedAsync(string instanceId, string because) =>
+        WaitForTerminalAsync(instanceId, FailedState, SettledState,
+            $"the join SUCCEEDED and the instance settled, but it should have failed: {because}");
 
     /// <summary>
-    /// The join FAILED: no error boundary exists anywhere in this workflow, so the instance faults.
-    /// <para>
-    /// <see cref="WorkflowTestBase.WaitForInstanceStateAsync"/> deliberately fails fast on a fault,
-    /// which is right for every other suite and exactly wrong here — a fault is the expected
-    /// outcome for six of these cases. Hence this local waiter. It also guards the opposite
-    /// mistake: an instance that reached <c>case-settled</c> can never fault afterwards, so seeing
-    /// the settled state means the join succeeded when it should not have, and burning the whole
-    /// budget would report that as a timeout instead of naming it.
-    /// </para>
+    /// Waits for one of the two terminal states, failing immediately and by name if the OTHER one
+    /// is reached. Both outcomes are terminal, so waiting out the budget on the wrong one would
+    /// report a timeout and hide the actual verdict.
     /// </summary>
-    private Task WaitForFaultAsync(string instanceId, string because) =>
+    private Task WaitForTerminalAsync(string instanceId, string expected, string opposite, string oppositeMessage) =>
         WaitUntilAsync(
             async () =>
             {
-                var (state, status) = await GetInstanceStateAsync(Workflow, instanceId);
-                if (status == "F") return true;
+                var (state, _) = await GetInstanceStateAsync(Workflow, instanceId);
+                if (state == expected) return true;
 
-                Assert.True(state != SettledState,
-                    $"the join SUCCEEDED and the instance settled, but it should have failed: {because}. " +
-                    await DescribeAsync(Workflow, instanceId));
+                Assert.True(state != opposite,
+                    $"{oppositeMessage}. {await DescribeAsync(Workflow, instanceId)}");
 
                 return false;
             },
-            $"{Workflow}/{instanceId} never faulted — {because}",
+            $"{Workflow}/{instanceId} never reached '{expected}'",
             CaseBudget);
+
+    /// <summary>
+    /// Precondition guard for the three cases that need a genuinely slow inner call.
+    /// <para>
+    /// This is the one place a stopwatch appears, and it measures the MOCK, not the runtime — it
+    /// asserts the fixture's premise holds, so that a broken mock cannot masquerade as either a
+    /// runtime bug (the timeout arms) or a passing concurrency proof (the control arm). If MockLab
+    /// is unreachable the guard stays silent: the containerised path resolves it on a different
+    /// host and there is nothing to check from here.
+    /// </para>
+    /// </summary>
+    private static async Task AssertStragglerRouteIsActuallySlowAsync()
+    {
+        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        var clock = Stopwatch.StartNew();
+
+        try
+        {
+            using var content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+            using var response = await client.PostAsync(StragglerUrl, content);
+            if (!response.IsSuccessStatusCode) return;
+        }
+        catch (Exception)
+        {
+            return; // not reachable from here — nothing to assert
+        }
+
+        clock.Stop();
+
+        // Half the configured delay is slack enough to absorb scheduling noise while still catching
+        // "the delay is not applied at all", which is what was measured (~23-46ms vs 1500ms).
+        var floor = ConfiguredStragglerDelay / 2;
+
+        Assert.True(clock.Elapsed >= floor,
+            $"ENVIRONMENT: MockLab's straggler route answered in {clock.ElapsedMilliseconds}ms but its " +
+            $"seed configures delayMs={ConfiguredStragglerDelay.TotalMilliseconds:0}. " +
+            "itemTimeoutSeconds is a whole number of seconds >= 1, so without a real delay no item " +
+            "can exceed its deadline and this case cannot be exercised at all. This is not a " +
+            "FanOutTask defect — see the findings doc, § MockLab delayMs. The same broken delay " +
+            "also makes the sibling scenario's load-test straggler ratio meaningless.");
+    }
 
     // ── readers ──────────────────────────────────────────────────────────────
 
@@ -464,6 +555,20 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
         Assert.Equal(total, summary.GetProperty("total").GetInt32());
         Assert.Equal(succeeded, summary.GetProperty("succeeded").GetInt32());
         Assert.Equal(failed, summary.GetProperty("failed").GetInt32());
+    }
+
+    /// <summary>
+    /// A failed join must still have written its result set. <c>FanOutTaskExecutor</c> returns
+    /// <c>Result.Ok(new TaskInvocationResult { IsSuccess = false, Data = … })</c> rather than
+    /// <c>TaskInvocationResult.Failure(…)</c> specifically so the data survives; a regression to the
+    /// Failure factory would leave a boundary or auto-transition with nothing to branch on.
+    /// </summary>
+    private static void AssertFailedJoinStillCarriedItsData(JsonElement attributes)
+    {
+        var summary = Summary(attributes);
+        Assert.True(summary.GetProperty("total").GetInt32() > 0,
+            "a failed join over a non-empty batch must still report its item counts");
+        Assert.NotEmpty(Rows(attributes));
     }
 
     private static string Key(JsonElement row) => row.GetProperty("itemKey").GetString() ?? "";
