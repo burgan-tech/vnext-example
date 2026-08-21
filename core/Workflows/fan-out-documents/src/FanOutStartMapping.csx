@@ -34,7 +34,11 @@ public class FanOutStartMapping : ScriptBase, IMapping
         var data = context.Instance?.Data as IDictionary<string, object>;
 
         var documentCount = 0;
-        if (data != null && data.TryGetValue("documents", out var raw) && raw is IEnumerable list && !(raw is string))
+        // FULLY QUALIFIED deliberately. The script host imports System.Collections.Generic, so a
+        // bare `IEnumerable` binds to the GENERIC IEnumerable<T> and the script fails to compile
+        // with CS0305 — which faults the instance at start, before the fan-out is ever reached.
+        if (data != null && data.TryGetValue("documents", out var raw) &&
+            raw is System.Collections.IEnumerable list && !(raw is string))
         {
             foreach (var _ in list) documentCount++;
         }

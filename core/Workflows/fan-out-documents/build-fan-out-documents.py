@@ -13,7 +13,13 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-VERSION = "1.0.0"
+
+# BUMP THIS whenever any .csx under ./src changes. POST /api/v1/definitions/publish has no
+# overwrite: an unchanged version answers 409 "A record with the same version already exists" and
+# the runtime keeps serving the OLD embedded scripts, so an edited mapping silently does nothing.
+# 1.0.1 — dropped the redundant IFanOutMapping.OutputHandler (the runtime's default packaging is
+#         what the scenario asserts now) and bracketed the batch with the before/after stamp pair.
+VERSION = "1.0.1"
 
 
 def code(name):
@@ -30,6 +36,13 @@ def label(text):
 
 def stamp_task():
     return {"key": "fanout-stamp-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
+
+
+def stamp_before_task():
+    # A SECOND script-task component, identical in config to fanout-stamp-task. It exists only so
+    # the pre-batch and post-batch stamps are distinct task keys: two entries in one onEntries list
+    # sharing a task key collide in the InstanceTask journal.
+    return {"key": "fanout-stamp-before-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 
 
 def fan_out_task():
@@ -101,15 +114,23 @@ workflow = {
                 "labels": label("Documents Processing (fan-out batch)"),
                 "view": None,
                 "subFlow": None,
-                # ORDER IS LOAD-BEARING. The fan-out batch runs first and produces exactly ONE
-                # instance-data version for the whole batch; the stamp task runs immediately
-                # after it, in the SAME state entry, with no transition and no other task in
-                # between, and records the version the batch produced. The single-write
-                # assertion is the delta between the two stamps — anything inserted between
-                # these two orders widens that delta and silently voids the assertion.
+                # ORDER IS LOAD-BEARING — this triple IS the single-write measurement.
+                #
+                #   1  stamp BEFORE  -> versionBeforeFanOutBatch (the row it supersedes), 1 write
+                #   2  the batch     -> must be exactly 1 write however many items there are
+                #   3  stamp AFTER   -> versionAfterFanOut (what the next task sees)
+                #
+                # so patch(after) - patch(before) == 2 iff the batch wrote once. All three sit in
+                # ONE state entry: no transition, no state change, nothing else between them.
+                # Anything inserted here widens the delta and silently voids the assertion.
+                #
+                # The pre-batch stamp is a separate task because the fan-out mapping no longer
+                # overrides OutputHandler (the runtime's default packaging is what the tests now
+                # assert against), and the default packaging cannot carry instrumentation keys.
                 "onEntries": [
-                    {"order": 1, "task": fan_out_task(), "mapping": code("FanOutDocumentsMapping.csx")},
-                    {"order": 2, "task": stamp_task(), "mapping": code("FanOutStampAfterMapping.csx")},
+                    {"order": 1, "task": stamp_before_task(), "mapping": code("FanOutStampBeforeMapping.csx")},
+                    {"order": 2, "task": fan_out_task(), "mapping": code("FanOutDocumentsMapping.csx")},
+                    {"order": 3, "task": stamp_task(), "mapping": code("FanOutStampAfterMapping.csx")},
                 ],
                 "onExits": [],
                 # Evaluated by RunAutomaticTransitionsStep (order 90), i.e. AFTER the onEntry

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
@@ -18,17 +16,26 @@ using BBT.Workflow.Scripting;
 /// <para>
 /// <b>Purity.</b> <c>ItemInputHandler</c> runs N times concurrently, each on its own discarded
 /// branch context and its own DI scope. It must be pure with respect to instance data — it
-/// writes nothing. <c>OutputHandler</c> is the batch's ONLY write point, and the whole design
-/// exists to keep it that way: one fan-out execution ⇒ one InstanceData patch, whatever N is.
+/// writes nothing. The batch's output step is its ONLY write point, and the whole design exists
+/// to keep it that way: one fan-out execution ⇒ one InstanceData patch, whatever N is.
 /// </para>
 /// <para>
-/// <b>The output shape deliberately mirrors the runtime's DEFAULT packaging</b>
-/// (<c>{resultKey}</c> + <c>{resultKey}Summary{total,succeeded,failed,timedOut}</c>), because
-/// supplying any mapping opts the task out of that default — <c>IFanOutMapping.OutputHandler</c>
-/// has no default implementation. Mirroring it keeps the scenario's assertions valid against the
-/// documented default contract even though we had to hand-write the handler. Two extra keys are
-/// scenario instrumentation, not part of the default shape: <c>failedDocumentIds</c> and
-/// <c>versionSeenByFanOut</c>.
+/// <b>This mapping deliberately does NOT override <c>OutputHandler</c>.</b> That is the point of
+/// half this scenario. <c>IFanOutMapping.OutputHandler</c> carries a default implementation
+/// returning <c>null</c>, which the executor reads as "not overridden" and answers with its own
+/// <c>BuildDefaultOutput</c> — item rows under <c>join.resultKey</c> plus a
+/// <c>{resultKey}Summary</c> of <c>{total, succeeded, failed, timedOut}</c>, the identical shape a
+/// task shipping no mapping at all produces. An earlier revision of this file hand-wrote a handler
+/// that reproduced that shape byte-for-byte, because the member used to be abstract; it is not any
+/// more. Keeping the duplicate would have meant the scenario never exercised the fallback, and the
+/// runtime's default packaging would go untested end-to-end. Every downstream assertion — the
+/// branching rules, the summary counters, the item rows — now reads output the RUNTIME produced.
+/// </para>
+/// <para>
+/// <b>Where the single-write instrument went.</b> The removed handler also stamped
+/// <c>versionSeenByFanOut</c>. The default packaging cannot carry scenario instrumentation, so the
+/// mark moved OUT of the batch and into its own onEntry task immediately before it
+/// (<c>FanOutStampBeforeMapping</c>, order 1). See that file for the arithmetic.
 /// </para>
 /// </summary>
 public class FanOutDocumentsMapping : ScriptBase, IFanOutMapping
@@ -63,57 +70,7 @@ public class FanOutDocumentsMapping : ScriptBase, IFanOutMapping
         return Task.FromResult(new ScriptResponse());
     }
 
-    public Task<ScriptResponse> OutputHandler(ScriptContext context, FanOutResult result)
-    {
-        dynamic response = new ExpandoObject();
-        var target = (IDictionary<string, object>)response;
-
-        var rows = new List<object>();
-        var failedIds = new List<string>();
-
-        foreach (var item in result.Items)
-        {
-            rows.Add(new Dictionary<string, object>
-            {
-                ["index"] = item.Index,
-                ["itemKey"] = item.ItemKey,
-                ["isSuccess"] = item.IsSuccess,
-                ["data"] = item.Data,
-                ["errorCode"] = item.ErrorCode,
-                ["errorMessage"] = item.ErrorMessage,
-                ["durationMs"] = (long)item.Duration.TotalMilliseconds
-            });
-
-            if (!item.IsSuccess)
-            {
-                failedIds.Add(item.ItemKey);
-            }
-        }
-
-        target["documentResults"] = rows;
-        target["documentResultsSummary"] = new Dictionary<string, object>
-        {
-            ["total"] = result.Total,
-            ["succeeded"] = result.Succeeded,
-            ["failed"] = result.Failed,
-            ["timedOut"] = result.TimedOut
-        };
-
-        // Flat mirror of the summary counters. The auto-transition rules read the nested summary
-        // first and fall back to these: a snapshot's nested object can surface as a dictionary or
-        // as a JsonElement depending on how it was persisted, and a branching rule must not be the
-        // place that discovers which.
-        target["documentsFailedCount"] = result.Failed;
-        target["documentsSucceededCount"] = result.Succeeded;
-        target["failedDocumentIds"] = failedIds;
-
-        // Single-write instrument: the version this ONE batch write is about to supersede.
-        target["versionSeenByFanOut"] = context.Instance?.LatestData?.Version ?? string.Empty;
-
-        LogInformation(
-            $"FanOutDocumentsMapping: total={result.Total} succeeded={result.Succeeded} " +
-            $"failed={result.Failed} timedOut={result.TimedOut} versionSeenByFanOut={target["versionSeenByFanOut"]}");
-
-        return Task.FromResult(new ScriptResponse { Data = response });
-    }
+    // NO OutputHandler — deliberately. See the class remarks: the runtime's default packaging
+    // produces the exact shape this scenario asserts, and letting it do so is what proves the
+    // IFanOutMapping default-interface fallback works end-to-end. Do not "restore" it.
 }

@@ -18,24 +18,37 @@ Burada yalnızca test sınıfının kendi sözleşmesi var.
 Orchestration host'unda sürüm geçmişi ucu **yok** (yalnız monitoring host'unda, port 4203 —
 SDK stack'i onu başlatmıyor). Bu yüzden akış kendi sürüm işaretlerini instance verisine yazıyor:
 
-- `versionSeenByFanOut` — fan-out `OutputHandler`'ının, **kendi yazımı uygulanmadan önce** okuduğu
-  `Instance.LatestData.Version`, yani batch'in üzerine yazacağı sürüm.
-- `versionAfterFanOut` — hemen sonraki onEntry task'ının okuduğu sürüm, yani batch'in **ürettiği**.
+Batch, `documents-processing` state girişinde iki damga task'ı arasında **sarılı** koşuyor:
 
-Aralarında hiçbir şey çalışmaz (`documents-processing.onEntries` order 1 → 2; transition yok, state
-değişimi yok). Task sonucu yazımları patch artırdığı için:
+- `versionBeforeFanOutBatch` — onEntry **order 1**; batch'ten hemen önceki `LatestData.Version`.
+- *(order 2 = batch)*
+- `versionAfterFanOut` — onEntry **order 3**; batch'ten hemen sonraki sürüm.
+
+Aralarında başka hiçbir şey çalışmaz (transition yok, state değişimi yok). Her task sonucu bir
+patch artırdığı için iki damga arasında tam **iki** yazıma izin var — önce-damgasının kendi
+sonucu, ve tüm batch:
 
 ```
-patch(versionAfterFanOut) - patch(versionSeenByFanOut) == 1
+patch(versionAfterFanOut) - patch(versionBeforeFanOutBatch) == 2     ✔  (1 damga + 1 batch)
+                                                            == 1 + N ✘  item başına yazım
 ```
 
 Ayrıca bağımsız bir sonda: `GET .../instances/{id}/data?version=X` var olmayan sürüm için **404
-vermez**, latest'a **düşmez** — `200` + `data: null` döner. Test batch'in yazdığı sürümün ve head'in
-çözüldüğünü, head'in **ötesinin** çözülmediğini doğrular.
+vermez**, latest'a **düşmez** — `200` + `data: null` döner. Test patch hattının tamamını sayar:
+önce-damgasının satırı (`+1` sabitini **varsaymak yerine doğrular**), batch'in satırı, head, ve
+head'in bir ötesinin **olmadığı**.
 
-> **Bu iki testi ayrı ayrı değiştirmeyin.** `documents-processing` onEntry sırası (fan-out → damga)
-> ölçümün tamamıdır. Araya bir task, bir transition ya da bir state değişimi sokan her düzenleme
-> farkı sessizce büyütür ve assertion "geçiyor" görünmeye devam ederken hiçbir şeyi denetlemez.
+> **Neden ayrı bir önce-damgası var?** Bu işi eskiden fan-out mapping'inin `OutputHandler`'ı
+> yapıyordu. O üye artık opsiyonel (vnext `4bd8941b`: default interface implementation `null`
+> döner ⇒ runtime'ın varsayılan paketlemesi devreye girer) ve senaryo bu geri-düşüşü fiilen test
+> edebilmek için handler'ı override etmeyi bıraktı. Varsayılan paketleme senaryo enstrümantasyonu
+> taşıyamaz, damga da bu yüzden kendi task'ına taşındı. **Handler'ı geri eklemeyin** — eklerseniz
+> testler runtime'ın çıktısını değil senaryonun kendi ürettiği çıktıyı doğrulamış olur.
+
+> **Bu iki testi ayrı ayrı değiştirmeyin.** `documents-processing` onEntry sırası
+> (damga → fan-out → damga) ölçümün tamamıdır. Araya bir task, bir transition ya da bir state
+> değişimi sokan her düzenleme farkı sessizce büyütür ve assertion "geçiyor" görünmeye devam
+> ederken hiçbir şeyi denetlemez.
 
 ## Kapsam açığı — item journal (bilinçli)
 

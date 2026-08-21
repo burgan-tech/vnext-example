@@ -17,8 +17,20 @@ namespace Core.IntegrationTests.Tests.FanOut;
 /// and — the one that matters most — the <b>single-write invariant</b>: the whole batch produces
 /// exactly ONE new instance-data version, not N. That invariant is the entire reason the design
 /// runs item handlers on discarded branch contexts with <c>SuppressDataApply</c> and funnels
-/// everything through a single <c>OutputHandler</c>; if it regresses, fan-out becomes N
-/// concurrent writers racing on one aggregate and every other guarantee here is worthless.
+/// everything through a single output step; if it regresses, fan-out becomes N concurrent writers
+/// racing on one aggregate and every other guarantee here is worthless.
+/// </para>
+/// <para>
+/// <b>Every shape asserted here is produced by the RUNTIME, not by the scenario.</b> The flow's
+/// <c>IFanOutMapping</c> overrides <c>ItemInputHandler</c> only — it needs to, because an
+/// <c>HttpTask</c>'s per-item URL lives on the cloned task and no other hook can reach it — and
+/// deliberately leaves <c>OutputHandler</c> unoverridden. The default-interface implementation
+/// returns <c>null</c>, the executor reads that as "not overridden" and falls through to
+/// <c>BuildDefaultOutput</c>. So <c>documentResults</c>, its row shape and
+/// <c>documentResultsSummary</c> below are all the runtime's default packaging, and these tests
+/// passing is itself the end-to-end proof of that fallback. An earlier revision hand-wrote an
+/// <c>OutputHandler</c> reproducing the same shape (the member used to be abstract); restoring it
+/// would make every assertion here self-referential.
 /// </para>
 /// <para>
 /// <b>How the invariant is measured, and why it is measured this way.</b> There is NO
@@ -27,12 +39,14 @@ namespace Core.IntegrationTests.Tests.FanOut;
 /// carries no data version, and <c>GET .../instances/{id}/data</c> returns a single version with
 /// no version string in the body. Version history lives only on the MONITORING host
 /// (<c>/api/v1/monitor/.../data</c> → <c>versionHistory[]</c>, port 4203), which the testing SDK's
-/// container stack does not start. So the flow reports its own version marks: the fan-out
-/// mapping's <c>OutputHandler</c> stamps <c>versionSeenByFanOut</c> (read before its own write is
-/// applied) and the very next onEntry task stamps <c>versionAfterFanOut</c>. Both reads are of
-/// <c>Instance.LatestData.Version</c>, and nothing runs between them — no transition, no state
-/// change, no other task. One patch of distance means one write. Five would mean five.
-/// A second, independent probe corroborates it through the public data endpoint.
+/// container stack does not start. So the flow brackets the batch with two stamp tasks in the same
+/// state entry — <c>documents-processing.onEntries</c> order 1 stamps
+/// <c>versionBeforeFanOutBatch</c>, order 2 is the batch, order 3 stamps
+/// <c>versionAfterFanOut</c> — with no transition, no state change and nothing else between them.
+/// Each task result is one patch, so the bracket's own write accounts for exactly one and the
+/// batch must account for exactly one more: a delta of 2. N per-item writes would make it
+/// <c>1 + N</c>. The <c>+1</c> constant is probed on the data endpoint rather than assumed, and
+/// the whole patch line is enumerated to show no extra row exists.
 /// </para>
 /// <para>
 /// <b>Known coverage gap — the item journal.</b> Each item is journalled as its own
@@ -136,9 +150,10 @@ public class FanOutDocumentsTests : WorkflowTestBase
             $"failed item '{Key(row)}' carried no error code — a caller branching on which items " +
             "failed has nothing to branch on"));
 
-        var failedIds = attributes.GetProperty("failedDocumentIds")
-            .EnumerateArray().Select(id => id.GetString()).OrderBy(id => id).ToArray();
-        Assert.Equal(new[] { "DOC-FAIL-A", "DOC-FAIL-B" }, failedIds);
+        // Which documents failed is readable straight off the default packaging's rows — the
+        // scenario does not need (and no longer has) a mapping-authored failedDocumentIds mirror.
+        // Rows keep their batch position even on the failure path, so the index is pinned too.
+        Assert.Equal(new[] { 1, 3 }, failed.Select(row => row.GetProperty("index").GetInt32()).OrderBy(i => i).ToArray());
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -165,39 +180,53 @@ public class FanOutDocumentsTests : WorkflowTestBase
     /// <summary>
     /// The invariant, asserted two independent ways.
     /// <para>
-    /// First from the flow's own version marks: <c>versionSeenByFanOut</c> is the head the batch
-    /// was about to supersede, <c>versionAfterFanOut</c> is what the next task saw, and exactly one
-    /// patch must separate them. Second from the public data endpoint, which answers 200 with a
-    /// null <c>data</c> body for a version that does not exist (it does NOT 404, and it does NOT
-    /// fall back to latest): the version the batch wrote must resolve, and the version two patches
-    /// past it must not — with N per-item writes it would.
+    /// First from the version marks the flow stamps around the batch.
+    /// <c>versionBeforeFanOutBatch</c> is the row the pre-batch stamp task was about to supersede;
+    /// <c>versionAfterFanOut</c> is what the post-batch stamp task saw. Between those two reads
+    /// exactly two writes are permitted — the pre-batch stamp's own task result, and the entire
+    /// batch — so the patch delta must be 2. A batch that wrote per item would make it
+    /// <c>1 + itemCount</c>.
+    /// </para>
+    /// <para>
+    /// Second from the public data endpoint, which answers 200 with a null <c>data</c> body for a
+    /// version that does not exist (it does NOT 404, and it does NOT fall back to latest). Every
+    /// version on the line is enumerated: the pre-batch stamp's row (which is what verifies the
+    /// <c>+1</c> constant instead of trusting it), the batch's row, the post-batch stamp's row,
+    /// and then one past the head, which must NOT resolve.
     /// </para>
     /// </summary>
     private async Task AssertOneVersionForTheBatchAsync(string instanceId, int itemCount)
     {
         var attributes = await GetAttributesAsync(Workflow, instanceId);
 
-        var seen = RequireVersion(attributes, "versionSeenByFanOut");
+        var before = RequireVersion(attributes, "versionBeforeFanOutBatch");
         var after = RequireVersion(attributes, "versionAfterFanOut");
 
-        Assert.True(seen.Major == after.Major && seen.Minor == after.Minor,
-            $"the batch changed the major/minor line ({seen.Raw} → {after.Raw}); the single-write " +
+        Assert.True(before.Major == after.Major && before.Minor == after.Minor,
+            $"the batch changed the major/minor line ({before.Raw} → {after.Raw}); the single-write " +
             "arithmetic below only holds along one patch line");
 
-        Assert.True(after.Patch - seen.Patch == 1,
-            $"the fan-out batch produced {after.Patch - seen.Patch} instance-data versions " +
-            $"({seen.Raw} → {after.Raw}) for {itemCount} items. Exactly ONE is required: the batch " +
-            "is single-writer by design — item handlers run with SuppressDataApply on discarded " +
-            "branch contexts and only OutputHandler's data is merged. A count matching the item " +
-            "count means the per-item suppression is gone.");
+        var batchWrites = after.Patch - before.Patch - 1;   // minus the pre-batch stamp's own write
 
-        // Independent corroboration through the public API.
-        var written = after.Raw;
-        var head = $"{after.Major}.{after.Minor}.{after.Patch + 1}";   // the stamp task's own row
+        Assert.True(batchWrites == 1,
+            $"the fan-out batch produced {batchWrites} instance-data versions " +
+            $"({before.Raw} → {after.Raw}, of which 1 patch belongs to the pre-batch stamp task) " +
+            $"for {itemCount} items. Exactly ONE is required: the batch is single-writer by " +
+            "design — item handlers run with SuppressDataApply on discarded branch contexts and " +
+            "only the single batch output is merged. A count matching the item count means the " +
+            "per-item suppression is gone.");
+
+        // Independent corroboration through the public API — the whole patch line, in order.
+        var stampRow = $"{before.Major}.{before.Minor}.{before.Patch + 1}";  // pre-batch stamp's own row
+        var batchRow = after.Raw;                                            // what the batch wrote
+        var head = $"{after.Major}.{after.Minor}.{after.Patch + 1}";         // post-batch stamp's own row
         var beyondHead = $"{after.Major}.{after.Minor}.{after.Patch + 2}";
 
-        Assert.True(await DataVersionExistsAsync(instanceId, written),
-            $"the version the batch wrote ({written}) did not resolve on the data endpoint");
+        Assert.True(await DataVersionExistsAsync(instanceId, stampRow),
+            $"the pre-batch stamp's own row ({stampRow}) did not resolve — the +1 the arithmetic " +
+            "subtracts is not there, so the delta cannot be attributed");
+        Assert.True(await DataVersionExistsAsync(instanceId, batchRow),
+            $"the version the batch wrote ({batchRow}) did not resolve on the data endpoint");
         Assert.True(await DataVersionExistsAsync(instanceId, head),
             $"the head version ({head}) did not resolve on the data endpoint");
         Assert.False(await DataVersionExistsAsync(instanceId, beyondHead),

@@ -49,22 +49,26 @@ documents-received (Initial)
         │  process-documents  (manual)
         ▼
 documents-processing (Intermediate)
-        │  onEntry order 1 : fan-out-documents-task  ← TaskType 21, allSettled, maxDop 3
+        │  onEntry order 1 : fanout-stamp-before-task / FanOutStampBeforeMapping
+        │                    ↳ versionBeforeFanOutBatch                    ◄── ölçüm başlangıcı
+        │  onEntry order 2 : fan-out-documents-task  ← TaskType 21, allSettled, maxDop 3
         │                    ↳ N × process-document-task (HTTP → MockLab), paralel
-        │                    ↳ OutputHandler: documentResults + documentResultsSummary
-        │                                     + versionSeenByFanOut        ◄── TEK YAZIM
-        │  onEntry order 2 : fanout-stamp-task / FanOutStampAfterMapping
-        │                    ↳ versionAfterFanOut                          ◄── ölçüm noktası
+        │                    ↳ mapping YALNIZ ItemInputHandler'ı override eder;
+        │                      çıktıyı runtime'ın VARSAYILAN paketlemesi üretir:
+        │                      documentResults + documentResultsSummary    ◄── TEK YAZIM
+        │  onEntry order 3 : fanout-stamp-task / FanOutStampAfterMapping
+        │                    ↳ versionAfterFanOut                          ◄── ölçüm sonu
         │
         │  auto (order 90, onEntry'den SONRA):
         ├── failed > 0  ──► documents-partial-failure (Finish / Error)
         └── failed == 0 ──► documents-completed       (Finish / Success)
 ```
 
-**Kritik adım: onEntry sırası.** `order 1` (fan-out) ile `order 2` (damga) arasında hiçbir şey
-çalışmaz — transition yok, state değişimi yok, başka task yok. Tek-yazim assertion'ı tam olarak bu
-iki damga arasındaki farktır. Damgayı bir transition'a ya da başka bir state'e taşırsanız araya
-giren her yazım farkı sessizce büyütür ve senaryonun **en önemli** iddiası gürültüye dönüşür.
+**Kritik adım: onEntry sırası.** `order 1` → `order 2` → `order 3` arasında hiçbir şey çalışmaz —
+transition yok, state değişimi yok, başka task yok. Tek-yazim assertion'ı tam olarak bu iki damga
+arasındaki farktır: **2 olmalı** — biri önce-damgasının kendi yazımı, diğeri batch'in tek yazımı.
+Araya bir task, transition ya da state değişimi sokmak farkı sessizce büyütür ve senaryonun
+**en önemli** iddiası gürültüye dönüşür.
 
 ## Tek-yazim degismezi nasıl ölçülüyor
 
@@ -78,18 +82,29 @@ Bu yüzden **akış kendi sürüm işaretlerini raporluyor**:
 
 | Damga | Nerede okunuyor | Anlamı |
 | --- | --- | --- |
-| `versionBeforeFanOut` | start transition task'ı | batch öncesi taban |
-| `versionSeenByFanOut` | fan-out `OutputHandler` | batch'in **üzerine yazacağı** sürüm (P) |
-| `versionAfterFanOut` | hemen sonraki onEntry task'ı | batch'in **ürettiği** sürüm |
+| `versionBeforeFanOut` | start transition task'ı | akış tabanı (bilgi amaçlı) |
+| `versionBeforeFanOutBatch` | onEntry **order 1** damgası | batch'ten hemen önceki sürüm |
+| `versionAfterFanOut` | onEntry **order 3** damgası | batch'ten hemen sonraki sürüm |
 
 Her okuma `Instance.LatestData.Version` üzerinden ve **ilgili task kendi çıktısını uygulamadan
 önce** yapılır. Task sonucu yazımları her zaman patch artırır (`VersionStrategy.IncreasePatch`),
-dolayısıyla:
+dolayısıyla iki damga arasında tam olarak iki yazıma izin var — önce-damgasının **kendi** task
+sonucu, ve **tüm batch**:
 
 ```
-patch(versionAfterFanOut) - patch(versionSeenByFanOut) == 1      ✔ tek yazım
-                                                       == N      ✘ item başına yazım
+patch(versionAfterFanOut) - patch(versionBeforeFanOutBatch) == 2      ✔ tek yazım (1 damga + 1 batch)
+                                                            == 1 + N  ✘ item başına yazım
 ```
+
+Buradaki `+1` sabiti varsayılmıyor: test önce-damgasının kendi satırını (`before + 1`) data
+ucundan sorgulayıp **var olduğunu** doğruluyor, sonra batch'in satırını, sonra head'i, en sonunda
+head'in bir ötesinin **olmadığını**. Patch hattının tamamı böylece sayılmış oluyor.
+
+> **Neden ayrı bir damga task'ı?** Eskiden bu işi fan-out mapping'inin kendi `OutputHandler`'ı
+> yapıyordu. `IFanOutMapping.OutputHandler` artık **opsiyonel** (default interface implementation
+> `null` döner ⇒ runtime kendi varsayılan paketlemesini uygular), ve senaryo bu geri-düşüşü fiilen
+> test edebilmek için handler'ı override etmeyi **bıraktı**. Varsayılan paketleme senaryo
+> enstrümantasyonu taşıyamayacağı için sürüm damgası batch'in dışına, kendi task'ına taşındı.
 
 Bağımsız ikinci kanıt — public data ucundan sonda. Bu uç var olmayan bir sürüm için **404 vermez**,
 **latest'a da düşmez**: `200` döner ve gövdedeki `data` **null** olur. Test bunu okur:
@@ -129,14 +144,50 @@ dotnet run --project execution/BBT.Workflow.Execution.HttpApi.Host --launch-prof
 MockLab seed'i `etc/docker/config/seed/fan-out-documents-collection.json` içermeli
 (`api/fan-out/documents/process` + gecikmeli `.../process-slow`).
 
+> **MockLab seed'i YALNIZ container açılışında import edilir**, ve `collection.name` ile
+> anahtarlanır: zaten var olan bir koleksiyon **tümüyle atlanır**. Seed dosyasını MockLab ayaktayken
+> eklediyseniz mock'lar **yüklenmez** ve her item HTTP 404 alır — batch "5/5 başarısız" görünür ve
+> mutlu yol testi `documents-completed`'a hiç ulaşamaz. İki çözüm:
+>
+> ```bash
+> docker compose up -d --force-recreate mocklab   # (a) yeniden başlat, seed'i tekrar oku
+> ```
+>
+> ya da (b) container'a dokunmadan admin API'den yükleyin — `Accept: application/json` şart,
+> aksi halde SPA HTML'i döner:
+>
+> ```bash
+> curl -s -H 'Accept: application/json' http://localhost:3001/_admin/collections     # mevcutlar
+> # POST /_admin/collections {name,description,color} → id
+> # POST /_admin/mocks       {…, collectionId, rules[]}  (seed dosyasındaki her mock için)
+> ```
+>
+> Doğrulama: `POST /api/fan-out/documents/process?documentId=DOC-1` → **200**,
+> `?documentId=DOC-FAIL-A` → **500**.
+
+> **`POST /api/v1/definitions/publish`'in overwrite'ı YOK.** Aynı sürüm 409
+> (`Instance:100002 — A record with the same version already exists`) döner ve runtime **eski**
+> gömülü script'leri servis etmeye devam eder. Bir `.csx` değiştirdiyseniz
+> `build-fan-out-documents.py` içindeki `VERSION`'ı **mutlaka** yükseltin, yoksa düzenlemeniz
+> sessizce hiçbir şey yapmaz.
+
 > **Runtime sürümü.** FanOutTask henüz release edilmedi. Container image'ı **eski kodu taşır**;
 > senaryoyu lokalde derlenen runtime'a karşı koşun. Integration testler için
 > `tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL`'i açın.
 
+> **`npm run validate` bu senaryoda BAŞARISIZ** — `@burgan-tech/vnext-schema@0.0.52` enum'u
+> `"20"`de bittiği için `attributes.type: "21"` reddediliyor. Bileşen doğru; şema paketi release
+> bekliyor. Publish yolu validate'ten geçmediği için engel değil: SDK'nın `LocalDomainPublisher`'ı
+> component JSON'ını doğrudan publish ucuna atar.
+
 ### Integration testler
 
+Bileşenleri ayrıca publish etmenize gerek yok — SDK `EnableDomainPublish` ile testten önce
+`core/` altındaki her component JSON'ını `POST /api/v1/definitions/publish`'e gönderir.
+
 ```bash
-dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~FanOut"
+dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/test.runsettings \
+  --filter "FullyQualifiedName~FanOut"
 ```
 
 ### Yük testi
@@ -189,11 +240,24 @@ okunur.
 | Kontrol | Eşik | Aşılırsa ne demek |
 | --- | --- | --- |
 | `BULKHEAD` | `efektif_eşzamanlılık ≤ min(ceiling, M × maxDop) × tolerance` | süreç geneli bulkhead tutmuyor; M instance × maxDop kadar çağrı downstream'e biniyor |
-| `TEK-YAZIM` | her instance için `patch(after) − patch(seen) == 1` | per-item `SuppressDataApply` bozulmuş; fan-out N yazıcıya dönmüş |
+| `TEK-YAZIM` | her instance için `patch(after) − patch(before) == 2` (1 damga + 1 batch) | per-item `SuppressDataApply` bozulmuş; fan-out N yazıcıya dönmüş |
 | `SAĞLIK` | Faulted yok, hepsi terminal state'te | `allSettled` join'i item hatasını task hatasına çeviriyor ya da batch takılıyor |
 | `STRAGGLER` | `max(item süresi) / p50 ≤ 4.0` | tek yavaş item batch'i domine ediyor; `itemTimeoutSeconds` / maxDop ayarına bakın |
 
 Çıkış kodu: hepsi geçerse `0`, biri düşerse `1`.
+
+> **`STRAGGLER`'ı yorumlarken iki tuzak.**
+>
+> 1. **Soğuk çalıştırma.** İlk koşuda script derlemesi ve bağlantı ısınması ilk item'ı p50'nin
+>    kat kat üstüne çıkarır; 8×6 ile soğukta `4.56`, aynı parametrelerle ısınmış koşularda
+>    `3.11` / `3.32` ölçüldü (2026-08-21). **Ölçmeden önce bir tur ısıtın**, tek bir soğuk koşuyu
+>    regresyon saymayın.
+> 2. **DOC-SLOW gecikmesi her ortamda etkin değil.** `delayMs` yalnız MockLab'in **açılışta**
+>    import ettiği mock'larda uygulanıyor; koleksiyonu `_admin` API'sinden yüklediyseniz
+>    (bkz. Ön koşullar) alan **saklanıyor ama uygulanmıyor** — `process-slow` ~10 ms döner ve
+>    `--slow-per-instance` fiilen `0` olur, yani oran yalnız doğal jitter'ı ölçer. Straggler
+>    ölçümünün gerçekten anlamlı olması için MockLab'i seed'le birlikte yeniden başlatın ve
+>    `POST /api/fan-out/documents/process-slow`'un ~1.5 s sürdüğünü doğrulayın.
 
 ## Beklenen sonuç
 
@@ -217,12 +281,21 @@ yol), tek-yazım (kısmi başarısızlık — asıl regresyon riski burada), kı
   context'inin `Body`'sini set eder; bir `HttpTask`'ın URL'i klonlanmış task üzerinde yaşar, script
   body'sinde değil. Kendi config'i item başına değişmesi gereken her iç task (HTTP url, SOAP
   envelope, Dapr method) **`ItemInputHandler` zorunlu kılar**.
-- **Mapping vermek varsayılan çıktı paketlemesini devre dışı bırakır.** `IFanOutMapping.OutputHandler`
-  için varsayılan implementasyon yok (yalnız `ItemSelector`'da var). Bu yüzden
-  `FanOutDocumentsMapping.OutputHandler` runtime'ın varsayılan şeklini **bilerek birebir taklit eder**
-  (`documentResults` + `documentResultsSummary{total,succeeded,failed,timedOut}`), ki assertion'lar
-  dokümante edilmiş varsayılan sözleşmeye karşı geçerli kalsın. `failedDocumentIds` ve
-  `versionSeenByFanOut` senaryo enstrümantasyonudur, varsayılan şeklin parçası değildir.
+- **Mapping vermek varsayılan çıktı paketlemesini devre dışı BIRAKMAZ** — ve bu senaryonun
+  ikinci ana iddiası. `IFanOutMapping`'in üç üyesinden ikisi (`ItemSelector`, `OutputHandler`)
+  default interface implementation taşır ve `null` dönüşleri "override etmedim, runtime kendi
+  davranışını uygulasın" demektir; yalnız `ItemInputHandler` abstract'tır. `FanOutDocumentsMapping`
+  bu yüzden **sadece** `ItemInputHandler`'ı override eder ve `documentResults` +
+  `documentResultsSummary{total,succeeded,failed,timedOut}` çıktısını runtime'ın
+  `FanOutTaskExecutor.BuildDefaultOutput`'u üretir. Testlerin yeşil olması, geri-düşüşün uçtan uca
+  çalıştığının kanıtıdır.
+
+  > Tarihçe: üye eskiden abstract'tı, senaryo varsayılan şekli elle birebir taklit eden bir handler
+  > yazmak zorunda kalmıştı (vnext `4bd8941b` bunu opsiyonel yaptı). O kopya **silindi**; geri
+  > eklemek her assertion'ı kendi kendine referans veren bir tautoloji hâline getirir.
+  > Handler'la birlikte giden `failedDocumentIds` / `documentsFailedCount` gibi enstrümantasyon
+  > anahtarları da yok: hangi dokümanın patladığı zaten varsayılan satırlardan
+  > (`isSuccess`, `itemKey`, `index`) okunuyor.
 - **`ItemKey` türetimi.** `FanOutItemsResolver.ExtractItemKey`: item'ın `id` string alanı, yoksa
   `key`, yoksa index. Dokümanlarımız `{ id, url }` olduğu için `ItemKey` doğrudan doküman id'sidir —
   mapping'de dynamic ile eşelenmeye gerek yok.

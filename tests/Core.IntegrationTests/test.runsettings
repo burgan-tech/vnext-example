@@ -8,7 +8,7 @@
         Example: <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>
         When not set, Testcontainers spins up the full Docker stack automatically.
       -->
-      <!-- <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL> -->
+      <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>

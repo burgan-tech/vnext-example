@@ -26,9 +26,11 @@ M es zamanli instance x N item ile FanOutTask'i (TaskType 21, inline) yukler ve 
    asmasi KESIN bir ihlaldir (FAIL), tavanin altinda kalmasi ise guclu ama mutlak olmayan kanittir.
    Kesin tepe olcumu monitoring host'undaki per-item span'lerden okunur (bkz. README).
 
-2. **Tek-yazim degismezi (yuk altinda)** — her instance icin `versionAfterFanOut` ile
-   `versionSeenByFanOut` arasinda TAM bir patch fark olmali. Es zamanlilik altinda bozulan bir
-   per-item bastirma (SuppressDataApply) burada gorunur.
+2. **Tek-yazim degismezi (yuk altinda)** — batch, `documents-processing` state girisinde iki
+   damga task'i arasinda sarili kosuyor: order 1 `versionBeforeFanOutBatch`, order 2 batch,
+   order 3 `versionAfterFanOut`. Aradaki patch farki TAM 2 olmali — biri once-damgasinin kendi
+   yazimi, digeri batch'in TEK yazimi. Es zamanlilik altinda bozulan bir per-item bastirma
+   (SuppressDataApply) burada 1 + N olarak gorunur.
 
 3. **Straggler orani** — `max(item suresi) / p50(item suresi)`. Bir fan-out batch'inin duvar
    saatini tek bir en yavas item belirler. `--slow-per-instance` ile MockLab'in gecikmeli
@@ -38,7 +40,7 @@ M es zamanli instance x N item ile FanOutTask'i (TaskType 21, inline) yukler ve 
 ## Basari esikleri
 
   BULKHEAD     efektif_eszamanlilik <= min(ceiling, instances * max-dop) * tolerance
-  TEK-YAZIM    her instance icin patch(after) - patch(seen) == 1
+  TEK-YAZIM    her instance icin patch(after) - patch(before) == 2 (1 damga + 1 batch)
   SAGLIK       hicbir instance Faulted degil, hepsi terminal state'e ulasti
   STRAGGLER    straggler_orani <= --straggler-threshold (varsayilan 4.0)
 
@@ -306,14 +308,17 @@ def main():
             if isinstance(value, (int, float)):
                 durations.append(float(value))
 
-        seen = patch_of(attributes.get("versionSeenByFanOut"))
+        # Batch'i saran iki damga: order 1 (once) ve order 3 (sonra); arada YALNIZ batch var.
+        # Aradaki iki patch'ten biri once-damgasinin KENDI yazimi, digeri batch'in tek yazimi
+        # olmali. Batch item basina yazsaydi fark 1 + N olurdu.
+        before = patch_of(attributes.get("versionBeforeFanOutBatch"))
         after = patch_of(attributes.get("versionAfterFanOut"))
-        if not seen or not after:
+        if not before or not after:
             single_write_failures.append((instance_id, "version damgalari eksik"))
-        elif seen[:2] != after[:2] or after[2] - seen[2] != 1:
+        elif before[:2] != after[:2] or after[2] - before[2] != 2:
             single_write_failures.append(
-                (instance_id, f"{attributes.get('versionSeenByFanOut')} -> "
-                              f"{attributes.get('versionAfterFanOut')}"))
+                (instance_id, f"{attributes.get('versionBeforeFanOutBatch')} -> "
+                              f"{attributes.get('versionAfterFanOut')} (beklenen fark 2)"))
 
     total_item_seconds = sum(durations) / 1000.0
     effective_concurrency = total_item_seconds / wall
