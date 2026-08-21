@@ -58,7 +58,11 @@ ROOT = Path(__file__).resolve().parent
 # 1.2.0 — DOC-SLOW ids now route to api/fan-out/slow-documents/process (MockLab matches by PREFIX,
 #         so the old .../documents/process-slow was permanently shadowed and never delayed), and
 #         the mdop pair moved to batchTimeoutSeconds 3 — see TASK_VERSIONS below.
-VERSION = "1.2.0"
+# 1.3.0 — added the `run-batch-timeout-parallel` case: a batch deadline where EVERY cut item is in
+#         flight (mdop >= item count). That is the shape that made the old F1 leak falsify
+#         summary.timedOut, and no other case covers it — the serial arm always leaves one item
+#         never-started, which kept its code correct even while F1 was open.
+VERSION = "1.3.0"
 
 # Task components whose version has moved past 1.0.0. A published component version is immutable
 # (re-publishing answers 409 and the runtime keeps serving the OLD definition), so any config change
@@ -159,6 +163,12 @@ CASES = [
         "case-parallel-baseline",
         "fanout-case-parallel-baseline-task",
         "Parallel control arm (mdop 4, both timeouts 2s)",
+    ),
+    (
+        "run-batch-timeout-parallel",
+        "case-batch-timeout-parallel",
+        "fanout-case-batch-timeout-parallel-task",
+        "Batch timeout with every cut item IN FLIGHT (mdop 4, both timeouts 1s)",
     ),
     (
         "run-item-boundary-ignore",

@@ -302,6 +302,50 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
             string.Join(", ", Rows(attributes).Select(row => $"{Key(row)}={Text(row, "errorCode")}")));
     }
 
+    /// <summary>
+    /// The boundary case where <c>itemTimeoutSeconds == batchTimeoutSeconds</c> and the ceiling is
+    /// wide enough for every item to start at once (<c>mdop 4</c> over 3 items). Every item blows its
+    /// OWN deadline, so every item must report <c>FanOut:ItemTimeout</c> — and
+    /// <c>summary.timedOut</c> must stay <c>false</c>, because no item was cut by the BATCH deadline.
+    /// <para>
+    /// <b>This case exists to disprove a concern I filed and could not previously test.</b> While F1
+    /// was open I documented an "amplifier": <c>summary.timedOut</c> is derived from
+    /// <c>Any(ErrorCode == BatchTimeout)</c>, so if every batch-cut item were in flight they would all
+    /// have leaked their code and a genuinely timed-out batch would have read <c>false</c>. Measured
+    /// here, that shape does not exist. An item's window is armed at ITEM start with
+    /// <c>itemTimeoutSeconds</c> while the batch deadline is armed at BATCH start with
+    /// <c>batchTimeoutSeconds</c>, <c>Classify</c> checks the item's own deadline first, and
+    /// <c>itemTimeoutSeconds &lt;= batchTimeoutSeconds</c> is enforced at parse time. So an item
+    /// running from batch start always hits its own deadline first; <c>FanOut:BatchTimeout</c> is
+    /// reachable only for an item whose start was delayed by more than
+    /// <c>batchTimeout - itemTimeout</c> — i.e. one that queued behind the concurrency limit, which
+    /// requires <c>mdop &lt; itemCount</c>. That is exactly the serial arm above, and it is why the
+    /// serial arm's never-started item kept a correct code even while F1 was open.
+    /// </para>
+    /// <para>
+    /// Keep this test. It pins that the two deadlines are never conflated even when they are numerically
+    /// equal, which is the one configuration where a precedence bug would be invisible everywhere else.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public async Task EqualDeadlines_EveryItemBlowsItsOwnDeadline_AndTheBatchIsNotReportedTimedOut()
+    {
+        await AssertStragglerRouteIsActuallySlowAsync();
+
+        var instanceId = await RunCaseAsync("run-batch-timeout-parallel", "DOC-SLOW-A", "DOC-SLOW-B", "DOC-SLOW-C");
+        await WaitForSettledAsync(instanceId);
+
+        var attributes = await GetAttributesAsync(Workflow, instanceId);
+        AssertSummary(attributes, total: 3, succeeded: 0, failed: 3);
+
+        Assert.All(Rows(attributes), row => Assert.Equal(ItemTimeoutCode, Text(row, "errorCode")));
+
+        Assert.False(Summary(attributes).GetProperty("timedOut").GetBoolean(),
+            "no item was cut by the BATCH deadline — each blew its own — so summary.timedOut must " +
+            "stay false. A true here would mean the two deadlines are being conflated at the one " +
+            "configuration where they expire together.");
+    }
+
     [Fact]
     public async Task MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget()
     {

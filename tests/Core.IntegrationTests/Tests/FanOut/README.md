@@ -143,11 +143,13 @@ verdict gizlenirdi.
 
 ## Test matrisi ve SONUÇLAR
 
-**17 test · 14 geçti · 3 kaldı** (2026-08-22, lokal runtime `ccfcec01`).
-`--filter FanOut` bütünü: **21 test · 18 geçti · 3 kaldı** (kardeş `FanOutDocumentsTests` 4/4).
+**18 test · 18 geçti · 0 kaldı** (2026-08-22, lokal runtime `ad72158b`, iki koşu üst üste aynı).
+`--filter FanOut` bütünü: **22 test · 22 geçti** (kardeş `FanOutDocumentsTests` 4/4).
 
-Kalan 3'ün **tamamı gerçek runtime defect'i** ve bilinçli kırmızı — **ortam engeli kalmadı**.
-İkisi **aynı** defect'in (F1) iki farklı iptal nedenini pinliyor.
+**F1** (`b80be176`) ve **F2** (`ad72158b`) runtime'da düzeltildi ve doğrulandı; **E1** (mock prefix
+yutulması) bu repoda düzeltildi. Açık kalanlar test kırmızısı değil, **karar bekleyen** iki madde:
+**F3** (item bazlı `ignore` semantiği) ve **C1** (`minSuccess` non-quorum'da sessiz yoksayılıyor).
+Detay: [`docs/fanout-configurable-surface-findings.md`](../../../../docs/fanout-configurable-surface-findings.md)
 
 | Test | Case transition | Item karışımı | İddia | Sonuç |
 | --- | --- | --- | --- | --- |
@@ -167,23 +169,39 @@ Kalan 3'ün **tamamı gerçek runtime defect'i** ve bilinçli kırmızı — **o
 | `DurableMode_IsRefusedWithAnActionableValidationError` | — (doğrudan publish) | — | `durable` reddedilmeli **ve** sebebi actionable olmalı (4xx) | ❌ **F2 defect** |
 | `BatchTimeout_SerialBatch_StampsBatchTimeoutAndMarksTheBatchTimedOut` | `run-batch-timeout-serial` | 3 × `DOC-SLOW` | `mdop 1`, itemTO 2s / batchTO 3s: en az bir item `FanOut:BatchTimeout`, `timedOut` **true** | ✅ |
 | `MaxDegreeOfParallelism_RaisedCeiling_LetsEveryItemFinishInsideTheSameBudget` | `run-parallel-baseline` | 3 × `DOC-SLOW` | Üsttekinin **kontrol kolu**: aynı config, aynı item'lar, tek fark `mdop 4` → 3/3 başarılı | ✅ |
-| `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | `run-item-timeout` | 2 hızlı + 1 `DOC-SLOW` | `itemTO 1s` / `batchTO 30s`: doğru item düşer, `timedOut` **false** kalır (**ikisi de doğru**) — ama kod `FanOut:ItemTimeout` olmalı | ❌ **F1 defect** |
+| `ItemTimeout_StampsItemTimeoutOnTheStraggler_AndLeavesTheBatchNotTimedOut` | `run-item-timeout` | 2 hızlı + 1 `DOC-SLOW` | `itemTO 1s` / `batchTO 30s`: straggler `FanOut:ItemTimeout` alır, `timedOut` **false** kalır | ✅ |
+| `EqualDeadlines_EveryItemBlowsItsOwnDeadline_AndTheBatchIsNotReportedTimedOut` | `run-batch-timeout-parallel` | 3 × `DOC-SLOW` | `mdop 4`, `itemTO == batchTO == 1s`: **hepsi** kendi deadline'ını aşar → hepsi `FanOut:ItemTimeout`, `timedOut` **false** | ✅ |
 
-**F1** — **Uçuşta iptal edilen item kendi fan-out nedenini değil iç task'ın çıplak
-`Task:Unknown:<taskKey>:TaskCanceledException`'ını taşıyor.** Üç iptal nedeninin **hepsinde** var
-(item deadline 0/1 doğru, batch deadline 1/2, early-stop 1/4); ayrım, item'ın iç task'a girmiş olup
-olmaması — hiç başlamamış item doğru kodu alıyor. E1 çözülmeden önce yalnız early-stop ölçülebildiği
-için defect daha dar sanılmıştı.
+**F1 (ÇÖZÜLDÜ — `b80be176`)** — Uçuşta iptal edilen item kendi fan-out nedeni yerine iç task'ın çıplak
+`Task:Unknown:<taskKey>:TaskCanceledException`'ını taşıyordu. `MapEngineOutcome` artık iptalleri
+`FanOutBatchCancellation.Classify` üzerinden yeniden atfediyor. Üç nedenin **hepsi** yeniden ölçüldü:
 
-> **Yükseltici:** `summary.timedOut`, `FanOutTaskExecutor`'da item kodlarından türetiliyor
-> (`Any(ErrorCode == BatchTimeout)`). Batch deadline'ında kesilen **tüm** item'lar uçuştaysa
-> (`mdop >= item sayısı` — sık görülen şekil) hepsi kodu kaçırır ve `timedOut` gerçekten timeout olmuş
-> bir batch için **`false`** okunur. `BatchTimeout_SerialBatch` bugün geçiyor çünkü `mdop 1`
-> hiç-başlamamış bir item garantiliyor.
+| Neden | Önce | Sonra |
+| --- | --- | --- |
+| item deadline | 0/1 | **1/1** |
+| batch deadline | 1/2 | **2/2** |
+| early stop | 1/4 | **4/4** |
 
-**F2** — `mode: "durable"` publish'te **reddediliyor** (iyi haber: rezerve mod canlı definition
-olamıyor) ama `400` validation yerine **opak `500`** ile. `FanOutTask.Configure`'ın
-`ArgumentException`'ı component-validation yoluna map edilmemiş.
+**Yükseltici iddiası GERİ ÇEKİLDİ.** `summary.timedOut` item kodlarından türetildiği için "batch'te
+kesilen tüm item'lar uçuştaysa `timedOut` yanlış okunur" diye bir endişe kaydetmiştim. Bunu ölçmek için
+`run-batch-timeout-parallel` case'ini kurdum (`mdop 4`, `itemTO == batchTO == 1s`) ve **o şekil
+yapısal olarak imkânsız**: item penceresi ITEM başlangıcında, batch deadline'ı BATCH başlangıcında
+kuruluyor, `Classify` önce item'ın kendi deadline'ına bakıyor ve `itemTO <= batchTO` parse-time zorunlu.
+Yani batch başından beri koşan bir item her zaman önce kendi deadline'ına çarpar; `FanOut:BatchTimeout`
+ancak **kuyrukta gecikmiş** (`mdop < item sayısı`) item için mümkün. Case yine de tutuldu — iki
+deadline'ın sayısal olarak eşit olduğu, precedence hatasının başka hiçbir yerde görünmeyeceği tek
+konfigürasyonu pinliyor.
+
+**F2 (ÇÖZÜLDÜ — `ad72158b`)** — `mode: "durable"` artık `400 validation.App:900006` ile ve alanı
+adlandırarak reddediliyor: `{"sys-tasks.config": ["FanOutTask mode 'durable' is not supported yet…"]}`.
+Düzeltme paylaşılan `ComponentValidatorProcessor`'da olduğu için **her** task tipinin `Configure`
+hatasını kapsıyor — hatalı `itemsPath` de artık 400 (eskiden 500'dü).
+
+**Açık kalanlar (test kırmızısı değil, karar bekliyor):** **F3** item bazlı `errorBoundary`'de
+`action: ignore` gözlemlenebilir bir etki yapmıyor — item hâlâ `failed`, hâlâ `all`'ı düşürüyor;
+semantik dokümante değil. **C1** `join.minSuccess` non-quorum politikalarda sessizce yoksayılıyor
+(`firstSuccess` + `minSuccess: 3` → 1 gibi davranır); dokümante-bilinçli olduğu için **bilinçli olarak
+pinlenmedi** — no-op'u assert etmek tuzağı çimentolar.
 
 > **E1 (ÇÖZÜLDÜ) — MockLab route'ları PREFIX ile eşliyor.** Yavaş mock `documents/process-slow`
 > adresindeydi ve `documents/process` mock'u tarafından **yutuluyordu** (kanıt: `documents/process-XYZQQ`

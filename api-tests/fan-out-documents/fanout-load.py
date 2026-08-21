@@ -37,12 +37,24 @@ M es zamanli instance x N item ile FanOutTask'i (TaskType 21, inline) yukler ve 
    route'una (DOC-SLOW, 1500 ms) giden item sayisi ayarlanir; 0 verilirse oran yalnizca dogal
    jitter'i olcer ve anlamsizlasir.
 
+   Oran IKI TARAFLI denetlenir. Onceki tek tarafli hal ("<= 4.0") olcum bozulunca sessizce yesil
+   kaliyordu: MockLab route'lari PREFIX ile esliyor ve gecikmeli mock `documents/process-slow`
+   adresinde `documents/process` tarafindan yutuluyordu — hicbir item yavas degildi, oran ~1 idi ve
+   esik rahatca geciyordu. Metrik boylece uzun sure yalnizca jitter olctu (2026-08-22'de
+   `api/fan-out/slow-documents/process` route'una tasindi).
+
+   Esikler fixture'in aritmetiginden turetilir: 1500 ms straggler / ~150 ms hizli item => oran
+   **~10 TASARIM GEREGI**. Eski 4.0 tavani, straggler hic cevap vermezken kalibre edilmisti;
+   gercek bir straggler ile matematiksel olarak asilir. Yeni aralik 3.0 .. 15.0 — alt sinir
+   "straggler gercekten var mi", ust sinir "en yavas item patolojik olarak kuyrukta mi".
+
 ## Basari esikleri
 
-  BULKHEAD     efektif_eszamanlilik <= min(ceiling, instances * max-dop) * tolerance
-  TEK-YAZIM    her instance icin patch(after) - patch(before) == 2 (1 damga + 1 batch)
-  SAGLIK       hicbir instance Faulted degil, hepsi terminal state'e ulasti
-  STRAGGLER    straggler_orani <= --straggler-threshold (varsayilan 4.0)
+  BULKHEAD        efektif_eszamanlilik <= min(ceiling, instances * max-dop) * tolerance
+  TEK-YAZIM       her instance icin patch(after) - patch(before) == 2 (1 damga + 1 batch)
+  SAGLIK          hicbir instance Faulted degil, hepsi terminal state'e ulasti
+  STRAGGLER-VAR   straggler_orani >= --straggler-min (varsayilan 3.0; slow-per-instance > 0 ise)
+  STRAGGLER       straggler_orani <= --straggler-threshold (varsayilan 15.0)
 
 Hepsi gecerse cikis kodu 0, aksi halde 1.
 
@@ -67,6 +79,10 @@ from pathlib import Path
 DOMAIN = "core"
 WF = "fan-out-documents"
 USER = "11111111-1111-1111-1111-111111111111"
+
+# etc/docker/config/seed/fan-out-documents-collection.json -> api/fan-out/slow-documents/process
+# mock'unun delayMs degeri. STRAGGLER-VAR tabani buradan turer; seed degisirse burayi da guncelle.
+SLOW_ROUTE_DELAY_MS = 1500
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW_FILE = REPO_ROOT / "core" / "Workflows" / WF / f"{WF}.json"
@@ -244,7 +260,7 @@ def main():
                     help="fan-out-documents-task icindeki execution.maxDegreeOfParallelism")
     ap.add_argument("--tolerance", type=float, default=1.15,
                     help="bulkhead tavaninda kabul edilen olcum toleransi")
-    ap.add_argument("--straggler-threshold", type=float, default=4.0,
+    ap.add_argument("--straggler-threshold", type=float, default=15.0,
                     help="max(item suresi)/p50 icin ust sinir")
     ap.add_argument("--timeout", type=int, default=300, help="tum instance'lar icin toplam bekleme (sn)")
     ap.add_argument("--monitor-url", default=None,
@@ -337,14 +353,64 @@ def main():
           f"tolerans x{args.tolerance})")
     print(f"  throughput            : {throughput:.2f} item/s")
     print(f"  item p50 / max        : {p50:.0f} ms / {slowest:.0f} ms")
-    print(f"  straggler orani       : {straggler_ratio:.2f}  (esik {args.straggler_threshold})")
+    print(f"  straggler orani       : {straggler_ratio:.2f}  (tavan {args.straggler_threshold})")
 
     print()
-    check("BULKHEAD", effective_concurrency <= ceiling * args.tolerance,
-          f"{effective_concurrency:.2f} <= {ceiling * args.tolerance:.2f}")
+
+    # BULKHEAD gecerlilik kapisi.
+    #
+    # Metrik sum(item suresi)/wall, her item suresinin "ucusta gecen downstream zamani" oldugunu
+    # VARSAYAR. Bu varsayim yanlis: FanOutTaskExecutor item stopwatch'ini slot beklemelerinden ONCE
+    # baslatiyor (RunItemWithGatesAsync, Stopwatch.StartNew -> degreeGate.WaitAsync ->
+    # AcquireGlobalSlotAsync), yani durationMs KUYRUKTA BEKLEME SURESINI DE ICERIR. Runtime bu ikisini
+    # ayirt edebilmek icin span'e ayrica vnext.fanout.item.queue_wait_ms tag'i basiyor; per-item
+    # deadline penceresi de bilincli olarak ancak slotlar alindiktan sonra aciliyor.
+    #
+    # Sonuc: item'lar kuyruga girdigi anda — yani bulkhead tam da isini yaptigi anda — metrik SISER
+    # ve kontrol YANLIS FAIL uretir. Olculen 58.69 vs tavan 36 bunun ornegi: 96 item'in 36'si ucusta
+    # olabilirken toplam item-saniye 96 x ~3.7s'yi iceriyordu.
+    #
+    # Bu yuzden iddia yalnizca teklif edilen yukun tavani DOLDURAMAYACAGI durumda kuruluyor; o zaman
+    # kuyruk yok ve oran adil bir eszamanlilik tahmini. Doygun durumda kesin tepe olcumu zaten
+    # monitoring host'undaki per-item span'lerden okunur (bkz. yukaridaki 1. madde).
+    # Kuyruk OLUSMAMASI icin iki kosul birlikte gerekir:
+    #   1. instance ici: items <= max-dop        (batch-yerel degreeGate beklemesi olmasin)
+    #   2. surec geneli: instances*items <= ceiling  (global bulkhead beklemesi olmasin)
+    offered = args.instances * args.items
+    queue_free = args.items <= args.max_dop and offered <= args.ceiling
+    if queue_free:
+        check("BULKHEAD", effective_concurrency <= ceiling * args.tolerance,
+              f"{effective_concurrency:.2f} <= {ceiling * args.tolerance:.2f}")
+    else:
+        why = []
+        if args.items > args.max_dop:
+            why.append(f"items ({args.items}) > max-dop ({args.max_dop}) — batch ici kuyruk")
+        if offered > args.ceiling:
+            why.append(f"instances*items ({offered}) > ceiling ({args.ceiling}) — global kuyruk")
+        print(f"  SKIP  BULKHEAD  -> {'; '.join(why)}. durationMs kuyrukta bekleme suresini de "
+              f"icerdigi icin sum(duration)/wall = {effective_concurrency:.2f} ucusta-eszamanlilik "
+              f"DEGIL ve bu kontrol yanlis FAIL uretir. Iddia icin kuyruksuz bir profil kullanin "
+              f"(or. --instances 4 --items 3 --max-dop 3); doygun profilde kesin tepe icin "
+              f"--monitor-url ile per-item span'lere bakin")
     check("TEK-YAZIM", not single_write_failures,
           f"{len(single_write_failures)} instance tek-yazim degismezini bozdu"
           + (f", ilki: {single_write_failures[0]}" if single_write_failures else ""))
+
+    # Straggler orani IKI TARAFLI kontrol edilir. Tek tarafli (yalniz tavan) hali, olcumun kendisi
+    # bozulunca sessizce yesil kaliyordu: MockLab route'lari PREFIX ile esliyor ve gecikmeli mock
+    # `documents/process-slow` adresinde `documents/process` tarafindan yutuluyordu, yani hicbir item
+    # yavas degildi, oran ~1 idi ve "<= 4.0" rahatca geciyordu. Metrik aylarca sadece jitter olctu.
+    # Alt sinir ORANLA degil MUTLAK sure ile olculur. max/p50 kucuk orneklemde gurultulu: DOC-SLOW
+    # HIC yokken bile tek bir soguk item 963 ms / 102 ms = 9.44 oran uretti, yani oran tabani
+    # "straggler gercekten var mi" sorusunu ayirt etmiyor. Gecikmeli route cevap veriyorsa en yavas
+    # item en az yapilandirilan gecikme kadar surer; yutulmus route'ta ~200 ms'de doner.
+    if args.slow_per_instance > 0:
+        floor_ms = SLOW_ROUTE_DELAY_MS * 0.8
+        check("STRAGGLER-VAR", slowest >= floor_ms,
+              f"en yavas item {slowest:.0f} ms >= {floor_ms:.0f} ms "
+              f"({args.slow_per_instance} DOC-SLOW/instance istendi, route gecikmesi "
+              f"{SLOW_ROUTE_DELAY_MS} ms; bunun altinda kaliyorsa gecikmeli route CEVAP VERMIYOR — "
+              f"MockLab route'lari PREFIX ile esler, bkz. seed'deki not)")
     check("STRAGGLER", straggler_ratio <= args.straggler_threshold,
           f"{straggler_ratio:.2f} <= {args.straggler_threshold}")
 
