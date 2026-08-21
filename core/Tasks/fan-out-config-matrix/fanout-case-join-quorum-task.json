@@ -1,0 +1,40 @@
+{
+  "key": "fanout-case-join-quorum-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "fan-out-config-matrix",
+    "fan-out",
+    "task-type-21",
+    "join-quorum",
+    "min-success"
+  ],
+  "attributes": {
+    "type": "21",
+    "config": {
+      "mode": "inline",
+      "itemsPath": "$.documents",
+      "itemAlias": "document",
+      "task": {
+        "key": "process-document-task",
+        "domain": "core",
+        "flow": "sys-tasks",
+        "version": "1.0.0"
+      },
+      "execution": {
+        "maxDegreeOfParallelism": 4,
+        "itemTimeoutSeconds": 10,
+        "batchTimeoutSeconds": 60
+      },
+      "join": {
+        "policy": "quorum",
+        "minSuccess": 2,
+        "resultKey": "caseResults",
+        "ordered": true
+      }
+    }
+  }
+}

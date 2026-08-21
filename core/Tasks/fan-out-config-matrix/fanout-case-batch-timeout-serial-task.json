@@ -1,0 +1,39 @@
+{
+  "key": "fanout-case-batch-timeout-serial-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "fan-out-config-matrix",
+    "fan-out",
+    "task-type-21",
+    "batch-timeout",
+    "max-degree-of-parallelism"
+  ],
+  "attributes": {
+    "type": "21",
+    "config": {
+      "mode": "inline",
+      "itemsPath": "$.documents",
+      "itemAlias": "document",
+      "task": {
+        "key": "process-document-task",
+        "domain": "core",
+        "flow": "sys-tasks",
+        "version": "1.0.0"
+      },
+      "execution": {
+        "maxDegreeOfParallelism": 1,
+        "itemTimeoutSeconds": 2,
+        "batchTimeoutSeconds": 2
+      },
+      "join": {
+        "policy": "allSettled",
+        "resultKey": "caseResults",
+        "ordered": true
+      }
+    }
+  }
+}
