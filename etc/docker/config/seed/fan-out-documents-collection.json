@@ -1,0 +1,53 @@
+{
+  "collection": {
+    "name": "fan-out-documents",
+    "description": "Per-document processing endpoints for the fan-out (TaskType 21) scenario. The default route succeeds; document ids starting with DOC-FAIL fail deterministically so the partial-failure leg is exercised without timing games, and ids starting with DOC-SLOW are routed by the mapping to a delayed route so the load test's straggler ratio measures something real instead of jitter.",
+    "color": "#a855f7"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "api/fan-out/documents/process",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"documentId\": \"{{request.query.documentId}}\",\n  \"status\": \"processed\",\n  \"pages\": 3\n}",
+      "contentType": "application/json",
+      "description": "Processes one document. The fan-out mapping's ItemInputHandler appends ?documentId=<FanOutItem.ItemKey> to this route, which is how each parallel item is told which document it owns — an HttpTask's URL lives on the cloned task, not on the branch body, so the zero-script path could not do this.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "query.documentId",
+          "conditionOperator": "startsWith",
+          "conditionValue": "DOC-FAIL",
+          "statusCode": 500,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"DOCUMENT_PROCESSING_FAILED\",\n    \"message\": \"Deterministic failure for the fan-out partial-failure leg\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/fan-out/documents/process-slow",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"documentId\": \"{{request.query.documentId}}\",\n  \"status\": \"processed\",\n  \"pages\": 120,\n  \"slow\": true\n}",
+      "contentType": "application/json",
+      "description": "Deliberate straggler. A fan-out batch's wall clock is dominated by its single slowest item, so the load test needs one item that is reliably slow rather than hoping for jitter. delayMs is a mock-level field — it cannot be expressed on a rule — which is why this is a separate route the mapping selects for DOC-SLOW ids.",
+      "delayMs": 1500,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}

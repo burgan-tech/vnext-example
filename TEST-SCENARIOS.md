@@ -24,6 +24,7 @@ geçerliliğini yitiren senaryo **silinmez**, `deprecated` işaretlenip sebebi y
 | **money-transfer** | Rule-driven branching (auto transition) · scheduled/timeout timer arm · transition schema reddi · terminal HTTP task sonucunun instance data'ya yazılması | Tek akışlık referans süreç: kural, zamanlayıcı ve HTTP task kombinasyonu (2026-06-12) | `Tests/MoneyTransfer` | — | ✅ Aktif |
 | **account-opening** | Wizard state tipi · çok dallı ürün seçimi · auto gate'lerin geri gönderimi · rol bazlı state function erişimi (`403`) · cancel/exit well-known transition'ları | Template ile gelen ilk referans akış (2025-11-21) | `Tests/AccountOpening` | — | ⚠️ Bilinçli kırmızı — konteynerli ortamda start, `account-type-selection` onEntry task'larında (`notify-state`, `set-or-get-cache`) fault'luyor; testler doğru, boşluğun sinyali olarak kırmızı tutuluyor |
 | **soap-task-test** | `SoapTask` tipi · SOAP mapping (`SendVipSmsMapping.csx`) · başarı/hata rule'ları ile dallanma | SOAP task tipini uçtan uca doğrulamak <sup>1</sup> (2026-08-13) | — (yalnız `.http`) | — | ⚠️ Integration test yok — kapsam açığı |
+| **fan-out-documents** | `FanOutTask` (TaskType 21) inline mode · `itemsPath` ile koleksiyon çözümü + `ItemKey` türetimi (`id` → `key` → index) · `IFanOutMapping.ItemInputHandler` ile klonlanmış iç task'ın per-item mutasyonu (HTTP url) · `allSettled` join politikası ve `{resultKey}Summary{total,succeeded,failed,timedOut}` üzerinden auto transition dallanması (`RunAutomaticTransitionsStep`, order 90) · **tek-yazim degismezi**: N item → 1 InstanceData sürümü (`SuppressDataApply` + atılan branch context, tek yazım noktası `OutputHandler`) · iki seviyeli bulkhead (batch-yerel `maxDegreeOfParallelism` × süreç geneli `Workflow:FanOut:MaxConcurrentItems`) · item journal anahtarları `{fanOutTaskKey}#{index}` · sonuçların `join.ordered`'dan bağımsız olarak her zaman index sıralı dönmesi | Runtime'a eklenen FanOutTask'ın (vnext `feature/fanout-task-design`, 2026-08-21) **tek-yazim degismezini** regresyona karşı sabitlemek: bastırma bozulursa fan-out tek bir aggregate üzerinde yarışan N eş zamanlı yazıcıya döner ve tasarımın var oluş sebebi kaybolur. İkincil olarak `allSettled` + özet + auto transition kısmi-başarısızlık kalıbının çalışır bir örneğini pinler (2026-08-21) | `Tests/FanOut` (`FanOutDocumentsTests`, 4 test) | `api-tests/fan-out-documents/fanout-load.py` (bulkhead tavanı + yük altında tek-yazım + straggler oranı) | 🆕 Yazıldı, henüz koşulmadı — ayrıca `npm run validate` TaskType 21'i reddediyor (`@burgan-tech/vnext-schema@0.0.52` enum'u `"20"`de bitiyor; şema paketi release bekliyor). Item journal assertion'ı **bilinçli olarak yok**: satırlar yalnız monitoring host'unda (4203) görünüyor, SDK stack'i onu başlatmıyor — `fanout-load.py --monitor-url` ile opt-in |
 | **role-matrix-lab** | Yetkilendirme yüzeylerinin tutarlılığı: root vs state `queryRoles` (state EZER) · `transition.roles` allowlist / blacklist / predefined (`$InstanceStarter`) · `availableIn` rol daraltması (**AND**) · well-known transition'ların (`cancel`/`updateData`/`exit`) configured key + `kind` ile listelenmesi · master şemada `x-roles` alan budaması · `authorize` function'ının üç hedefi (transitionKey / functionKey / queryRoles) · custom function'da rol denetiminin **kaldırılmış** olması | Provider bazlı caller-role çözümü (`default` \| `morph-idm`) + custom function rol gate'inin kaldırılması; rol setinin KAYNAĞI değişirken grant motorunun davranışının değişmediğini pinlemek (2026-08-19, `feature/caller-role-provider`) | `Tests/RoleMatrixLab` (5 sınıf, 59 test) | — (bilinçli: doğruluk senaryosu, eşzamanlılık değil) | 🆕 Yazıldı, henüz koşulmadı |
 
 <sup>1</sup> Gerekçe git geçmişinde kayıtlı değil (commit mesajı `updated`); senaryonun kendi
@@ -64,6 +65,20 @@ chain-busy'den farkı: zincir **gate'li**. Parent, yeterli sayıda `updateData` 
 burasıdır — kabul edilen updateData veri yazar, state'in auto transition'ları taze veriye karşı
 yeniden değerlendirilir.
 
+### fan-out-documents
+Önemli olan paralellik değil **yazım sayısı**. `documents-processing` state'inin onEntry'sinde
+`order 1` fan-out batch'i (N doküman → N paralel HTTP task), `order 2` ise sürüm damgası koşar.
+Aralarında hiçbir şey yoktur — transition yok, state değişimi yok — ve tek-yazım iddiası tam olarak
+bu iki damga arasındaki patch farkıdır: **1 olmalı, N değil.** onEntry sırasına bir şey eklemek
+assertion'ı "geçiyor" bırakır ama hiçbir şeyi denetlemez hâle getirir.
+
+Orchestration host'unda sürüm geçmişini listeleyen bir uç olmadığı için (yalnız monitoring host'unda,
+4203) akış kendi sürüm işaretlerini instance verisine yazar; `data?version=` sondası bunu bağımsız
+olarak doğrular (var olmayan sürüm 404 değil, `200` + `data: null` döner). Aynı sebeple item journal
+(`{fanOutTaskKey}#{index}`) assertion'ı integration testte **yoktur** — uydurulmadı, yük testinde
+`--monitor-url` ile opt-in. Detay:
+[`api-tests/fan-out-documents/README.md`](api-tests/fan-out-documents/README.md)
+
 ---
 
 ## Çalıştırma
@@ -99,6 +114,7 @@ python3 api-tests/data-integrity-lab/integrity-lab-test.py --publish --iteration
 python3 api-tests/subflow-orchestration/updatedata-concurrency-test.py --iterations 20 --threshold 8 --burst 6
 python3 api-tests/chain-busy/chain-busy-behaviour-test.py --publish --iterations 3
 python3 api-tests/chain-busy/chain-busy-behaviour-test.py --list   # case listesi
+python3 api-tests/fan-out-documents/fanout-load.py --publish --instances 20 --items 10 --ceiling 64
 ```
 
 > Kök [`README.md`](README.md)'de ayrıca **JMeter** tabanlı bir yük testi bölümü var. Buradaki Python
