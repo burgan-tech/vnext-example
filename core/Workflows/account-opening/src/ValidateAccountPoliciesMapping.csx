@@ -24,32 +24,37 @@ public class ValidateAccountPoliciesMapping : ScriptBase, IMapping
             var apiBaseUrl = GetConfigValue("Example:ApiBaseUrl", "http://localhost:3001");
             httpTask.SetUrl(httpTask.Url.Replace("API_BASEURL", apiBaseUrl));
 
-            // Get user session and account details from workflow context
-            var userSession = context.Instance?.Data?.userSession;
-            var accountType = context.Instance?.Data?.accountType;
+            // Get user session and account details from workflow context.
+            // Read through Data(...)/Nested(...): instance data is an ExpandoObject, so a dynamic
+            // member access on an ABSENT key throws RuntimeBinderException rather than yielding
+            // null. userSession only carries the headers the caller actually sent (the master
+            // schema types every field as a string, so absent fields are omitted, not nulled), and
+            // ipAddress in particular is missing for any caller that is not behind a proxy.
+            var userSession = Data(context, "userSession");
+            var accountType = Data(context, "accountType");
 
             // Prepare the request body for policy validation
             var requestBody = new
             {
                 // User information
-                userId = userSession?.userId,
+                userId = Nested(userSession, "userId"),
                 
                 // Account details
                 accountType = ResolveAccountType(accountType),
-                accountName = context.Instance?.Data?.accountName,
-                currency = context.Instance?.Data?.currency,
-                branchCode = context.Instance?.Data?.branchCode,
-                initialDeposit = context.Instance?.Data?.initialDeposit ?? 0,
-                accountPurpose = context.Instance?.Data?.accountPurpose,
+                accountName = Data(context, "accountName"),
+                currency = Data(context, "currency"),
+                branchCode = Data(context, "branchCode"),
+                initialDeposit = Data(context, "initialDeposit") ?? 0,
+                accountPurpose = Data(context, "accountPurpose"),
                 
                 // Risk assessment data
                 requestedAt = DateTime.UtcNow,
-                ipAddress = userSession.ipAddress, //context.Headers?["x-forwarded-for"] ?? context.Headers?["x-real-ip"],
-                userAgent = userSession.userAgent, //context.Headers?["user-agent"],
-                deviceId = userSession.deviceId, //context.Headers?["x-device-id"],
+                ipAddress = Nested(userSession, "ipAddress"), //context.Headers?["x-forwarded-for"] ?? context.Headers?["x-real-ip"],
+                userAgent = Nested(userSession, "userAgent"), //context.Headers?["user-agent"],
+                deviceId = Nested(userSession, "deviceId"), //context.Headers?["x-device-id"],
                 // Compliance checks
-                termsAccepted = context.Instance?.Data?.termsAccepted,
-                privacyPolicyAccepted = context.Instance?.Data?.privacyPolicyAccepted
+                termsAccepted = Data(context, "termsAccepted"),
+                privacyPolicyAccepted = Data(context, "privacyPolicyAccepted")
             };
 
             httpTask.SetBody(requestBody);
@@ -58,8 +63,8 @@ public class ValidateAccountPoliciesMapping : ScriptBase, IMapping
             var headers = new Dictionary<string, string?>
             {
                 ["Content-Type"] = "application/json",
-                ["user_reference"] = userSession?.userId?.ToString(),
-                ["X-Request-Id"] = context.Headers?["x-request-id"] ?? Guid.NewGuid().ToString(),
+                ["user_reference"] = Nested(userSession, "userId")?.ToString(),
+                ["X-Request-Id"] = Header(context, "x-request-id") ?? Guid.NewGuid().ToString(),
                 ["X-Instance-Id"] = context.Instance?.Id.ToString()
             };
 
@@ -273,4 +278,32 @@ public class ValidateAccountPoliciesMapping : ScriptBase, IMapping
     }
 
     #endregion
+
+    /// <summary>
+    /// Reads a top-level instance-data field, returning null when it is absent. Instance data is an
+    /// ExpandoObject: `context.Instance?.Data?.foo` THROWS RuntimeBinderException for a missing key,
+    /// so every read goes through here.
+    /// </summary>
+    private static object Data(ScriptContext context, string key)
+    {
+        var data = context.Instance?.Data as IDictionary<string, object>;
+        return data != null && data.TryGetValue(key, out var value) ? value : null;
+    }
+
+    /// <summary>Reads a field of a nested data object, returning null when either level is absent.</summary>
+    private static object Nested(object parent, string key)
+    {
+        var map = parent as IDictionary<string, object>;
+        return map != null && map.TryGetValue(key, out var value) ? value : null;
+    }
+
+    /// <summary>
+    /// Reads one request header, returning null when it is absent. ScriptContext.Headers is a
+    /// Dictionary&lt;string, string?&gt; whose indexer throws on a missing key.
+    /// </summary>
+    private static string Header(ScriptContext context, string name)
+    {
+        var headers = context.Headers as IDictionary<string, string>;
+        return headers != null && headers.TryGetValue(name, out var value) ? value : null;
+    }
 }

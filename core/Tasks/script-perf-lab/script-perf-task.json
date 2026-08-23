@@ -1,0 +1,17 @@
+{
+  "key": "script-perf-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-perf-lab",
+    "performance-baseline",
+    "script"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

@@ -20,11 +20,22 @@ public class GetIbanHistoryMapping : IMapping
 
             var targetIban = (string)context.Instance?.Data?.targetIban ?? string.Empty;
 
-            // Match prior instances whose data.targetIban equals the current targetIban.
-            getInstancesTask.SetFilter(new[]
-            {
-                $"data.targetIban=={targetIban}"
-            });
+            // Match prior instances whose instance data carries the same targetIban.
+            //
+            // Authored with the fluent InstanceQuery (BBT.Workflow.Filtering is a default script
+            // import). The previous form — SetFilter(new[] { "data.targetIban==..." }) — serialized
+            // to a JSON ARRAY of expression strings, which the runtime's GraphQL filter parser has
+            // rejected since the filter format landed ("Expected start of object for
+            // GraphQLFilterNode"), faulting this transition every time.
+            //
+            // SetFilterSpec materializes BOTH the filter and the sort wire strings, so the ordering
+            // belongs here rather than in the task's config; instance data lives under the
+            // `attributes.` prefix and `createdAt` is an instance column.
+            getInstancesTask.SetFilterSpec(
+                InstanceQuery.Create()
+                    .Where("attributes.targetIban", f => f.Eq(targetIban))
+                    .OrderByDescending("createdAt")
+                    .Build());
 
             return Task.FromResult(new ScriptResponse());
         }
