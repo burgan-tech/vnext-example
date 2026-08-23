@@ -67,6 +67,10 @@ python3 api-tests/script-perf-lab/perf-load.py --publish --parallel 20 --iterati
 
 - Integration test yeşil: `perf-done`'a ulaşılır, `stage1..stage10` hepsi merge edilmiş
   (`stamp` + beklenen boyutta `chunk`), `perfItemResults` + `perfItemResultsSummary` dolu.
+- `join.policy: allSettled` + `perf-fanout → perf-done` koşulsuz auto transition nedeniyle
+  **kısmi item hatası da `perf-done`'a ulaşır** — state bunu ayırt etmez. Test başarı/
+  başarısızlığı bu yüzden state'ten değil, `perfItemResultsSummary`'den (`succeeded`/`failed`)
+  assert eder.
 - Yük koşusunda **0 Faulted**; TIMEOUT oranı ≤ %5 (eşikler `api-tests/script-perf-lab/README.md`'de).
 - Baseline tabloları (soğuk/sıcak latency, dotnet-counters özeti, metrics delta) bu README'nin
   "Sonuçlar" bölümüne Task 4 tamamlandığında işlenir — bu bölüm henüz eklenmedi.

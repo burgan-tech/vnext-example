@@ -9,7 +9,9 @@ using Perf.Helpers;
 
 /// <summary>
 /// Stage 1: instance data'ya chunkKb boyutunda deterministik chunk merge eder (delta-only).
-/// chunkKb start body'den okunur; helper'lar (A7) chunk + stamp uretir.
+/// chunkKb start body'den okunur; helper'lar (A7) chunk + stamp uretir. chunk: kb adet ~1KB
+/// node'dan olusan bir liste -- tek buyuk string DEGIL, B9'un per-node maliyetini
+/// (NormalizedJson / per-object SerializeToElement) tetiklemek icin dugum-zengin.
 /// </summary>
 public class StageMapping1 : ScriptBase, IMapping
 {
@@ -24,7 +26,10 @@ public class StageMapping1 : ScriptBase, IMapping
         var chunkKb = 4;
         if (inst != null && inst.TryGetValue("chunkKb", out var raw) && raw != null)
         {
-            int.TryParse(raw.ToString(), out chunkKb);
+            if (int.TryParse(raw.ToString(), out var parsed) && parsed > 0)
+            {
+                chunkKb = parsed;
+            }
         }
 
         dynamic result = new ExpandoObject();

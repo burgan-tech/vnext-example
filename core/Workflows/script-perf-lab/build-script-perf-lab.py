@@ -67,7 +67,9 @@ using Perf.Helpers;
 
 /// <summary>
 /// Stage __N__: instance data'ya chunkKb boyutunda deterministik chunk merge eder (delta-only).
-/// chunkKb start body'den okunur; helper'lar (A7) chunk + stamp uretir.
+/// chunkKb start body'den okunur; helper'lar (A7) chunk + stamp uretir. chunk: kb adet ~1KB
+/// node'dan olusan bir liste -- tek buyuk string DEGIL, B9'un per-node maliyetini
+/// (NormalizedJson / per-object SerializeToElement) tetiklemek icin dugum-zengin.
 /// </summary>
 public class StageMapping__N__ : ScriptBase, IMapping
 {
@@ -82,7 +84,10 @@ public class StageMapping__N__ : ScriptBase, IMapping
         var chunkKb = 4;
         if (inst != null && inst.TryGetValue("chunkKb", out var raw) && raw != null)
         {
-            int.TryParse(raw.ToString(), out chunkKb);
+            if (int.TryParse(raw.ToString(), out var parsed) && parsed > 0)
+            {
+                chunkKb = parsed;
+            }
         }
 
         dynamic result = new ExpandoObject();
@@ -234,10 +239,12 @@ def script_task_component():
     }
 
 
-def item_http_task_component():
+def item_http_task_component(http_timeout):
     """fan-out-documents/process-document-task.json ile AYNI sekil: URL'de API_BASEURL
     placeholder + mevcut MockLab route'u (api/fan-out/documents/process) -- yeni mock
-    YAZILMAZ, mevcutu yeniden kullanir."""
+    YAZILMAZ, mevcutu yeniden kullanir. timeoutSeconds --http-timeout'tan gelir -- sabit
+    birakilirsa --item-timeout'u SESSIZCE golgeler (HTTP client kendi timeout'unda item'i
+    kesip FanOutTask'in item deadline'i hic devreye girmeden `isSuccess=false` uretir)."""
     return {
         "key": ITEM_HTTP_TASK["key"],
         "version": ITEM_HTTP_TASK["version"],
@@ -252,7 +259,7 @@ def item_http_task_component():
                 "method": "POST",
                 "headers": {"Content-Type": "application/json"},
                 "body": {"source": "script-perf-lab"},
-                "timeoutSeconds": 10,
+                "timeoutSeconds": http_timeout,
                 "validateSsl": True,
             },
         },
@@ -299,7 +306,7 @@ def write_json(path, document):
     print("wrote", os.path.relpath(path, os.path.join(ROOT, "..", "..", "..")))
 
 
-def build(version, stages, dop, item_timeout, batch_timeout):
+def build(version, stages, dop, item_timeout, batch_timeout, http_timeout):
     states = [
         state("perf-initial", 1, 0, "Perf Initial",
               [auto("auto-to-stage-1", "perf-stage-1", "Auto to Stage 1")]),
@@ -342,7 +349,8 @@ def build(version, stages, dop, item_timeout, batch_timeout):
     write_json(os.path.join(MAPPING_ROOT, "perf-stamp-helper.json"),
                helper_component(STAMP_HELPER, "PerfStampHelper", "PerfStampHelper.csx"))
     write_json(os.path.join(TASK_ROOT, "script-perf-task.json"), script_task_component())
-    write_json(os.path.join(TASK_ROOT, "perf-item-http-task.json"), item_http_task_component())
+    write_json(os.path.join(TASK_ROOT, "perf-item-http-task.json"),
+               item_http_task_component(http_timeout))
     write_json(os.path.join(TASK_ROOT, "script-perf-fanout-task.json"),
                fanout_task_component(dop, item_timeout, batch_timeout))
     write_json(os.path.join(ROOT, "%s.json" % WORKFLOW_KEY), workflow)
@@ -361,20 +369,34 @@ def main():
     parser.add_argument("--version", default=None,
                         help="workflow component surumu (varsayilan: 1.0.<nonce>)")
     parser.add_argument("--stages", type=int, default=10,
-                        help="perf-stage-1..N sayisi (B9 O(n^2) append profili derinligi)")
+                        help="perf-stage-1..N sayisi (B9 O(n^2) append profili derinligi); "
+                             "48'e esit/uzeri reddedilir (MaxChainDepth=50 auto-chain siniri)")
     parser.add_argument("--fanout-dop", type=int, default=4,
                         help="script-perf-fanout-task execution.maxDegreeOfParallelism")
     parser.add_argument("--item-timeout", type=int, default=20,
-                        help="script-perf-fanout-task execution.itemTimeoutSeconds")
+                        help="script-perf-fanout-task execution.itemTimeoutSeconds -- "
+                             "--http-timeout BUNDAN KUCUKSE veya esitse item deadline'ina hic "
+                             "ULASILMADAN HTTP client kendi timeout'unda item'i keser (sessiz "
+                             "golgeleme); --http-timeout'u bunun UZERINDE tut")
     parser.add_argument("--batch-timeout", type=int, default=120,
                         help="script-perf-fanout-task execution.batchTimeoutSeconds")
+    parser.add_argument("--http-timeout", type=int, default=10,
+                        help="perf-item-http-task attributes.config.timeoutSeconds (inner "
+                             "HTTP client timeout'u) -- --item-timeout'u golgelememesi icin "
+                             "ondan BUYUK tutulmali")
     args = parser.parse_args()
+
+    if args.stages >= 48:
+        parser.error(
+            "--stages %d >= 48 reddedildi: auto-chain zinciri start + %d stage hop'u + fanout "
+            "+ done olarak MaxChainDepth=50 auto-chain sinirina carpar ya da onu asar. Daha "
+            "kucuk bir --stages secin." % (args.stages, args.stages))
 
     version = args.version or "1.0.%d" % args.nonce
 
     written = write_sources(args.nonce, args.stages)
     print("wrote %d stage csx sources (nonce=%s, stages=%s)" % (len(written), args.nonce, args.stages))
-    build(version, args.stages, args.fanout_dop, args.item_timeout, args.batch_timeout)
+    build(version, args.stages, args.fanout_dop, args.item_timeout, args.batch_timeout, args.http_timeout)
     print("\nversion: %s -- publish helpers -> tasks -> workflow, then re-initialize." % version)
 
 
