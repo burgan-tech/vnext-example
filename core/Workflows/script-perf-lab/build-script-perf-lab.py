@@ -33,7 +33,7 @@ Uc mekanizma:
 nonce'a BAGLIDIR (varsayilan 1.0.<nonce>): nonce'u surumu artirmadan bumplarsan yeni kaynak
 runtime'a HIC ULASMAZ, runtime eski script'i servis etmeye devam eder ve "soguk cache" sessizce
 saglanmamis olur. Ayni nedenle workflow + iki task + iki helper hepsi TEK versiyon dizisiyle
-uretilir (helper versiyonlari 1.0.0 sabit kalir; sadece workflow surumu nonce'a baglidir --
+uretilir (chunk helper 1.0.1 — icerik degisti, 409 bayat-helper tuzagina karsi bump; stamp 1.0.0;
 helper icerigi bu script'te degismiyor).
 """
 
@@ -48,7 +48,7 @@ TASK_ROOT = os.path.normpath(os.path.join(ROOT, "..", "..", "Tasks", "script-per
 
 WORKFLOW_KEY = "script-perf-lab"
 
-CHUNK_HELPER = {"key": "perf-chunk-helper", "version": "1.0.0", "domain": "core", "flow": "sys-mappings"}
+CHUNK_HELPER = {"key": "perf-chunk-helper", "version": "1.0.1", "domain": "core", "flow": "sys-mappings"}
 STAMP_HELPER = {"key": "perf-stamp-helper", "version": "1.0.0", "domain": "core", "flow": "sys-mappings"}
 SCRIPT_TASK = {"key": "script-perf-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 FANOUT_TASK = {"key": "script-perf-fanout-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}

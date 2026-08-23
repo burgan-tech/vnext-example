@@ -660,7 +660,7 @@
       "helpers": [
         {
           "key": "perf-chunk-helper",
-          "version": "1.0.0",
+          "version": "1.0.1",
           "domain": "core",
           "flow": "sys-mappings"
         },

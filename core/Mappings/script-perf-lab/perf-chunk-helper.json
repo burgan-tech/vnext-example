@@ -1,6 +1,6 @@
 {
   "key": "perf-chunk-helper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "flow": "sys-mappings",
   "domain": "core",
   "flowVersion": "1.0.0",
