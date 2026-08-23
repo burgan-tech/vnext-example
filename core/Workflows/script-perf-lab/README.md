@@ -83,3 +83,47 @@ tipini kullanan `fan-out-documents` ve `fan-out-config-matrix` senaryolarında d
 bilinen ve dokümante edilmiş bir şema paketi açığıdır (bkz. `TEST-SCENARIOS.md`) — engelleyici
 değildir, çünkü `definitions/publish` runtime'ın kendi doğrulamasını kullanır, bu npm şema
 kontrolünü değil.
+
+## Sonuçlar — Makro Baseline (2026-08-23, optimizasyon ÖNCESİ)
+
+**Ortam:** lokal 4-app koşumu (`--launch-profile http`), vnext branch `feature/script-perf-katman0`
+(runtime kodu `ce92aade` itibarıyla; koşum anındaki HEAD `d7cbad98`, sonrası docs-only).
+vnext-example `feature/script-perf-lab` @ `013189a`. Sandbox: orchestration açık, execution kapalı.
+DI smoke: 4/4 host ilk denemede healthy (21 executor ctor değişikliği sorunsuz).
+Integration test: 1/1 yeşil.
+
+### Soğuk faz (taze nonce=3, ilk dokunuş)
+
+| Metrik | Değer |
+|---|---|
+| coldLatency (start→C) | **1.62 s** |
+| Sıcak 1×1 kontrol | 1.54 s |
+
+### Sıcak faz (3 tur × 20 paralel = 60 instance, closed-loop)
+
+| payload-kb | p50 | p95 | p99 | Sonuç | compile hit/miss delta |
+|---|---|---|---|---|---|
+| 4 | 5.78 s | 5.93 s | 6.33 s | 60/60 C | +1980 / **+0** |
+| 16 | 6.23 s | 8.02 s | 8.03 s | 60/60 C | +1980 / **+0** |
+
+- Hit sayısı instance başına tam **33** (10 stage × input+output + 12 condition + fanout) — deterministik.
+- `miss=+0`: compile cache ideal; scriptType kırılımı: condition +720, task-input +660, task-output +660 (koşu başına).
+- payload 4×↑ → p95 +%35: büyüyen dokümanın append maliyeti (B9) gerçek yükte görünür.
+
+### dotnet-counters (yük penceresi ~70 s, iki sıcak koşu birlikte; Server GC)
+
+| Host | Alloc toplam | Alloc ort/tepe | GC pause | gen0/1/2 | LOH max | WS max | CPU(user) |
+|---|---|---|---|---|---|---|---|
+| Orchestration | **8.10 GB** (~67 MB/instance) | 116 / **291 MB/s** | 0.61 s (%0.9) | 9/10/17 | **207.8 MB** | 679 MB | 34.6 s |
+| Execution | 2.78 GB | 40 / 131 MB/s | 0.24 s (%0.3) | 1/4/**39** | 150.4 MB | 287 MB | 9.0 s |
+
+**Okuma:** allocation hacmi (instance başına ~67 MB!) ve LOH büyümesi, analizin B6 (FanOut branch
+klonu) + B9 (append zinciri) + B1-B3 (expando yeniden inşası) kalemleriyle uyumlu — Katman 1-3'ün
+hedefi bu tabloyu küçültmek. Ham veriler: `api-tests/script-perf-lab/results/`
+(`counters-*-kb4.csv` iki koşuyu da kapsar, `metrics-{before|after}-*.txt`).
+Mikro baseline karşılığı: vnext `test/BBT.Workflow.Benchmarks/baselines/2026-08-23-master.md`.
+
+**Koşum notları:** İlk koşumda CS0012 kök nedenli bir fixture hatası bulundu ve üreticide
+düzeltildi (`013189a` — ExpandoObject cast'i dynamic üzerinden; statik cast sandbox altında
+System.ObjectModel referansı ister). TIMEOUT/başarısızlık yok; MockLab 25 item × 20 paralelde
+doygunluk göstermedi.
