@@ -127,3 +127,40 @@ Mikro baseline karşılığı: vnext `test/BBT.Workflow.Benchmarks/baselines/202
 düzeltildi (`013189a` — ExpandoObject cast'i dynamic üzerinden; statik cast sandbox altında
 System.ObjectModel referansı ister). TIMEOUT/başarısızlık yok; MockLab 25 item × 20 paralelde
 doygunluk göstermedi.
+
+## Katman 1 sonrası (2026-08-23) — compiler hit-yolu optimizasyonları
+
+**Runtime:** vnext `feature/script-perf-katman0` @ Katman 1 tamamlanmış durumda (per-task compile memo,
+ContentHash+profil anahtarı, generation-token bekçili helper-set memo'su, factory delegate).
+
+### Sıcak faz karşılaştırması (3×20, aynı parametreler)
+
+| Metrik | Baseline | Katman 1 | Δ |
+|---|---|---|---|
+| 4KB p50 / p95 | 5.78 / 5.93 s | **4.85 / 5.84 s** | **-16% / -1.5%** |
+| 16KB p50 / p95 / p99 | 6.23 / 8.02 / 8.03 s | **5.74 / 6.27 / 6.30 s** | -8% / **-22% / -22%** |
+| compile hit/instance | 33 | **23** | -30% (öngörü birebir) |
+| compile miss (sıcak) | +0 | **+0** | anahtar doğruluğu yük altında korunuyor |
+| Orch alloc (yük penceresi) | 8.10 GB | 7.87 GB | -2.8% |
+| Orch CPU(user) | 34.6 s | 30.6 s | -12% |
+| Orch GC pause / gen0 | 0.61 s / 9 | 0.46 s / 5 | -25% / -44% |
+| Soğuk (adil: ısınmış process + taze nonce) | 1.62 s | 1.57 s | ~aynı (Roslyn-baskın, beklenen) |
+
+**Okuma:** Katman 1 latency/CPU'daki sabit compiler bedelini kaldırdı; allocation dağı (instance
+başına ~65 MB) beklendiği gibi yerinde — o, serialization katmanının (B6 fan-out klonu + B9 append,
+Katman 2) hedefi. Mikro karşılık: identity yolu düz 1.67 µs / 8.67 KB (kaynak boyutundan bağımsız);
+bkz. vnext `test/BBT.Workflow.Benchmarks/baselines/2026-08-23-master.md` § Katman 1 sonrası.
+
+### Helper-hotfix canlı doğrulaması (floating çözümleme + token bekçisi)
+
+Çalışan process'te, workflow'a dokunmadan:
+1. Authored `perf-stamp-helper@1.0.0` (TAM versiyon) + `1.0.1` publish → eski içerik servis edildi —
+   **runtime semantiği**: tam versiyon exact-match (`CacheSet.GetByVersionAsync` → `IsFullVersion`).
+2. Authored **`"1.0"`** (kısmi) yapılan workflow v1.0.99 + `1.0.1` publish → **`:v101` görüldü**.
+3. Aynı process'te `1.0.2` publish (re-initialize YOK) → sonraki instance **`:v102` gördü** —
+   helper-set memo'su generation-token bump'ıyla kendiliğinden düştü.
+
+Sonuç: memo hiçbir senaryoda memo'suz davranıştan sapmıyor; "hotfix prod'da görünmedi" sınıfı risk
+bu memo için kapalı. NOT: bu doğrulama runtime'da `perf-stamp-helper` 1.0.1/1.0.2 ve workflow
+v1.0.99'u publish edilmiş bırakır (repo dosyaları değişmedi); sonraki koşullar nonce'larını
+artırarak ilerler.
