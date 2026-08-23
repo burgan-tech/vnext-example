@@ -1,0 +1,24 @@
+{
+  "key": "l1-lab-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["integration-test", "l1-cache-lab", "http", "mocklab"],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/test/process",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "l1-cache-lab",
+        "taskVersion": "1.0.0"
+      },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

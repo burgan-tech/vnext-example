@@ -1,0 +1,187 @@
+{
+  "key": "l1-cache-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.1.0",
+  "tags": [
+    "integration-test",
+    "l1-cache-lab",
+    "v1.1.0"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "L1 Cache Lab v1.1.0"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-l1-cache-lab",
+      "target": "lab-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel L1 Cache Lab"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-l1-cache-lab",
+      "target": "ready",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start L1 Cache Lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "ready",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Ready"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "l1-lab-view",
+            "domain": "core",
+            "version": "1",
+            "flow": "sys-views"
+          },
+          "loadData": false
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "probe",
+            "target": "probed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Probe (runs l1-lab-task)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "l1-lab-task",
+                  "domain": "core",
+                  "version": "1",
+                  "flow": "sys-tasks"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "probed",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Probed"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "l1-lab-view",
+            "domain": "core",
+            "version": "1",
+            "flow": "sys-views"
+          },
+          "loadData": false
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "back",
+            "target": "ready",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Back to Ready"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "finish",
+            "target": "lab-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "lab-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "lab-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Lab Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

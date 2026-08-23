@@ -1,0 +1,129 @@
+{
+  "key": "payload-modes",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "payload-modes",
+    "schema-validation",
+    "request-contract"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Payload Modes Lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-payload-modes",
+      "target": "collect-payload",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Payload Modes"
+        }
+      ],
+      "schema": {
+        "key": "payload-modes-input",
+        "version": "1.0.0",
+        "domain": "core",
+        "flow": "sys-schemas"
+      }
+    },
+    "states": [
+      {
+        "key": "collect-payload",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Collect Payload"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "submit-payload",
+            "target": "payload-received",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Submit Payload"
+              }
+            ],
+            "schema": {
+              "key": "payload-modes-input",
+              "version": "1.0.0",
+              "domain": "core",
+              "flow": "sys-schemas"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "payload-received",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Payload Received"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete",
+            "target": "done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "key": "l1-lab-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["integration-test", "l1-cache-lab"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Text",
+        "content": {
+          "tr": "L1-LAB-VIEW-1.0.0",
+          "en": "L1-LAB-VIEW-1.0.0"
+        },
+        "variant": "titleMedium"
+      }
+    },
+    "labels": [
+      {
+        "label": "L1 Lab View 1.0.0",
+        "language": "en-US"
+      }
+    ]
+  }
+}

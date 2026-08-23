@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -96,6 +97,31 @@ public abstract class WorkflowTestBase : IntegrationTestBase
     {
         using var request = new HttpRequestMessage(method, url.TrimStart('/'));
         if (body is not null) request.Content = JsonContent.Create(body);
+        if (headers is not null)
+        {
+            foreach (var (key, value) in headers) request.Headers.TryAddWithoutValidation(key, value);
+        }
+
+        using var response = await _raw.SendAsync(request);
+        return (response.StatusCode, await response.Content.ReadAsStringAsync());
+    }
+
+    /// <summary>
+    /// Sends a request body verbatim, as the caller wrote it.
+    /// <para>
+    /// <see cref="SendRawAsync"/> serializes an object, which means the JSON on the wire is
+    /// whatever the serializer decides. Tests about the request contract itself — payload-mode
+    /// detection, envelope vs business payload, property casing — must pin the exact bytes,
+    /// because the shape IS the thing under test.
+    /// </para>
+    /// </summary>
+    protected async Task<(HttpStatusCode Status, string Body)> SendRawJsonAsync(
+        HttpMethod method, string url, string json, IDictionary<string, string>? headers = null)
+    {
+        using var request = new HttpRequestMessage(method, url.TrimStart('/'))
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
         if (headers is not null)
         {
             foreach (var (key, value) in headers) request.Headers.TryAddWithoutValidation(key, value);

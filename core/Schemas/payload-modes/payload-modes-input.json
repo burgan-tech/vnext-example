@@ -1,0 +1,45 @@
+{
+  "key": "payload-modes-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "payload-modes",
+    "input-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:payload-modes-input",
+      "title": "Payload Modes Input",
+      "description": "Business payload shared by the start transition and submit-payload. additionalProperties is false on purpose: it is what turns an envelope field leaking into the payload (key, tags, stage, attributes) into a hard 400 instead of a silent pass.",
+      "type": "object",
+      "required": ["session", "customer"],
+      "properties": {
+        "session": {
+          "type": "string",
+          "title": "Session",
+          "x-labels": { "en": "Session", "tr": "Oturum" }
+        },
+        "customer": {
+          "type": "object",
+          "title": "Customer",
+          "required": ["ownerUserId"],
+          "properties": {
+            "ownerUserId": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Owner User Id",
+              "x-labels": { "en": "Owner User Id", "tr": "Sahip Kullanıcı" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
