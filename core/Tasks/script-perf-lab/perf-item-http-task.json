@@ -1,0 +1,30 @@
+{
+  "key": "perf-item-http-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-perf-lab",
+    "performance-baseline",
+    "http",
+    "mocklab",
+    "fan-out-inner-task"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/fan-out/documents/process",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "script-perf-lab"
+      },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

@@ -1,0 +1,676 @@
+{
+  "key": "script-perf-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "script-perf-lab",
+    "performance-baseline"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Script Perf Lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-script-perf-lab",
+      "target": "perf-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Script Perf Lab"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-script-perf-lab",
+      "target": "perf-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Script Perf Lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "perf-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-stage-1",
+            "target": "perf-stage-1",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Stage 1"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-1",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 1"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping1.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgMTogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzEgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSgxLCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDEsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2UxIl0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-1-to-next",
+            "target": "perf-stage-2",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 1 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-2",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 2"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping2.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgMjogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzIgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSgyLCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDIsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2UyIl0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-2-to-next",
+            "target": "perf-stage-3",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 2 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-3",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 3"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping3.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgMzogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzMgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSgzLCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDMsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2UzIl0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-3-to-next",
+            "target": "perf-stage-4",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 3 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-4",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 4"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping4.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgNDogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzQgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSg0LCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDQsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2U0Il0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-4-to-next",
+            "target": "perf-stage-5",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 4 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-5",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 5"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping5.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgNTogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzUgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSg1LCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDUsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2U1Il0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-5-to-next",
+            "target": "perf-stage-6",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 5 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-6",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 6"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping6.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgNjogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzYgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSg2LCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDYsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2U2Il0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-6-to-next",
+            "target": "perf-stage-7",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 6 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-7",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 7"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping7.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgNzogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSg3LCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDcsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2U3Il0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-7-to-next",
+            "target": "perf-stage-8",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 7 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-8",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 8"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping8.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgODogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzggOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSg4LCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDgsIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2U4Il0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-8-to-next",
+            "target": "perf-stage-9",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 8 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-9",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 9"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping9.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgOTogaW5zdGFuY2UgZGF0YSd5YSBjaHVua0tiIGJveXV0dW5kYSBkZXRlcm1pbmlzdGlrIGNodW5rIG1lcmdlIGVkZXIgKGRlbHRhLW9ubHkpLgovLy8gY2h1bmtLYiBzdGFydCBib2R5J2RlbiBva3VudXI7IGhlbHBlcidsYXIgKEE3KSBjaHVuayArIHN0YW1wIHVyZXRpci4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFN0YWdlTWFwcGluZzkgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgY2h1bmtLYiA9IDQ7CiAgICAgICAgaWYgKGluc3QgIT0gbnVsbCAmJiBpbnN0LlRyeUdldFZhbHVlKCJjaHVua0tiIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY2h1bmtLYik7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBzdGFnZSA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBzdGFnZVsic3RhbXAiXSA9IFBlcmZTdGFtcEhlbHBlci5TdGFnZSg5LCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDksIGNodW5rS2IpOwogICAgICAgIHRhcmdldFsic3RhZ2U5Il0gPSBzdGFnZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-9-to-next",
+            "target": "perf-stage-10",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 9 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-stage-10",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Stage 10"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/StageMapping10.csx",
+              "code": "Ly8gbm9uY2U6IDEKdXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgUGVyZi5IZWxwZXJzOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3RhZ2UgMTA6IGluc3RhbmNlIGRhdGEneWEgY2h1bmtLYiBib3l1dHVuZGEgZGV0ZXJtaW5pc3RpayBjaHVuayBtZXJnZSBlZGVyIChkZWx0YS1vbmx5KS4KLy8vIGNodW5rS2Igc3RhcnQgYm9keSdkZW4gb2t1bnVyOyBoZWxwZXInbGFyIChBNykgY2h1bmsgKyBzdGFtcCB1cmV0aXIuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTdGFnZU1hcHBpbmcxMCA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGluc3QgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIHZhciBjaHVua0tiID0gNDsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsICYmIGluc3QuVHJ5R2V0VmFsdWUoImNodW5rS2IiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBjaHVua0tiKTsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdmFyIHN0YWdlID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiluZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHN0YWdlWyJzdGFtcCJdID0gUGVyZlN0YW1wSGVscGVyLlN0YWdlKDEwLCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN0YWdlWyJjaHVuayJdID0gUGVyZkNodW5rSGVscGVyLkJ1aWxkKDEwLCBjaHVua0tiKTsKICAgICAgICB0YXJnZXRbInN0YWdlMTAiXSA9IHN0YWdlOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-stage-10-to-next",
+            "target": "perf-fanout",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Stage 10 to Next"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-fanout",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Fan-Out"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "script-perf-fanout-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/FanOutItemMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzY3JpcHQtcGVyZi1sYWIgZmFuLW91dCBpdGVtIGlucHV0OiBoZXIgaXRlbSBpw6dpbiBtZXZjdXQgZmFuLW91dC1kb2N1bWVudHMgTW9ja0xhYgovLy8gbW9jayd1bmEgKGFwaS9mYW4tb3V0L2RvY3VtZW50cy9wcm9jZXNzKSB5w7ZubGVuZGlyaXIuIE91dHB1dCBoYW5kbGVyIGJpbGluw6dsaSB5b2sg4oCUCi8vLyBydW50aW1lJ8SxbiBkZWZhdWx0IHBha2V0bGVtZXNpIChyZXN1bHRLZXkgc2F0xLFybGFyxLEgKyBTdW1tYXJ5KSB5ZXRlcmxpLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmFuT3V0SXRlbU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJRmFuT3V0TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSXRlbUlucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0LCBGYW5PdXRJdGVtIGl0ZW0pCiAgICB7CiAgICAgICAgdmFyIGh0dHBUYXNrID0gdGFzayBhcyBIdHRwVGFzazsKICAgICAgICBpZiAoaHR0cFRhc2sgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBhcGlCYXNlVXJsID0gR2V0Q29uZmlnVmFsdWUoIkV4YW1wbGU6QXBpQmFzZVVybCIsICJodHRwOi8vbG9jYWxob3N0OjMwMDEiKTsKICAgICAgICAgICAgdmFyIHVybCA9IGh0dHBUYXNrLlVybC5SZXBsYWNlKCJBUElfQkFTRVVSTCIsIGFwaUJhc2VVcmwpOwogICAgICAgICAgICB2YXIgZG9jdW1lbnRJZCA9IGl0ZW0uSXRlbUtleSA/PyBpdGVtLkluZGV4LlRvU3RyaW5nKCk7CiAgICAgICAgICAgIGh0dHBUYXNrLlNldFVybCh1cmwgKyAiP2RvY3VtZW50SWQ9IiArIFVyaS5Fc2NhcGVEYXRhU3RyaW5nKGRvY3VtZW50SWQpKTsKICAgICAgICB9CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-done",
+            "target": "perf-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Done"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "perf-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "perf-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Perf Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "scripts": {
+      "helpers": [
+        {
+          "key": "perf-chunk-helper",
+          "version": "1.0.0",
+          "domain": "core",
+          "flow": "sys-mappings"
+        },
+        {
+          "key": "perf-stamp-helper",
+          "version": "1.0.0",
+          "domain": "core",
+          "flow": "sys-mappings"
+        }
+      ]
+    }
+  }
+}

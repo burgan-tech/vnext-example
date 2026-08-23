@@ -1,0 +1,18 @@
+{
+  "key": "perf-stamp-helper",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-perf-lab",
+    "performance-baseline"
+  ],
+  "attributes": {
+    "name": "PerfStampHelper",
+    "location": "./src/PerfStampHelper.csx",
+    "code": "using System;\n\nnamespace Perf.Helpers;\n\n/// <summary>\u0130kinci helper \u2014 helper-set'in \u00e7ok \u00fcyeli (A7) yolunu tetiklemek i\u00e7in var.</summary>\npublic static class PerfStampHelper\n{\n    public static string Stage(int stage, string instanceId) =>\n        \"perf:\" + stage + \":\" + (instanceId ?? \"none\");\n}\n",
+    "encoding": "NAT"
+  }
+}

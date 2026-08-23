@@ -1,0 +1,18 @@
+{
+  "key": "perf-chunk-helper",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-perf-lab",
+    "performance-baseline"
+  ],
+  "attributes": {
+    "name": "PerfChunkHelper",
+    "location": "./src/PerfChunkHelper.csx",
+    "code": "using System;\nusing System.Linq;\n\nnamespace Perf.Helpers;\n\n/// <summary>\n/// script-perf-lab: deterministik, istenen boyutta chunk \u00fcretir. Ama\u00e7 instance dok\u00fcman\u0131n\u0131\n/// stage ba\u015f\u0131na parametrik b\u00fcy\u00fctmek (B9 append profili). StringBuilder bilin\u00e7li yok \u2014\n/// script derlemesinde System.Text using'i mevcut de\u011fil.\n/// </summary>\npublic static class PerfChunkHelper\n{\n    public static string Build(int stage, int kb)\n    {\n        var unit = \"s\" + stage + \"-0123456789abcdefghijklmnopqrstuvwxyz-\";\n        var repeat = (kb * 1024) / unit.Length + 1;\n        return string.Concat(Enumerable.Repeat(unit, repeat)).Substring(0, Math.Max(1, kb * 1024));\n    }\n}\n",
+    "encoding": "NAT"
+  }
+}
