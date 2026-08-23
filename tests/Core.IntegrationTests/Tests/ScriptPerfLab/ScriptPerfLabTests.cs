@@ -30,15 +30,20 @@ public class ScriptPerfLabTests : WorkflowTestBase
 
         var attributes = await GetAttributesAsync(Workflow, instanceId);
 
-        // 10 stage'in hepsi merge edilmiş ve helper stamp'i çözülmüş olmalı.
+        // 10 stage'in hepsi merge edilmiş ve helper stamp'i çözülmüş olmalı. GetProperty'nin
+        // KeyNotFoundException'ı anahtar adını İÇERMEZ — canlı stack'e karşı ilk koşulan test bu
+        // olduğu için her anahtar TryGetProperty + isimli mesajla okunur (FanOutDocumentsTests deseni).
         for (var stage = 1; stage <= 10; stage++)
         {
-            var node = attributes.GetProperty($"stage{stage}");
-            Assert.StartsWith($"perf:{stage}:", node.GetProperty("stamp").GetString());
+            Assert.True(attributes.TryGetProperty($"stage{stage}", out var node),
+                $"stage{stage} attributes'ta yok — mevcut üst-seviye anahtarlar: " +
+                string.Join(", ", attributes.EnumerateObject().Select(p => p.Name)));
+            Assert.True(node.TryGetProperty("stamp", out var stamp), $"stage{stage}.stamp yok");
+            Assert.StartsWith($"perf:{stage}:", stamp.GetString());
 
             // chunk = PerfChunkHelper.Build(stage, chunkKb) -> List<object> of ~1KB segments,
             // NOT a string. chunkKb=2 -> at least 2 segment nodes, each carrying a non-empty seg.
-            var chunk = node.GetProperty("chunk");
+            Assert.True(node.TryGetProperty("chunk", out var chunk), $"stage{stage}.chunk yok");
             Assert.Equal(JsonValueKind.Array, chunk.ValueKind);
             Assert.True(chunk.GetArrayLength() >= 2,
                 $"stage{stage} chunk beklenen segment sayısında değil (got {chunk.GetArrayLength()})");
@@ -48,11 +53,18 @@ public class ScriptPerfLabTests : WorkflowTestBase
         }
 
         // Fan-out default paketlemesi: resultKey satırları + Summary.
-        var results = attributes.GetProperty("perfItemResults").EnumerateArray().ToArray();
+        Assert.True(attributes.TryGetProperty("perfItemResults", out var resultsNode),
+            "perfItemResults attributes'ta yok (fan-out default paketlemesi çalışmadı?)");
+        var results = resultsNode.EnumerateArray().ToArray();
         Assert.Equal(3, results.Length);
         Assert.All(results, row => Assert.True(row.GetProperty("isSuccess").GetBoolean()));
-        var summary = attributes.GetProperty("perfItemResultsSummary");
+        // Kimlik/sıra: ordered=true + itemKey=id türetimi — FanOutDocumentsTests ile aynı titizlik.
+        Assert.Equal(items.Select(d => d.id).ToArray(),
+            results.Select(row => row.GetProperty("itemKey").GetString()).ToArray());
+        Assert.True(attributes.TryGetProperty("perfItemResultsSummary", out var summary),
+            "perfItemResultsSummary attributes'ta yok");
         Assert.Equal(3, summary.GetProperty("succeeded").GetInt32());
         Assert.Equal(0, summary.GetProperty("failed").GetInt32());
+        Assert.False(summary.GetProperty("timedOut").GetBoolean(), "fan-out batch timedOut=true");
     }
 }
