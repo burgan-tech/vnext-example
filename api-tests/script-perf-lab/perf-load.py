@@ -254,8 +254,13 @@ def snapshot_metrics(args, phase, results_dir):
     satirlarini cekip results/metrics-{phase}-{timestamp}.txt'ye yazar; kaynak basina
     ham satir listesini dondurur (delta hesaplamasi icin)."""
     orch_base = args.base_url.rstrip("/")
-    exec_base = orch_base.replace(":4201", ":4202")
-    sources = {"orchestration": "%s/metrics" % orch_base, "execution": "%s/metrics" % exec_base}
+    sources = {"orchestration": "%s/metrics" % orch_base}
+    if ":4201" in orch_base:
+        sources["execution"] = "%s/metrics" % orch_base.replace(":4201", ":4202")
+    else:
+        # Ozel portta execution ucunu tahmin etmeyiz: ayni ucu iki kez sayip delta'yi sessizce
+        # ikiye katlamaktansa yalniz orchestration'i olceriz.
+        print("  ! --base-url :4201 icermiyor; execution /metrics atlandi (delta yalniz orchestration)")
 
     captured = {}
     blocks = []
