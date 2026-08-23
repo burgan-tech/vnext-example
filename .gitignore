@@ -285,3 +285,4 @@ core.link.json
 
 # vNext Forge managed local runtime
 .vnext-runtime/
+__pycache__/

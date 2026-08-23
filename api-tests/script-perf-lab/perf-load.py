@@ -181,7 +181,10 @@ def run_warm(args):
         counts = {}
         for record in records:
             counts[record["status"]] = counts.get(record["status"], 0) + 1
-        round_latencies = [r["settleS"] for r in records if r.get("settleS") is not None]
+        # Yalniz terminale ulasan kayitlar persentile girer: TIMEOUT kaydinin settleS'i
+        # ~--timeout butcesidir (parametre yankisi), latency degildir.
+        round_latencies = [r["settleS"] for r in records
+                           if r.get("settleS") is not None and r.get("status") in TERMINAL]
         all_latencies.extend(round_latencies)
         all_records.extend(records)
         print("  tur %d: %s" % (round_idx, counts))

@@ -89,7 +89,13 @@ Hepsi geçerse çıkış kodu `0`, biri düşerse `1`.
 
 - **Latency p50/p95/p99** — sıcak fazın tüm turlarından biriken settle süreleri (saniye). 20'den
   az örneklemde `statistics.quantiles` yerine sıralı liste indekslemesi kullanılır (küçük
-  örneklemde quantile interpolasyonu güvenilmez).
+  örneklemde quantile interpolasyonu güvenilmez). Ölçüm tanımı: **accept→terminal** (start
+  POST'unun 202 dönüşünden state function'ın terminal göstermesine kadar; start isteğinin kendi
+  süresi dahil değildir) ve 0.5 s polling aralığı nedeniyle örnek başına ±0.5 s kuantalama payı
+  vardır. TIMEOUT kayıtları persentile GİRMEZ (settle süreleri `--timeout` parametresinin
+  yankısı olurdu); sayıları ayrıca raporlanır. Turlar **closed-loop** koşar: bir turun en yavaş
+  instance'ı bitmeden sonraki tur başlamaz — bu bir baseline şeklidir, sürekli-yük (sustained
+  throughput) kuyruklanmasını göstermez.
 - **`script_compilations_total{result}` delta** — `hit` sayısı arttıkça sağlıklı (compile cache
   isabet ediyor); ideal profilde sıcak faz boyunca yalnızca `hit` artar, `miss` **sabit kalır**
   (yeni script derlenmiyor). Sıcak fazda `miss` artıyorsa cache'in beklenmedik şekilde tahliye
@@ -105,7 +111,9 @@ Hepsi geçerse çıkış kodu `0`, biri düşerse `1`.
   içindir.
 - **Soğuk faz uyarısı** — script her koşuda "soğuk faz ancak taze nonce'la anlamlı" notunu basar;
   bu bir hata değil, ölçümün geçerlilik koşulunu hatırlatan bilgilendirmedir (script publish
-  edilmiş bir nonce'ın taze olup olmadığını kendi başına tespit edemez).
+  edilmiş bir nonce'ın taze olup olmadığını kendi başına tespit edemez). Ayrıca: publish ile
+  soğuk ölçüm arasında **integration suite'i KOŞMA** — suite kendi publish'iyle aynı nonce'ın
+  script'lerini derletir ve soğuk ölçüm sessizce sıcağa döner.
 
 ## İlgili dosyalar
 
