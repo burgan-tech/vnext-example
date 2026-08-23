@@ -164,3 +164,32 @@ Sonuç: memo hiçbir senaryoda memo'suz davranıştan sapmıyor; "hotfix prod'da
 bu memo için kapalı. NOT: bu doğrulama runtime'da `perf-stamp-helper` 1.0.1/1.0.2 ve workflow
 v1.0.99'u publish edilmiş bırakır (repo dosyaları değişmedi); sonraki koşullar nonce'larını
 artırarak ilerler.
+
+## Katman 2 sonrası (2026-08-23) — serialization/ScriptContext optimizasyonları
+
+**Runtime:** vnext `feature/script-perf-katman0` @ Katman 2 tamamlanmış (okuma memo'ları, tek-geçişli
+canonicalizer append + kill-switch, COW branch, audit referansı).
+
+### Sonuçlar (3×20, aynı parametreler; kanonik koşum)
+
+| Metrik | Baseline | Katman 1 | Katman 2 |
+|---|---|---|---|
+| Soğuk (adil) | 1.62 s | 1.57 s | **1.08 s (-33%)** |
+| 4KB p50 / p95 | 5.78 / 5.93 | 4.85 / 5.84 | 5.68 / 6.31 |
+| 16KB p50 / p95 | 6.23 / 8.02 | 5.74 / 6.27 | 5.92 / 6.59 |
+| Orch alloc (yük penceresi) | 8104 MB | 7870 MB | **7259 MB (-10.4%)** |
+| Orch LOH max | 207.8 MB | 194.8 MB | **177.7 MB (-15%)** |
+| Orch GC pause | 0.61 s | 0.46 s | **0.40 s (-35%)** |
+| compile hit/instance · miss | 33 · +0 | 23 · +0 | **23 · +0 (korunuyor)** |
+| Integration (geniş set) | — | — | **37/37** (script-perf-lab + chain-busy + fan-out) |
+| Kill-switch canlı testi | — | — | ✅ legacy konumda 1/1 (env üzerinden) |
+
+**Dürüst okuma:** (1) Latency farkları K1↔K2 arasında bu makinenin kanıtlanmış gürültü bandında —
+aynı 16KB konfigürasyonu ardışık iki koşuda 11.08s ve 6.38s okudu (ilk okuma collector-başlangıcı/GC
+artçısıyla kirliydi ve ATILDI); p95'ler baseline'a karşı hâlâ net iyi. (2) Mikro seviyedeki devasa
+kazançlar (branch klonu 1.29ms/1.7MB → 102ns/992B; canonicalizer -66% süre) makro allokasyonun
+~%8-10'una tekabül etti: kalan ~7.2GB'ın sahipleri bu katmanın hedeflediği yollar DEĞİL
+(EF/persist, HTTP/Dapr, pipeline altyapısı). Bir sonraki tur için işaret: allocation profiling
+(dotnet-gcdump/trace) ile yeni dağ sahiplerini bulmak. (3) EXEC tarafı beklendiği gibi düz
+(K2 yolları orada koşmuyor). Ham veriler: `results/counters-*-k2.csv` (kanonik pencere
+21:08:45-21:09:35 lokal), metrics-*.txt.
