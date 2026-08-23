@@ -1,4 +1,4 @@
-// nonce: 1
+// nonce: 2
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -34,7 +34,11 @@ public class StageMapping6 : ScriptBase, IMapping
 
         dynamic result = new ExpandoObject();
         var target = (IDictionary<string, object>)result;
-        var stage = (IDictionary<string, object>)new ExpandoObject();
+        // ExpandoObject -> IDictionary casti DYNAMIC uzerinden yapilir (Leaf/Race emsali):
+        // statik tipten dogrudan cast, Roslyn'in interface listesini (INotifyPropertyChanged,
+        // System.ObjectModel) cozmesini gerektirir ve sandbox altinda CS0012 verir.
+        dynamic stageNode = new ExpandoObject();
+        var stage = (IDictionary<string, object>)stageNode;
         stage["stamp"] = PerfStampHelper.Stage(6, context.Instance.Id.ToString());
         stage["chunk"] = PerfChunkHelper.Build(6, chunkKb);
         target["stage6"] = stage;

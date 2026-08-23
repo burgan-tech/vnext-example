@@ -92,7 +92,11 @@ public class StageMapping__N__ : ScriptBase, IMapping
 
         dynamic result = new ExpandoObject();
         var target = (IDictionary<string, object>)result;
-        var stage = (IDictionary<string, object>)new ExpandoObject();
+        // ExpandoObject -> IDictionary casti DYNAMIC uzerinden yapilir (Leaf/Race emsali):
+        // statik tipten dogrudan cast, Roslyn'in interface listesini (INotifyPropertyChanged,
+        // System.ObjectModel) cozmesini gerektirir ve sandbox altinda CS0012 verir.
+        dynamic stageNode = new ExpandoObject();
+        var stage = (IDictionary<string, object>)stageNode;
         stage["stamp"] = PerfStampHelper.Stage(__N__, context.Instance.Id.ToString());
         stage["chunk"] = PerfChunkHelper.Build(__N__, chunkKb);
         target["stage__N__"] = stage;
