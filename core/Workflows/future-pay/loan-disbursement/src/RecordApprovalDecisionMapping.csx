@@ -32,10 +32,16 @@ public class RecordApprovalDecisionMapping : ScriptBase, IMapping
         }
 
         SetProperty(approval, "decision", "approved");
-        SetProperty(approval, "decisionReason", ToStr(Get(data, "decisionReason")) ?? ToStr(Get(existing, "decisionReason")));
-        SetProperty(approval, "conditions", ToStr(Get(data, "conditions")) ?? ToStr(Get(existing, "conditions")));
-        SetProperty(approval, "approverUserId", ToStr(Get(data, "approverUserId")) ?? ToStr(Get(existing, "approverUserId")));
         SetProperty(approval, "decisionDate", DateTime.UtcNow.ToString("o"));
+
+        // The optional strings are written ONLY when a value exists. Writing an explicit null
+        // instead is what used to fail the master schema: approval.conditions (and its siblings)
+        // are declared `type: "string"`, and null is not a string — so an approval without a
+        // `conditions` field faulted the whole transition with "JSON schema validation failed".
+        // Absent and null are not the same thing here; absent is what "not provided" means.
+        SetIfPresent(approval, "decisionReason", ToStr(Get(data, "decisionReason")) ?? ToStr(Get(existing, "decisionReason")));
+        SetIfPresent(approval, "conditions", ToStr(Get(data, "conditions")) ?? ToStr(Get(existing, "conditions")));
+        SetIfPresent(approval, "approverUserId", ToStr(Get(data, "approverUserId")) ?? ToStr(Get(existing, "approverUserId")));
 
         var result = CreateObject();
         SetProperty(result, "approval", approval);
@@ -51,6 +57,13 @@ public class RecordApprovalDecisionMapping : ScriptBase, IMapping
 
     private static object Get(IDictionary<string, object> source, string key)
         => source != null && source.TryGetValue(key, out var value) ? value : null;
+
+    /// <summary>Writes the property only when the value is non-null — see the note above.</summary>
+    private void SetIfPresent(object target, string name, string value)
+    {
+        if (value != null)
+            SetProperty(target, name, value);
+    }
 
     private static string ToStr(object value)
     {

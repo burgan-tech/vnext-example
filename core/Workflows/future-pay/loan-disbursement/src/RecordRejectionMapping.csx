@@ -32,9 +32,13 @@ public class RecordRejectionMapping : ScriptBase, IMapping
         }
 
         SetProperty(approval, "decision", "rejected");
-        SetProperty(approval, "decisionReason", ToStr(Get(data, "rejectionReason")) ?? ToStr(Get(existing, "decisionReason")));
-        SetProperty(approval, "rejectionCode", ToStr(Get(data, "rejectionCode")) ?? ToStr(Get(existing, "rejectionCode")));
         SetProperty(approval, "decisionDate", DateTime.UtcNow.ToString("o"));
+
+        // Same rule as the approval mapping: the optional strings are omitted when absent rather
+        // than written as null, because the master schema declares them `type: "string"` and a
+        // null fails validation for the whole transition.
+        SetIfPresent(approval, "decisionReason", ToStr(Get(data, "rejectionReason")) ?? ToStr(Get(existing, "decisionReason")));
+        SetIfPresent(approval, "rejectionCode", ToStr(Get(data, "rejectionCode")) ?? ToStr(Get(existing, "rejectionCode")));
 
         var result = CreateObject();
         SetProperty(result, "approval", approval);
@@ -50,6 +54,13 @@ public class RecordRejectionMapping : ScriptBase, IMapping
 
     private static object Get(IDictionary<string, object> source, string key)
         => source != null && source.TryGetValue(key, out var value) ? value : null;
+
+    /// <summary>Writes the property only when the value is non-null — see the note above.</summary>
+    private void SetIfPresent(object target, string name, string value)
+    {
+        if (value != null)
+            SetProperty(target, name, value);
+    }
 
     private static string ToStr(object value)
     {
