@@ -18,11 +18,15 @@ namespace Core.IntegrationTests.Tests.AccountOpening;
 /// succeeded" — the terminal assertions below name the success state explicitly.
 /// </para>
 /// <para>
-/// <b>Known red in the containerised environment.</b> Every test here that has to advance the
-/// flow currently fails at the same point: the start faults on <c>account-type-selection</c>'s
-/// entry tasks (<c>notify-state</c>, <c>set-or-get-cache</c>), leaving the instance in that state
-/// with status <c>F</c> and only the <c>initial</c> payload in its data. These tests are correct
-/// and are kept red on purpose — they are the signal for that gap, not a symptom of test logic.
+/// <b>Was known red; green since account-opening v1.0.2 (2026-08-24).</b> The gap this class used
+/// to signal was not in the entry tasks themselves: <c>UserSessionMapping</c> read
+/// <c>context.Headers?["x-forwarded-for"]</c>, and that indexer throws on a missing key instead of
+/// yielding null, so the start task's output handler died and <c>userSession</c> was never written.
+/// Two mappings downstream then read the absent section dynamically — one of them swallowing the
+/// throw and sending an empty request body, which the mock answered with 400 and the flow read as
+/// <c>account-creation-failed</c>. All three mappings now read headers and instance data through
+/// null-returning helpers. Should this class go red again, check the start task's log line first:
+/// its failure is tolerated ("no ErrorBoundary is defined"), so the instance looks healthy.
 /// </para>
 /// </summary>
 public class AccountOpeningTests : WorkflowTestBase

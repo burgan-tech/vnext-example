@@ -14,12 +14,17 @@ namespace Core.IntegrationTests.Tests.DataIntegrityLab;
 /// failed transition.
 /// </para>
 /// <para>
-/// <b>Known red in the containerised environment.</b> <c>run-parallel</c> never settles — the
-/// instance stays Busy indefinitely (confirmed at 120s, so this is a hang and not a timeout that
-/// wants tuning), which keeps <see cref="FullLifecycle_ReachesLabCompleted"/> and
-/// <see cref="ParallelTasks_AllLandTheirOwnKeys"/> red. <c>run-sequential</c> and the updateData
-/// storm are unaffected. The settle budget below is deliberately modest: a known hang should cost
-/// the suite a minute, not four.
+/// <b>Known red, and it is NOT a data defect.</b> <see cref="FullLifecycle_ReachesLabCompleted"/>
+/// and <see cref="ParallelTasks_AllLandTheirOwnKeys"/> stay red because the instance never leaves
+/// <c>Busy</c>, so the updateData calls that would satisfy the fan-in gate are refused. Measured on
+/// a stuck instance (local runtime, 2026-08-24): <c>run-parallel</c> COMPLETED in 0.82s and all four
+/// parallel writes landed with distinct timestamps (<c>par1..par4</c>, plus <c>seq1..seq3</c>) — no
+/// write is lost or duplicated. What does not happen is the settle: <c>lab-collect</c>'s auto
+/// transition is gated on <c>labUpdateCount &gt;= labThreshold</c> (0 &gt;= 4 ⇒ false), and with the
+/// rule false the instance is left Busy instead of being resolved back to Active. Red on the
+/// released container image since 2026-08-17 and equally red on a locally built runtime, so it is
+/// not tied to any one build. The settle budget below is deliberately modest: a known hang should
+/// cost the suite a minute, not four.
 /// </para>
 /// </summary>
 public class DataIntegrityLabTests : WorkflowTestBase
