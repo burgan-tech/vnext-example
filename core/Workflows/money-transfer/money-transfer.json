@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "tags": [
     "money-transfer",
     "payments",
