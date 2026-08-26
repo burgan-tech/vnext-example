@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Filtering;
 
 // Queries prior money-transfer instances for the same targetIban (GetInstances task, type 15).
 // InputHandler builds the targetIban filter; OutputHandler writes isFirstTransfer based on the
@@ -20,11 +21,18 @@ public class GetIbanHistoryMapping : IMapping
 
             var targetIban = (string)context.Instance?.Data?.targetIban ?? string.Empty;
 
-            // Match prior instances whose data.targetIban equals the current targetIban.
-            getInstancesTask.SetFilter(new[]
-            {
-                $"data.targetIban=={targetIban}"
-            });
+            // Match prior instances whose attributes.targetIban equals the current targetIban.
+            // Built with the fluent InstanceQuery + SetFilterSpec so the Filter/Sort wire strings
+            // are always well-formed GraphQL-filter JSON (the previous SetFilter(string[]) call
+            // resolved to the SetFilter(object) overload, serializing to a JSON array instead of
+            // the expected filter object, and left Sort on the task's static legacy "-CreatedAt"
+            // config value, which is not JSON either — both rejected by InstanceQueryValidator).
+            var spec = InstanceQuery.Create()
+                .Where("attributes.targetIban", f => f.Eq(targetIban))
+                .OrderByDescending("createdAt")
+                .Build();
+
+            getInstancesTask.SetFilterSpec(spec);
 
             return Task.FromResult(new ScriptResponse());
         }
