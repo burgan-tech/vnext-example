@@ -1,0 +1,262 @@
+{
+  "key": "otp-auth-harness",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "harness",
+    "integration-test",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "OTP Auth Harness"
+      },
+      {
+        "language": "tr-TR",
+        "label": "OTP Dogrulama Test Parent'i"
+      }
+    ],
+    "schema": {
+      "key": "otp-auth-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "scripts": {
+      "helpers": [
+        {
+          "key": "otp-auth-helpers",
+          "version": "1.0.0",
+          "domain": "core",
+          "flow": "sys-mappings"
+        }
+      ]
+    },
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-otp-auth-harness",
+      "target": "harness-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Harness"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Harness'i Baslat"
+        }
+      ],
+      "schema": {
+        "key": "otp-auth-start-payload",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "otp-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "type": "L",
+            "location": "./src/HarnessStartMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+VGVzdCBoYXJuZXNzIG9ubHk6IHBhc3NlcyB0aGUgc3RhcnQgcGF5bG9hZCBzdHJhaWdodCB0aHJvdWdoIHRvIHRoZSBTdWJGbG93IHN0YXRlLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEhhcm5lc3NTdGFydE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IE90cEF1dGhIZWxwZXJzLk1lcmdlKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpIH0pOwogICAgfQp9Cg==",
+            "encoding": "B64"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "harness-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Harness Initial"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Harness Baslangic"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "harness-to-otp-auth",
+            "target": "harness-otp-auth",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter OTP auth subflow"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP alt akisina gir"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "harness-otp-auth",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "OTP Authentication"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP Kimlik Dogrulama"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "otp-auth",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.0"
+          },
+          "mapping": {
+            "type": "L",
+            "location": "./src/HostToOtpAuthSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBQYXJlbnQgc2lkZSBvZiB0aGUgU3ViRmxvdyBjb250cmFjdC4KLy8vIDxwYXJhPgovLy8gSW5wdXRIYW5kbGVyIHByb2plY3RzIG9ubHkgdGhlIHN0YXJ0LXBheWxvYWQgZmllbGRzLCBzbyB0aGUgY2hpbGQgbmV2ZXIgcmVjZWl2ZXMgdW5yZWxhdGVkIHBhcmVudAovLy8gc3RhdGUuIE91dHB1dEhhbmRsZXIgbWVyZ2VzIGJhY2sgb25seSB0aGUgYWdyZWVkIG91dGNvbWUgZmllbGRzLCBhbmQgZGVsaWJlcmF0ZWx5IGxlYXZlcwovLy8gY2xpZW50X3NlY3JldCBhbmQgb3RwQ29kZSBiZWhpbmQuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBIb3N0VG9PdHBBdXRoU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHJpdmF0ZSBzdGF0aWMgcmVhZG9ubHkgc3RyaW5nW10gSW5ib3VuZCA9CiAgICB7CiAgICAgICAgInN1YiIsICJhY3RvciIsICJjbGllbnRfaWQiLCAiZ3JhbnRfdHlwZSIsICJjbGllbnRfc2VjcmV0IiwKICAgICAgICAidXNlcl9waG9uZSIsICJ1c2VyX2VtYWlsIiwgInVzZXJfbmFtZSIsICJ1c2VyX3N1cm5hbWUiLAogICAgICAgICJzY29wZUdyb3VwIiwgIm90cEF0dGVtcHQiLCAib3RwVHRsIiwgInJlc2VuZExpbWl0IgogICAgfTsKCiAgICBwcml2YXRlIHN0YXRpYyByZWFkb25seSBzdHJpbmdbXSBPdXRib3VuZCA9CiAgICB7CiAgICAgICAgIm90cEF1dGhSZXN1bHQiLCAib3RwQXV0aFJlc3VsdERldGFpbCIsICJhdXRob3JpemF0aW9uQ29kZSIsCiAgICAgICAgIm90cFJlZmVyZW5jZSIsICJhdHRlbXB0VXNlZCIsICJyZXNlbmRVc2VkIiwgInNpbUJsb2NrZWQiCiAgICB9OwoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzb3VyY2UgPSBPdHBBdXRoSGVscGVycy5Ub0RpY3QoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIHBheWxvYWQgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4oKTsKCiAgICAgICAgZm9yZWFjaCAodmFyIGZpZWxkIGluIEluYm91bmQpCiAgICAgICAgewogICAgICAgICAgICBpZiAoc291cmNlLlRyeUdldFZhbHVlKGZpZWxkLCBvdXQgdmFyIHZhbHVlKSAmJiB2YWx1ZSAhPSBudWxsKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBwYXlsb2FkW2ZpZWxkXSA9IHZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBwYXlsb2FkIH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IE90cEF1dGhIZWxwZXJzLk1lcmdlKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpOwogICAgICAgIHZhciBjaGlsZCA9IE90cEF1dGhIZWxwZXJzLlRvRGljdChjb250ZXh0LkJvZHkpOwoKICAgICAgICBmb3JlYWNoICh2YXIgZmllbGQgaW4gT3V0Ym91bmQpCiAgICAgICAgewogICAgICAgICAgICBpZiAoY2hpbGQuVHJ5R2V0VmFsdWUoZmllbGQsIG91dCB2YXIgdmFsdWUpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBkYXRhW2ZpZWxkXSA9IHZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICBpZiAoIWRhdGEuQ29udGFpbnNLZXkoIm90cEF1dGhSZXN1bHQiKSB8fCBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJTdWJGbG93IHJldHVybmVkIG5vIG91dGNvbWUiOwogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9KTsKICAgIH0KfQo=",
+            "encoding": "B64"
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "otp-auth-succeeded",
+            "target": "harness-success",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "SubFlow succeeded"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Alt akis basarili"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/OtpAuthSucceededRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3ViRmxvdyBmaW5pc2hlZCBvbiBpdHMgc3VjY2VzcyBlbmQgc3RhdGUuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgT3RwQXV0aFN1Y2NlZWRlZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAib3RwQXV0aFJlc3VsdCIsICJzdWNjZXNzIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "otp-auth-failed",
+            "target": "harness-failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "SubFlow did not succeed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Alt akis basarisiz"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/OtpAuthFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBIYXJuZXNzIGZhbGxiYWNrIGJyYW5jaDogZXZlcnl0aGluZyB0aGUgU3ViRmxvdyBjYW4gZW5kIG9uIHRoYXQgaXMgbm90ICJzdWNjZXNzIi4KLy8vIFBhaXJlZCB3aXRoIE90cEF1dGhTdWNjZWVkZWRSdWxlIHNvIHRoZSB0d28gYXJlIHRvdGFsIGFuZCBtdXR1YWxseSBleGNsdXNpdmUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBPdHBBdXRoRmFpbGVkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoIU90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAib3RwQXV0aFJlc3VsdCIsICJzdWNjZXNzIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "harness-success",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Harness Success"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Harness Basarili"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "harness-failed",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Harness Failed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Harness Basarisiz"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

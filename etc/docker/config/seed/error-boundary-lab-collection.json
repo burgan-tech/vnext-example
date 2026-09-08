@@ -1,0 +1,77 @@
+{
+  "collection": {
+    "name": "error-boundary-lab",
+    "description": "Deterministic failure injection for the error-boundary-lab integration scenario",
+    "color": "#ef4444"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "api/eb-lab/fail-500",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 500,
+      "responseBody": "{\n  \"error\": {\n    \"code\": \"EB_LAB_500\",\n    \"message\": \"Deliberate 500 for error-boundary-lab\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Always 500 — the lab's default HTTP failure injector",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/eb-lab/fail-503",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 503,
+      "responseBody": "{\n  \"error\": {\n    \"code\": \"EB_LAB_503\",\n    \"message\": \"Deliberate 503 for error-boundary-lab\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Always 503 — matched by the global boundary, ignored by the 500-scoped ones",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/eb-lab/flaky",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"ok\": true\n}",
+      "contentType": "application/json",
+      "description": "500, 500, 200 — a retry policy with maxRetries >= 2 recovers on the third call. Sequence state is global to MockLab: reset it before each run via POST /_admin/mocks/{id}/sequence/reset.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": true,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": [
+        {
+          "order": 0,
+          "statusCode": 500,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"EB_LAB_FLAKY_1\",\n    \"message\": \"first attempt fails\"\n  }\n}",
+          "contentType": "application/json"
+        },
+        {
+          "order": 1,
+          "statusCode": 500,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"EB_LAB_FLAKY_2\",\n    \"message\": \"second attempt fails\"\n  }\n}",
+          "contentType": "application/json"
+        },
+        {
+          "order": 2,
+          "statusCode": 200,
+          "responseBody": "{\n  \"ok\": true,\n  \"attempt\": 3\n}",
+          "contentType": "application/json"
+        }
+      ]
+    }
+  ]
+}

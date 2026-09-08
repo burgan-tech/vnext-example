@@ -1,0 +1,27 @@
+{
+  "key": "get-simple-profile",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "customer",
+    "simple-profile",
+    "asgard",
+    "http"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/core/customers/simple-profile",
+      "method": "GET",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 15,
+      "validateSsl": true
+    }
+  }
+}

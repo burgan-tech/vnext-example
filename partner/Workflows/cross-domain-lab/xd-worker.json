@@ -1,0 +1,123 @@
+{
+  "key": "xd-worker",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "partner",
+  "version": "1.0.0",
+  "tags": [
+    "cross-domain-lab",
+    "subprocess",
+    "worker",
+    "partner"
+  ],
+  "attributes": {
+    "type": "P",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Cross-Domain Worker SubProcess (partner)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-xd-worker",
+      "target": "worker-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Worker"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-xd-worker",
+      "target": "worker-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Worker"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "worker-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Worker Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-worker-to-done",
+            "target": "worker-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Done"
+              }
+            ],
+            "rule": {
+              "location": "./src/XdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5TaW5nbGUgYWx3YXlzLXRydWUgYXV0byBydWxlIChpbml0aWFsIC0+IHdhaXRpbmcgc3RhdGUpIGZvciB0aGUgY3Jvc3MtZG9tYWluIGxhYiBmbG93cy48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBYZEFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "worker-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Worker Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "worker-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Worker Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

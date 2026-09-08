@@ -19,6 +19,8 @@
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="VNext.Testing.Sdk" Version="0.0.6" />
+    <!-- Runtime skip for suites that need an optional external stack (Tests/CrossDomainLab) — xunit v2 has no Assert.Skip. -->
+    <PackageReference Include="Xunit.SkippableFact" Version="1.5.23" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
 

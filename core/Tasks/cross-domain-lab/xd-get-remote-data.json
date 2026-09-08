@@ -1,0 +1,17 @@
+{
+  "key": "xd-get-remote-data",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["cross-domain-lab", "get-instance-data", "dapr"],
+  "attributes": {
+    "type": "13",
+    "config": {
+      "domain": "partner",
+      "flow": "xd-remote",
+      "useDapr": true,
+      "timeoutSeconds": 30
+    }
+  }
+}

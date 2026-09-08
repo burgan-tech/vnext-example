@@ -1,0 +1,17 @@
+{
+  "key": "eb-marker-script-task-2",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "error-boundary-lab",
+    "script-task",
+    "marker"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "key": "otp-code-entry-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "input",
+    "ui-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "OTP Kodu Girişi"
+      },
+      {
+        "language": "en-US",
+        "label": "OTP Code Entry"
+      }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:otp-code-payload",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "sms"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "SMS Doğrulama",
+                      "en": "SMS Verification"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Telefonunuza gönderilen doğrulama kodunu girin.",
+                  "en": "Enter the verification code sent to your phone."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "TextField",
+                        "bind": "otpCode",
+                        "variant": "outlined"
+                      },
+                      {
+                        "type": "Row",
+                        "gap": "sm",
+                        "children": [
+                          {
+                            "type": "Icon",
+                            "name": "lock"
+                          },
+                          {
+                            "type": "Text",
+                            "content": {
+                              "tr": "Kullanılan deneme: $instance.attemptUsed / $instance.otpAttempt",
+                              "en": "Attempts used: $instance.attemptUsed / $instance.otpAttempt"
+                            },
+                            "variant": "bodySmall"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Doğrula",
+                  "en": "Verify"
+                },
+                "variant": "filled",
+                "icon": "check_circle",
+                "action": "submit",
+                "command": "urn:vnext:flow:transition:core:otp-auth:verify-otp"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

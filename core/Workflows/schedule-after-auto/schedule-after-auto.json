@@ -1,0 +1,231 @@
+{
+  "key": "schedule-after-auto",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schedule-after-auto",
+    "pipeline-epilogue",
+    "scheduled-transition",
+    "automatic-transition"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Schedule After Auto (epilogue ordering probe)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-schedule-after-auto",
+      "target": "gate",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Schedule After Auto"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "sched-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/SeedMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdGFydCB0YXNrIGZvciBzY2hlZHVsZS1hZnRlci1hdXRvOiBub3JtYWxpc2VzIHRoZSBjYWxsZXIncyA8Yz5tb2RlPC9jPiBpbnRvIGluc3RhbmNlIGRhdGEgYW5kCi8vLyB6ZXJvZXMgdGhlIHR3byBwcm9iZSBjb3VudGVycy4KLy8vIDxwYXJhPgovLy8gVGhlIGdhdGUncyBhdXRvbWF0aWMgdHJhbnNpdGlvbiBpcyBkZWNpZGVkIGJ5IDxjPm1vZGU8L2M+LCBhbmQgdGhlIGF1dG8gc3RlcCAoTGlmZWN5Y2xlT3JkZXIuQXV0bykKLy8vIHJ1bnMgaW5zaWRlIFRISVMgcGlwZWxpbmUg4oCUIGFmdGVyIHRoaXMgdGFzaywgYWZ0ZXIgQ2hhbmdlU3RhdGUuIFdyaXRpbmcgdGhlIGZsYWcgaGVyZSByYXRoZXIgdGhhbgovLy8gcmVseWluZyBvbiB0aGUgcmVxdWVzdCBwYXlsb2FkIGFsb25lIG1ha2VzIHRoZSBydWxlIHJlYWQgYSBwZXJzaXN0ZWQgdmFsdWUsIHNvIHRoZSB0d28gcGF0aHMgYXJlCi8vLyBkZXRlcm1pbmlzdGljIGluc3RlYWQgb2YgZGVwZW5kaW5nIG9uIHBheWxvYWQgb3ZlcmxheSB0aW1pbmcuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIERFTFRBLU9OTFk6IHJldHVybnMganVzdCB0aGUga2V5cyBpdCBvd25zLiBGdWxsLWVjaG8gd291bGQgb3ZlcndyaXRlIGNvbmN1cnJlbnQgd3JpdGVycyB3aXRoIGEKLy8vIHN0YWxlIHNuYXBzaG90OyB0aGUgbWVyZ2Uga2VlcHMgaGVhZCBhbnl3YXkuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZWVkTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICAvLyAicGFyayIgaXMgdGhlIHNhZmUgZGVmYXVsdDogYW4gdW5yZWNvZ25pc2VkIHBheWxvYWQgbXVzdCBOT1Qgc2lsZW50bHkgdGFrZSB0aGUKICAgICAgICAvLyBhdXRvLXdpbm5lciBwYXRoLCBvciBhIGJyb2tlbiB0ZXN0IHdvdWxkIGxvb2sgZ3JlZW4gZm9yIHRoZSB3cm9uZyByZWFzb24uCiAgICAgICAgdmFyIG1vZGUgPSAicGFyayI7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJtb2RlIiwgb3V0IHZhciByYXdNb2RlKSAmJiByYXdNb2RlICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBtb2RlID0gcmF3TW9kZS5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbIm1vZGUiXSA9IG1vZGU7CiAgICAgICAgdGFyZ2V0WyJhdXRvQWR2YW5jZXMiXSA9IDA7CiAgICAgICAgdGFyZ2V0WyJ0aW1lb3V0RmlyZWQiXSA9IDA7CgogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgidGVzdElkIiwgb3V0IHZhciB0ZXN0SWQpICYmIHRlc3RJZCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgdGFyZ2V0WyJ0ZXN0SWQiXSA9IHRlc3RJZC5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJTZWVkTWFwcGluZzogbW9kZT17bW9kZX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "gate",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Gate (auto + timer race)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-advance",
+            "target": "advanced",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto Advance (mode = auto)"
+              }
+            ],
+            "rule": {
+              "location": "./src/AutoGateRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUaGUgZ2F0ZSdzIGF1dG9tYXRpYy10cmFuc2l0aW9uIGNvbmRpdGlvbjogc2F0aXNmaWVkIG9ubHkgd2hlbiB0aGUgY2FsbGVyIGFza2VkIGZvcgovLy8gPGM+bW9kZSA9ICJhdXRvIjwvYz4uCi8vLyA8cGFyYT4KLy8vIFRoaXMgcnVsZSBpcyB0aGUgd2hvbGUgcG9pbnQgb2YgdGhlIHNjZW5hcmlvLiBJdCBpcyBldmFsdWF0ZWQgYnkgUnVuQXV0b21hdGljVHJhbnNpdGlvbnNTdGVwLAovLy8gd2hpY2gg4oCUIHNpbmNlIHRoZSBlcGlsb2d1ZSByZW9yZGVyIOKAlCBydW5zIEJFRk9SRSBTY2hlZHVsZVRyYW5zaXRpb25zU3RlcC4gV2hlbiBpdCBhbnN3ZXJzIHRydWUKLy8vIHRoZSBzdGVwIHNldHMgPGM+RGlyZWN0aXZlcy5OZXh0VHJhbnNpdGlvbjwvYz4gYW5kIHRoZSBTY2hlZHVsZSBzdGVwIGFybXMgbm90aGluZzsgd2hlbiBpdAovLy8gYW5zd2VycyBmYWxzZSB0aGUgc3RhdGUncyBzY2hlZHVsZWQgdHJhbnNpdGlvbiBpcyBhcm1lZCBleGFjdGx5IGFzIGJlZm9yZS4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEF1dG9HYXRlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIG1vZGUgPSAicGFyayI7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJtb2RlIiwgb3V0IHZhciByYXdNb2RlKSAmJiByYXdNb2RlICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBtb2RlID0gcmF3TW9kZS5Ub1N0cmluZygpOwogICAgICAgIH0KCiAgICAgICAgdmFyIHNhdGlzZmllZCA9IG1vZGUgPT0gImF1dG8iOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiQXV0b0dhdGVSdWxlOiBtb2RlPXttb2RlfSBzYXRpc2ZpZWQ9e3NhdGlzZmllZH0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHNhdGlzZmllZCk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "sched-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/AutoAdvanceMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIG9uRXhlY3V0ZSBvZiB0aGUgZ2F0ZSdzIGF1dG9tYXRpYyB0cmFuc2l0aW9uLiBDb3VudHMgdGhlIGhvcCBhbmQg4oCUIGRlbGliZXJhdGVseSDigJQgdGFrZXMgYQovLy8gY291cGxlIG9mIHNlY29uZHMgZG9pbmcgaXQuCi8vLyA8cGFyYT4KLy8vIDxiPldoeSB0aGUgZGVsYXkgaXMgbG9hZC1iZWFyaW5nLjwvYj4gVGhlIGNoYWluZWQgaG9wIHJ1bnMgQ2FuY2VsU2NoZWR1bGVkSm9icyAob3JkZXIgMzkpIHJpZ2h0Ci8vLyBhZnRlciB0aGlzIHRhc2sgKG9yZGVyIDMwKS4gQSBydW50aW1lIHRoYXQgYXJtZWQgdGhlIGdhdGUncyB0aW1lciBiZWZvcmUgZXZhbHVhdGluZyB0aGUgYXV0bwovLy8gY29uZGl0aW9uIHRlYXJzIHRoYXQgdGltZXIgZG93biBpbiB0aGUgdmVyeSBuZXh0IGhvcCwgc28gYXQgcmVzdCBCT1RIIG9yZGVyaW5ncyBzaG93IG5vIGFybWVkCi8vLyBqb2Ig4oCUIHRoZSByZXN0aW5nIHN0YXRlIGNhbm5vdCB0ZWxsIHRoZW0gYXBhcnQuIFRoZSBkZWxheSBob2xkcyB0aGUgY2hhaW5lZCBob3Agb3BlbiBsb25nCi8vLyBlbm91Z2ggZm9yIGEgcG9sbGVyIHRvIHNlZSB0aGUgYXJtZWQgZW50cnkgaWYgaXQgd2FzIGV2ZXIgY3JlYXRlZCwgd2hpY2ggaXMgd2hhdCBtYWtlcwovLy8gIm5vIHNjaGVkdWxlZCBlbnRyeSB3YXMgRVZFUiBvYnNlcnZlZCIgYSBkaXNjcmltaW5hdGluZyBvYnNlcnZhdGlvbiByYXRoZXIgdGhhbiBhIHRhdXRvbG9neS4KLy8vIDwvcGFyYT4KLy8vIDxwYXJhPktlcHQgd2VsbCB1bmRlciB0aGUgZ2F0ZSB0aW1lcidzIGR1cmF0aW9uIHNvIHRoZSB0aW1lciBjYW5ub3QgZmlyZSBpbnNpZGUgdGhlIHdpbmRvdy48L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBdXRvQWR2YW5jZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGF3YWl0IFRhc2suRGVsYXkoVGltZVNwYW4uRnJvbU1pbGxpc2Vjb25kcygyNTAwKSk7CgogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgdmFyIGN1cnJlbnQgPSAwOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgiYXV0b0FkdmFuY2VzIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY3VycmVudCk7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHRhcmdldFsiYXV0b0FkdmFuY2VzIl0gPSBjdXJyZW50ICsgMTsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJBdXRvQWR2YW5jZU1hcHBpbmc6IGF1dG9BZHZhbmNlcyB7Y3VycmVudH0gLT4ge2N1cnJlbnQgKyAxfSIpOwogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH07CiAgICB9Cn0K"
+                }
+              }
+            ]
+          },
+          {
+            "key": "gate-timeout",
+            "target": "gate-timedout",
+            "triggerType": 2,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Gate Timeout (8s)"
+              }
+            ],
+            "timer": {
+              "type": "L",
+              "location": "./src/GateTimeoutTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9ucy5UaW1lcjsKCi8vLyA8c3VtbWFyeT4KLy8vIEFybXMgdGhlIGdhdGUncyBzY2hlZHVsZWQgdHJhbnNpdGlvbiBhIGZldyBzZWNvbmRzIG91dC4KLy8vIDxwYXJhPgovLy8gU2hvcnQgb24gcHVycG9zZTogdGhlIG5vLWF1dG8td2lubmVyIHBhdGggbXVzdCBib3RoIFNFRSB0aGUgYXJtZWQgZW50cnkgaW4gdGhlIHN0YXRlIGZ1bmN0aW9uCi8vLyBhbmQgd2F0Y2ggaXQgZmlyZSB3aXRoaW4gb25lIHRlc3QuIExvbmcgZW5vdWdoIHRoYXQgdGhlIGF1dG8td2lubmVyIHBhdGgncyBjaGFpbmVkIGhvcAovLy8gKH4yLjVzLCBzZWUgQXV0b0FkdmFuY2VNYXBwaW5nKSBjYW5ub3Qgb3ZlcmxhcCBhIGZpcmUuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBHYXRlVGltZW91dFRpbWVyIDogSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KFRpbWVyU2NoZWR1bGUuRnJvbUR1cmF0aW9uKFRpbWVTcGFuLkZyb21TZWNvbmRzKDgpKSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "sched-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/TimeoutMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBvbkV4ZWN1dGUgb2YgdGhlIGdhdGUncyBzY2hlZHVsZWQgdHJhbnNpdGlvbi4gSXRzIG9ubHkgam9iIGlzIHRvIGxlYXZlIHByb29mIGluIGluc3RhbmNlIGRhdGEKLy8vIHRoYXQgdGhlIHRpbWVyIHJlYWxseSBmaXJlZCDigJQgdGhlIHN0YXRlIGFsb25lIHdvdWxkIG5vdCBkaXN0aW5ndWlzaCAidGhlIHRpbWVyIGZpcmVkIiBmcm9tCi8vLyAic29tZXRoaW5nIGVsc2UgbW92ZWQgdGhlIGluc3RhbmNlIi4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFRpbWVvdXRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBjdXJyZW50ID0gMDsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRpbWVvdXRGaXJlZCIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGN1cnJlbnQpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInRpbWVvdXRGaXJlZCJdID0gY3VycmVudCArIDE7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiVGltZW91dE1hcHBpbmc6IHRpbWVvdXRGaXJlZCB7Y3VycmVudH0gLT4ge2N1cnJlbnQgKyAxfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "advanced",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Advanced (auto winner parked here)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "finish-advanced",
+            "target": "advanced-done",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish Advanced"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "advanced-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Advanced Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "gate-timedout",
+        "stateType": 3,
+        "subType": 8,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Gate Timed Out (scheduled transition fired)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "sched-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "cancel": {
+      "key": "cancel-schedule-after-auto",
+      "target": "sched-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Schedule After Auto"
+        }
+      ]
+    }
+  }
+}

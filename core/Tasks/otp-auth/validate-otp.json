@@ -1,0 +1,26 @@
+{
+  "key": "validate-otp",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "verification",
+    "http"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/core/onboarding-business/otp/validate-otp",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {},
+      "timeoutSeconds": 30,
+      "validateSsl": true
+    }
+  }
+}

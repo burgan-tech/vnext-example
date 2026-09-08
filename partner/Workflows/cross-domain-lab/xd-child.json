@@ -1,0 +1,180 @@
+{
+  "key": "xd-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "partner",
+  "version": "1.0.1",
+  "tags": [
+    "cross-domain-lab",
+    "subflow",
+    "child",
+    "partner"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Cross-Domain Child (partner)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [
+      {
+        "key": "xd-child-ext",
+        "domain": "partner",
+        "version": "1.0.1",
+        "flow": "sys-extensions"
+      }
+    ],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-xd-child",
+      "target": "child-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Child"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-xd-child",
+      "target": "child-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Child"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "child-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-child-to-review",
+            "target": "child-review",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Review"
+              }
+            ],
+            "rule": {
+              "location": "./src/XdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5TaW5nbGUgYWx3YXlzLXRydWUgYXV0byBydWxlIChpbml0aWFsIC0+IHdhaXRpbmcgc3RhdGUpIGZvciB0aGUgY3Jvc3MtZG9tYWluIGxhYiBmbG93cy48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBYZEFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-review",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Review (human)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "xd-child-review-view",
+            "domain": "partner",
+            "flow": "sys-views",
+            "version": "1.0.0"
+          }
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-approve",
+            "target": "child-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve Child"
+              }
+            ],
+            "roles": [
+              {
+                "role": "xd-approver",
+                "grant": "allow"
+              }
+            ],
+            "schema": {
+              "key": "xd-child-approve",
+              "domain": "partner",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "child-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

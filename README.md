@@ -64,6 +64,11 @@ See **[TEST-SCENARIOS.md](TEST-SCENARIOS.md)** — the index of every behaviour 
 which vNext feature set each one covers, why it was added, how to run its integration and load
 tests, and the known coverage gaps. Add a row there in the same commit as any new scenario.
 
+Cross-domain scenarios (a `core` parent driving components in a second `partner` domain over Dapr)
+need the three-domain local lab in **[labs/cross-domain/](labs/cross-domain/README.md)**
+(`labs/cross-domain/lab.sh up`); the `partner` components live under `partner/` and are described
+by `vnext.partner.config.json`.
+
 ## ⚙️ Configuration
 
 The `vnext.config.json` file allows you to customize paths and exports:

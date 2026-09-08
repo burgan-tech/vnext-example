@@ -1,6 +1,6 @@
 {
   "key": "money-transfer-master",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -21,8 +21,8 @@
         "targetIban": {
           "type": "string",
           "pattern": "^TR[0-9]{24}$",
-          "x-filterOperators": ["eq"],
-          "x-labels": { "tr": "Alıcı IBAN", "en": "Target IBAN" }
+          "x-labels": { "tr": "Alıcı IBAN", "en": "Target IBAN" },
+          "x-filterOperators": ["eq"]
         },
         "amount": {
           "type": "number",

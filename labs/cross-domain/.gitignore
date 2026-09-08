@@ -1,0 +1,2 @@
+# vnext-runtime compose template is cloned here by lab.sh; it carries generated domains/*/.env files
+.vnext-runtime/

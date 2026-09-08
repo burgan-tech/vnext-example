@@ -1,0 +1,19 @@
+{
+  "key": "xd-trigger-remote",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["cross-domain-lab", "direct-trigger", "dapr"],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "partner",
+      "flow": "xd-remote",
+      "transitionName": "remote-advance",
+      "sync": true,
+      "useDapr": true,
+      "timeoutSeconds": 30
+    }
+  }
+}

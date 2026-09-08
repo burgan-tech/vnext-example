@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Filtering;
 
 // Queries prior money-transfer instances for the same targetIban (GetInstances task, type 15).
 // InputHandler builds the targetIban filter; OutputHandler writes isFirstTransfer based on the
@@ -20,22 +21,18 @@ public class GetIbanHistoryMapping : IMapping
 
             var targetIban = (string)context.Instance?.Data?.targetIban ?? string.Empty;
 
-            // Match prior instances whose instance data carries the same targetIban.
-            //
-            // Authored with the fluent InstanceQuery (BBT.Workflow.Filtering is a default script
-            // import). The previous form — SetFilter(new[] { "data.targetIban==..." }) — serialized
-            // to a JSON ARRAY of expression strings, which the runtime's GraphQL filter parser has
-            // rejected since the filter format landed ("Expected start of object for
-            // GraphQLFilterNode"), faulting this transition every time.
-            //
-            // SetFilterSpec materializes BOTH the filter and the sort wire strings, so the ordering
-            // belongs here rather than in the task's config; instance data lives under the
-            // `attributes.` prefix and `createdAt` is an instance column.
-            getInstancesTask.SetFilterSpec(
-                InstanceQuery.Create()
-                    .Where("attributes.targetIban", f => f.Eq(targetIban))
-                    .OrderByDescending("createdAt")
-                    .Build());
+            // Match prior instances whose attributes.targetIban equals the current targetIban.
+            // Built with the fluent InstanceQuery + SetFilterSpec so the Filter/Sort wire strings
+            // are always well-formed GraphQL-filter JSON (the previous SetFilter(string[]) call
+            // resolved to the SetFilter(object) overload, serializing to a JSON array instead of
+            // the expected filter object, and left Sort on the task's static legacy "-CreatedAt"
+            // config value, which is not JSON either — both rejected by InstanceQueryValidator).
+            var spec = InstanceQuery.Create()
+                .Where("attributes.targetIban", f => f.Eq(targetIban))
+                .OrderByDescending("createdAt")
+                .Build();
+
+            getInstancesTask.SetFilterSpec(spec);
 
             return Task.FromResult(new ScriptResponse());
         }

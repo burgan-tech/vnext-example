@@ -1,0 +1,20 @@
+{
+  "key": "get-accounts-dapr",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["money-transfer", "accounts", "dapr", "transport-probe"],
+  "attributes": {
+    "type": "3",
+    "config": {
+      "appId": "mocklab",
+      "methodName": "api/payments/accounts",
+      "httpVerb": "GET",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "timeoutSeconds": 15
+    }
+  }
+}

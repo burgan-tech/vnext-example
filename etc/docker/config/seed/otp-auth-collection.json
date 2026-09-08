@@ -1,0 +1,210 @@
+{
+  "collection": {
+    "name": "otp-auth",
+    "description": "OTP authentication SubFlow - simple-profile, OTP send/validate and authorization-code mocks",
+    "color": "#0ea5e9"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "GET",
+      "route": "api/core/customers/simple-profile",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"customerId\": \"11111111110\",\n  \"customerType\": \"Individual\",\n  \"firstName\": \"Ayse\",\n  \"lastName\": \"Yilmaz\",\n  \"phoneNumber\": \"5551112233\",\n  \"phone\": {\n    \"countryCode\": \"90\",\n    \"prefix\": \"555\",\n    \"number\": \"1112233\"\n  },\n  \"email\": \"ayse.yilmaz@example.com\",\n  \"businessLine\": \"Retail\",\n  \"isActive\": true\n}",
+      "contentType": "application/json",
+      "description": "Asgard simple-profile lookup by actor. Default: profile found with the matching phone.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "query.customerId",
+          "conditionOperator": "equals",
+          "conditionValue": "22222222220",
+          "statusCode": 200,
+          "responseBody": "{\n  \"customerId\": \"22222222220\",\n  \"customerType\": \"Individual\",\n  \"firstName\": \"Mehmet\",\n  \"lastName\": \"Demir\",\n  \"phoneNumber\": \"5559998877\",\n  \"phone\": {\n    \"countryCode\": \"90\",\n    \"prefix\": \"555\",\n    \"number\": \"9998877\"\n  },\n  \"email\": \"mehmet.demir@example.com\",\n  \"businessLine\": \"Retail\",\n  \"isActive\": true\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": [],
+          "description": "MISMATCH fixture: profile exists but the phone differs from user_phone."
+        },
+        {
+          "conditionField": "query.customerId",
+          "conditionOperator": "equals",
+          "conditionValue": "33333333330",
+          "statusCode": 404,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"customer_not_found\",\n    \"message\": \"Customer not found\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": [],
+          "description": "NOT-FOUND fixture: 404 means 'no record', not a transport error."
+        },
+        {
+          "conditionField": "query.customerId",
+          "conditionOperator": "equals",
+          "conditionValue": "99999999990",
+          "statusCode": 500,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"internal_error\",\n    \"message\": \"Upstream failure\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 2,
+          "responseHeaders": [],
+          "description": "TECHNICAL-FAILURE fixture: 5xx must land on otp-technical-failure, not profile-not-found."
+        },
+        {
+          "conditionField": "query.customerId",
+          "conditionOperator": "equals",
+          "conditionValue": "44444444440",
+          "statusCode": 200,
+          "responseBody": "{\n  \"customerId\": \"44444444440\",\n  \"customerType\": \"Individual\",\n  \"firstName\": \"Sim\",\n  \"lastName\": \"Blocked\",\n  \"phoneNumber\": \"5551112233\",\n  \"phone\": {\n    \"countryCode\": \"90\",\n    \"prefix\": \"555\",\n    \"number\": \"1112233\"\n  },\n  \"email\": \"sim.blocked@example.com\",\n  \"businessLine\": \"Retail\",\n  \"isActive\": true\n}",
+          "contentType": "application/json",
+          "priority": 3,
+          "responseHeaders": [],
+          "description": "SIM-BLOCK fixture profile (phone matches so the flow reaches send-otp)."
+        },
+        {
+          "conditionField": "query.customerId",
+          "conditionOperator": "equals",
+          "conditionValue": "55555555550",
+          "statusCode": 200,
+          "responseBody": "{\n  \"customerId\": \"55555555550\",\n  \"customerType\": \"Individual\",\n  \"firstName\": \"Hard\",\n  \"lastName\": \"Blocked\",\n  \"phoneNumber\": \"5551112233\",\n  \"phone\": {\n    \"countryCode\": \"90\",\n    \"prefix\": \"555\",\n    \"number\": \"1112233\"\n  },\n  \"email\": \"hard.blocked@example.com\",\n  \"businessLine\": \"Retail\",\n  \"isActive\": true\n}",
+          "contentType": "application/json",
+          "priority": 4,
+          "responseHeaders": [],
+          "description": "HARD-BLOCK fixture profile (blocked on both Otp and Fast)."
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/core/onboarding-business/otp/send-otp",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"data\": {\n    \"sendOtpStatus\": \"SendOtpSuccess\",\n    \"otpReference\": \"{{helpers.guid()}}\",\n    \"sendInfo\": {\n      \"smsTraceId\": \"{{helpers.guid()}}\",\n      \"message\": \"OTP sent\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+      "contentType": "application/json",
+      "description": "OTP send. Rules run in ascending priority, first match wins - hard block is evaluated before the Fast escape hatch.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.CitizenshipNumber",
+          "conditionOperator": "equals",
+          "conditionValue": "55555555550",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"sendOtpStatus\": \"OtpBlacklisted\",\n    \"otpReference\": null,\n    \"sendInfo\": {\n      \"smsTraceId\": null,\n      \"message\": \"SIM card is blacklisted for OTP delivery\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": [],
+          "description": "HARD BLOCK - wins over the Fast rule, so even OtpType=Fast is blacklisted."
+        },
+        {
+          "conditionField": "body.OtpType",
+          "conditionOperator": "equals",
+          "conditionValue": "Fast",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"sendOtpStatus\": \"SendOtpSuccess\",\n    \"otpReference\": \"{{helpers.guid()}}\",\n    \"sendInfo\": {\n      \"smsTraceId\": \"{{helpers.guid()}}\",\n      \"message\": \"OTP sent over FAST\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": [],
+          "description": "FAST fallback succeeds for every citizen except the hard-block fixture."
+        },
+        {
+          "conditionField": "body.CitizenshipNumber",
+          "conditionOperator": "equals",
+          "conditionValue": "44444444440",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"sendOtpStatus\": \"OtpBlacklisted\",\n    \"otpReference\": null,\n    \"sendInfo\": {\n      \"smsTraceId\": null,\n      \"message\": \"SIM card is blacklisted for OTP delivery\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+          "contentType": "application/json",
+          "priority": 2,
+          "responseHeaders": [],
+          "description": "SIM BLOCK on OtpType=Otp only; the Fast retry above already matched and succeeded."
+        },
+        {
+          "conditionField": "body.CitizenshipNumber",
+          "conditionOperator": "equals",
+          "conditionValue": "88888888880",
+          "statusCode": 500,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"sms_gateway_down\",\n    \"message\": \"SMS gateway unavailable\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 3,
+          "responseHeaders": [],
+          "description": "TECHNICAL-FAILURE fixture for the send step."
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/core/onboarding-business/otp/validate-otp",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"data\": {\n    \"validateOtpStatus\": \"InvalidOtp\",\n    \"otpValid\": false,\n    \"sendInfo\": {\n      \"message\": \"Wrong OTP code\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+      "contentType": "application/json",
+      "description": "OTP validation. Default is the wrong-code branch so attempt-exhaustion tests need no special fixture.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.OtpCode",
+          "conditionOperator": "equals",
+          "conditionValue": "123456",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"validateOtpStatus\": \"ValidateOtpSuccess\",\n    \"otpValid\": true,\n    \"sendInfo\": {\n      \"message\": \"OTP verified\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": [],
+          "description": "The one correct code."
+        },
+        {
+          "conditionField": "body.OtpCode",
+          "conditionOperator": "equals",
+          "conditionValue": "000000",
+          "statusCode": 200,
+          "responseBody": "{\n  \"data\": {\n    \"validateOtpStatus\": \"ExpiredOtp\",\n    \"otpValid\": false,\n    \"sendInfo\": {\n      \"message\": \"OTP code has expired\",\n      \"httpStatusCode\": 200\n    }\n  }\n}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": [],
+          "description": "Server-side expiry branch: drives verifyGate=expired without waiting for the timer."
+        }
+      ],
+      "sequenceItems": []
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/core/auth/authorization-code",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"authorizationCode\": \"{{helpers.guid()}}\",\n  \"expiresIn\": 600,\n  \"tokenType\": \"Bearer\"\n}",
+      "contentType": "application/json",
+      "description": "Authorization-code issuer. CONTRACT NOT ANCHORED - see VNEXT-BUILD-PLAN.md section 9 S2; shape is a local assumption.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "body.client_id",
+          "conditionOperator": "equals",
+          "conditionValue": "fail-client",
+          "statusCode": 400,
+          "responseBody": "{\n  \"error\": {\n    \"code\": \"invalid_client\",\n    \"message\": \"Client is not allowed to issue authorization codes\"\n  }\n}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": [],
+          "description": "AUTH-CODE-FAILED fixture."
+        }
+      ],
+      "sequenceItems": []
+    }
+  ]
+}

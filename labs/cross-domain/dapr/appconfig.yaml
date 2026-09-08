@@ -1,0 +1,33 @@
+# Dapr Configuration for the cross-domain lab sidecars (mounted by compose.dapr-appconfig.yml).
+#
+# Cluster analogue: vnext-helm-charts renders `appconfig` with nameResolution component `kubernetes`
+# + template "{{.ID}}-dapr.{{.Namespace}}.svc.cluster.local:{{.Port}}". Compose has no namespaces
+# and no cluster DNS, so the lab pins the self-hosted resolver explicitly: `mdns`. Every sidecar
+# announces "<app-id> -> <ip>:<internal grpc port>" on the vnext-development bridge and callers pick it
+# up by multicast — verified across compose projects (core -> partner) on 2026-09-03.
+#
+# NOT `nameformat`: daprd 1.16.x (the template's `latest`) does not ship that resolver —
+# "couldn't find name resolver nameformat/v1" — the sidecar then falls back to no resolver and every
+# invoke answers 500. Re-evaluate when the lab's DAPR_RUNTIME_VERSION moves to a release that has it.
+# The fixed --dapr-internal-grpc-port 50002 in the override is kept so the port is deterministic
+# (mDNS advertises whatever port the sidecar listens on; a fixed one is easier to debug).
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: appconfig
+  namespace: default
+spec:
+  nameResolution:
+    component: "mdns"
+  tracing:
+    samplingRate: "1"
+    # `otel` (not `otlp`) + protocol + isSecure — all three are required for the sidecar spans to
+    # reach the collector (see vnext memory: dapr-sidecar-trace-export).
+    otel:
+      endpointAddress: "vnext-otel-collector:4317"
+      isSecure: false
+      protocol: grpc
+  secrets:
+    scopes:
+      - storeName: vnext-secret
+        defaultAccess: allow
