@@ -16,13 +16,16 @@ Integration suite bunu KENDISI yapar (VNextTestEnvironment.EnableDomainPublish).
 elle calistirma ve perf-load.py'nin --publish bayragi icindir.
 """
 
+import argparse
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 REPO = Path(__file__).resolve().parents[2]
 
 COMPONENTS = [
@@ -46,7 +49,14 @@ def http(method, url, body=None):
         return error.code, error.read().decode()
 
 
-def main():
+def main(argv=None, base_url=None):
+    """Standalone: sys.argv parse eder. In-process cagiran (race-load/perf-load) argv=[] ve base_url verir."""
+    global BASE
+    ap = argparse.ArgumentParser(description="bilesenleri publish et")
+    ap.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
+    args = ap.parse_args(argv)
+    BASE = (base_url or args.base_url).rstrip("/") + "/api/v1"
     for path in COMPONENTS:
         document = json.loads(path.read_text())
         status, response = http("POST", "%s/definitions/publish" % BASE, document)

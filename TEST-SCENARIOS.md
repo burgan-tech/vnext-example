@@ -244,7 +244,12 @@ dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~ChainBusy"
 
 **Lokalde derlenen runtime'a karşı (geliştirme sırasında doğru olan yol).** Henüz release edilmemiş
 bir geliştirme image üzerinden test edilemez — image eski kodu taşır.
-`tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL`'i aç:
+`tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL` **set olmalı** — repoda
+halihazırda `http://localhost:4201` olarak commit'lidir, yorumdan çıkarılacak bir şey yoktur; sadece
+doğrula. Farklı bir port/offset için commit'li dosyayı düzenleme: yanına git-ignore'lu
+`test.runsettings.local` koy (csproj ve SDK onu tercih eder; öncelik: gerçek ortam değişkeni >
+`test.runsettings.local` > `test.runsettings`). Set değilse SDK image'lı Testcontainers stack'ini kaldırır —
+geliştirme testinde istenmeyen şey budur.
 
 ```xml
 <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>
@@ -256,7 +261,9 @@ outbox — hepsi `--launch-profile http` ile), migration varsa db-migrator bir k
 ### Python davranış / yük testleri
 
 Senaryonun `api-tests/<senaryo>/` klasöründe dururlar. Çalışan bir runtime'a ihtiyaç duyarlar;
-`--publish` bayrağı bileşenleri publish eder.
+`--publish` bayrağı bileşenleri publish eder. Hepsi `--base-url` alır (varsayılan: `VNEXT_BASE_URL`
+ortam değişkeni, o da yoksa `http://localhost:4201`) — farklı bir domain/offset'e koşturmak için
+`VNEXT_BASE_URL=http://localhost:4211 python3 ...` ya da `--base-url http://localhost:4211`.
 
 ```bash
 python3 api-tests/script-race-lab/race-load.py --publish --parallel 30 --timeout 240
