@@ -1,0 +1,32 @@
+{
+  "key": "xd-child-approve",
+  "version": "1.0.0",
+  "domain": "partner",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": ["cross-domain-lab", "transition-payload", "partner"],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      { "label": "Child Onayı", "language": "tr-TR" },
+      { "label": "Child Approval", "language": "en-US" }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:partner:xd-child-approve",
+      "title": "Cross-domain child approval payload",
+      "description": "Payload of the child-approve transition. Lives only in the partner domain so a schema function answered through the core parent proves the descent.",
+      "type": "object",
+      "properties": {
+        "approvedBy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "x-labels": { "tr": "Onaylayan", "en": "Approved By" }
+        }
+      },
+      "required": ["approvedBy"],
+      "additionalProperties": false
+    }
+  }
+}

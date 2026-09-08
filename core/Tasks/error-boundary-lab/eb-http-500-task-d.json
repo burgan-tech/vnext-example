@@ -1,0 +1,29 @@
+{
+  "key": "eb-http-500-task-d",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "error-boundary-lab",
+    "http",
+    "mocklab",
+    "always-500"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/eb-lab/fail-500",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "error-boundary-lab"
+      },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

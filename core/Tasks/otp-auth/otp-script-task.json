@@ -1,0 +1,15 @@
+{
+  "key": "otp-script-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "script-task"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "key": "xd-child-ext",
+  "version": "1.0.1",
+  "domain": "partner",
+  "flow": "sys-extensions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "cross-domain-lab",
+    "extension",
+    "partner"
+  ],
+  "attributes": {
+    "type": 4,
+    "scope": 1,
+    "labels": [
+      {
+        "label": "Child Extension",
+        "language": "en-US"
+      }
+    ],
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "xd-script-task",
+        "domain": "partner",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/XdChildExtMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEV4dGVuc2lvbiBleGVjdXRlZCBieSB0aGUgUEFSVE5FUiBydW50aW1lLiBXaGVuIHRoZSBjb3JlIHBhcmVudCdzIGRhdGEgZnVuY3Rpb24gaXMgY2FsbGVkIHdpdGgKLy8vID9leHRlbnNpb25zPXhkLWNoaWxkLWV4dCB3aGlsZSBpdCBzaXRzIGluIHRoZSBjcm9zcy1kb21haW4gU3ViRmxvdyBzdGF0ZSwgdGhpcyBwYXlsb2FkIHByb3ZlcyB0aGUKLy8vIGV4dGVuc2lvbiByZXF1ZXN0IGRlc2NlbmRlZCBpbnRvIHRoZSBwYXJ0bmVyIGluc3RhbmNlICh0aGUgZGF0YSBib2R5IGl0c2VsZiBzdGF5cyB0aGUgcGFyZW50J3MpLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgWGRDaGlsZEV4dE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgb2JqZWN0PyB0ZXN0SWQgPSBudWxsOwogICAgICAgIGRhdGE/LlRyeUdldFZhbHVlKCJ0ZXN0SWQiLCBvdXQgdGVzdElkKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIEtleSA9ICJ4ZC1jaGlsZC1leHQiLAogICAgICAgICAgICBEYXRhID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHNvdXJjZSA9ICJwYXJ0bmVyIiwKICAgICAgICAgICAgICAgIGNoaWxkSW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLAogICAgICAgICAgICAgICAgdGVzdElkCiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQo="
+      }
+    }
+  }
+}

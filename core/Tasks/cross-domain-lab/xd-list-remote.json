@@ -1,0 +1,20 @@
+{
+  "key": "xd-list-remote",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["cross-domain-lab", "get-instances", "dapr"],
+  "attributes": {
+    "type": "15",
+    "config": {
+      "domain": "partner",
+      "flow": "xd-remote",
+      "page": 1,
+      "pageSize": 10,
+      "sort": "-CreatedAt",
+      "useDapr": true,
+      "timeoutSeconds": 30
+    }
+  }
+}

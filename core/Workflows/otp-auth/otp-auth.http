@@ -1,0 +1,493 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = otp-auth
+@harness = otp-auth-harness
+
+### ─────────────────────────────────────────────────────────────────────────
+### otp-auth SubFlow — senaryo koleksiyonu
+###
+### Akis:  otp-initializing → profile-lookup →[scopeGroup]→ otp-sending
+###          → otp-awaiting-code ⇄ otp-verifying → auth-code-issuing → otp-success
+###        SIM bloke (Kurumsal): otp-sending → otp-resending-fast (OtpType=Fast)
+###        TTL dolar:            otp-awaiting-code → otp-ttl-gate → otp-awaiting-resend
+###
+### MockLab fixture'lari (etc/docker/config/seed/otp-auth-collection.json):
+###   actor 11111111110  profil var, telefon 5551112233 (eslesir)
+###   actor 22222222220  profil var, telefon 5559998877 (ESLESMEZ)
+###   actor 33333333330  profil YOK (404)
+###   actor 44444444440  SIM bloke: Otp -> OtpBlacklisted, Fast -> SendOtpSuccess
+###   actor 55555555550  SERT bloke: Otp da Fast da OtpBlacklisted
+###   actor 88888888880  send-otp 500 (teknik hata)
+###   actor 99999999990  simple-profile 500 (teknik hata)
+###   otpCode 123456 dogru | 000000 suresi dolmus | digerleri yanlis
+###   client_id "fail-client" -> authorization-code 400
+###
+### Seed degistiyse:  docker compose down -v && docker compose up -d mocklab
+### ─────────────────────────────────────────────────────────────────────────
+
+
+### ══ 1) Kurumsal happy path → otp-success ══════════════════════════════════
+# @name k1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "9001234567",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "user_email": "ayse.yilmaz@example.com",
+  "user_name": "Ayse",
+  "user_surname": "Yilmaz",
+  "scopeGroup": "Kurumsal",
+  "otpAttempt": 3,
+  "otpTtl": 180
+}
+
+###
+@k1 = {{k1.response.body.id}}
+
+### Beklenen state: otp-awaiting-code (view: otp-code-entry-view)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k1}}/functions/state
+
+### Dogru kodu gir → auth-code-issuing → otp-success
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen: state otp-success, otpAuthResult "success", authorizationCode dolu,
+###           client_secret null (IssueAuthorizationCodeMapping temizler)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k1}}/functions/state
+
+
+### ══ 2) Kurumsal SIM bloke → FAST fallback → otp-success ═══════════════════
+### Beklenen iz: send-otp (OtpType=Otp) OtpBlacklisted → simBlocked=true, otpType=Fast
+###              → otp-resending-fast → send-otp (OtpType=Fast) SendOtpSuccess
+# @name k2
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "9001234567",
+  "actor": "44444444440",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Kurumsal"
+}
+
+###
+@k2 = {{k2.response.body.id}}
+
+### Beklenen: otp-awaiting-code, simBlocked=true, otpType="Fast"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k2}}/functions/state
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k2}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen: otp-success
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k2}}/functions/state
+
+
+### ══ 3) Kurumsal cift bloke → sim-blocked ══════════════════════════════════
+### Beklenen: TOPLAM 2 send-otp cagrisi (Otp + Fast), sonra sim-blocked.
+###           Ucuncu bir "Otp" denemesi ASLA olmaz — latch bunu engeller.
+# @name k3
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "9001234567",
+  "actor": "55555555550",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Kurumsal"
+}
+
+###
+@k3 = {{k3.response.body.id}}
+
+### Beklenen: state sim-blocked (subType 2), otpAuthResult "sim-blocked"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k3}}/functions/state
+
+
+### ══ 4) Bireysel happy path → otp-success ══════════════════════════════════
+# @name b1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@b1 = {{b1.response.body.id}}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{b1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen: otp-success
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{b1}}/functions/state
+
+
+### ══ 5) Bireysel profil kaydi yok → profile-not-found ══════════════════════
+### Beklenen: send-otp SIFIR cagri
+# @name b2
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "33333333330",
+  "actor": "33333333330",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@b2 = {{b2.response.body.id}}
+
+### Beklenen: state profile-not-found, otpAuthResult "profile-not-found"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{b2}}/functions/state
+
+
+### ══ 6) Bireysel telefon uyusmuyor → phone-mismatch ════════════════════════
+# @name b3
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "22222222220",
+  "actor": "22222222220",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@b3 = {{b3.response.body.id}}
+
+### Beklenen: state phone-mismatch, otpAuthResult "phone-mismatch"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{b3}}/functions/state
+
+
+### ══ 7) Bireysel SIM bloke → sim-blocked (FAST DENENMEZ) ═══════════════════
+### Beklenen: TEK send-otp cagrisi, OtpType="Otp". OtpType="Fast" iceren cagri OLMAMALI.
+# @name b4
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "44444444440",
+  "actor": "44444444440",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@b4 = {{b4.response.body.id}}
+
+### Beklenen: state sim-blocked
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{b4}}/functions/state
+
+### Kanit: mocklab loglarinda bu instance icin OtpType=Fast gecen cagri olmamali
+###   docker compose logs mocklab | grep -i fast
+
+
+### ══ 8) Attempt tukenmesi → attempt-exceeded ═══════════════════════════════
+# @name a1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel",
+  "otpAttempt": 2,
+  "otpTtl": 600
+}
+
+###
+@a1 = {{a1.response.body.id}}
+
+### 1. yanlis kod → attemptUsed 1, otp-awaiting-code'a geri doner
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{a1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "999999" }
+
+### Beklenen: otp-awaiting-code, attemptUsed 1
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{a1}}/functions/state
+
+### 2. yanlis kod → attemptUsed 2 == otpAttempt → attempt-exceeded
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{a1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "888888" }
+
+### Beklenen: state attempt-exceeded, attemptUsed 2
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{a1}}/functions/state
+
+
+### ══ 9) TTL → manuel tekrar gonderim → otp-success ═════════════════════════
+### otpTtl 30 sn. Once bir yanlis kod gir (attemptUsed 1 olsun), sonra TTL'in dolmasini
+### bekle. Kritik dogrulama: resend SONRASI attemptUsed hala 1 — sifirlanmamali.
+# @name t1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel",
+  "otpAttempt": 3,
+  "otpTtl": 30,
+  "resendLimit": 2
+}
+
+###
+@t1 = {{t1.response.body.id}}
+
+### Bir yanlis kod — attemptUsed 1
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "111111" }
+
+### ~35 sn BEKLE, sonra: beklenen state otp-awaiting-resend (view: otp-resend-view)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t1}}/functions/state
+
+### Manuel tekrar gonderim → resendUsed 1, yeni otpExpiresAt, otp-awaiting-code
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t1}}/transitions/resend-otp?sync=true
+Content-Type: application/json
+
+{}
+
+### Beklenen: otp-awaiting-code, resendUsed 1, attemptUsed HALA 1 (sifirlanmadi)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t1}}/functions/state
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen: otp-success
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t1}}/functions/state
+
+
+### ══ 9b) TTL + tekrar gonderim hakki yok → ttl-expired ═════════════════════
+# @name t2
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel",
+  "otpTtl": 30,
+  "resendLimit": 0
+}
+
+###
+@t2 = {{t2.response.body.id}}
+
+### ~35 sn BEKLE. Beklenen: state ttl-expired (subType 8), otpAuthResult "ttl-expired"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{t2}}/functions/state
+
+### Alternatif (beklemeden): sunucu tarafi expiry — otpCode "000000" verifyGate=expired uretir
+### ve ayni otp-ttl-gate'e girer.
+
+
+### ══ 10) Kurumsal profil yok → akis DEVAM eder → otp-success ═══════════════
+### Kullanici karari: Kurumsal'da profil bilgi amaclidir; kayit yoksa da telefon
+### uyusmasa da akis durmaz.
+# @name k4
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "9001234567",
+  "actor": "33333333330",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Kurumsal"
+}
+
+###
+@k4 = {{k4.response.body.id}}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k4}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen: otp-success (profileFound=false ama profileGate="pass")
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k4}}/functions/state
+
+
+### ══ 11) Auth code reddi → auth-code-failed ════════════════════════════════
+# @name f1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "fail-client",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@f1 = {{f1.response.body.id}}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{f1}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen: state auth-code-failed, authorizationCode bos
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{f1}}/functions/state
+
+
+### ══ 12) Teknik hata ayrimi → otp-technical-failure (profile-not-found DEGIL) ══
+# @name e1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "99999999990",
+  "actor": "99999999990",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@e1 = {{e1.response.body.id}}
+
+### Beklenen: state otp-technical-failure, otpAuthResult "technical-failure"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{e1}}/functions/state
+
+
+### ══ 13) Iptal → otp-cancelled ════════════════════════════════════════════
+# @name c1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@c1 = {{c1.response.body.id}}
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{c1}}/transitions/cancel-otp-auth?sync=true
+Content-Type: application/json
+
+{}
+
+### Beklenen: state otp-cancelled (subType 7), otpAuthResult "cancelled"
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{c1}}/functions/state
+
+
+### ══ 14) SubFlow sozlesmesi — harness parent uzerinden ═════════════════════
+### Parent stateType 4 ile otp-auth'u cagirir; ISubFlowMapping sonucu geri tasir.
+# @name h1
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{harness}}/instances/start
+Content-Type: application/json
+
+{
+  "sub": "11111111110",
+  "actor": "11111111110",
+  "client_id": "mobile-banking-app",
+  "grant_type": "authorization_code",
+  "client_secret": "s3cr3t",
+  "user_phone": "5551112233",
+  "scopeGroup": "Bireysel"
+}
+
+###
+@h1 = {{h1.response.body.id}}
+
+### Parent state: harness-otp-auth (child otp-awaiting-code'da bekliyor).
+### Child instance id'sini yanittan al ve asagiya yaz.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{harness}}/instances/{{h1}}/functions/state
+
+###
+@childId = REPLACE_WITH_CHILD_INSTANCE_ID
+
+###
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{childId}}/transitions/verify-otp?sync=true
+Content-Type: application/json
+
+{ "otpCode": "123456" }
+
+### Beklenen parent: harness-success; otpAuthResult "success" ve authorizationCode
+### parent instance data'sinda. client_secret ve otpCode parent'a TASINMAMALI.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{harness}}/instances/{{h1}}/functions/state
+
+
+### ── Yardimci sorgular ────────────────────────────────────────────────────
+### Basariyla sonlanan instance'lar
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?state=otp-success
+
+### SIM bloke ile sonlananlar
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances?state=sim-blocked
+
+### Basarisiz bir transition'i yeniden dene
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{k1}}/retry

@@ -1,0 +1,48 @@
+{
+  "key": "otp-code-payload",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "transition",
+    "input",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      {
+        "label": "OTP Code Payload",
+        "language": "en-US"
+      },
+      {
+        "label": "OTP Kod Verisi",
+        "language": "tr-TR"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:otp-code-payload",
+      "title": "OTP Code Entry Payload",
+      "description": "Payload of the manual verify-otp transition. Bound as the dataSchema of otp-code-entry-view.",
+      "type": "object",
+      "required": [
+        "otpCode"
+      ],
+      "properties": {
+        "otpCode": {
+          "type": "string",
+          "pattern": "^[0-9]{4,8}$",
+          "description": "The one-time code the user received by SMS. SENSITIVE: dropped by ValidateOtpMapping and never persisted to instance data.",
+          "x-labels": {
+            "en": "OTP Code",
+            "tr": "SMS Kodu"
+          }
+        }
+      }
+    }
+  }
+}

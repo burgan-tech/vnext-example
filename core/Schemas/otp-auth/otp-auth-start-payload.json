@@ -1,0 +1,170 @@
+{
+  "key": "otp-auth-start-payload",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "authentication",
+    "transition",
+    "input",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      {
+        "label": "OTP Auth Start Payload",
+        "language": "en-US"
+      },
+      {
+        "label": "OTP Kimlik Doğrulama Başlangıç Verisi",
+        "language": "tr-TR"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:otp-auth-start-payload",
+      "title": "OTP Auth SubFlow Start Payload",
+      "description": "Payload the consuming (parent) flow supplies through ISubFlowMapping.InputHandler when starting the otp-auth SubFlow.",
+      "type": "object",
+      "required": [
+        "sub",
+        "actor",
+        "client_id",
+        "grant_type",
+        "client_secret",
+        "user_phone",
+        "scopeGroup"
+      ],
+      "properties": {
+        "sub": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Customer identifier. Bireysel: the customer's TCKN. Kurumsal: the legal entity customer number.",
+          "x-labels": {
+            "en": "Customer",
+            "tr": "Müşteri"
+          }
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The user performing the transaction; the customerId used for the simple-profile lookup.",
+          "x-labels": {
+            "en": "User",
+            "tr": "Kullanıcı"
+          }
+        },
+        "client_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OAuth2 client identifier.",
+          "x-labels": {
+            "en": "Client",
+            "tr": "İstemci"
+          }
+        },
+        "grant_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OAuth2 grant type.",
+          "x-labels": {
+            "en": "Grant Type",
+            "tr": "Yetki Tipi"
+          }
+        },
+        "client_secret": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OAuth2 client secret. SENSITIVE: not bound to any view and not merged back to the parent.",
+          "x-labels": {
+            "en": "Client Secret",
+            "tr": "İstemci Sırrı"
+          }
+        },
+        "user_phone": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{9}$",
+          "description": "Phone number in national format, 10 digits without leading zero.",
+          "x-labels": {
+            "en": "Phone",
+            "tr": "Telefon"
+          }
+        },
+        "user_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Caller-supplied e-mail address.",
+          "x-labels": {
+            "en": "Email",
+            "tr": "E-posta"
+          }
+        },
+        "user_name": {
+          "type": "string",
+          "description": "Caller-supplied given name.",
+          "x-labels": {
+            "en": "Name",
+            "tr": "Ad"
+          }
+        },
+        "user_surname": {
+          "type": "string",
+          "description": "Caller-supplied surname.",
+          "x-labels": {
+            "en": "Surname",
+            "tr": "Soyad"
+          }
+        },
+        "scopeGroup": {
+          "type": "string",
+          "enum": [
+            "Bireysel",
+            "Kurumsal"
+          ],
+          "description": "Scope group driving the branch: Bireysel enforces profile and phone-match checks and forbids FAST; Kurumsal skips those checks and enables the FAST fallback.",
+          "x-labels": {
+            "en": "Scope Group",
+            "tr": "Kapsam Grubu"
+          }
+        },
+        "otpAttempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3,
+          "description": "Total wrong-entry allowance for the whole instance. Defaults to 3 when omitted.",
+          "x-labels": {
+            "en": "Allowed Attempts",
+            "tr": "Deneme Hakkı"
+          }
+        },
+        "otpTtl": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 600,
+          "default": 180,
+          "description": "OTP validity window in seconds. Defaults to 180 when omitted.",
+          "x-labels": {
+            "en": "OTP TTL (seconds)",
+            "tr": "OTP Süresi (saniye)"
+          }
+        },
+        "resendLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 3,
+          "description": "Manual resend allowance after a TTL expiry. Defaults to 3 when omitted.",
+          "x-labels": {
+            "en": "Resend Limit",
+            "tr": "Tekrar Gönderim Hakkı"
+          }
+        }
+      }
+    }
+  }
+}

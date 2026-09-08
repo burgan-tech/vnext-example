@@ -1,0 +1,433 @@
+{
+  "key": "otp-auth-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "authentication",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "labels": [
+      {
+        "label": "OTP Auth Master Data",
+        "language": "en-US"
+      },
+      {
+        "label": "OTP Kimlik Doğrulama Ana Verisi",
+        "language": "tr-TR"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:otp-auth-master",
+      "title": "OTP Auth SubFlow Master Data",
+      "description": "Instance data shape for the otp-auth SubFlow. Master schema: no required fields and additionalProperties true, because the runtime validates it on every instance-data merge while data expands across states.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sub": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Customer identifier. Individual (Bireysel): the customer's TCKN. Corporate (Kurumsal): the legal entity customer number.",
+          "x-labels": {
+            "en": "Customer",
+            "tr": "Müşteri"
+          },
+          "x-filterOperators": [
+            "eq"
+          ],
+          "x-sortable": true
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The user performing the transaction. Individual: usually the same as sub. Corporate: the person acting on behalf of the legal entity. This is the customerId used for the simple-profile lookup.",
+          "x-labels": {
+            "en": "User",
+            "tr": "Kullanıcı"
+          },
+          "x-filterOperators": [
+            "eq"
+          ],
+          "x-sortable": true
+        },
+        "client_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OAuth2 client identifier supplied by the consuming flow.",
+          "x-labels": {
+            "en": "Client",
+            "tr": "İstemci"
+          },
+          "x-filterOperators": [
+            "eq"
+          ]
+        },
+        "grant_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OAuth2 grant type supplied by the consuming flow.",
+          "x-labels": {
+            "en": "Grant Type",
+            "tr": "Yetki Tipi"
+          }
+        },
+        "client_secret": {
+          "type": "string",
+          "description": "OAuth2 client secret. SENSITIVE: never bind to a view, never merge back to the parent instance.",
+          "x-labels": {
+            "en": "Client Secret",
+            "tr": "İstemci Sırrı"
+          }
+        },
+        "user_phone": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{9}$",
+          "description": "Phone number supplied by the caller, national format, 10 digits without leading zero.",
+          "x-labels": {
+            "en": "Phone",
+            "tr": "Telefon"
+          }
+        },
+        "user_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Caller-supplied e-mail address. Pass-through only in version 1.0.0.",
+          "x-labels": {
+            "en": "Email",
+            "tr": "E-posta"
+          }
+        },
+        "user_name": {
+          "type": "string",
+          "description": "Caller-supplied given name. Pass-through only in version 1.0.0.",
+          "x-labels": {
+            "en": "Name",
+            "tr": "Ad"
+          }
+        },
+        "user_surname": {
+          "type": "string",
+          "description": "Caller-supplied surname. Pass-through only in version 1.0.0.",
+          "x-labels": {
+            "en": "Surname",
+            "tr": "Soyad"
+          }
+        },
+        "scopeGroup": {
+          "type": "string",
+          "enum": [
+            "Bireysel",
+            "Kurumsal"
+          ],
+          "description": "Scope group. Bireysel routes through the profile-match and no-FAST rules; Kurumsal enables the FAST fallback and skips the profile checks.",
+          "x-labels": {
+            "en": "Scope Group",
+            "tr": "Kapsam Grubu"
+          },
+          "x-filterOperators": [
+            "eq"
+          ],
+          "x-sortable": true
+        },
+        "otpAttempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3,
+          "description": "Total number of wrong OTP entries allowed for the lifetime of this instance. Not reset on resend.",
+          "x-labels": {
+            "en": "Allowed Attempts",
+            "tr": "Deneme Hakkı"
+          }
+        },
+        "otpTtl": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 600,
+          "default": 180,
+          "description": "OTP validity window in seconds. Used both as the send-otp OtpDuration and as the ceiling for the dynamic TTL timer.",
+          "x-labels": {
+            "en": "OTP TTL (seconds)",
+            "tr": "OTP Süresi (saniye)"
+          }
+        },
+        "resendLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 3,
+          "description": "How many times the user may manually request a new OTP after the TTL expires.",
+          "x-labels": {
+            "en": "Resend Limit",
+            "tr": "Tekrar Gönderim Hakkı"
+          }
+        },
+        "phonePrefix": {
+          "type": "string",
+          "description": "Derived: first 3 digits of user_phone.",
+          "x-labels": {
+            "en": "Phone Prefix",
+            "tr": "Telefon Ön Eki"
+          }
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Derived: user_phone without the first 3 digits.",
+          "x-labels": {
+            "en": "Phone Number",
+            "tr": "Telefon Numarası"
+          }
+        },
+        "phoneCountryCode": {
+          "type": "string",
+          "default": "90",
+          "description": "Derived country dialling code sent to the OTP service.",
+          "x-labels": {
+            "en": "Country Code",
+            "tr": "Ülke Kodu"
+          }
+        },
+        "profileFound": {
+          "type": "boolean",
+          "description": "True when simple-profile returned a record. 404 and 400 both mean not found.",
+          "x-labels": {
+            "en": "Profile Found",
+            "tr": "Profil Bulundu"
+          }
+        },
+        "profilePhone": {
+          "type": "string",
+          "description": "Phone number returned by simple-profile, used for the Bireysel match check.",
+          "x-labels": {
+            "en": "Profile Phone",
+            "tr": "Profildeki Telefon"
+          }
+        },
+        "profileEmail": {
+          "type": "string",
+          "description": "E-mail returned by simple-profile.",
+          "x-labels": {
+            "en": "Profile Email",
+            "tr": "Profildeki E-posta"
+          }
+        },
+        "profileGate": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "not-found",
+            "phone-mismatch",
+            "failed"
+          ],
+          "description": "Gate discriminator written by GetSimpleProfileMapping / ProfileNotFoundFallbackMapping. Exactly one profile-lookup transition rule matches it.",
+          "x-labels": {
+            "en": "Profile Gate",
+            "tr": "Profil Kapısı"
+          }
+        },
+        "otpType": {
+          "type": "string",
+          "enum": [
+            "Otp",
+            "Fast"
+          ],
+          "default": "Otp",
+          "description": "OTP channel sent to the service. Flips to Fast once the SIM-block latch is set, and never flips back.",
+          "x-labels": {
+            "en": "OTP Type",
+            "tr": "OTP Tipi"
+          }
+        },
+        "simBlocked": {
+          "type": "boolean",
+          "default": false,
+          "description": "SIM-block LATCH. Set once when the OTP service answers OtpBlacklisted for a Kurumsal caller; from then on every send uses Fast and a second block ends the flow.",
+          "x-labels": {
+            "en": "SIM Blocked",
+            "tr": "SIM Bloke"
+          }
+        },
+        "simBlockedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC instant the SIM-block latch was set.",
+          "x-labels": {
+            "en": "SIM Blocked At",
+            "tr": "SIM Bloke Zamanı"
+          }
+        },
+        "sendOtpStatus": {
+          "type": "string",
+          "description": "Raw status from the OTP service. SendOtpSuccess on success, OtpBlacklisted on SIM block.",
+          "x-labels": {
+            "en": "Send OTP Status",
+            "tr": "OTP Gönderim Durumu"
+          }
+        },
+        "sendGate": {
+          "type": "string",
+          "enum": [
+            "sent",
+            "escalate-fast",
+            "blocked",
+            "failed"
+          ],
+          "description": "Gate discriminator written by SendOtpMapping.",
+          "x-labels": {
+            "en": "Send Gate",
+            "tr": "Gönderim Kapısı"
+          }
+        },
+        "otpReference": {
+          "type": "string",
+          "description": "Correlation id returned by send-otp, carried into validate-otp and the authorization-code call.",
+          "x-labels": {
+            "en": "OTP Reference",
+            "tr": "OTP Referansı"
+          }
+        },
+        "smsTraceId": {
+          "type": "string",
+          "description": "SMS trace id from the OTP service send info, for support lookups.",
+          "x-labels": {
+            "en": "SMS Trace Id",
+            "tr": "SMS İz Kaydı"
+          }
+        },
+        "otpSentAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC instant the current OTP was sent.",
+          "x-labels": {
+            "en": "OTP Sent At",
+            "tr": "OTP Gönderim Zamanı"
+          }
+        },
+        "otpExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Absolute expiry instant (otpSentAt + otpTtl). The TTL timer derives its duration from this, so a retry loop cannot extend the OTP lifetime.",
+          "x-labels": {
+            "en": "OTP Expires At",
+            "tr": "OTP Geçerlilik Sonu"
+          }
+        },
+        "attemptUsed": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Wrong OTP entries consumed so far. Never reset on resend.",
+          "x-labels": {
+            "en": "Attempts Used",
+            "tr": "Kullanılan Deneme"
+          }
+        },
+        "resendUsed": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Manual resend requests consumed so far.",
+          "x-labels": {
+            "en": "Resends Used",
+            "tr": "Kullanılan Tekrar Gönderim"
+          }
+        },
+        "verifyGate": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "retry",
+            "exceeded",
+            "expired",
+            "failed"
+          ],
+          "description": "Gate discriminator written by ValidateOtpMapping.",
+          "x-labels": {
+            "en": "Verify Gate",
+            "tr": "Doğrulama Kapısı"
+          }
+        },
+        "resendGate": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "exhausted"
+          ],
+          "description": "Gate discriminator written by EvaluateResendGateMapping.",
+          "x-labels": {
+            "en": "Resend Gate",
+            "tr": "Tekrar Gönderim Kapısı"
+          }
+        },
+        "otpVerified": {
+          "type": "boolean",
+          "description": "True once the OTP service confirmed the code.",
+          "x-labels": {
+            "en": "OTP Verified",
+            "tr": "OTP Doğrulandı"
+          }
+        },
+        "authorizationCode": {
+          "type": "string",
+          "description": "Authorization code issued on success. Empty on every non-success outcome.",
+          "x-labels": {
+            "en": "Authorization Code",
+            "tr": "Yetki Kodu"
+          }
+        },
+        "authGate": {
+          "type": "string",
+          "enum": [
+            "issued",
+            "failed"
+          ],
+          "description": "Gate discriminator written by IssueAuthorizationCodeMapping.",
+          "x-labels": {
+            "en": "Auth Gate",
+            "tr": "Yetki Kapısı"
+          }
+        },
+        "otpAuthResult": {
+          "type": "string",
+          "enum": [
+            "in-progress",
+            "success",
+            "profile-not-found",
+            "phone-mismatch",
+            "sim-blocked",
+            "attempt-exceeded",
+            "ttl-expired",
+            "auth-code-failed",
+            "technical-failure",
+            "cancelled"
+          ],
+          "default": "in-progress",
+          "description": "Outcome contract read by the parent flow. Adding a value is a BREAKING change for consumers.",
+          "x-labels": {
+            "en": "Result",
+            "tr": "Sonuç"
+          },
+          "x-filterOperators": [
+            "eq"
+          ],
+          "x-sortable": true
+        },
+        "otpAuthResultDetail": {
+          "type": "string",
+          "description": "Free-text detail for the outcome: service message or error code.",
+          "x-labels": {
+            "en": "Result Detail",
+            "tr": "Sonuç Detayı"
+          }
+        }
+      }
+    }
+  }
+}

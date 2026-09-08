@@ -1,0 +1,1746 @@
+{
+  "key": "otp-auth",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "authentication",
+    "subflow",
+    "authorization-code"
+  ],
+  "attributes": {
+    "type": "S",
+    "subFlowType": null,
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "OTP Auth SubFlow"
+      },
+      {
+        "language": "tr-TR",
+        "label": "OTP Kimlik Dogrulama Alt Akisi"
+      }
+    ],
+    "schema": {
+      "key": "otp-auth-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "scripts": {
+      "helpers": [
+        {
+          "key": "otp-auth-helpers",
+          "version": "1.0.0",
+          "domain": "core",
+          "flow": "sys-mappings"
+        }
+      ]
+    },
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-otp-auth",
+      "target": "otp-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel OTP Auth"
+        },
+        {
+          "language": "tr-TR",
+          "label": "OTP Dogrulamayi Iptal Et"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "otp-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "type": "L",
+            "location": "./src/SetCancelledResultMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSBjYW5jZWxsZWQgb3V0Y29tZSBvbiB0aGUgd29ya2Zsb3ctbGV2ZWwgY2FuY2VsIHRyYW5zaXRpb24uPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2V0Q2FuY2VsbGVkUmVzdWx0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5NZXJnZShjb250ZXh0Lkluc3RhbmNlPy5EYXRhKTsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAiY2FuY2VsbGVkIjsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiQ2FuY2VsbGVkIGJ5IHRoZSBjYWxsZXIiOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICB9Cn0K",
+            "encoding": "B64"
+          }
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-otp-auth",
+      "target": "otp-initializing",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start OTP Auth"
+        },
+        {
+          "language": "tr-TR",
+          "label": "OTP Dogrulamayi Baslat"
+        }
+      ],
+      "schema": {
+        "key": "otp-auth-start-payload",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "otp-script-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "type": "L",
+            "location": "./src/OtpAuthStartMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdGFydCB0cmFuc2l0aW9uIGJvb2trZWVwaW5nLiBOb3JtYWxpc2VzIHRoZSBjYWxsZXItc3VwcGxpZWQgcGF5bG9hZCBpbnRvIHRoZSBkZXJpdmVkIGZpZWxkcyB0aGUKLy8vIHJlc3Qgb2YgdGhlIGZsb3cgcmVsaWVzIG9uLCBhbmQgc2VlZHMgZXZlcnkgY291bnRlciBhbmQgdGhlIFNJTS1ibG9jayBsYXRjaC4KLy8vIDxwYXJhPlJ1bnMgb24gYSBzY3JpcHQgdGFzaywgc28gSW5wdXRIYW5kbGVyIGhhcyBub3RoaW5nIHRvIHByZXBhcmUuPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgT3RwQXV0aFN0YXJ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5NZXJnZShjb250ZXh0Lkluc3RhbmNlPy5EYXRhKTsKCiAgICAgICAgdmFyIHBob25lID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJ1c2VyX3Bob25lIik7CiAgICAgICAgZGF0YVsicGhvbmVQcmVmaXgiXSA9IE90cEF1dGhIZWxwZXJzLlBob25lUHJlZml4KHBob25lKTsKICAgICAgICBkYXRhWyJwaG9uZU51bWJlciJdID0gT3RwQXV0aEhlbHBlcnMuUGhvbmVTdWJzY3JpYmVyKHBob25lKTsKICAgICAgICBkYXRhWyJwaG9uZUNvdW50cnlDb2RlIl0gPSAiOTAiOwoKICAgICAgICAvLyBDYWxsZXItdHVuYWJsZSBrbm9iczsgdGhlIHNjaGVtYSBkZWZhdWx0cyBhcmUgcmUtYXBwbGllZCBoZXJlIGJlY2F1c2UgYSBTdWJGbG93IHN0YXJ0CiAgICAgICAgLy8gcGF5bG9hZCBtYXkgbGVnaXRpbWF0ZWx5IG9taXQgdGhlbS4KICAgICAgICBkYXRhWyJvdHBBdHRlbXB0Il0gPSBPdHBBdXRoSGVscGVycy5JbnQoZGF0YSwgIm90cEF0dGVtcHQiLCAzKTsKICAgICAgICBkYXRhWyJvdHBUdGwiXSA9IE90cEF1dGhIZWxwZXJzLkludChkYXRhLCAib3RwVHRsIiwgMTgwKTsKICAgICAgICBkYXRhWyJyZXNlbmRMaW1pdCJdID0gT3RwQXV0aEhlbHBlcnMuSW50KGRhdGEsICJyZXNlbmRMaW1pdCIsIDMpOwoKICAgICAgICBkYXRhWyJhdHRlbXB0VXNlZCJdID0gMDsKICAgICAgICBkYXRhWyJyZXNlbmRVc2VkIl0gPSAwOwogICAgICAgIGRhdGFbInNpbUJsb2NrZWQiXSA9IGZhbHNlOwogICAgICAgIGRhdGFbIm90cFR5cGUiXSA9ICJPdHAiOwogICAgICAgIGRhdGFbIm90cFZlcmlmaWVkIl0gPSBmYWxzZTsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAiaW4tcHJvZ3Jlc3MiOwogICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICIiOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+            "encoding": "B64"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "otp-initializing",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Initializing"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Baslatiliyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "init-to-profile-lookup",
+            "target": "profile-lookup",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Continue to profile lookup"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil sorgusuna gec"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "profile-lookup",
+        "stateType": 2,
+        "subType": 5,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Profile Lookup"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Profil Sorgusu"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "get-simple-profile",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/GetSimpleProfileMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzaW1wbGUtcHJvZmlsZSBsb29rdXAgYnkgPGM+YWN0b3I8L2M+LCBwbHVzIHRoZSBwcm9maWxlR2F0ZSBkZWNpc2lvbi4KLy8vIDxwYXJhPgovLy8gTW9ja0xhYiBoYXMgbm8gcm91dGUtcGFyYW1ldGVyIHN1cHBvcnQsIHNvIHRoZSBjdXN0b21lciBpZCB0cmF2ZWxzIGFzIGEgcXVlcnkgc3RyaW5nIHJhdGhlciB0aGFuCi8vLyBhcyBhIHBhdGggc2VnbWVudCAoc2VlIFZORVhULUJVSUxELVBMQU4ubWQgcmlzayBSMTIpLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA0MDQgYW5kIDQwMCBtZWFuICJubyByZWNvcmQiLCBub3QgYSB0cmFuc3BvcnQgZXJyb3IgLSB0aGUgQXNnYXJkIGNsaWVudCB0aGlzIGNvbnRyYWN0IGNhbWUgZnJvbQovLy8gcmV0dXJucyBudWxsIGZvciBib3RoLiBUaGV5IGFyZSBoYW5kbGVkIGhlcmUgd2hlbiB0aGUgcnVudGltZSBoYW5kcyB0aGUgcmVzcG9uc2UgdG8gdGhlIG1hcHBpbmcsCi8vLyBhbmQgYnkgdGhlIHN0YXRlJ3MgZXJyb3JCb3VuZGFyeSB3aGVuIHRoZSBydW50aW1lIHJhaXNlcyB0aGVtIGluc3RlYWQuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBHZXRTaW1wbGVQcm9maWxlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgIEFyZ3VtZW50TnVsbEV4Y2VwdGlvbi5UaHJvd0lmTnVsbChodHRwVGFzayk7CgogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpOwogICAgICAgIHZhciBhcGlCYXNlVXJsID0gR2V0Q29uZmlnVmFsdWUoIkV4YW1wbGU6QXBpQmFzZVVybCIsICJodHRwOi8vbG9jYWxob3N0OjMwMDEiKTsKICAgICAgICB2YXIgYWN0b3IgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFjdG9yIiwgc3RyaW5nLkVtcHR5KTsKCiAgICAgICAgaHR0cFRhc2suU2V0VXJsKGh0dHBUYXNrLlVybC5SZXBsYWNlKCJBUElfQkFTRVVSTCIsIGFwaUJhc2VVcmwpICsgIj9jdXN0b21lcklkPSIgKyBVcmkuRXNjYXBlRGF0YVN0cmluZyhhY3RvcikpOwoKICAgICAgICAvLyBMYWIgc2VjcmV0IHN0b3JlIG1heSBub3QgY2FycnkgdGhlIGtleSBhdCBhbGw7IGFuIGFic2VudCBzZWNyZXQgbXVzdCBub3QgYnJlYWsgdGhlIGNhbGwuCiAgICAgICAgdmFyIGFwaUtleSA9IGF3YWl0IEdldFNlY3JldEFzeW5jKCJ2bmV4dC1zZWNyZXQiLCAid29ya2Zsb3ctc2VjcmV0IiwgIkFwaVNlY3JldCIpOwogICAgICAgIGh0dHBUYXNrLkFkZEhlYWRlcigiWC1BUElTSVgtS0VZIiwgYXBpS2V5ID8/IHN0cmluZy5FbXB0eSk7CgogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UoKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5NZXJnZShjb250ZXh0Lkluc3RhbmNlPy5EYXRhKTsKICAgICAgICB2YXIgc2NvcGVHcm91cCA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAic2NvcGVHcm91cCIsICJCaXJleXNlbCIpOwogICAgICAgIHZhciBpc0t1cnVtc2FsID0gc3RyaW5nLkVxdWFscyhzY29wZUdyb3VwLCAiS3VydW1zYWwiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWwpOwoKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBlbnZlbG9wZSA9IE90cEF1dGhIZWxwZXJzLlRvRGljdChjb250ZXh0LkJvZHkpOwogICAgICAgICAgICB2YXIgc3RhdHVzQ29kZSA9IE90cEF1dGhIZWxwZXJzLkludChlbnZlbG9wZSwgInN0YXR1c0NvZGUiLCAyMDApOwogICAgICAgICAgICB2YXIgcGF5bG9hZCA9IGVudmVsb3BlLkNvbnRhaW5zS2V5KCJkYXRhIikKICAgICAgICAgICAgICAgID8gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KGVudmVsb3BlWyJkYXRhIl0pCiAgICAgICAgICAgICAgICA6IGVudmVsb3BlOwoKICAgICAgICAgICAgaWYgKHN0YXR1c0NvZGUgPT0gNDA0IHx8IHN0YXR1c0NvZGUgPT0gNDAwKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBBcHBseShkYXRhLCBpc0t1cnVtc2FsLCBmYWxzZSwgbnVsbCk7CiAgICAgICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgICAgICAgICB9CgogICAgICAgICAgICBpZiAoc3RhdHVzQ29kZSA+PSA1MDApCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGRhdGFbInByb2ZpbGVHYXRlIl0gPSAiZmFpbGVkIjsKICAgICAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAic2ltcGxlLXByb2ZpbGUgcmV0dXJuZWQgIiArIHN0YXR1c0NvZGU7CiAgICAgICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgICAgICAgICB9CgogICAgICAgICAgICB2YXIgcHJvZmlsZVBob25lID0gT3RwQXV0aEhlbHBlcnMuU3RyKHBheWxvYWQsICJwaG9uZU51bWJlciIpOwogICAgICAgICAgICBkYXRhWyJwcm9maWxlRW1haWwiXSA9IE90cEF1dGhIZWxwZXJzLlN0cihwYXlsb2FkLCAiZW1haWwiLCBzdHJpbmcuRW1wdHkpOwogICAgICAgICAgICBBcHBseShkYXRhLCBpc0t1cnVtc2FsLCBwcm9maWxlUGhvbmUgIT0gbnVsbCwgcHJvZmlsZVBob25lKTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIC8vIFRvdGFsIHN3aXRjaDogYW4gdW5yZWFkYWJsZSByZXNwb25zZSBtdXN0IHN0aWxsIGxlYXZlIGEgZ2F0ZSB2YWx1ZSBiZWhpbmQsIG90aGVyd2lzZQogICAgICAgICAgICAvLyBubyB0cmFuc2l0aW9uIHJ1bGUgbWF0Y2hlcyBhbmQgdGhlIGluc3RhbmNlIGhhbmdzIHNpbGVudGx5LgogICAgICAgICAgICBkYXRhWyJwcm9maWxlR2F0ZSJdID0gImZhaWxlZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJzaW1wbGUtcHJvZmlsZSBwYXJzZSBlcnJvcjogIiArIGV4Lk1lc3NhZ2U7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQoKICAgIC8vLyA8c3VtbWFyeT4KICAgIC8vLyBLdXJ1bXNhbCB0cmVhdHMgdGhlIHByb2ZpbGUgYXMgaW5mb3JtYXRpb25hbCBvbmx5OiBuZWl0aGVyIGEgbWlzc2luZyByZWNvcmQgbm9yIGEgcGhvbmUKICAgIC8vLyBtaXNtYXRjaCBzdG9wcyB0aGUgZmxvdywgYmVjYXVzZSB0aGUgY2FsbGVyIHN1cHBsaWVzIHRoZSBwaG9uZSBmb3IgdGhlIGxlZ2FsIGVudGl0eSdzIHVzZXIuCiAgICAvLy8gPC9zdW1tYXJ5PgogICAgcHJpdmF0ZSBzdGF0aWMgdm9pZCBBcHBseShJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZGF0YSwgYm9vbCBpc0t1cnVtc2FsLCBib29sIGZvdW5kLCBzdHJpbmcgcHJvZmlsZVBob25lKQogICAgewogICAgICAgIGRhdGFbInByb2ZpbGVGb3VuZCJdID0gZm91bmQ7CiAgICAgICAgZGF0YVsicHJvZmlsZVBob25lIl0gPSBwcm9maWxlUGhvbmUgPz8gc3RyaW5nLkVtcHR5OwoKICAgICAgICBpZiAoaXNLdXJ1bXNhbCkKICAgICAgICB7CiAgICAgICAgICAgIGRhdGFbInByb2ZpbGVHYXRlIl0gPSAicGFzcyI7CiAgICAgICAgICAgIHJldHVybjsKICAgICAgICB9CgogICAgICAgIGlmICghZm91bmQpCiAgICAgICAgewogICAgICAgICAgICBkYXRhWyJwcm9maWxlR2F0ZSJdID0gIm5vdC1mb3VuZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJwcm9maWxlLW5vdC1mb3VuZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJObyBzaW1wbGUtcHJvZmlsZSByZWNvcmQgZm9yIHRoZSBhY3RvciI7CiAgICAgICAgICAgIHJldHVybjsKICAgICAgICB9CgogICAgICAgIGlmICghT3RwQXV0aEhlbHBlcnMuUGhvbmVzTWF0Y2goT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJ1c2VyX3Bob25lIiksIHByb2ZpbGVQaG9uZSkpCiAgICAgICAgewogICAgICAgICAgICBkYXRhWyJwcm9maWxlR2F0ZSJdID0gInBob25lLW1pc21hdGNoIjsKICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInBob25lLW1pc21hdGNoIjsKICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdERldGFpbCJdID0gIlN1cHBsaWVkIHBob25lIGRvZXMgbm90IG1hdGNoIHRoZSBwcm9maWxlIHBob25lIjsKICAgICAgICAgICAgcmV0dXJuOwogICAgICAgIH0KCiAgICAgICAgZGF0YVsicHJvZmlsZUdhdGUiXSA9ICJwYXNzIjsKICAgIH0KfQo=",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "profile-pass",
+            "target": "otp-sending",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Profile check passed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil kontrolu gecti"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGatePassRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+UHJvZmlsZSBzdGVwIGNsZWFyZWQ6IEt1cnVtc2FsIGFsd2F5cyBwYXNzZXMsIEJpcmV5c2VsIG5lZWRzIGEgcmVjb3JkIHdob3NlIHBob25lIG1hdGNoZXMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUHJvZmlsZUdhdGVQYXNzUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJwcm9maWxlR2F0ZSIsICJwYXNzIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "profile-missing",
+            "target": "profile-not-found",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "No profile record"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil kaydi yok"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGateNotFoundRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+QmlyZXlzZWwgY2FsbGVyIGhhcyBubyBzaW1wbGUtcHJvZmlsZSByZWNvcmQgKDQwNC80MDApLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFByb2ZpbGVHYXRlTm90Rm91bmRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInByb2ZpbGVHYXRlIiwgIm5vdC1mb3VuZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "profile-phone-mismatch",
+            "target": "phone-mismatch",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Phone does not match profile"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Telefon profille uyusmuyor"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGateMismatchRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+QmlyZXlzZWwgY2FsbGVyJ3Mgc3VwcGxpZWQgcGhvbmUgZGlmZmVycyBmcm9tIHRoZSBwcm9maWxlIHBob25lLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFByb2ZpbGVHYXRlTWlzbWF0Y2hSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInByb2ZpbGVHYXRlIiwgInBob25lLW1pc21hdGNoIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "profile-gate-failed",
+            "target": "otp-technical-failure",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Profile step failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil adimi basarisiz"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGateFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+UHJvZmlsZSBzdGVwIGNvdWxkIG5vdCBiZSBpbnRlcnByZXRlZDsgcm91dGUgdG8gdGhlIHRlY2huaWNhbC1mYWlsdXJlIGVuZCBzdGF0ZS48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQcm9maWxlR2F0ZUZhaWxlZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAicHJvZmlsZUdhdGUiLCAiZmFpbGVkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "profile-lookup-not-found",
+            "target": "profile-gate-recheck",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Profile lookup returned not found"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil sorgusu kayit bulamadi"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/ProfileNotFoundFallbackMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSdW5zIG9uIHRoZSBlcnJvckJvdW5kYXJ5IHBhdGggd2hlbiB0aGUgcnVudGltZSByYWlzZXMgNDA0LzQwMCBpbnN0ZWFkIG9mIGhhbmRpbmcgdGhlIHJlc3BvbnNlIHRvCi8vLyBHZXRTaW1wbGVQcm9maWxlTWFwcGluZy4gUmVjb21wdXRlcyBwcm9maWxlR2F0ZSB3aXRoIHRoZSBzYW1lIHNjb3BlLWF3YXJlIHJ1bGUgc28gYm90aCByb3V0ZXMKLy8vIGNvbnZlcmdlIG9uIGlkZW50aWNhbCBiZWhhdmlvdXIuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQcm9maWxlTm90Rm91bmRGYWxsYmFja01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIGlzS3VydW1zYWwgPSBzdHJpbmcuRXF1YWxzKE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAic2NvcGVHcm91cCIsICJCaXJleXNlbCIpLCAiS3VydW1zYWwiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWwpOwoKICAgICAgICBkYXRhWyJwcm9maWxlRm91bmQiXSA9IGZhbHNlOwogICAgICAgIGRhdGFbInByb2ZpbGVQaG9uZSJdID0gc3RyaW5nLkVtcHR5OwoKICAgICAgICBpZiAoaXNLdXJ1bXNhbCkKICAgICAgICB7CiAgICAgICAgICAgIGRhdGFbInByb2ZpbGVHYXRlIl0gPSAicGFzcyI7CiAgICAgICAgfQogICAgICAgIGVsc2UKICAgICAgICB7CiAgICAgICAgICAgIGRhdGFbInByb2ZpbGVHYXRlIl0gPSAibm90LWZvdW5kIjsKICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInByb2ZpbGUtbm90LWZvdW5kIjsKICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdERldGFpbCJdID0gIk5vIHNpbXBsZS1wcm9maWxlIHJlY29yZCBmb3IgdGhlIGFjdG9yIjsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICB9Cn0K",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          },
+          {
+            "key": "profile-lookup-technical-failure",
+            "target": "otp-technical-failure",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Profile lookup failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil sorgusu hata verdi"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetTechnicalFailureResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSB0ZWNobmljYWwtZmFpbHVyZSBvdXRjb21lIG9uIGVycm9yQm91bmRhcnkgdHJhbnNpdGlvbnMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2V0VGVjaG5pY2FsRmFpbHVyZVJlc3VsdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInRlY2huaWNhbC1mYWlsdXJlIjsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiVXBzdHJlYW0gc2VydmljZSBmYWlsdXJlIjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "transition": "profile-lookup-not-found",
+              "priority": 10,
+              "errorCodes": [
+                "404",
+                "400",
+                "Task:404",
+                "Task:400"
+              ]
+            },
+            {
+              "action": 4,
+              "transition": "profile-lookup-technical-failure",
+              "priority": 100,
+              "errorCodes": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "key": "profile-gate-recheck",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Profile Gate Recheck"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Profil Kapisi Yeniden Degerlendirme"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "recheck-pass",
+            "target": "otp-sending",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Profile check passed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil kontrolu gecti"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGatePassRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+UHJvZmlsZSBzdGVwIGNsZWFyZWQ6IEt1cnVtc2FsIGFsd2F5cyBwYXNzZXMsIEJpcmV5c2VsIG5lZWRzIGEgcmVjb3JkIHdob3NlIHBob25lIG1hdGNoZXMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUHJvZmlsZUdhdGVQYXNzUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJwcm9maWxlR2F0ZSIsICJwYXNzIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "recheck-missing",
+            "target": "profile-not-found",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "No profile record"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil kaydi yok"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGateNotFoundRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+QmlyZXlzZWwgY2FsbGVyIGhhcyBubyBzaW1wbGUtcHJvZmlsZSByZWNvcmQgKDQwNC80MDApLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFByb2ZpbGVHYXRlTm90Rm91bmRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInByb2ZpbGVHYXRlIiwgIm5vdC1mb3VuZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "recheck-phone-mismatch",
+            "target": "phone-mismatch",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Phone does not match profile"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Telefon profille uyusmuyor"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGateMismatchRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+QmlyZXlzZWwgY2FsbGVyJ3Mgc3VwcGxpZWQgcGhvbmUgZGlmZmVycyBmcm9tIHRoZSBwcm9maWxlIHBob25lLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFByb2ZpbGVHYXRlTWlzbWF0Y2hSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInByb2ZpbGVHYXRlIiwgInBob25lLW1pc21hdGNoIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "recheck-gate-failed",
+            "target": "otp-technical-failure",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Profile step failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Profil adimi basarisiz"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ProfileGateFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+UHJvZmlsZSBzdGVwIGNvdWxkIG5vdCBiZSBpbnRlcnByZXRlZDsgcm91dGUgdG8gdGhlIHRlY2huaWNhbC1mYWlsdXJlIGVuZCBzdGF0ZS48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQcm9maWxlR2F0ZUZhaWxlZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAicHJvZmlsZUdhdGUiLCAiZmFpbGVkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "otp-sending",
+        "stateType": 2,
+        "subType": 5,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Sending OTP"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP Gonderiliyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "send-otp",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/SendOtpMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBPVFAgc2VuZCwgc2hhcmVkIGJ5IHRoZSBvdHAtc2VuZGluZyBhbmQgb3RwLXJlc2VuZGluZy1mYXN0IHN0YXRlcywgYW5kIHRoZSBob21lIG9mIHRoZQovLy8gU0lNLWJsb2NrIExBVENILgovLy8gPHBhcmE+Ci8vLyBUaGUgbGF0Y2ggaXMgdGhlIHdob2xlIHJlYXNvbiBvbmUgbWFwcGluZyBzZXJ2ZXMgYm90aCBzdGF0ZXMuIElucHV0SGFuZGxlciBhbHdheXMgc2VuZHMKLy8vIDxjPk90cFR5cGUgPSBkYXRhLm90cFR5cGU8L2M+LiBUaGUgZmlyc3QgT3RwQmxhY2tsaXN0ZWQgYW5zd2VyIGZvciBhIEt1cnVtc2FsIGNhbGxlciBmbGlwcwovLy8gb3RwVHlwZSB0byAiRmFzdCIgYW5kIHNldHMgc2ltQmxvY2tlZC4gQmVjYXVzZSB0aGUgZXNjYWxhdGUtZmFzdCBnYXRlIGFkZGl0aW9uYWxseSByZXF1aXJlcwovLy8gPGM+c2ltQmxvY2tlZCA9PSBmYWxzZTwvYz4sIGEgc2Vjb25kIGJsb2NrIGNhbiBvbmx5IHByb2R1Y2UgImJsb2NrZWQiIC0gc28gRkFTVCBpcyBhdHRlbXB0ZWQgYXQKLy8vIG1vc3Qgb25jZSwgYW5kIHBsYWluICJPdHAiIGlzIG5ldmVyIGF0dGVtcHRlZCBhZ2FpbiBmb3IgdGhlIGxpZmUgb2YgdGhlIGluc3RhbmNlLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+QmlyZXlzZWwgbmV2ZXIgc2F0aXNmaWVzIHRoZSBlc2NhbGF0aW9uIGNvbmRpdGlvbiwgc28gRkFTVCBpcyB1bnJlYWNoYWJsZSBmb3IgaXQgYnkKLy8vIGNvbnN0cnVjdGlvbiByYXRoZXIgdGhhbiBieSBhIGd1YXJkIHRoYXQgY291bGQgYmUgZm9yZ290dGVuLjwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNlbmRPdHBNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBodHRwVGFzayA9IHRhc2sgYXMgSHR0cFRhc2s7CiAgICAgICAgQXJndW1lbnROdWxsRXhjZXB0aW9uLlRocm93SWZOdWxsKGh0dHBUYXNrKTsKCiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5Ub0RpY3QoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIGFwaUJhc2VVcmwgPSBHZXRDb25maWdWYWx1ZSgiRXhhbXBsZTpBcGlCYXNlVXJsIiwgImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSIpOwogICAgICAgIGh0dHBUYXNrLlNldFVybChodHRwVGFzay5VcmwuUmVwbGFjZSgiQVBJX0JBU0VVUkwiLCBhcGlCYXNlVXJsKSk7CgogICAgICAgIHZhciBhcGlLZXkgPSBhd2FpdCBHZXRTZWNyZXRBc3luYygidm5leHQtc2VjcmV0IiwgIndvcmtmbG93LXNlY3JldCIsICJBcGlTZWNyZXQiKTsKICAgICAgICBodHRwVGFzay5BZGRIZWFkZXIoIlgtQVBJU0lYLUtFWSIsIGFwaUtleSA/PyBzdHJpbmcuRW1wdHkpOwoKICAgICAgICAvLyBDaXRpemVuc2hpcE51bWJlciBpcyB0aGUgQUNUT1IsIG5vdCBzdWI6IGZvciBhIEt1cnVtc2FsIGNhbGxlciBzdWIgaXMgdGhlIGxlZ2FsIGVudGl0eQogICAgICAgIC8vIG51bWJlciwgd2hpbGUgdGhlIFNNUyBnb2VzIHRvIHRoZSBuYXR1cmFsIHBlcnNvbiBhY3Rpbmcgb24gaXRzIGJlaGFsZi4KICAgICAgICBodHRwVGFzay5TZXRCb2R5KG5ldwogICAgICAgIHsKICAgICAgICAgICAgUGhvbmUgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgTnVtYmVyID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJwaG9uZU51bWJlciIsIHN0cmluZy5FbXB0eSksCiAgICAgICAgICAgICAgICBQcmVmaXggPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgInBob25lUHJlZml4Iiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgICAgIENvdW50cnlDb2RlID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJwaG9uZUNvdW50cnlDb2RlIiwgIjkwIikKICAgICAgICAgICAgfSwKICAgICAgICAgICAgQ2l0aXplbnNoaXBOdW1iZXIgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFjdG9yIiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgT3RwUmV0cnlBdHRlbXB0ID0gT3RwQXV0aEhlbHBlcnMuSW50KGRhdGEsICJvdHBBdHRlbXB0IiwgMyksCiAgICAgICAgICAgIE90cER1cmF0aW9uID0gT3RwQXV0aEhlbHBlcnMuSW50KGRhdGEsICJvdHBUdGwiLCAxODApLAogICAgICAgICAgICBMYW5ndWFnZSA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAibGFuZ3VhZ2UiLCAidHItVFIiKSwKICAgICAgICAgICAgTWVzc2FnZVRlbXBsYXRlID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJtZXNzYWdlVGVtcGxhdGUiKSwKICAgICAgICAgICAgT3RwVHlwZSA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAib3RwVHlwZSIsICJPdHAiKSwKICAgICAgICAgICAgSW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLlRvU3RyaW5nKCksCiAgICAgICAgICAgIFNtc1NlbmRlciA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAic21zU2VuZGVyIiksCiAgICAgICAgICAgIEFwcFR5cGUgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFwcFR5cGUiKSwKICAgICAgICAgICAgUHJvY2Vzc05hbWUgPSAib3RwLWF1dGgiLAogICAgICAgICAgICBQcm9jZXNzSWRlbnRpdHkgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFjdG9yIiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgVGFncyA9IChvYmplY3QpbnVsbAogICAgICAgIH0pOwoKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CgogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGVudmVsb3BlID0gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KGNvbnRleHQuQm9keSk7CiAgICAgICAgICAgIHZhciBwYXlsb2FkID0gZW52ZWxvcGUuQ29udGFpbnNLZXkoImRhdGEiKSA/IE90cEF1dGhIZWxwZXJzLlRvRGljdChlbnZlbG9wZVsiZGF0YSJdKSA6IGVudmVsb3BlOwogICAgICAgICAgICB2YXIgc2VuZEluZm8gPSBwYXlsb2FkLkNvbnRhaW5zS2V5KCJzZW5kSW5mbyIpID8gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KHBheWxvYWRbInNlbmRJbmZvIl0pIDogbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KCk7CgogICAgICAgICAgICB2YXIgc3RhdHVzID0gT3RwQXV0aEhlbHBlcnMuU3RyKHBheWxvYWQsICJzZW5kT3RwU3RhdHVzIiwgc3RyaW5nLkVtcHR5KTsKICAgICAgICAgICAgZGF0YVsic2VuZE90cFN0YXR1cyJdID0gc3RhdHVzOwogICAgICAgICAgICBkYXRhWyJzbXNUcmFjZUlkIl0gPSBPdHBBdXRoSGVscGVycy5TdHIoc2VuZEluZm8sICJzbXNUcmFjZUlkIiwgc3RyaW5nLkVtcHR5KTsKCiAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKHN0YXR1cywgIlNlbmRPdHBTdWNjZXNzIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdmFyIHR0bCA9IE90cEF1dGhIZWxwZXJzLkludChkYXRhLCAib3RwVHRsIiwgMTgwKTsKICAgICAgICAgICAgICAgIGRhdGFbIm90cFJlZmVyZW5jZSJdID0gT3RwQXV0aEhlbHBlcnMuU3RyKHBheWxvYWQsICJvdHBSZWZlcmVuY2UiLCBzdHJpbmcuRW1wdHkpOwogICAgICAgICAgICAgICAgZGF0YVsib3RwU2VudEF0Il0gPSBPdHBBdXRoSGVscGVycy5VdGNOb3coKTsKICAgICAgICAgICAgICAgIC8vIEFic29sdXRlIGRlYWRsaW5lOiB0aGUgVFRMIHRpbWVyIGRlcml2ZXMgaXRzIGR1cmF0aW9uIGZyb20gdGhpcywgc28gcmV0cnlpbmcgYQogICAgICAgICAgICAgICAgLy8gd3JvbmcgY29kZSBjYW5ub3QgYnV5IHRoZSB1c2VyIGEgZnJlc2ggdmFsaWRpdHkgd2luZG93LgogICAgICAgICAgICAgICAgZGF0YVsib3RwRXhwaXJlc0F0Il0gPSBPdHBBdXRoSGVscGVycy5VdGNJbih0dGwpOwogICAgICAgICAgICAgICAgZGF0YVsic2VuZEdhdGUiXSA9ICJzZW50IjsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKHN0YXR1cywgIk90cEJsYWNrbGlzdGVkIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdmFyIGlzS3VydW1zYWwgPSBzdHJpbmcuRXF1YWxzKE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAic2NvcGVHcm91cCIsICJCaXJleXNlbCIpLCAiS3VydW1zYWwiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWwpOwogICAgICAgICAgICAgICAgdmFyIGFscmVhZHlMYXRjaGVkID0gT3RwQXV0aEhlbHBlcnMuQm9vbChkYXRhLCAic2ltQmxvY2tlZCIsIGZhbHNlKTsKCiAgICAgICAgICAgICAgICBpZiAoaXNLdXJ1bXNhbCAmJiAhYWxyZWFkeUxhdGNoZWQpCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZGF0YVsic2ltQmxvY2tlZCJdID0gdHJ1ZTsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJzaW1CbG9ja2VkQXQiXSA9IE90cEF1dGhIZWxwZXJzLlV0Y05vdygpOwogICAgICAgICAgICAgICAgICAgIGRhdGFbIm90cFR5cGUiXSA9ICJGYXN0IjsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJzZW5kR2F0ZSJdID0gImVzY2FsYXRlLWZhc3QiOwogICAgICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgZGF0YVsic2ltQmxvY2tlZCJdID0gdHJ1ZTsKICAgICAgICAgICAgICAgIGRhdGFbInNlbmRHYXRlIl0gPSAiYmxvY2tlZCI7CiAgICAgICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAic2ltLWJsb2NrZWQiOwogICAgICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdERldGFpbCJdID0gT3RwQXV0aEhlbHBlcnMuU3RyKHNlbmRJbmZvLCAibWVzc2FnZSIsICJTSU0gYmxvY2tlZCBmb3IgT1RQIGRlbGl2ZXJ5Iik7CiAgICAgICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgICAgICAgICB9CgogICAgICAgICAgICBkYXRhWyJzZW5kR2F0ZSJdID0gImZhaWxlZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJVbmV4cGVjdGVkIHNlbmRPdHBTdGF0dXM6ICIgKyBzdGF0dXM7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBkYXRhWyJzZW5kR2F0ZSJdID0gImZhaWxlZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJzZW5kLW90cCBwYXJzZSBlcnJvcjogIiArIGV4Lk1lc3NhZ2U7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "send-otp-sent",
+            "target": "otp-awaiting-code",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "OTP sent"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP gonderildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateSentRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+T1RQIHNlcnZpY2UgYW5zd2VyZWQgU2VuZE90cFN1Y2Nlc3MuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2VuZEdhdGVTZW50UnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJzZW5kR2F0ZSIsICJzZW50IikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "send-otp-escalate-fast",
+            "target": "otp-resending-fast",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "SIM blocked, escalate to FAST"
+              },
+              {
+                "language": "tr-TR",
+                "label": "SIM bloke, FAST'e yukselt"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateEscalateFastRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U0lNIGJsb2NrZWQgb24gYSBLdXJ1bXNhbCBjYWxsZXIgd2l0aCB0aGUgbGF0Y2ggc3RpbGwgb3BlbjogcmV0cnkgb3ZlciBGQVNULjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNlbmRHYXRlRXNjYWxhdGVGYXN0UnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJzZW5kR2F0ZSIsICJlc2NhbGF0ZS1mYXN0IikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "send-otp-blocked",
+            "target": "sim-blocked",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "SIM blocked, no fallback left"
+              },
+              {
+                "language": "tr-TR",
+                "label": "SIM bloke, alternatif kalmadi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateBlockedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U0lNIGJsb2NrZWQgd2l0aCBubyBGQVNUIGVzY2FwZSBsZWZ0OiBCaXJleXNlbCBjYWxsZXIsIG9yIHRoZSBsYXRjaCB3YXMgYWxyZWFkeSBzZXQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2VuZEdhdGVCbG9ja2VkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJzZW5kR2F0ZSIsICJibG9ja2VkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "send-otp-failed",
+            "target": "otp-technical-failure",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "OTP send failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP gonderimi basarisiz"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+T1RQIHNlbmQgcmV0dXJuZWQgYW4gdW5yZWNvZ25pc2VkIHN0YXR1cy48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZW5kR2F0ZUZhaWxlZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAic2VuZEdhdGUiLCAiZmFpbGVkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "send-otp-technical-failure",
+            "target": "otp-technical-failure",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "OTP send errored"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP gonderimi hata verdi"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetTechnicalFailureResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSB0ZWNobmljYWwtZmFpbHVyZSBvdXRjb21lIG9uIGVycm9yQm91bmRhcnkgdHJhbnNpdGlvbnMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2V0VGVjaG5pY2FsRmFpbHVyZVJlc3VsdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInRlY2huaWNhbC1mYWlsdXJlIjsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiVXBzdHJlYW0gc2VydmljZSBmYWlsdXJlIjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "transition": "send-otp-technical-failure",
+              "priority": 100,
+              "errorCodes": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "key": "otp-resending-fast",
+        "stateType": 2,
+        "subType": 5,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Resending OTP over FAST"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP FAST ile Yeniden Gonderiliyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "send-otp",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/SendOtpMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBPVFAgc2VuZCwgc2hhcmVkIGJ5IHRoZSBvdHAtc2VuZGluZyBhbmQgb3RwLXJlc2VuZGluZy1mYXN0IHN0YXRlcywgYW5kIHRoZSBob21lIG9mIHRoZQovLy8gU0lNLWJsb2NrIExBVENILgovLy8gPHBhcmE+Ci8vLyBUaGUgbGF0Y2ggaXMgdGhlIHdob2xlIHJlYXNvbiBvbmUgbWFwcGluZyBzZXJ2ZXMgYm90aCBzdGF0ZXMuIElucHV0SGFuZGxlciBhbHdheXMgc2VuZHMKLy8vIDxjPk90cFR5cGUgPSBkYXRhLm90cFR5cGU8L2M+LiBUaGUgZmlyc3QgT3RwQmxhY2tsaXN0ZWQgYW5zd2VyIGZvciBhIEt1cnVtc2FsIGNhbGxlciBmbGlwcwovLy8gb3RwVHlwZSB0byAiRmFzdCIgYW5kIHNldHMgc2ltQmxvY2tlZC4gQmVjYXVzZSB0aGUgZXNjYWxhdGUtZmFzdCBnYXRlIGFkZGl0aW9uYWxseSByZXF1aXJlcwovLy8gPGM+c2ltQmxvY2tlZCA9PSBmYWxzZTwvYz4sIGEgc2Vjb25kIGJsb2NrIGNhbiBvbmx5IHByb2R1Y2UgImJsb2NrZWQiIC0gc28gRkFTVCBpcyBhdHRlbXB0ZWQgYXQKLy8vIG1vc3Qgb25jZSwgYW5kIHBsYWluICJPdHAiIGlzIG5ldmVyIGF0dGVtcHRlZCBhZ2FpbiBmb3IgdGhlIGxpZmUgb2YgdGhlIGluc3RhbmNlLgovLy8gPC9wYXJhPgovLy8gPHBhcmE+QmlyZXlzZWwgbmV2ZXIgc2F0aXNmaWVzIHRoZSBlc2NhbGF0aW9uIGNvbmRpdGlvbiwgc28gRkFTVCBpcyB1bnJlYWNoYWJsZSBmb3IgaXQgYnkKLy8vIGNvbnN0cnVjdGlvbiByYXRoZXIgdGhhbiBieSBhIGd1YXJkIHRoYXQgY291bGQgYmUgZm9yZ290dGVuLjwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNlbmRPdHBNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBodHRwVGFzayA9IHRhc2sgYXMgSHR0cFRhc2s7CiAgICAgICAgQXJndW1lbnROdWxsRXhjZXB0aW9uLlRocm93SWZOdWxsKGh0dHBUYXNrKTsKCiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5Ub0RpY3QoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIGFwaUJhc2VVcmwgPSBHZXRDb25maWdWYWx1ZSgiRXhhbXBsZTpBcGlCYXNlVXJsIiwgImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSIpOwogICAgICAgIGh0dHBUYXNrLlNldFVybChodHRwVGFzay5VcmwuUmVwbGFjZSgiQVBJX0JBU0VVUkwiLCBhcGlCYXNlVXJsKSk7CgogICAgICAgIHZhciBhcGlLZXkgPSBhd2FpdCBHZXRTZWNyZXRBc3luYygidm5leHQtc2VjcmV0IiwgIndvcmtmbG93LXNlY3JldCIsICJBcGlTZWNyZXQiKTsKICAgICAgICBodHRwVGFzay5BZGRIZWFkZXIoIlgtQVBJU0lYLUtFWSIsIGFwaUtleSA/PyBzdHJpbmcuRW1wdHkpOwoKICAgICAgICAvLyBDaXRpemVuc2hpcE51bWJlciBpcyB0aGUgQUNUT1IsIG5vdCBzdWI6IGZvciBhIEt1cnVtc2FsIGNhbGxlciBzdWIgaXMgdGhlIGxlZ2FsIGVudGl0eQogICAgICAgIC8vIG51bWJlciwgd2hpbGUgdGhlIFNNUyBnb2VzIHRvIHRoZSBuYXR1cmFsIHBlcnNvbiBhY3Rpbmcgb24gaXRzIGJlaGFsZi4KICAgICAgICBodHRwVGFzay5TZXRCb2R5KG5ldwogICAgICAgIHsKICAgICAgICAgICAgUGhvbmUgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgTnVtYmVyID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJwaG9uZU51bWJlciIsIHN0cmluZy5FbXB0eSksCiAgICAgICAgICAgICAgICBQcmVmaXggPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgInBob25lUHJlZml4Iiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgICAgIENvdW50cnlDb2RlID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJwaG9uZUNvdW50cnlDb2RlIiwgIjkwIikKICAgICAgICAgICAgfSwKICAgICAgICAgICAgQ2l0aXplbnNoaXBOdW1iZXIgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFjdG9yIiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgT3RwUmV0cnlBdHRlbXB0ID0gT3RwQXV0aEhlbHBlcnMuSW50KGRhdGEsICJvdHBBdHRlbXB0IiwgMyksCiAgICAgICAgICAgIE90cER1cmF0aW9uID0gT3RwQXV0aEhlbHBlcnMuSW50KGRhdGEsICJvdHBUdGwiLCAxODApLAogICAgICAgICAgICBMYW5ndWFnZSA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAibGFuZ3VhZ2UiLCAidHItVFIiKSwKICAgICAgICAgICAgTWVzc2FnZVRlbXBsYXRlID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJtZXNzYWdlVGVtcGxhdGUiKSwKICAgICAgICAgICAgT3RwVHlwZSA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAib3RwVHlwZSIsICJPdHAiKSwKICAgICAgICAgICAgSW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLlRvU3RyaW5nKCksCiAgICAgICAgICAgIFNtc1NlbmRlciA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAic21zU2VuZGVyIiksCiAgICAgICAgICAgIEFwcFR5cGUgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFwcFR5cGUiKSwKICAgICAgICAgICAgUHJvY2Vzc05hbWUgPSAib3RwLWF1dGgiLAogICAgICAgICAgICBQcm9jZXNzSWRlbnRpdHkgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImFjdG9yIiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgVGFncyA9IChvYmplY3QpbnVsbAogICAgICAgIH0pOwoKICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlKCk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CgogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGVudmVsb3BlID0gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KGNvbnRleHQuQm9keSk7CiAgICAgICAgICAgIHZhciBwYXlsb2FkID0gZW52ZWxvcGUuQ29udGFpbnNLZXkoImRhdGEiKSA/IE90cEF1dGhIZWxwZXJzLlRvRGljdChlbnZlbG9wZVsiZGF0YSJdKSA6IGVudmVsb3BlOwogICAgICAgICAgICB2YXIgc2VuZEluZm8gPSBwYXlsb2FkLkNvbnRhaW5zS2V5KCJzZW5kSW5mbyIpID8gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KHBheWxvYWRbInNlbmRJbmZvIl0pIDogbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KCk7CgogICAgICAgICAgICB2YXIgc3RhdHVzID0gT3RwQXV0aEhlbHBlcnMuU3RyKHBheWxvYWQsICJzZW5kT3RwU3RhdHVzIiwgc3RyaW5nLkVtcHR5KTsKICAgICAgICAgICAgZGF0YVsic2VuZE90cFN0YXR1cyJdID0gc3RhdHVzOwogICAgICAgICAgICBkYXRhWyJzbXNUcmFjZUlkIl0gPSBPdHBBdXRoSGVscGVycy5TdHIoc2VuZEluZm8sICJzbXNUcmFjZUlkIiwgc3RyaW5nLkVtcHR5KTsKCiAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKHN0YXR1cywgIlNlbmRPdHBTdWNjZXNzIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdmFyIHR0bCA9IE90cEF1dGhIZWxwZXJzLkludChkYXRhLCAib3RwVHRsIiwgMTgwKTsKICAgICAgICAgICAgICAgIGRhdGFbIm90cFJlZmVyZW5jZSJdID0gT3RwQXV0aEhlbHBlcnMuU3RyKHBheWxvYWQsICJvdHBSZWZlcmVuY2UiLCBzdHJpbmcuRW1wdHkpOwogICAgICAgICAgICAgICAgZGF0YVsib3RwU2VudEF0Il0gPSBPdHBBdXRoSGVscGVycy5VdGNOb3coKTsKICAgICAgICAgICAgICAgIC8vIEFic29sdXRlIGRlYWRsaW5lOiB0aGUgVFRMIHRpbWVyIGRlcml2ZXMgaXRzIGR1cmF0aW9uIGZyb20gdGhpcywgc28gcmV0cnlpbmcgYQogICAgICAgICAgICAgICAgLy8gd3JvbmcgY29kZSBjYW5ub3QgYnV5IHRoZSB1c2VyIGEgZnJlc2ggdmFsaWRpdHkgd2luZG93LgogICAgICAgICAgICAgICAgZGF0YVsib3RwRXhwaXJlc0F0Il0gPSBPdHBBdXRoSGVscGVycy5VdGNJbih0dGwpOwogICAgICAgICAgICAgICAgZGF0YVsic2VuZEdhdGUiXSA9ICJzZW50IjsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKHN0YXR1cywgIk90cEJsYWNrbGlzdGVkIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdmFyIGlzS3VydW1zYWwgPSBzdHJpbmcuRXF1YWxzKE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAic2NvcGVHcm91cCIsICJCaXJleXNlbCIpLCAiS3VydW1zYWwiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWwpOwogICAgICAgICAgICAgICAgdmFyIGFscmVhZHlMYXRjaGVkID0gT3RwQXV0aEhlbHBlcnMuQm9vbChkYXRhLCAic2ltQmxvY2tlZCIsIGZhbHNlKTsKCiAgICAgICAgICAgICAgICBpZiAoaXNLdXJ1bXNhbCAmJiAhYWxyZWFkeUxhdGNoZWQpCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgZGF0YVsic2ltQmxvY2tlZCJdID0gdHJ1ZTsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJzaW1CbG9ja2VkQXQiXSA9IE90cEF1dGhIZWxwZXJzLlV0Y05vdygpOwogICAgICAgICAgICAgICAgICAgIGRhdGFbIm90cFR5cGUiXSA9ICJGYXN0IjsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJzZW5kR2F0ZSJdID0gImVzY2FsYXRlLWZhc3QiOwogICAgICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgZGF0YVsic2ltQmxvY2tlZCJdID0gdHJ1ZTsKICAgICAgICAgICAgICAgIGRhdGFbInNlbmRHYXRlIl0gPSAiYmxvY2tlZCI7CiAgICAgICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAic2ltLWJsb2NrZWQiOwogICAgICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdERldGFpbCJdID0gT3RwQXV0aEhlbHBlcnMuU3RyKHNlbmRJbmZvLCAibWVzc2FnZSIsICJTSU0gYmxvY2tlZCBmb3IgT1RQIGRlbGl2ZXJ5Iik7CiAgICAgICAgICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgICAgICAgICB9CgogICAgICAgICAgICBkYXRhWyJzZW5kR2F0ZSJdID0gImZhaWxlZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJVbmV4cGVjdGVkIHNlbmRPdHBTdGF0dXM6ICIgKyBzdGF0dXM7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBkYXRhWyJzZW5kR2F0ZSJdID0gImZhaWxlZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJ0ZWNobmljYWwtZmFpbHVyZSI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJzZW5kLW90cCBwYXJzZSBlcnJvcjogIiArIGV4Lk1lc3NhZ2U7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "fast-otp-sent",
+            "target": "otp-awaiting-code",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "FAST OTP sent"
+              },
+              {
+                "language": "tr-TR",
+                "label": "FAST OTP gonderildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateSentRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+T1RQIHNlcnZpY2UgYW5zd2VyZWQgU2VuZE90cFN1Y2Nlc3MuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2VuZEdhdGVTZW50UnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJzZW5kR2F0ZSIsICJzZW50IikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "fast-otp-blocked",
+            "target": "sim-blocked",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "FAST also blocked"
+              },
+              {
+                "language": "tr-TR",
+                "label": "FAST da bloke"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateBlockedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U0lNIGJsb2NrZWQgd2l0aCBubyBGQVNUIGVzY2FwZSBsZWZ0OiBCaXJleXNlbCBjYWxsZXIsIG9yIHRoZSBsYXRjaCB3YXMgYWxyZWFkeSBzZXQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2VuZEdhdGVCbG9ja2VkUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoT3RwQXV0aEhlbHBlcnMuR2F0ZUlzKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJzZW5kR2F0ZSIsICJibG9ja2VkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "fast-otp-failed",
+            "target": "otp-technical-failure",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "FAST send failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "FAST gonderimi basarisiz"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/SendGateFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+T1RQIHNlbmQgcmV0dXJuZWQgYW4gdW5yZWNvZ25pc2VkIHN0YXR1cy48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZW5kR2F0ZUZhaWxlZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAic2VuZEdhdGUiLCAiZmFpbGVkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "fast-otp-technical-failure",
+            "target": "otp-technical-failure",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "FAST send errored"
+              },
+              {
+                "language": "tr-TR",
+                "label": "FAST gonderimi hata verdi"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetTechnicalFailureResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSB0ZWNobmljYWwtZmFpbHVyZSBvdXRjb21lIG9uIGVycm9yQm91bmRhcnkgdHJhbnNpdGlvbnMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2V0VGVjaG5pY2FsRmFpbHVyZVJlc3VsdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInRlY2huaWNhbC1mYWlsdXJlIjsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiVXBzdHJlYW0gc2VydmljZSBmYWlsdXJlIjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "transition": "fast-otp-technical-failure",
+              "priority": 100,
+              "errorCodes": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "key": "otp-awaiting-code",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting OTP Code"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP Kodu Bekleniyor"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "otp-code-entry-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "verify-otp",
+            "target": "otp-verifying",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Verify OTP code"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP kodunu dogrula"
+              }
+            ],
+            "schema": {
+              "key": "otp-code-payload",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            },
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "otp-ttl-expired",
+            "target": "otp-ttl-gate",
+            "triggerType": 2,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "OTP validity expired"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP suresi doldu"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": {
+              "type": "L",
+              "location": "./src/OtpTtlTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBBY21lLkhlbHBlcnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zLlRpbWVyOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gVFRMIHRpbWVyIGZvciBvdHAtYXdhaXRpbmctY29kZSwgcmVidWlsdCBvbiBldmVyeSBlbnRyeSBpbnRvIHRoYXQgc3RhdGUuCi8vLyA8cGFyYT4KLy8vIFRoZSBkdXJhdGlvbiBpcyBkZXJpdmVkIGZyb20gdGhlIEFCU09MVVRFIDxjPm90cEV4cGlyZXNBdDwvYz4gc3RhbXBlZCB3aGVuIHRoZSBPVFAgd2FzIHNlbnQsIG5vdAovLy8gZnJvbSBvdHBUdGwgZGlyZWN0bHkuIEEgZml4ZWQgRnJvbUR1cmF0aW9uKG90cFR0bCkgd291bGQgcmVzdGFydCB0aGUgY2xvY2sgb24gZXZlcnkgd3JvbmctY29kZQovLy8gcm91bmQgdHJpcCwga2VlcGluZyB0aGUgZmxvdyBhbGl2ZSBsb25nIGFmdGVyIHRoZSBTTVMgY29kZSBpdHNlbGYgaGFkIGRpZWQuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBPdHBUdGxUaW1lciA6IFNjcmlwdEJhc2UsIElUaW1lck1hcHBpbmcKewogICAgcHVibGljIFRhc2s8VGltZXJTY2hlZHVsZT4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5Ub0RpY3QoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIHR0bCA9IE90cEF1dGhIZWxwZXJzLkludChkYXRhLCAib3RwVHRsIiwgMTgwKTsKICAgICAgICB2YXIgZXhwaXJlc0F0ID0gT3RwQXV0aEhlbHBlcnMuUGFyc2VVdGMoT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJvdHBFeHBpcmVzQXQiKSk7CgogICAgICAgIHZhciByZW1haW5pbmcgPSBleHBpcmVzQXQuSGFzVmFsdWUKICAgICAgICAgICAgPyBleHBpcmVzQXQuVmFsdWUgLSBEYXRlVGltZS5VdGNOb3cKICAgICAgICAgICAgOiBUaW1lU3Bhbi5Gcm9tU2Vjb25kcyh0dGwpOwoKICAgICAgICAvLyBUd28gc2Vjb25kcyBvZiBncmFjZSBzbyBhIHZlcmlmeS1vdHAgY2FsbCByYWNpbmcgdGhlIHRpbWVyIHVzdWFsbHkgd2luczsgaWYgaXQgbG9zZXMsIHRoZQogICAgICAgIC8vIHNlcnZlci1zaWRlIGV4cGlyZWQgYnJhbmNoIHJlYWNoZXMgdGhlIHNhbWUgZ2F0ZSBhbnl3YXkuCiAgICAgICAgaWYgKHJlbWFpbmluZyA8PSBUaW1lU3Bhbi5aZXJvKQogICAgICAgIHsKICAgICAgICAgICAgcmVtYWluaW5nID0gVGltZVNwYW4uRnJvbVNlY29uZHMoMik7CiAgICAgICAgfQoKICAgICAgICBpZiAocmVtYWluaW5nID4gVGltZVNwYW4uRnJvbVNlY29uZHModHRsKSkKICAgICAgICB7CiAgICAgICAgICAgIHJlbWFpbmluZyA9IFRpbWVTcGFuLkZyb21TZWNvbmRzKHR0bCk7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KFRpbWVyU2NoZWR1bGUuRnJvbUR1cmF0aW9uKHJlbWFpbmluZykpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/EvaluateResendGateMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEZWNpZGVzLCBhZnRlciBhIFRUTCBleHBpcnksIHdoZXRoZXIgdGhlIHVzZXIgc3RpbGwgZ2V0cyBhIG1hbnVhbCByZXNlbmQgb3IgdGhlIGZsb3cgZW5kcy4KLy8vIEtlZXBpbmcgdGhlIGNvbXBhcmlzb24gaGVyZSBtZWFucyB0aGUgdHdvIGV4aXQgcnVsZXMgc3RheSBwdXJlIGVxdWFsaXR5IGNoZWNrcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEV2YWx1YXRlUmVzZW5kR2F0ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIHVzZWQgPSBPdHBBdXRoSGVscGVycy5JbnQoZGF0YSwgInJlc2VuZFVzZWQiLCAwKTsKICAgICAgICB2YXIgbGltaXQgPSBPdHBBdXRoSGVscGVycy5JbnQoZGF0YSwgInJlc2VuZExpbWl0IiwgMyk7CgogICAgICAgIGRhdGFbInJlc2VuZEdhdGUiXSA9IHVzZWQgPCBsaW1pdCA/ICJhbGxvd2VkIiA6ICJleGhhdXN0ZWQiOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICB9Cn0K",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "otp-verifying",
+        "stateType": 2,
+        "subType": 5,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Verifying OTP"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP Dogrulaniyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "validate-otp",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/ValidateOtpMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBPVFAgdmVyaWZpY2F0aW9uIGFuZCB0aGUgYXR0ZW1wdCBjb3VudGVyLgovLy8gPHBhcmE+Ci8vLyBUaGUgd3JvbmctY29kZSAvIGFsbG93YW5jZS1zcGVudCBzcGxpdCBpcyBkZWNpZGVkIGhlcmUgcmF0aGVyIHRoYW4gaW4gYSBydWxlLCBzbyB0aGUgdHJhbnNpdGlvbgovLy8gcnVsZXMgc3RheSBwdXJlIGVxdWFsaXR5IGNoZWNrcyBhbmQgY2Fubm90IGRpc2FncmVlIHdpdGggZWFjaCBvdGhlci4KLy8vIDwvcGFyYT4KLy8vIDxwYXJhPgovLy8gVGhlIHN1Ym1pdHRlZCBjb2RlIGlzIGRyb3BwZWQgZnJvbSBpbnN0YW5jZSBkYXRhIG9uIHRoZSB3YXkgb3V0OiBhIHRyYW5zaXRpb24gcGF5bG9hZCBpcyBtZXJnZWQKLy8vIGludG8gdGhlIGluc3RhbmNlIHJvb3QsIHNvIGxlYXZpbmcgaXQgaW4gcGxhY2Ugd291bGQgcGVyc2lzdCB0aGUgb25lLXRpbWUgY29kZS4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFZhbGlkYXRlT3RwTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgIEFyZ3VtZW50TnVsbEV4Y2VwdGlvbi5UaHJvd0lmTnVsbChodHRwVGFzayk7CgogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpOwogICAgICAgIHZhciBhcGlCYXNlVXJsID0gR2V0Q29uZmlnVmFsdWUoIkV4YW1wbGU6QXBpQmFzZVVybCIsICJodHRwOi8vbG9jYWxob3N0OjMwMDEiKTsKICAgICAgICBodHRwVGFzay5TZXRVcmwoaHR0cFRhc2suVXJsLlJlcGxhY2UoIkFQSV9CQVNFVVJMIiwgYXBpQmFzZVVybCkpOwoKICAgICAgICB2YXIgYXBpS2V5ID0gYXdhaXQgR2V0U2VjcmV0QXN5bmMoInZuZXh0LXNlY3JldCIsICJ3b3JrZmxvdy1zZWNyZXQiLCAiQXBpU2VjcmV0Iik7CiAgICAgICAgaHR0cFRhc2suQWRkSGVhZGVyKCJYLUFQSVNJWC1LRVkiLCBhcGlLZXkgPz8gc3RyaW5nLkVtcHR5KTsKCiAgICAgICAgaHR0cFRhc2suU2V0Qm9keShuZXcKICAgICAgICB7CiAgICAgICAgICAgIE90cENvZGUgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgIm90cENvZGUiLCBzdHJpbmcuRW1wdHkpLAogICAgICAgICAgICBPdHBSZWZlcmVuY2UgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgIm90cFJlZmVyZW5jZSIsIHN0cmluZy5FbXB0eSksCiAgICAgICAgICAgIENpdGl6ZW5zaGlwTnVtYmVyID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJhY3RvciIsIHN0cmluZy5FbXB0eSksCiAgICAgICAgICAgIEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZC5Ub1N0cmluZygpCiAgICAgICAgfSk7CgogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UoKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5NZXJnZShjb250ZXh0Lkluc3RhbmNlPy5EYXRhKTsKICAgICAgICBkYXRhWyJvdHBDb2RlIl0gPSBudWxsOwoKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBlbnZlbG9wZSA9IE90cEF1dGhIZWxwZXJzLlRvRGljdChjb250ZXh0LkJvZHkpOwogICAgICAgICAgICB2YXIgcGF5bG9hZCA9IGVudmVsb3BlLkNvbnRhaW5zS2V5KCJkYXRhIikgPyBPdHBBdXRoSGVscGVycy5Ub0RpY3QoZW52ZWxvcGVbImRhdGEiXSkgOiBlbnZlbG9wZTsKICAgICAgICAgICAgdmFyIHN0YXR1cyA9IE90cEF1dGhIZWxwZXJzLlN0cihwYXlsb2FkLCAidmFsaWRhdGVPdHBTdGF0dXMiLCBzdHJpbmcuRW1wdHkpOwoKICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoc3RhdHVzLCAiVmFsaWRhdGVPdHBTdWNjZXNzIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZGF0YVsib3RwVmVyaWZpZWQiXSA9IHRydWU7CiAgICAgICAgICAgICAgICBkYXRhWyJ2ZXJpZnlHYXRlIl0gPSAidmVyaWZpZWQiOwogICAgICAgICAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9KTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoc3RhdHVzLCAiRXhwaXJlZE90cCIsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbCkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGRhdGFbInZlcmlmeUdhdGUiXSA9ICJleHBpcmVkIjsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKHN0YXR1cywgIkludmFsaWRPdHAiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWwpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAvLyBUaGUgYWxsb3dhbmNlIGlzIHBlciBpbnN0YW5jZSBhbmQgaXMgbmV2ZXIgcmVzZXQgYnkgYSByZXNlbmQuCiAgICAgICAgICAgICAgICB2YXIgdXNlZCA9IE90cEF1dGhIZWxwZXJzLkludChkYXRhLCAiYXR0ZW1wdFVzZWQiLCAwKSArIDE7CiAgICAgICAgICAgICAgICB2YXIgYWxsb3dlZCA9IE90cEF1dGhIZWxwZXJzLkludChkYXRhLCAib3RwQXR0ZW1wdCIsIDMpOwogICAgICAgICAgICAgICAgZGF0YVsiYXR0ZW1wdFVzZWQiXSA9IHVzZWQ7CgogICAgICAgICAgICAgICAgaWYgKHVzZWQgPj0gYWxsb3dlZCkKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJ2ZXJpZnlHYXRlIl0gPSAiZXhjZWVkZWQiOwogICAgICAgICAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJhdHRlbXB0LWV4Y2VlZGVkIjsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiV3JvbmcgY29kZSBlbnRlcmVkICIgKyB1c2VkICsgIiB0aW1lKHMpIjsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGVsc2UKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBkYXRhWyJ2ZXJpZnlHYXRlIl0gPSAicmV0cnkiOwogICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGRhdGFbInZlcmlmeUdhdGUiXSA9ICJmYWlsZWQiOwogICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAidGVjaG5pY2FsLWZhaWx1cmUiOwogICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiVW5leHBlY3RlZCB2YWxpZGF0ZU90cFN0YXR1czogIiArIHN0YXR1czsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIGRhdGFbInZlcmlmeUdhdGUiXSA9ICJmYWlsZWQiOwogICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAidGVjaG5pY2FsLWZhaWx1cmUiOwogICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAidmFsaWRhdGUtb3RwIHBhcnNlIGVycm9yOiAiICsgZXguTWVzc2FnZTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICB9Cn0K",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "otp-verified",
+            "target": "auth-code-issuing",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "OTP verified"
+              },
+              {
+                "language": "tr-TR",
+                "label": "OTP dogrulandi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/VerifyGateVerifiedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+T1RQIHNlcnZpY2UgY29uZmlybWVkIHRoZSBjb2RlLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFZlcmlmeUdhdGVWZXJpZmllZFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAidmVyaWZ5R2F0ZSIsICJ2ZXJpZmllZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "otp-retry-available",
+            "target": "otp-awaiting-code",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Wrong code, attempts remain"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Yanlis kod, hak var"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/VerifyGateRetryRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+V3JvbmcgY29kZSBidXQgYXR0ZW1wdHMgcmVtYWluOyByZXR1cm4gdG8gdGhlIGVudHJ5IHN0YXRlLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFZlcmlmeUdhdGVSZXRyeVJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KE90cEF1dGhIZWxwZXJzLkdhdGVJcyhjb250ZXh0Lkluc3RhbmNlPy5EYXRhLCAidmVyaWZ5R2F0ZSIsICJyZXRyeSIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "otp-attempt-exceeded",
+            "target": "attempt-exceeded",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Attempt allowance spent"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Deneme hakki bitti"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/VerifyGateExceededRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+V3JvbmcgY29kZSBhbmQgdGhlIGF0dGVtcHQgYWxsb3dhbmNlIGlzIG5vdyBzcGVudC48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBWZXJpZnlHYXRlRXhjZWVkZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInZlcmlmeUdhdGUiLCAiZXhjZWVkZWQiKSk7CiAgICB9Cn0K",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "otp-code-expired",
+            "target": "otp-ttl-gate",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Server reports code expired"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Sunucu kodu suresi dolmus diyor"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/VerifyGateExpiredRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U2VydmljZSByZXBvcnRzIHRoZSBjb2RlIGV4cGlyZWQ7IGhhbmQgb3ZlciB0byB0aGUgcmVzZW5kIGdhdGUuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgVmVyaWZ5R2F0ZUV4cGlyZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInZlcmlmeUdhdGUiLCAiZXhwaXJlZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/EvaluateResendGateMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEZWNpZGVzLCBhZnRlciBhIFRUTCBleHBpcnksIHdoZXRoZXIgdGhlIHVzZXIgc3RpbGwgZ2V0cyBhIG1hbnVhbCByZXNlbmQgb3IgdGhlIGZsb3cgZW5kcy4KLy8vIEtlZXBpbmcgdGhlIGNvbXBhcmlzb24gaGVyZSBtZWFucyB0aGUgdHdvIGV4aXQgcnVsZXMgc3RheSBwdXJlIGVxdWFsaXR5IGNoZWNrcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEV2YWx1YXRlUmVzZW5kR2F0ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgdmFyIHVzZWQgPSBPdHBBdXRoSGVscGVycy5JbnQoZGF0YSwgInJlc2VuZFVzZWQiLCAwKTsKICAgICAgICB2YXIgbGltaXQgPSBPdHBBdXRoSGVscGVycy5JbnQoZGF0YSwgInJlc2VuZExpbWl0IiwgMyk7CgogICAgICAgIGRhdGFbInJlc2VuZEdhdGUiXSA9IHVzZWQgPCBsaW1pdCA/ICJhbGxvd2VkIiA6ICJleGhhdXN0ZWQiOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICB9Cn0K",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          },
+          {
+            "key": "otp-verify-failed",
+            "target": "otp-technical-failure",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Verification failed"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dogrulama basarisiz"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/VerifyGateFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+VmFsaWRhdGlvbiByZXR1cm5lZCBhbiB1bnJlY29nbmlzZWQgc3RhdHVzLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFZlcmlmeUdhdGVGYWlsZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInZlcmlmeUdhdGUiLCAiZmFpbGVkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "verify-technical-failure",
+            "target": "otp-technical-failure",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Verification errored"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Dogrulama hata verdi"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetTechnicalFailureResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSB0ZWNobmljYWwtZmFpbHVyZSBvdXRjb21lIG9uIGVycm9yQm91bmRhcnkgdHJhbnNpdGlvbnMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2V0VGVjaG5pY2FsRmFpbHVyZVJlc3VsdE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInRlY2huaWNhbC1mYWlsdXJlIjsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiVXBzdHJlYW0gc2VydmljZSBmYWlsdXJlIjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "transition": "verify-technical-failure",
+              "priority": 100,
+              "errorCodes": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "key": "otp-ttl-gate",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Resend Gate"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tekrar Gonderim Kapisi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ttl-resend-allowed",
+            "target": "otp-awaiting-resend",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Resend allowance remains"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Tekrar gonderim hakki var"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ResendGateAllowedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+UmVzZW5kIGFsbG93YW5jZSByZW1haW5zOyBvZmZlciB0aGUgdXNlciBhIG1hbnVhbCByZXNlbmQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUmVzZW5kR2F0ZUFsbG93ZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInJlc2VuZEdhdGUiLCAiYWxsb3dlZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "ttl-resend-exhausted",
+            "target": "ttl-expired",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "No resend allowance left"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Tekrar gonderim hakki bitti"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/ResendGateExhaustedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Tm8gcmVzZW5kIGFsbG93YW5jZSBsZWZ0OyBlbmQgdGhlIGZsb3cgYXMgdGltZWQgb3V0Ljwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFJlc2VuZEdhdGVFeGhhdXN0ZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgInJlc2VuZEdhdGUiLCAiZXhoYXVzdGVkIikpOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetTtlExpiredResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSB0aW1lb3V0IG91dGNvbWUgb24gdGhlIHBhdGhzIHRoZSBnYXRlIG1hcHBpbmdzIGRvIG5vdCBjb3Zlci48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZXRUdGxFeHBpcmVkUmVzdWx0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5NZXJnZShjb250ZXh0Lkluc3RhbmNlPy5EYXRhKTsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAidHRsLWV4cGlyZWQiOwogICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJPVFAgZXhwaXJlZCBhbmQgbm8gcmVzZW5kIGFsbG93YW5jZSByZW1haW5lZCI7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9KTsKICAgIH0KfQo=",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "otp-awaiting-resend",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting Resend Request"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Tekrar Gonderim Bekleniyor"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "otp-resend-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "resend-otp",
+            "target": "otp-sending",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Send a new OTP"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Yeni OTP gonder"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/IncrementResendMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBDb25zdW1lcyBvbmUgbWFudWFsIHJlc2VuZC4gRGVsaWJlcmF0ZWx5IGRvZXMgTk9UIHRvdWNoIGF0dGVtcHRVc2VkOiB0aGUgd3JvbmctZW50cnkgYWxsb3dhbmNlIGlzCi8vLyBwZXIgaW5zdGFuY2UsIHNvIGEgcmVzZW5kIG11c3Qgbm90IGhhbmQgdGhlIHVzZXIgYSBmcmVzaCBzZXQgb2YgZ3Vlc3Nlcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEluY3JlbWVudFJlc2VuZE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuTWVyZ2UoY29udGV4dC5JbnN0YW5jZT8uRGF0YSk7CiAgICAgICAgZGF0YVsicmVzZW5kVXNlZCJdID0gT3RwQXV0aEhlbHBlcnMuSW50KGRhdGEsICJyZXNlbmRVc2VkIiwgMCkgKyAxOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICB9Cn0K",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          },
+          {
+            "key": "resend-abandoned",
+            "target": "ttl-expired",
+            "triggerType": 2,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "User abandoned the resend step"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Kullanici tekrar gonderimi terk etti"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": {
+              "type": "L",
+              "location": "./src/AbandonTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9ucy5UaW1lcjsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFiYW5kb25tZW50IGd1YXJkIGZvciBvdHAtYXdhaXRpbmctcmVzZW5kOiBpZiB0aGUgdXNlciBuZXZlciBjb21lcyBiYWNrIHRvIHByZXNzICJyZXNlbmQiLCB0aGUKLy8vIGluc3RhbmNlIG11c3Qgbm90IHN0YXkgb3BlbiBmb3JldmVyLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQWJhbmRvblRpbWVyIDogU2NyaXB0QmFzZSwgSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KFRpbWVyU2NoZWR1bGUuRnJvbUR1cmF0aW9uKFRpbWVTcGFuLkZyb21NaW51dGVzKDUpKSk7CiAgICB9Cn0K",
+              "encoding": "B64"
+            },
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetTtlExpiredResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSB0aW1lb3V0IG91dGNvbWUgb24gdGhlIHBhdGhzIHRoZSBnYXRlIG1hcHBpbmdzIGRvIG5vdCBjb3Zlci48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZXRUdGxFeHBpcmVkUmVzdWx0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBPdHBBdXRoSGVscGVycy5NZXJnZShjb250ZXh0Lkluc3RhbmNlPy5EYXRhKTsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0Il0gPSAidHRsLWV4cGlyZWQiOwogICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHREZXRhaWwiXSA9ICJPVFAgZXhwaXJlZCBhbmQgbm8gcmVzZW5kIGFsbG93YW5jZSByZW1haW5lZCI7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9KTsKICAgIH0KfQo=",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "auth-code-issuing",
+        "stateType": 2,
+        "subType": 5,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Issuing Authorization Code"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Yetki Kodu Uretiliyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "issue-authorization-code",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "type": "L",
+              "location": "./src/IssueAuthorizationCodeMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBFeGNoYW5nZXMgdGhlIHZlcmlmaWVkIE9UUCBmb3IgYW4gYXV0aG9yaXphdGlvbiBjb2RlLgovLy8gPHBhcmE+Ci8vLyBDT05UUkFDVCBOT1QgQU5DSE9SRUQgLSB0aGUgcmVhbCBpc3N1ZXIgZW5kcG9pbnQgYW5kIGZpZWxkIG5hbWVzIHdlcmUgbm90IGNvbmZpcm1lZCBkdXJpbmcKLy8vIHBsYW5uaW5nIChWTkVYVC1CVUlMRC1QTEFOLm1kIHNlY3Rpb24gOSwgUzIpLiBUaGUgcmVxdWVzdCBhbmQgcmVzcG9uc2Ugc2hhcGVzIGJlbG93IG1hdGNoIHRoZQovLy8gTW9ja0xhYiBmaXh0dXJlIGFuZCBtdXN0IGJlIHJldmlzaXRlZCBiZWZvcmUgdGhpcyBydW5zIGFnYWluc3QgYSByZWFsIHNlcnZpY2UuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJc3N1ZUF1dGhvcml6YXRpb25Db2RlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaHR0cFRhc2sgPSB0YXNrIGFzIEh0dHBUYXNrOwogICAgICAgIEFyZ3VtZW50TnVsbEV4Y2VwdGlvbi5UaHJvd0lmTnVsbChodHRwVGFzayk7CgogICAgICAgIHZhciBkYXRhID0gT3RwQXV0aEhlbHBlcnMuVG9EaWN0KGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpOwogICAgICAgIHZhciBhcGlCYXNlVXJsID0gR2V0Q29uZmlnVmFsdWUoIkV4YW1wbGU6QXBpQmFzZVVybCIsICJodHRwOi8vbG9jYWxob3N0OjMwMDEiKTsKICAgICAgICBodHRwVGFzay5TZXRVcmwoaHR0cFRhc2suVXJsLlJlcGxhY2UoIkFQSV9CQVNFVVJMIiwgYXBpQmFzZVVybCkpOwoKICAgICAgICB2YXIgYXBpS2V5ID0gYXdhaXQgR2V0U2VjcmV0QXN5bmMoInZuZXh0LXNlY3JldCIsICJ3b3JrZmxvdy1zZWNyZXQiLCAiQXBpU2VjcmV0Iik7CiAgICAgICAgaHR0cFRhc2suQWRkSGVhZGVyKCJYLUFQSVNJWC1LRVkiLCBhcGlLZXkgPz8gc3RyaW5nLkVtcHR5KTsKCiAgICAgICAgaHR0cFRhc2suU2V0Qm9keShuZXcKICAgICAgICB7CiAgICAgICAgICAgIGNsaWVudF9pZCA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAiY2xpZW50X2lkIiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgY2xpZW50X3NlY3JldCA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAiY2xpZW50X3NlY3JldCIsIHN0cmluZy5FbXB0eSksCiAgICAgICAgICAgIGdyYW50X3R5cGUgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgImdyYW50X3R5cGUiLCBzdHJpbmcuRW1wdHkpLAogICAgICAgICAgICBzY29wZUdyb3VwID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJzY29wZUdyb3VwIiwgc3RyaW5nLkVtcHR5KSwKICAgICAgICAgICAgc3ViID0gT3RwQXV0aEhlbHBlcnMuU3RyKGRhdGEsICJzdWIiLCBzdHJpbmcuRW1wdHkpLAogICAgICAgICAgICBhY3RvciA9IE90cEF1dGhIZWxwZXJzLlN0cihkYXRhLCAiYWN0b3IiLCBzdHJpbmcuRW1wdHkpLAogICAgICAgICAgICBvdHBSZWZlcmVuY2UgPSBPdHBBdXRoSGVscGVycy5TdHIoZGF0YSwgIm90cFJlZmVyZW5jZSIsIHN0cmluZy5FbXB0eSkKICAgICAgICB9KTsKCiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZSgpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IE90cEF1dGhIZWxwZXJzLk1lcmdlKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpOwoKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBlbnZlbG9wZSA9IE90cEF1dGhIZWxwZXJzLlRvRGljdChjb250ZXh0LkJvZHkpOwogICAgICAgICAgICB2YXIgc3RhdHVzQ29kZSA9IE90cEF1dGhIZWxwZXJzLkludChlbnZlbG9wZSwgInN0YXR1c0NvZGUiLCAyMDApOwogICAgICAgICAgICB2YXIgcGF5bG9hZCA9IGVudmVsb3BlLkNvbnRhaW5zS2V5KCJkYXRhIikgPyBPdHBBdXRoSGVscGVycy5Ub0RpY3QoZW52ZWxvcGVbImRhdGEiXSkgOiBlbnZlbG9wZTsKICAgICAgICAgICAgdmFyIGNvZGUgPSBPdHBBdXRoSGVscGVycy5TdHIocGF5bG9hZCwgImF1dGhvcml6YXRpb25Db2RlIik7CgogICAgICAgICAgICBpZiAoc3RhdHVzQ29kZSA8IDQwMCAmJiBjb2RlICE9IG51bGwpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGRhdGFbImF1dGhvcml6YXRpb25Db2RlIl0gPSBjb2RlOwogICAgICAgICAgICAgICAgZGF0YVsiYXV0aEdhdGUiXSA9ICJpc3N1ZWQiOwogICAgICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gInN1Y2Nlc3MiOwogICAgICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdERldGFpbCJdID0gc3RyaW5nLkVtcHR5OwogICAgICAgICAgICAgICAgLy8gVGhlIHNlY3JldCBoYXMgc2VydmVkIGl0cyBwdXJwb3NlOyBkbyBub3QgY2FycnkgaXQgaW50byB0aGUgc3VjY2VzcyBwYXlsb2FkLgogICAgICAgICAgICAgICAgZGF0YVsiY2xpZW50X3NlY3JldCJdID0gbnVsbDsKICAgICAgICAgICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfSk7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGRhdGFbImF1dGhvcml6YXRpb25Db2RlIl0gPSBzdHJpbmcuRW1wdHk7CiAgICAgICAgICAgIGRhdGFbImF1dGhHYXRlIl0gPSAiZmFpbGVkIjsKICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdCJdID0gImF1dGgtY29kZS1mYWlsZWQiOwogICAgICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiQXV0aG9yaXphdGlvbiBjb2RlIHJlcXVlc3QgcmV0dXJuZWQgIiArIHN0YXR1c0NvZGU7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBkYXRhWyJhdXRob3JpemF0aW9uQ29kZSJdID0gc3RyaW5nLkVtcHR5OwogICAgICAgICAgICBkYXRhWyJhdXRoR2F0ZSJdID0gImZhaWxlZCI7CiAgICAgICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJhdXRoLWNvZGUtZmFpbGVkIjsKICAgICAgICAgICAgZGF0YVsib3RwQXV0aFJlc3VsdERldGFpbCJdID0gImF1dGhvcml6YXRpb24tY29kZSBwYXJzZSBlcnJvcjogIiArIGV4Lk1lc3NhZ2U7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBkYXRhIH0pOwogICAgfQp9Cg==",
+              "encoding": "B64"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auth-code-issued",
+            "target": "otp-success",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Authorization code issued"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Yetki kodu uretildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/AuthGateIssuedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+QXV0aG9yaXphdGlvbiBjb2RlIHdhcyBpc3N1ZWQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQXV0aEdhdGVJc3N1ZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgImF1dGhHYXRlIiwgImlzc3VlZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "auth-code-rejected",
+            "target": "auth-code-failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Authorization code rejected"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Yetki kodu reddedildi"
+              }
+            ],
+            "schema": null,
+            "rule": {
+              "type": "L",
+              "location": "./src/AuthGateFailedRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+QXV0aG9yaXphdGlvbiBjb2RlIGNvdWxkIG5vdCBiZSBpc3N1ZWQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgQXV0aEdhdGVGYWlsZWRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChPdHBBdXRoSGVscGVycy5HYXRlSXMoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgImF1dGhHYXRlIiwgImZhaWxlZCIpKTsKICAgIH0KfQo=",
+              "encoding": "B64"
+            },
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": []
+          },
+          {
+            "key": "auth-code-technical-failure",
+            "target": "auth-code-failed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Authorization code errored"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Yetki kodu hata verdi"
+              }
+            ],
+            "schema": null,
+            "rule": null,
+            "timer": null,
+            "view": null,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "otp-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "type": "L",
+                  "location": "./src/SetAuthCodeFailedResultMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQWNtZS5IZWxwZXJzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+U3RhbXBzIHRoZSBhdXRoLWNvZGUgZmFpbHVyZSBvdXRjb21lIG9uIHRoZSBpc3N1ZXIncyBlcnJvckJvdW5kYXJ5IHRyYW5zaXRpb24uPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2V0QXV0aENvZGVGYWlsZWRSZXN1bHRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IE90cEF1dGhIZWxwZXJzLk1lcmdlKGNvbnRleHQuSW5zdGFuY2U/LkRhdGEpOwogICAgICAgIGRhdGFbIm90cEF1dGhSZXN1bHQiXSA9ICJhdXRoLWNvZGUtZmFpbGVkIjsKICAgICAgICBkYXRhWyJvdHBBdXRoUmVzdWx0RGV0YWlsIl0gPSAiQXV0aG9yaXphdGlvbiBjb2RlIHNlcnZpY2UgZmFpbHVyZSI7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9KTsKICAgIH0KfQo=",
+                  "encoding": "B64"
+                }
+              }
+            ]
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "action": 4,
+              "transition": "auth-code-technical-failure",
+              "priority": 100,
+              "errorCodes": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "key": "otp-success",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "OTP Auth Succeeded"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP Dogrulama Basarili"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "profile-not-found",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Profile Not Found"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Profil Bulunamadi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "phone-mismatch",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Phone Mismatch"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Telefon Uyusmuyor"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "sim-blocked",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SIM Blocked"
+          },
+          {
+            "language": "tr-TR",
+            "label": "SIM Bloke"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "attempt-exceeded",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Attempt Allowance Exceeded"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Deneme Hakki Asildi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "ttl-expired",
+        "stateType": 3,
+        "subType": 8,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "OTP Timed Out"
+          },
+          {
+            "language": "tr-TR",
+            "label": "OTP Zaman Asimi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "auth-code-failed",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Authorization Code Failed"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Yetki Kodu Basarisiz"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "otp-technical-failure",
+        "stateType": 3,
+        "subType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Technical Failure"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Teknik Hata"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "otp-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Iptal Edildi"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

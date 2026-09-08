@@ -1,0 +1,439 @@
+{
+  "key": "xd-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "cross-domain-lab",
+    "parent",
+    "dapr",
+    "integration-test"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Cross-Domain Lab Parent (core -> partner)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-xd-parent",
+      "target": "xd-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Parent"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-xd-parent",
+      "target": "xd-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Cross-Domain Parent"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "xd-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-hub",
+            "target": "xd-hub",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Hub"
+              }
+            ],
+            "rule": {
+              "location": "./src/XdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNpbmdsZSBhbHdheXMtdHJ1ZSBhdXRvIHJ1bGUuIE9uIHRoZSBTdWJGbG93IHN0YXRlIGl0IGlzIGV2YWx1YXRlZCBvbiB0aGUgUkVTVU1FIHBhdGggb25seQovLy8gKGFmdGVyIHRoZSBwYXJ0bmVyIGNoaWxkIGNvbXBsZXRlcyksIGV4YWN0bHkgbGlrZSBzdWJmbG93LW9yY2hlc3RyYXRpb24tcGFyZW50J3MgQWx3YXlzVHJ1ZVJ1bGUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBYZEFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "xd-hub",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Hub (waiting for the test to enter the subflow)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "enter-subflow",
+            "target": "xd-subflow",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter partner SubFlow"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "xd-subflow",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow: partner/xd-child"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "xd-child",
+            "domain": "partner",
+            "version": "1.0.1",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/XdParentToChildSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gU3ViRmxvdyBtYXBwaW5nIGZvciB4ZC1zdWJmbG93IChjb3JlIHBhcmVudCAtPiBwYXJ0bmVyIHhkLWNoaWxkKS4KLy8vIElucHV0SGFuZGxlciBidWlsZHMgdGhlIGNoaWxkJ3Mgc3RhcnQgcGF5bG9hZDsgT3V0cHV0SGFuZGxlciBtZXJnZXMgdGhlIGNoaWxkJ3MgZmluYWwgZGF0YSBiYWNrCi8vLyBpbnRvIHRoZSBwYXJlbnQgYW5kIHN0YW1wcyBjaGlsZENvbXBsZXRlZCBzbyB0aGUgdGVzdHMgKGFuZCB0aGUgYXV0byB0cmFuc2l0aW9uKSBjYW4gc2VlIGl0LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgWGRQYXJlbnRUb0NoaWxkU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBkeW5hbWljIGNoaWxkSW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGNoaWxkSW5wdXQucGFyZW50SW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkOwogICAgICAgIGNoaWxkSW5wdXQucGFyZW50RG9tYWluID0gImNvcmUiOwoKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRlc3RJZCIsIG91dCB2YXIgdGVzdElkKSkKICAgICAgICB7CiAgICAgICAgICAgIGNoaWxkSW5wdXQudGVzdElkID0gdGVzdElkOwogICAgICAgIH0KCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlhkUGFyZW50VG9DaGlsZFN1YkZsb3dNYXBwaW5nOiBjaGlsZCBpbnB1dCBwcmVwYXJlZCBmb3IgcGFydG5lci94ZC1jaGlsZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNoaWxkSW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgbWVyZ2VkID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiltZXJnZWQ7CgogICAgICAgIGlmIChjb250ZXh0Lkluc3RhbmNlPy5EYXRhIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBpbnN0KQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgfQoKICAgICAgICAvLyBXaGl0ZWxpc3QsIG5vdCBhIGJsYW5rZXQgbWVyZ2U6IHRoZSBib2R5IGlzIHRoZSBQQVJUTkVSIGNoaWxkJ3MgZmluYWwgZGF0YS4gQ29weWluZyBpdAogICAgICAgIC8vIHdob2xlc2FsZSB3b3VsZCBsZXQgYSBmb3JlaWduIGRvbWFpbiBvdmVyd3JpdGUgcGFyZW50IGtleXMgYW5kIHdvdWxkIGJ5cGFzcyBhbnkgcGFydG5lcgogICAgICAgIC8vIHgtcm9sZXMgZmllbGQgZmlsdGVyaW5nLiBPbmx5IHRoZSBmaWVsZHMgdGhlIHBhcmVudCBhY3R1YWxseSBuZWVkcyBjcm9zcyB0aGUgYm91bmRhcnkuCiAgICAgICAgaWYgKGNvbnRleHQuQm9keSBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gYm9keSkKICAgICAgICB7CiAgICAgICAgICAgIGlmIChib2R5LlRyeUdldFZhbHVlKCJhcHByb3ZlZEJ5Iiwgb3V0IHZhciBhcHByb3ZlZEJ5KSkgdGFyZ2V0WyJjaGlsZEFwcHJvdmVkQnkiXSA9IGFwcHJvdmVkQnk7CiAgICAgICAgICAgIGlmIChib2R5LlRyeUdldFZhbHVlKCJ0ZXN0SWQiLCBvdXQgdmFyIGNoaWxkVGVzdElkKSkgdGFyZ2V0WyJjaGlsZFRlc3RJZCJdID0gY2hpbGRUZXN0SWQ7CiAgICAgICAgfQoKICAgICAgICB0YXJnZXRbImNoaWxkQ29tcGxldGVkIl0gPSB0cnVlOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCJYZFBhcmVudFRvQ2hpbGRTdWJGbG93TWFwcGluZzogcGFydG5lciBjaGlsZCBvdXRwdXQgbWVyZ2VkIGludG8gcGFyZW50Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbWVyZ2VkIH0pOwogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-after-subflow",
+            "target": "xd-after-subflow",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto after child completes"
+              }
+            ],
+            "rule": {
+              "location": "./src/XdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNpbmdsZSBhbHdheXMtdHJ1ZSBhdXRvIHJ1bGUuIE9uIHRoZSBTdWJGbG93IHN0YXRlIGl0IGlzIGV2YWx1YXRlZCBvbiB0aGUgUkVTVU1FIHBhdGggb25seQovLy8gKGFmdGVyIHRoZSBwYXJ0bmVyIGNoaWxkIGNvbXBsZXRlcyksIGV4YWN0bHkgbGlrZSBzdWJmbG93LW9yY2hlc3RyYXRpb24tcGFyZW50J3MgQWx3YXlzVHJ1ZVJ1bGUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBYZEFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "xd-after-subflow",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "After SubFlow"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "spawn-subprocess",
+            "target": "xd-after-spawn",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Spawn partner SubProcess (task 14)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "xd-spawn-worker",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/XdSpawnWorkerMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnM7CnVzaW5nIFN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUYXNrIDE0IChTdWJQcm9jZXNzKSAtPiBwYXJ0bmVyL3hkLXdvcmtlciwgZmlyZS1hbmQtZm9yZ2V0IG92ZXIgRGFwciBzZXJ2aWNlIGludm9jYXRpb24uCi8vLyBPdXRwdXQgcmVjb3JkcyB0aGUgc3RhcnRlZCB3b3JrZXIgaW5zdGFuY2UgaWQgc28gdGhlIHRlc3QgY2FuIHJlYWQgaXQgYmFjayBmcm9tIHRoZSBwYXJ0bmVyLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgWGRTcGF3bldvcmtlck1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN1YiA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2sgPz8gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgdGVzdElkID0gZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRlc3RJZCIsIG91dCB2YXIgdCkgPyB0Py5Ub1N0cmluZygpIDogY29udGV4dC5JbnN0YW5jZT8uSWQuVG9TdHJpbmcoKTsKCiAgICAgICAgc3ViLlNldERvbWFpbigicGFydG5lciIpOwogICAgICAgIHN1Yi5TZXRGbG93KCJ4ZC13b3JrZXIiKTsKICAgICAgICBzdWIuU2V0VmVyc2lvbigiMS4wLjAiKTsKICAgICAgICBzdWIuU2V0VXNlRGFwcih0cnVlKTsKICAgICAgICBzdWIuU2V0S2V5KCQie3Rlc3RJZH0td29ya2VyIik7CiAgICAgICAgc3ViLlNldFN5bmMoZmFsc2UpOwogICAgICAgIHN1Yi5TZXRCb2R5KG5ldyB7IHRlc3RJZCwgcGFyZW50SW5zdGFuY2VJZCA9IGNvbnRleHQuSW5zdGFuY2U/LklkLCBwYXJlbnREb21haW4gPSAiY29yZSIgfSk7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgaWQgPSBGaW5kKGNvbnRleHQuQm9keSwgImlkIiwgImluc3RhbmNlSWQiLCAic3ViRmxvd0luc3RhbmNlSWQiKT8uVG9TdHJpbmcoKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlhkU3Bhd25Xb3JrZXJNYXBwaW5nOiB3b3JrZXIgc3RhcnRlZCwgaWQ9e2lkID8/ICI8bm90IGZvdW5kPiJ9IGJvZHlUeXBlPXtjb250ZXh0LkJvZHk/LkdldFR5cGUoKS5OYW1lfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG5ldyB7IHdvcmtlckluc3RhbmNlSWQgPSBpZCwgd29ya2VyU3Bhd25lZCA9IHRydWUgfSB9KTsKICAgIH0KCiAgICAvLy8gPHN1bW1hcnk+QnJlYWR0aC1maXJzdCwgY2FzZS1pbnNlbnNpdGl2ZSBwcm9wZXJ0eSBsb29rdXAgb3ZlciB0aGUgSlNPTi1zaGFwZWQgZHluYW1pYyBib2R5Ljwvc3VtbWFyeT4KICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gRmluZChvYmplY3Q/IG5vZGUsIHBhcmFtcyBzdHJpbmdbXSBuYW1lcykKICAgIHsKICAgICAgICB2YXIgcXVldWUgPSBuZXcgUXVldWU8b2JqZWN0Pz4oKTsKICAgICAgICBxdWV1ZS5FbnF1ZXVlKG5vZGUpOwogICAgICAgIHZhciB2aXNpdGVkID0gMDsKICAgICAgICB3aGlsZSAocXVldWUuQ291bnQgPiAwICYmIHZpc2l0ZWQrKyA8IDUwMCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBjdXJyZW50ID0gcXVldWUuRGVxdWV1ZSgpOwogICAgICAgICAgICBpZiAoY3VycmVudCBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZGljdCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIG5hbWUgaW4gbmFtZXMpCiAgICAgICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGRpY3QpCiAgICAgICAgICAgICAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKGt2LktleSwgbmFtZSwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsSWdub3JlQ2FzZSkgJiYga3YuVmFsdWUgIT0gbnVsbCkgcmV0dXJuIGt2LlZhbHVlOwogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGRpY3QpIHF1ZXVlLkVucXVldWUoa3YuVmFsdWUpOwogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsc2UgaWYgKGN1cnJlbnQgaXMgSUVudW1lcmFibGUgbGlzdCAmJiBjdXJyZW50IGlzIG5vdCBzdHJpbmcpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBpdGVtIGluIGxpc3QpIHF1ZXVlLkVucXVldWUoaXRlbSk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgcmV0dXJuIG51bGw7CiAgICB9Cn0K"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "xd-after-spawn",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "After Spawn"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "start-remote",
+            "target": "xd-after-start",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Start partner instance (task 11)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "xd-start-remote",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/XdStartRemoteMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnM7CnVzaW5nIFN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUYXNrIDExIChTdGFydCkgLT4gcGFydG5lci94ZC1yZW1vdGUsIHN5bmMuIFJlY29yZHMgcmVtb3RlSW5zdGFuY2VJZCAoZnJvbSB0aGUgc3RhcnQgcmVzcG9uc2UpIGFuZAovLy8gcmVtb3RlS2V5ICh0aGUgZGV0ZXJtaW5pc3RpYyBrZXkgd2Ugc3RhcnRlZCBpdCB3aXRoLCB1c2VkIGFzIGZhbGxiYWNrIGlkZW50aWZpZXIgZG93bnN0cmVhbSkuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBYZFN0YXJ0UmVtb3RlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc3RhcnQgPSB0YXNrIGFzIFN0YXJ0VGFzayA/PyB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgU3RhcnRUYXNrIik7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgdGVzdElkID0gZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRlc3RJZCIsIG91dCB2YXIgdCkgPyB0Py5Ub1N0cmluZygpIDogY29udGV4dC5JbnN0YW5jZT8uSWQuVG9TdHJpbmcoKTsKCiAgICAgICAgc3RhcnQuU2V0RG9tYWluKCJwYXJ0bmVyIik7CiAgICAgICAgc3RhcnQuU2V0RmxvdygieGQtcmVtb3RlIik7CiAgICAgICAgc3RhcnQuU2V0VmVyc2lvbigiMS4wLjAiKTsKICAgICAgICBzdGFydC5TZXRVc2VEYXByKHRydWUpOwogICAgICAgIHN0YXJ0LlNldFN5bmModHJ1ZSk7CiAgICAgICAgc3RhcnQuU2V0S2V5KCQie3Rlc3RJZH0tcmVtb3RlIik7CiAgICAgICAgc3RhcnQuU2V0Qm9keShuZXcgeyB0ZXN0SWQsIHBhcmVudEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwgcGFyZW50RG9tYWluID0gImNvcmUiIH0pOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgdGVzdElkID0gZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRlc3RJZCIsIG91dCB2YXIgdCkgPyB0Py5Ub1N0cmluZygpIDogY29udGV4dC5JbnN0YW5jZT8uSWQuVG9TdHJpbmcoKTsKICAgICAgICB2YXIgaWQgPSBGaW5kKGNvbnRleHQuQm9keSwgImlkIiwgImluc3RhbmNlSWQiKT8uVG9TdHJpbmcoKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlhkU3RhcnRSZW1vdGVNYXBwaW5nOiByZW1vdGUgc3RhcnRlZCwgaWQ9e2lkID8/ICI8bm90IGZvdW5kPiJ9IGJvZHlUeXBlPXtjb250ZXh0LkJvZHk/LkdldFR5cGUoKS5OYW1lfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3IHsgcmVtb3RlSW5zdGFuY2VJZCA9IGlkLCByZW1vdGVLZXkgPSAkInt0ZXN0SWR9LXJlbW90ZSIsIHJlbW90ZVN0YXJ0ZWQgPSB0cnVlIH0KICAgICAgICB9KTsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBvYmplY3Q/IEZpbmQob2JqZWN0PyBub2RlLCBwYXJhbXMgc3RyaW5nW10gbmFtZXMpCiAgICB7CiAgICAgICAgdmFyIHF1ZXVlID0gbmV3IFF1ZXVlPG9iamVjdD8+KCk7CiAgICAgICAgcXVldWUuRW5xdWV1ZShub2RlKTsKICAgICAgICB2YXIgdmlzaXRlZCA9IDA7CiAgICAgICAgd2hpbGUgKHF1ZXVlLkNvdW50ID4gMCAmJiB2aXNpdGVkKysgPCA1MDApCiAgICAgICAgewogICAgICAgICAgICB2YXIgY3VycmVudCA9IHF1ZXVlLkRlcXVldWUoKTsKICAgICAgICAgICAgaWYgKGN1cnJlbnQgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGRpY3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBuYW1lIGluIG5hbWVzKQogICAgICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KQogICAgICAgICAgICAgICAgICAgICAgICBpZiAoc3RyaW5nLkVxdWFscyhrdi5LZXksIG5hbWUsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbElnbm9yZUNhc2UpICYmIGt2LlZhbHVlICE9IG51bGwpIHJldHVybiBrdi5WYWx1ZTsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KSBxdWV1ZS5FbnF1ZXVlKGt2LlZhbHVlKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBlbHNlIGlmIChjdXJyZW50IGlzIElFbnVtZXJhYmxlIGxpc3QgJiYgY3VycmVudCBpcyBub3Qgc3RyaW5nKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBmb3JlYWNoICh2YXIgaXRlbSBpbiBsaXN0KSBxdWV1ZS5FbnF1ZXVlKGl0ZW0pOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIHJldHVybiBudWxsOwogICAgfQp9Cg=="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "xd-after-start",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "After Start"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "trigger-remote",
+            "target": "xd-after-trigger",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Trigger partner transition (task 12)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "xd-trigger-remote",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/XdTriggerRemoteMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gVGFzayAxMiAoRGlyZWN0VHJpZ2dlcikgLT4gcGFydG5lci94ZC1yZW1vdGUgdHJhbnNpdGlvbiByZW1vdGUtYWR2YW5jZSwgb3ZlciBEYXByLgovLy8gVGFyZ2V0cyB0aGUgaW5zdGFuY2UgYnkgaWQgd2hlbiB0aGUgc3RhcnQgdGFzayByZWNvcmRlZCBvbmUsIG90aGVyd2lzZSBieSB0aGUgZGV0ZXJtaW5pc3RpYyBrZXkuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBYZFRyaWdnZXJSZW1vdGVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciB0cmlnZ2VyID0gdGFzayBhcyBEaXJlY3RUcmlnZ2VyVGFzayA/PyB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgRGlyZWN0VHJpZ2dlclRhc2siKTsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB0cmlnZ2VyLlNldERvbWFpbigicGFydG5lciIpOwogICAgICAgIHRyaWdnZXIuU2V0RmxvdygieGQtcmVtb3RlIik7CiAgICAgICAgdHJpZ2dlci5TZXRVc2VEYXByKHRydWUpOwogICAgICAgIHRyaWdnZXIuU2V0U3luYyh0cnVlKTsKICAgICAgICB0cmlnZ2VyLlNldFRyYW5zaXRpb25OYW1lKCJyZW1vdGUtYWR2YW5jZSIpOwoKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInJlbW90ZUluc3RhbmNlSWQiLCBvdXQgdmFyIGlkKSAmJiAhc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShpZD8uVG9TdHJpbmcoKSkpCiAgICAgICAgICAgIHRyaWdnZXIuU2V0SW5zdGFuY2UoaWQhLlRvU3RyaW5nKCkpOwogICAgICAgIGVsc2UgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJyZW1vdGVLZXkiLCBvdXQgdmFyIGtleSkpCiAgICAgICAgICAgIHRyaWdnZXIuU2V0S2V5KGtleT8uVG9TdHJpbmcoKSk7CiAgICAgICAgZWxzZQogICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigieGQtcGFyZW50IGRhdGEgY2FycmllcyBuZWl0aGVyIHJlbW90ZUluc3RhbmNlSWQgbm9yIHJlbW90ZUtleSIpOwoKICAgICAgICB0cmlnZ2VyLlNldEJvZHkobmV3IHsgYWR2YW5jZWRCeSA9ICJ4ZC1wYXJlbnQiLCBhZHZhbmNlZEZyb20gPSAiY29yZSIgfSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJYZFRyaWdnZXJSZW1vdGVNYXBwaW5nOiByZW1vdGUtYWR2YW5jZSBmaXJlZCBvbiBwYXJ0bmVyL3hkLXJlbW90ZSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG5ldyB7IHJlbW90ZVRyaWdnZXJlZCA9IHRydWUgfSB9KTsKICAgIH0KfQo="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "xd-after-trigger",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "After Trigger"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "read-remote",
+            "target": "xd-after-read",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Read partner instance + data (tasks 19, 13)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "xd-get-remote-instance",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/XdGetRemoteInstanceMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnM7CnVzaW5nIFN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUYXNrIDE5IChHZXRJbnN0YW5jZSkgLT4gcGFydG5lci94ZC1yZW1vdGUgb3ZlciBEYXByLiBSZWNvcmRzIHRoZSByZW1vdGUgaW5zdGFuY2UncyBjdXJyZW50IHN0YXRlLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgWGRHZXRSZW1vdGVJbnN0YW5jZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGdldCA9IHRhc2sgYXMgR2V0SW5zdGFuY2VUYXNrID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBHZXRJbnN0YW5jZVRhc2siKTsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICBnZXQuU2V0RG9tYWluKCJwYXJ0bmVyIik7CiAgICAgICAgZ2V0LlNldEZsb3coInhkLXJlbW90ZSIpOwogICAgICAgIGdldC5TZXRVc2VEYXByKHRydWUpOwoKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInJlbW90ZUluc3RhbmNlSWQiLCBvdXQgdmFyIGlkKSAmJiAhc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShpZD8uVG9TdHJpbmcoKSkpCiAgICAgICAgICAgIGdldC5TZXRJbnN0YW5jZShpZCEuVG9TdHJpbmcoKSk7CiAgICAgICAgZWxzZSBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInJlbW90ZUtleSIsIG91dCB2YXIga2V5KSkKICAgICAgICAgICAgZ2V0LlNldEtleShrZXk/LlRvU3RyaW5nKCkpOwogICAgICAgIGVsc2UKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oInhkLXBhcmVudCBkYXRhIGNhcnJpZXMgbmVpdGhlciByZW1vdGVJbnN0YW5jZUlkIG5vciByZW1vdGVLZXkiKTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIC8vIEJvZHkgPSB7IGlzU3VjY2VzcywgZGF0YTogPEdldEluc3RhbmNlT3V0cHV0PiwgLi4uIH0g4oCUIGxvb2sgaW5zaWRlIHRoZSBEVE8sIG5vdCB0aGUgZW52ZWxvcGUuCiAgICAgICAgdmFyIGR0byA9IEdldChjb250ZXh0LkJvZHksICJkYXRhIikgPz8gY29udGV4dC5Cb2R5OwogICAgICAgIHZhciBzdGF0ZSA9IEZpbmQoZHRvLCAiY3VycmVudFN0YXRlIiwgInN0YXRlIik/LlRvU3RyaW5nKCk7CiAgICAgICAgdmFyIHN0YXR1cyA9IEZpbmQoZHRvLCAic3RhdHVzIik/LlRvU3RyaW5nKCk7CiAgICAgICAgdmFyIHJlbW90ZUlkID0gRmluZChkdG8sICJpZCIsICJpbnN0YW5jZUlkIik/LlRvU3RyaW5nKCk7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJYZEdldFJlbW90ZUluc3RhbmNlTWFwcGluZzogcmVtb3RlIHN0YXRlPXtzdGF0ZSA/PyAiPG5vdCBmb3VuZD4ifSBzdGF0dXM9e3N0YXR1cyA/PyAiPyJ9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIERhdGEgPSBuZXcgeyByZW1vdGVTdGF0ZSA9IHN0YXRlLCByZW1vdGVTdGF0dXMgPSBzdGF0dXMsIHJlbW90ZVJlYWRJbnN0YW5jZUlkID0gcmVtb3RlSWQgfQogICAgICAgIH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gR2V0KG9iamVjdD8gbm9kZSwgc3RyaW5nIG5hbWUpCiAgICB7CiAgICAgICAgaWYgKG5vZGUgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGRpY3QpCiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KQogICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoa3YuS2V5LCBuYW1lLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSkgcmV0dXJuIGt2LlZhbHVlOwogICAgICAgIHJldHVybiBudWxsOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gRmluZChvYmplY3Q/IG5vZGUsIHBhcmFtcyBzdHJpbmdbXSBuYW1lcykKICAgIHsKICAgICAgICB2YXIgcXVldWUgPSBuZXcgUXVldWU8b2JqZWN0Pz4oKTsKICAgICAgICBxdWV1ZS5FbnF1ZXVlKG5vZGUpOwogICAgICAgIHZhciB2aXNpdGVkID0gMDsKICAgICAgICB3aGlsZSAocXVldWUuQ291bnQgPiAwICYmIHZpc2l0ZWQrKyA8IDUwMCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBjdXJyZW50ID0gcXVldWUuRGVxdWV1ZSgpOwogICAgICAgICAgICBpZiAoY3VycmVudCBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZGljdCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIG5hbWUgaW4gbmFtZXMpCiAgICAgICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGRpY3QpCiAgICAgICAgICAgICAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKGt2LktleSwgbmFtZSwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsSWdub3JlQ2FzZSkgJiYga3YuVmFsdWUgIT0gbnVsbCkgcmV0dXJuIGt2LlZhbHVlOwogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGRpY3QpIHF1ZXVlLkVucXVldWUoa3YuVmFsdWUpOwogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsc2UgaWYgKGN1cnJlbnQgaXMgSUVudW1lcmFibGUgbGlzdCAmJiBjdXJyZW50IGlzIG5vdCBzdHJpbmcpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBpdGVtIGluIGxpc3QpIHF1ZXVlLkVucXVldWUoaXRlbSk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgcmV0dXJuIG51bGw7CiAgICB9Cn0K"
+                }
+              },
+              {
+                "order": 2,
+                "task": {
+                  "key": "xd-get-remote-data",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/XdGetRemoteDataMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnM7CnVzaW5nIFN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUYXNrIDEzIChHZXRJbnN0YW5jZURhdGEpIC0+IHBhcnRuZXIveGQtcmVtb3RlIG92ZXIgRGFwci4gQ29waWVzIHRoZSByZW1vdGUgaW5zdGFuY2UgZGF0YQovLy8gKHdoaWNoIGNhcnJpZXMgdGhlIHRlc3RJZCB3ZSBzdGFydGVkIGl0IHdpdGgpIGludG8gdGhlIHBhcmVudCBhcyByZW1vdGVEYXRhLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgWGRHZXRSZW1vdGVEYXRhTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZ2V0ID0gdGFzayBhcyBHZXRJbnN0YW5jZURhdGFUYXNrID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBHZXRJbnN0YW5jZURhdGFUYXNrIik7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKCiAgICAgICAgZ2V0LlNldERvbWFpbigicGFydG5lciIpOwogICAgICAgIGdldC5TZXRGbG93KCJ4ZC1yZW1vdGUiKTsKICAgICAgICBnZXQuU2V0VXNlRGFwcih0cnVlKTsKCiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJyZW1vdGVJbnN0YW5jZUlkIiwgb3V0IHZhciBpZCkgJiYgIXN0cmluZy5Jc051bGxPcldoaXRlU3BhY2UoaWQ/LlRvU3RyaW5nKCkpKQogICAgICAgICAgICBnZXQuU2V0SW5zdGFuY2UoaWQhLlRvU3RyaW5nKCkpOwogICAgICAgIGVsc2UgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJyZW1vdGVLZXkiLCBvdXQgdmFyIGtleSkpCiAgICAgICAgICAgIGdldC5TZXRLZXkoa2V5Py5Ub1N0cmluZygpKTsKICAgICAgICBlbHNlCiAgICAgICAgICAgIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJ4ZC1wYXJlbnQgZGF0YSBjYXJyaWVzIG5laXRoZXIgcmVtb3RlSW5zdGFuY2VJZCBub3IgcmVtb3RlS2V5Iik7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICAvLyBCb2R5ID0geyBpc1N1Y2Nlc3MsIGRhdGE6IDxHZXRJbnN0YW5jZURhdGFPdXRwdXQgeyBkYXRhLCBleHRlbnNpb25zLCAuLi4gfT4sIC4uLiB9CiAgICAgICAgdmFyIGR0byA9IEdldChjb250ZXh0LkJvZHksICJkYXRhIikgPz8gY29udGV4dC5Cb2R5OwogICAgICAgIHZhciByZW1vdGVEYXRhID0gR2V0KGR0bywgImRhdGEiKSA/PyBGaW5kKGR0bywgImF0dHJpYnV0ZXMiKSA/PyBkdG87CiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJYZEdldFJlbW90ZURhdGFNYXBwaW5nOiByZW1vdGUgZGF0YSByZWFkICh0eXBlPXtyZW1vdGVEYXRhPy5HZXRUeXBlKCkuTmFtZX0pIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbmV3IHsgcmVtb3RlRGF0YSwgcmVtb3RlRGF0YVJlYWQgPSB0cnVlIH0gfSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgb2JqZWN0PyBHZXQob2JqZWN0PyBub2RlLCBzdHJpbmcgbmFtZSkKICAgIHsKICAgICAgICBpZiAobm9kZSBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZGljdCkKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGRpY3QpCiAgICAgICAgICAgICAgICBpZiAoc3RyaW5nLkVxdWFscyhrdi5LZXksIG5hbWUsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbElnbm9yZUNhc2UpKSByZXR1cm4ga3YuVmFsdWU7CiAgICAgICAgcmV0dXJuIG51bGw7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgb2JqZWN0PyBGaW5kKG9iamVjdD8gbm9kZSwgcGFyYW1zIHN0cmluZ1tdIG5hbWVzKQogICAgewogICAgICAgIHZhciBxdWV1ZSA9IG5ldyBRdWV1ZTxvYmplY3Q/PigpOwogICAgICAgIHF1ZXVlLkVucXVldWUobm9kZSk7CiAgICAgICAgdmFyIHZpc2l0ZWQgPSAwOwogICAgICAgIHdoaWxlIChxdWV1ZS5Db3VudCA+IDAgJiYgdmlzaXRlZCsrIDwgNTAwKQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGN1cnJlbnQgPSBxdWV1ZS5EZXF1ZXVlKCk7CiAgICAgICAgICAgIGlmIChjdXJyZW50IGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkaWN0KQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBmb3JlYWNoICh2YXIgbmFtZSBpbiBuYW1lcykKICAgICAgICAgICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gZGljdCkKICAgICAgICAgICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoa3YuS2V5LCBuYW1lLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSAmJiBrdi5WYWx1ZSAhPSBudWxsKSByZXR1cm4ga3YuVmFsdWU7CiAgICAgICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gZGljdCkgcXVldWUuRW5xdWV1ZShrdi5WYWx1ZSk7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxzZSBpZiAoY3VycmVudCBpcyBJRW51bWVyYWJsZSBsaXN0ICYmIGN1cnJlbnQgaXMgbm90IHN0cmluZykKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGl0ZW0gaW4gbGlzdCkgcXVldWUuRW5xdWV1ZShpdGVtKTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICByZXR1cm4gbnVsbDsKICAgIH0KfQo="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "xd-after-read",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "After Read"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "list-remote",
+            "target": "xd-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "List partner instances by testId (task 15)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "xd-list-remote",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/XdListRemoteMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnM7CnVzaW5nIFN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5GaWx0ZXJpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBUYXNrIDE1IChHZXRJbnN0YW5jZXMpIC0+IHBhcnRuZXIveGQtcmVtb3RlIG92ZXIgRGFwciwgZmlsdGVyZWQgb24gYXR0cmlidXRlcy50ZXN0SWQgd2l0aCB0aGUKLy8vIGZsdWVudCBJbnN0YW5jZVF1ZXJ5ICh0aGUgSlNPTiBgZmlsdGVyYCBrZXkgaXMgc3RyaW5nLW9ubHk7IHRoZSBzdHJ1Y3R1cmVkIHNwZWMgbGl2ZXMgaGVyZSkuCi8vLyBSZWNvcmRzIGhvdyBtYW55IHJlbW90ZSBpbnN0YW5jZXMgbWF0Y2hlZCBhbmQgdGhlaXIgdGVzdElkcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFhkTGlzdFJlbW90ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGxpc3QgPSB0YXNrIGFzIEdldEluc3RhbmNlc1Rhc2sgPz8gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIEdldEluc3RhbmNlc1Rhc2siKTsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIHZhciB0ZXN0SWQgPSBkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgidGVzdElkIiwgb3V0IHZhciB0KSA/IHQ/LlRvU3RyaW5nKCkgPz8gc3RyaW5nLkVtcHR5IDogc3RyaW5nLkVtcHR5OwoKICAgICAgICBsaXN0LlNldERvbWFpbigicGFydG5lciIpOwogICAgICAgIGxpc3QuU2V0RmxvdygieGQtcmVtb3RlIik7CiAgICAgICAgbGlzdC5TZXRVc2VEYXByKHRydWUpOwogICAgICAgIGxpc3QuU2V0UGFnZSgxKTsKICAgICAgICBsaXN0LlNldFBhZ2VTaXplKDEwKTsKCiAgICAgICAgdmFyIHNwZWMgPSBJbnN0YW5jZVF1ZXJ5LkNyZWF0ZSgpCiAgICAgICAgICAgIC5XaGVyZSgiYXR0cmlidXRlcy50ZXN0SWQiLCBmID0+IGYuRXEodGVzdElkKSkKICAgICAgICAgICAgLk9yZGVyQnlEZXNjZW5kaW5nKCJjcmVhdGVkQXQiKQogICAgICAgICAgICAuQnVpbGQoKTsKICAgICAgICBsaXN0LlNldEZpbHRlclNwZWMoc3BlYyk7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZHRvID0gR2V0KGNvbnRleHQuQm9keSwgImRhdGEiKSA/PyBjb250ZXh0LkJvZHk7CiAgICAgICAgdmFyIGl0ZW1zID0gRmluZChkdG8sICJpdGVtcyIpIGFzIElFbnVtZXJhYmxlOwogICAgICAgIHZhciBjb3VudCA9IDA7CiAgICAgICAgdmFyIHRlc3RJZHMgPSBuZXcgTGlzdDxzdHJpbmc/PigpOwogICAgICAgIGlmIChpdGVtcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGl0ZW0gaW4gaXRlbXMpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGNvdW50Kys7CiAgICAgICAgICAgICAgICB0ZXN0SWRzLkFkZChGaW5kKGl0ZW0sICJ0ZXN0SWQiKT8uVG9TdHJpbmcoKSk7CiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiWGRMaXN0UmVtb3RlTWFwcGluZzoge2NvdW50fSByZW1vdGUgaW5zdGFuY2UocykgbWF0Y2hlZCIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3IHsgcmVtb3RlQ291bnQgPSBjb3VudCwgcmVtb3RlTGlzdFRlc3RJZHMgPSB0ZXN0SWRzLCByZW1vdGVMaXN0ZWQgPSB0cnVlIH0KICAgICAgICB9KTsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBvYmplY3Q/IEdldChvYmplY3Q/IG5vZGUsIHN0cmluZyBuYW1lKQogICAgewogICAgICAgIGlmIChub2RlIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBkaWN0KQogICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gZGljdCkKICAgICAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKGt2LktleSwgbmFtZSwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsSWdub3JlQ2FzZSkpIHJldHVybiBrdi5WYWx1ZTsKICAgICAgICByZXR1cm4gbnVsbDsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBvYmplY3Q/IEZpbmQob2JqZWN0PyBub2RlLCBwYXJhbXMgc3RyaW5nW10gbmFtZXMpCiAgICB7CiAgICAgICAgdmFyIHF1ZXVlID0gbmV3IFF1ZXVlPG9iamVjdD8+KCk7CiAgICAgICAgcXVldWUuRW5xdWV1ZShub2RlKTsKICAgICAgICB2YXIgdmlzaXRlZCA9IDA7CiAgICAgICAgd2hpbGUgKHF1ZXVlLkNvdW50ID4gMCAmJiB2aXNpdGVkKysgPCA1MDApCiAgICAgICAgewogICAgICAgICAgICB2YXIgY3VycmVudCA9IHF1ZXVlLkRlcXVldWUoKTsKICAgICAgICAgICAgaWYgKGN1cnJlbnQgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGRpY3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBuYW1lIGluIG5hbWVzKQogICAgICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KQogICAgICAgICAgICAgICAgICAgICAgICBpZiAoc3RyaW5nLkVxdWFscyhrdi5LZXksIG5hbWUsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbElnbm9yZUNhc2UpICYmIGt2LlZhbHVlICE9IG51bGwpIHJldHVybiBrdi5WYWx1ZTsKICAgICAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KSBxdWV1ZS5FbnF1ZXVlKGt2LlZhbHVlKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBlbHNlIGlmIChjdXJyZW50IGlzIElFbnVtZXJhYmxlIGxpc3QgJiYgY3VycmVudCBpcyBub3Qgc3RyaW5nKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBmb3JlYWNoICh2YXIgaXRlbSBpbiBsaXN0KSBxdWV1ZS5FbnF1ZXVlKGl0ZW0pOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIHJldHVybiBudWxsOwogICAgfQp9Cg=="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "xd-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "xd-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

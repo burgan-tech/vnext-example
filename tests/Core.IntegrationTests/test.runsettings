@@ -9,6 +9,16 @@
         When not set, Testcontainers spins up the full Docker stack automatically.
       -->
       <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>
+      <!--
+        Cross-domain lab (labs/cross-domain/lab.sh up): the partner orchestrator. When unset, the
+        Tests/CrossDomainLab suite skips itself instead of failing.
+      -->
+      <VNEXT_PARTNER_BASE_URL>http://localhost:4211</VNEXT_PARTNER_BASE_URL>
+      <!--
+        MockLab admin API (docker compose up -d, repo kökü). Tests/ErrorBoundaryLab'ın iki retry
+        testi sequential mock'u başa sarmak için kullanır; ulaşılamazsa o testler skip olur.
+      -->
+      <MOCKLAB_BASE_URL>http://localhost:3001</MOCKLAB_BASE_URL>
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>

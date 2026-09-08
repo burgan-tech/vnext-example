@@ -1,0 +1,176 @@
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = error-boundary-lab
+@globalWorkflow = error-boundary-lab-global
+@user = 11111111-1111-1111-1111-111111111111
+@viewerRole = eb-lab.viewer
+
+# ============================================================================
+# error-boundary-lab — boundary çözümlemesi, incident yüzeyleri, retry
+#
+# Ön koşul: lokal runtime (4201) `feature/incident-table` üzerinde koşuyor,
+# MockLab 3001'de ayakta ve error-boundary-lab seed'i yüklü.
+# Bileşenleri yayınlamak için: build-error-boundary-lab.py + definitions/publish.
+# ============================================================================
+
+### 1. Instance başlat (hub state: ready)
+# @name start
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{ "testId": "http-probe", "shouldFail": true }
+
+@instanceId = {{start.response.body.$.id}}
+
+### 2. Task seviyesi abort — instance fault eder (HTTP 200, gövdede status "F")
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/case-task-abort?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 3. State function — her zaman var olan `incident` bloğu: yalnız bayrak + linkler
+#    ({ hasActiveIncident, active: { href }, history: { href } }); `active` sadece açık arıza varken
+#    görünür. Detay için 5a'yı çağırın. (+ ETag başlığı)
+# @name state
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state
+user_reference: {{user}}
+
+@etag = {{state.response.headers.ETag}}
+
+### 4. Aynı ETag ile koşullu okuma — 304 bekleriz
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state
+user_reference: {{user}}
+If-None-Match: {{etag}}
+
+### 5a. Aktif incident — state bloğunun `incident.active.href` ile gösterdiği endpoint.
+#     Açık arıza yokken 404 (Instance:100037) döner, bu normal bir yanıttır.
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/incidents/active
+user_reference: {{user}}
+
+### 5. Incident geçmişi (sayfalı, en yeni önce) — bir abort TEK satır bırakır,
+#    ve o satır boundary'nin verdict'idir (boundaryAction "Abort", boundaryLevel "Task")
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/incidents?page=1&pageSize=20
+user_reference: {{user}}
+
+### 6. Sayfalama — tek satırda hasNext false. İki satır için 8'i çalıştırıp
+#    yeniden fault ettirin (her fault bir satır ekler).
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/incidents?page=1&pageSize=1
+user_reference: {{user}}
+
+### 7. Instance metadata.incident — state bloğuyla BİREBİR aynı şekil (bayrak + iki link)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}
+user_reference: {{user}}
+
+### 8. Retry — hata hâlâ silahlı: yeniden fault eder (gövde status "F", ve bu statü
+#    KALICI: instance F kalır, tekrar retry edilebilir)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/retry?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{ "attributes": { "shouldFail": true } }
+
+### 9. Retry — hatayı sustur: aynı task başarıya döner, instance `landed`,
+#    ve TÜM açık incident'lar resolve olur (hasActiveIncident false)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/retry?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{ "attributes": { "shouldFail": false } }
+
+### 10. Retry — faulted olmayan instance reddedilir (400, Instance:100027)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/retry?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+# ============================================================================
+# Boundary matrisi — her biri taze instance ister (2. adımı yeni id ile tekrarlayın)
+# ============================================================================
+
+### 11. State seviyesi notify → notified (boundaryLevel "State")
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/case-state-notify?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 12. Task seviyesi rollback → rolled-back, incident resolved
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/case-task-rollback?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 13. Retry tükenmesi → 3 çağrı (httpAttempts), sonra abort fallback
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/case-retry-exhaust?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 14. Retry kurtarma → 3. denemede 200, incident YOK
+# Önce MockLab sequence'ini sıfırlayın (aşağıdaki 19-20).
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/case-retry-recover?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 15. queryRoles kapısı — ROLSÜZ: 403 (Authorization:110001)
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/case-secured?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 16. Rolsüz incident okuma → 403
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/incidents
+user_reference: {{user}}
+
+### 17. Rollü incident okuma → 200
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/incidents
+user_reference: {{user}}
+x-roles: {{viewerRole}}
+role: {{viewerRole}}
+
+# ============================================================================
+# Global boundary akışı
+# ============================================================================
+
+### 18. Global akışta instance başlat
+# @name startGlobal
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{globalWorkflow}}/instances/start?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{ "testId": "http-probe-global", "shouldFail": true }
+
+@globalInstanceId = {{startGlobal.response.body.$.id}}
+
+### 19. Global rollback (503) → rolled-back, boundaryLevel "Global"
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{globalWorkflow}}/instances/{{globalInstanceId}}/transitions/g-case-global-rollback?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+### 20. Boundary var ama eşleşmiyor (500 vs 503) → F, boundaryAction/Level yok
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{globalWorkflow}}/instances/{{globalInstanceId}}/transitions/g-case-unhandled-no-match?sync=true
+Content-Type: application/json
+user_reference: {{user}}
+
+{}
+
+# ============================================================================
+# MockLab yardımcıları (sequence durumu MockLab genelinde paylaşılır)
+# ============================================================================
+
+### 21. Mock listesi — flaky mock'un id'sini bulun
+GET http://localhost:3001/_admin/mocks
+
+### 22. flaky sequence'ini başa sar (id'yi 21'den alın)
+POST http://localhost:3001/_admin/mocks/37/sequence/reset

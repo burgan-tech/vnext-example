@@ -41,8 +41,7 @@
         "label": "Digital Banking Account Opening Workflow"
       }
     ],
-    "functions": [
-    ],
+    "functions": [],
     "features": [],
     "extensions": [],
     "schema": {
@@ -190,11 +189,7 @@
             "versionStrategy": "Minor",
             "roles": [
               {
-                "role": "morph-core.maker",
-                "grant": "allow"
-              },
-              {
-                "role": "$userBehalfOf.$.context.Instance.Data.initial.customer.ownerUserId",
+                "role": "idm.full-authorizeds",
                 "grant": "allow"
               }
             ],

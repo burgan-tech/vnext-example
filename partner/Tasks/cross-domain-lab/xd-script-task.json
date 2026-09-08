@@ -1,0 +1,12 @@
+{
+  "key": "xd-script-task",
+  "version": "1.0.0",
+  "domain": "partner",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["cross-domain-lab", "script-task", "partner"],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "description": "partner domain — cross-domain lab counterpart of core (see labs/cross-domain/README.md)",
+  "domain": "partner",
+  "runtimeVersion": "0.0.61",
+  "schemaVersion": "0.0.53",
+  "paths": {
+    "componentsRoot": "partner",
+    "tasks": "Tasks",
+    "views": "Views",
+    "functions": "Functions",
+    "extensions": "Extensions",
+    "workflows": "Workflows",
+    "schemas": "Schemas",
+    "mappings": "Mappings"
+  },
+  "exports": {
+    "functions": [],
+    "workflows": [],
+    "tasks": [],
+    "views": [],
+    "schemas": [],
+    "extensions": [],
+    "mappings": [],
+    "visibility": "private",
+    "metadata": {
+      "description": "Components published into the partner lab domain by the CrossDomainLab integration tests",
+      "maintainer": "vNext Team",
+      "license": "MIT",
+      "keywords": [
+        "partner",
+        "vnext",
+        "cross-domain",
+        "lab"
+      ]
+    }
+  },
+  "dependencies": {
+    "domains": [],
+    "npm": []
+  },
+  "referenceResolution": {
+    "enabled": true,
+    "validateOnBuild": true,
+    "strictMode": true,
+    "validateReferenceConsistency": true,
+    "validateSchemas": true,
+    "allowedHosts": [
+      "registry.npmjs.org",
+      "npm.vnext.com",
+      "npm.pkg.github.com"
+    ],
+    "schemaValidationRules": {
+      "enforceKeyFormat": true,
+      "enforceVersionFormat": true,
+      "enforceFilenameConsistency": true,
+      "allowUnknownProperties": false
+    }
+  }
+}

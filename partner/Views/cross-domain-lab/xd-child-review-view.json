@@ -1,0 +1,45 @@
+{
+  "key": "xd-child-review-view",
+  "version": "1.0.0",
+  "domain": "partner",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": ["cross-domain-lab", "pseudo-ui", "partner"],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "labels": [
+      { "label": "Child İnceleme", "language": "tr-TR" },
+      { "label": "Child Review", "language": "en-US" }
+    ],
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          {
+            "type": "Text",
+            "content": {
+              "tr": "Partner domain'inde bekleyen child (cross-domain lab)",
+              "en": "Child waiting in the partner domain (cross-domain lab)"
+            },
+            "variant": "headlineSmall"
+          },
+          {
+            "type": "Card",
+            "variant": "outlined",
+            "children": [
+              {
+                "type": "ListTile",
+                "title": { "tr": "Test Kimliği", "en": "Test Id" },
+                "trailing": "$instance.testId"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

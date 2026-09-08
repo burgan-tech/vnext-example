@@ -1,0 +1,109 @@
+{
+  "key": "otp-resend-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "otp-auth",
+    "otp",
+    "resend",
+    "display",
+    "ui-view"
+  ],
+  "attributes": {
+    "type": 1,
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "OTP Tekrar Gönderim"
+      },
+      {
+        "language": "en-US",
+        "label": "OTP Resend"
+      }
+    ],
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:otp-auth-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "schedule"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Kodun Süresi Doldu",
+                      "en": "Code Expired"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Doğrulama kodunun süresi doldu. Yeni bir kod isteyebilirsiniz.",
+                  "en": "The verification code has expired. You can request a new one."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.resendUsed.label",
+                        "subtitle": "$instance.resendUsed"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.resendLimit.label",
+                        "subtitle": "$instance.resendLimit"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": "$schema.attemptUsed.label",
+                        "subtitle": "$instance.attemptUsed"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Yeni Kod Gönder",
+                  "en": "Send New Code"
+                },
+                "variant": "filled",
+                "icon": "refresh",
+                "action": "dispatch",
+                "validate": false,
+                "command": "urn:vnext:flow:transition:core:otp-auth:resend-otp"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

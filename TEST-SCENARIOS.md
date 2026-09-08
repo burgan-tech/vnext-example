@@ -15,6 +15,7 @@ geçerliliğini yitiren senaryo **silinmez**, `deprecated` işaretlenip sebebi y
 
 | Senaryo | Test Edilen vNext Feature Seti | Neden Eklendi | Integration Test | Python Test | Durum |
 |---|---|---|---|---|---|
+| **error-boundary-lab** | Error boundary çözümlemesi: `CompiledBoundaryChain` Task→State→Global seviye baskınlığı · seviye içi sıra (`EffectivePriority` ASC → specificity DESC; default wildcard'ın 999'a düşmesi) · aksiyonlar abort/retry/rollback/notify/ignore/log · `TaskExecutionEngine` retry döngüsü (`1 + maxRetries`) ve tükenince `ResolveExcluding(Retry)` fallback'i · `BoundaryOutcomeHandler` → fault vs `RequestNextTransition` · `FinalizeTransitionStep`'in boundary transition'ı bitince incident'ı resolve etmesi · `InstanceIncidents` tablosu + denormalize `HasActiveIncident` · state function `incident` bloğu (link tabanlı, ResponseShapeVersion v9, ETag materyali) · `GET .../instances/{id}/incidents/active` (404 = açık arıza yok) · `GET .../instances/{id}/incidents` sayfalama · `metadata.incident` (state bloğuyla aynı şekil) · `POST .../retry` (400 `Instance:100027`, yeniden fault, veriyle kurtarma) · `queryRoles` kapısının incident geçmişine de uygulanması | vnext `feature/incident-table` (issue #865) incident'ları jsonb'den kendi tablosuna taşıdı ve iki yeni client yüzeyi ekledi; ayrıca error boundary bu repoda hiç senaryo olarak yoktu ve `POST .../retry` hiçbir testte çağrılmıyordu (2026-09-06) | `Tests/ErrorBoundaryLab` (6 sınıf, 31 test) | — (bilinçli: davranış/çözümleme senaryosu, eşzamanlılık iddiası yok) | ✅ **Aktif — 31/31 yeşil** (lokal runtime `feature/incident-table`, art arda iki koşu, ~1 dk 46 sn; ilk koşu 2026-09-06, üç davranışsal kusurun düzeltilmesinden sonra 2026-09-07'de yeniden) |
 | **chain-busy** | Accept-time subflow chain reserve · Busy-as-mutex · `$self` shared transition vs `updateData` lifecycle sınırı · start `initial → initial` semantiği · cancel propagasyonu (in-process ↕ distributed) · scheduled transition re-arm | `updateData`-only self-target profil sınırını pinlemek — `target: $self` "hook'ları atla" demek değil (2026-08-17) | `Tests/ChainBusy` (5 sınıf) | `api-tests/chain-busy/chain-busy-behaviour-test.py`, `chain-busy-accept-test.py` | ✅ Aktif |
 | **script-race-lab** | Script engine: paylaşılan `AssemblyLoadContext`'te çift-derleme yarışı · `scripts.helpers` · subflow output mapping · parent kalıcı fault riski | `Script_XXXX already loaded` / `FileLoadException` yarışının fixture'ı; fix'siz runtime'da kaybedenler parent'ı kalıcı fault'lar (2026-08-18) | `Tests/ScriptRaceLab` | `api-tests/script-race-lab/race-load.py` (yük), `publish.py` | ✅ Aktif |
 | **data-integrity-lab** | InstanceData v2: anında persist · lock altında kimlik · sıralı/paralel task yazımları · DataHash dedup (task + updateData) · versiyon satırı bütünlüğü | `feature/busy-as-mutex-locking` + InstanceData v2 geliştirmesini uçtan uca ölçmek (2026-08-13) | `Tests/DataIntegrityLab` | `api-tests/data-integrity-lab/integrity-lab-test.py` | ⚠️ Kısmen kırmızı — `run-parallel` konteynerli ortamda settle olmuyor (120s'te doğrulandı, hang) |
@@ -32,6 +33,7 @@ geçerliliğini yitiren senaryo **silinmez**, `deprecated` işaretlenip sebebi y
 | **fan-out-config-matrix** | `FanOutTask` (TaskType 21) **konfigüre edilebilir yüzeyi**: dört `join.policy` (`all` / `allSettled` / `quorum` / `firstSuccess`) verdict'lerinin **iki** yanında da · `join.minSuccess` tutan / tutmayan · `FanOutJoinEvaluator` **boş-batch** kuralı (`all`+`allSettled` vacuously başarılı, `quorum`+`firstSuccess` eşiği geçemediği için başarısız) · `mode: "durable"` reddi (`FanOutTask.Configure`, rezerve) · **item bazlı `errorBoundary`** (`ignore` verdict'i çevirir: `join: all` altında başarısız item batch'i düşürmez; `retry` tükenmesi kendi item'ında kalır) · `execution.maxDegreeOfParallelism`'in gerçek eşzamanlılığı sıkıştırması (eşleştirilmiş kontrol kolu, tek fark tavan) · `itemTimeoutSeconds` ↔ `batchTimeoutSeconds` ayrımı: `FanOut:ItemTimeout` vs `FanOut:BatchTimeout` + `summary.timedOut`'un yalnız **batch** deadline'ında yükselmesi · başarısız join'in task'ı düşürüp instance'ı Faulted etmesi (akışta bilinçli olarak **hiç** errorBoundary yok) | FanOutTask'ın config yüzeyi uçtan uca **hiç** doğrulanmamıştı — unit testler geçiyor ve bir production domain'i yalnız mutlu yolu kullanıyordu; `join.policy` değişince, eşik tutmayınca, koleksiyon boş gelince, item boundary devredeyken ya da tavan gerçekten sıkıştırınca runtime'ın ne yaptığını hiçbir integration test görmüyordu (vnext `feature/fanout-task-design`, 2026-08-21) | `Tests/FanOut` (`FanOutConfigMatrixTests`, 16 test) | — (bilinçli: doğruluk/konfigürasyon senaryosu; eşzamanlılık iddiaları hata kodu + sayı üzerinden, duvar saati yok) | ✅ **Aktif — 18/18 yeşil** (2026-08-22, lokal runtime `ad72158b`, iki koşu üst üste; `--filter FanOut` bütünü 22/22). Dört join politikası verdict'lerinin iki yanında da, `minSuccess`, boş-batch kuralı, `itemTimeoutSeconds`, `batchTimeoutSeconds`, eşit-deadline sınırı, `maxDegreeOfParallelism`'in gerçek eşzamanlılığı sıkıştırması, item bazlı `retry` kapsaması ve `mode: durable` reddi **uçtan uca doğrulandı**. Bulunan ve **runtime'da düzeltilen** iki defect: **F1** (`b80be176`) uçuşta iptal edilen item kendi fan-out nedeni yerine `Task:Unknown:<taskKey>:TaskCanceledException` taşıyordu — üç iptal nedeninde de (item deadline 0/1→**1/1**, batch deadline 1/2→**2/2**, early-stop 1/4→**4/4**); **F2** (`ad72158b`) `Configure`-time authoring hatası opak `500` yerine artık alanı adlandıran `400` (paylaşılan `ComponentValidatorProcessor`'da olduğu için tüm task tiplerini kapsıyor). Kendi filed ettiğim **"timedOut yükselticisi" iddiası ölçülüp GERİ ÇEKİLDİ** — `itemTO <= batchTO` zorunlu + `Classify` önce item deadline'ına baktığı için o şekil yapısal olarak imkânsız. Üç **fixture/tasarım** düzeltmesi: boundary yokken başarısız onEntry task'ı fault'lamıyor (fault temelli gözlem beş case'i sessizce geçiriyordu → global `rollback` + `case-failed`); **MockLab PREFIX eşlemesi** yavaş mock'u yutuyordu (`api/fan-out/slow-documents/process`'e taşındı); yük testinde **BULKHEAD metriği doygunlukta geçersiz** (`durationMs` kuyruk süresini içeriyor) ve **straggler eşiği bozuk fixture'a kalibreliydi**. Açık: **F3** item bazlı `ignore` semantiği, **C1** `minSuccess` non-quorum'da sessiz yoksayma (ikisi de karar bekliyor, test kırmızısı değil). Kanıt: [`docs/fanout-configurable-surface-findings.md`](docs/fanout-configurable-surface-findings.md). `npm run validate` 10 fan-out task bileşenini de reddediyor — `fan-out-documents` ile aynı bilinen şema açığı (enum `"20"`de bitiyor); publish şema validasyonunu baypas ettiği için engel değil |
 | **payload-modes** | Request sözleşmesi ↔ şema doğrulaması: payload-mode tespiti (`PayloadModeDetector` + `FormUrlEncodedJsonElementInputFormatter`) · standart zarf (`key`/`tags`/`stage`/`attributes`) ↔ serbest payload ayrımı · `startTransition.schema` **ve** `transition.schema` yollarının ikisi birden · zarf alanlarının iş verisine sızmaması (şemasız transition'da sessiz veri kirlenmesi) · `x-vnext-payload-mode: raw` override'ı · `attributes` eşleşmesinin case-insensitive olması | Şema tanımlı bir transition/start'ta payload'ın **hangi biçimde** gönderildiği validasyon sonucunu değiştiriyordu: mod tespiti tek bir case-sensitive `attributes` property'sine bakıyordu, oysa zarfın her alanı opsiyoneldir — `attributes` içermeyen geçerli bir zarf serbest payload sanılıp **tümüyle** `attributes` altına sarılıyor ve şema iş payload'ı yerine `key`/`tags` alanlarını doğruluyordu (`additionalProperties: false` şemalarda *"All values fail against the false schema"* 400'ü). Şemasız transition'da aynı hata sessizdi: zarf instance data'ya yazılıyordu (2026-08-22, vnext `PayloadEnvelope` ortak zarf sözlüğü) | `Tests/PayloadModes` (2 sınıf, 24 test) | — (bilinçli: request sözleşmesi doğruluk senaryosu, eşzamanlılık iddiası yok) | ✅ **Aktif — 24/24 yeşil** (2026-08-22, lokal runtime). Düzeltme öncesi runtime'a karşı **tam 4 test kırmızı** (start: envelope-only + PascalCase `Attributes`; transition: envelope-only + şemasız transition'da `key`'in instance data'ya yazılması) — regresyon iğnesi doğrulandı. Kullanıcının bildirdiği üç kanonik biçim (`{key,attributes}`, `{attributes}`, serbest gövde) düzeltme öncesinde de geçiyordu; testler "üçü de aynı sonucu üretir" sözleşmesini sabitler. Akış **hiç task içermez** — MockLab/execution host/worker bağımlılığı yok. **Aynı geliştirme altında ikinci bir defect düzeltildi:** kök düzeyindeki `required` hatası hiyerarşik ağaç düzleştirilirken düşüyordu (`JsonSchemaValidationMapper.FlattenErrors` bir düğümün *kendi* hatalarını, çocukları varsa atıyordu — `additionalProperties:false` + iç içe obje olan her şemada kök hatası TEK hataydı), istemci `"errors":{}` ile **hangi alanın hatalı olduğunu öğrenemiyordu**; boş hata listesi ayrıca yanıtı RFC7807 ProblemDetails'e düşürerek iki farklı gövde biçimi yaratıyordu. Artık tek biçim + alan düzeyinde `members`/`message` |
 | **schedule-after-auto** | Pipeline epilogue sıralaması (`LifecycleOrder.Auto` 80 → `LifecycleOrder.Schedule` 90) · `ScheduleTransitionsStep`'in `Directives.NextTransition` guard'ı (auto kazanan varsa **hiç** arm etmez: Dapr job yok, `InstanceJob` satırı yok) · state function'ın `kind: "scheduled"` girdileri + `executeAtUtc` · auto kazanan yokken scheduled transition'ın eskisi gibi arm edilip **gerçekten ateşlenmesi** · `CancelScheduledJobsStep` (39) churn'ünün ortadan kalkması | Eski sıralamada Schedule (80) timer'ı arm ediyor, Auto (90) kazanan seçiyor, zincirlenen hop da o timer'ı hemen siliyordu — auto'nun kazandığı her hop'ta boşuna enqueue + persist + cancel. Sıralama takas edildi (vnext `feature/schedule-after-auto`, plan `docs/superpowers/plans/2026-09-02-schedule-after-auto.md`, 2026-09-03). Senaryo hem yeni davranışı hem de "auto kazanmazsa hiçbir şey değişmedi" tarafını pinler; iki sıralama **dinlenme durumunda ayırt edilemediği** için auto hop'unun `onExecute`'u bilinçli ~2.5 sn gecikir ve test o pencerede armed girdinin **hiç** oluşmadığını gözler | `Tests/ScheduleAfterAuto` (`ScheduleAfterAutoTests`, 2 test) | — (bilinçli: sıralama/doğruluk senaryosu; eşzamanlılık iddiası yok) | ✅ **Aktif — 2/2 yeşil** (2026-09-03, lokal runtime `702a03b6`, iki koşu üst üste, ~24 sn) |
+| **cross-domain-lab** | Cross-domain transport: `ServiceDiscovery:Provider=dapr` (`DaprDomainDiscoveryProvider`, registry `appId` override → `vnext-app-partner`) · Dapr service invocation shell (`DaprRemoteTransport`) · cross-domain **SubFlow** start / `internal/subflow-forward` / parent resume (`ResumePipelineAsync`) · trigger task'ları **11 Start · 12 DirectTrigger · 13 GetInstanceData · 14 SubProcess · 15 GetInstances (`SetFilterSpec`) · 19 GetInstance** (`useDapr:true`, `config.domain:"partner"`) · fonksiyon descent'i `state` / `view` / `schema` / `authorize` (partner rol filtresi) / `data?extensions=` (`RemoteInstanceQueryAppService`) · `data` gövdesinin parent'ta kalması (pinlenmiş runtime kararı) | Cross-domain adres çözümlemesi Discovery HTTP'sinden Dapr Name Resolution'a taşındı (vnext `feature/dapr-name-resolution`, 2026-09-03); repoda hiç cross-domain örnek yoktu. İkinci domain (`partner/`, `vnext.partner.config.json`) ve üç-domain lokal lab (`labs/cross-domain/`) bu senaryoyla geldi. Plan: `labs/cross-domain/VNEXT-BUILD-PLAN.md` | `Tests/CrossDomainLab` (`SubflowDescentTests` 6, `TriggerTaskTests` 5) — `VNEXT_PARTNER_BASE_URL` yoksa **skip** | — (yük testi sonraki faz) | ✅ **Aktif — 11/11 yeşil** (2026-09-03, lab: üç domain de lokal `dapr-nr` imajları + Dapr 1.18.0, ~1.7 dk). Rollback tatbikatı `VNEXT_LAB_DISCOVERY_PROVIDER=http` ile de 11/11 (2026-09-04; `Remote*` düz HTTP `vnext-app-partner:5000`, `useDapr` task'ları Dapr'da). Bilinen: vnext-schema 0.0.52 `useDapr`'ı yalnız task 15/19'da tanır → `core/Tasks/cross-domain-lab/` 11/12/13/14 dosyaları `npm run validate`'te "then schema" hatası verir (runtime alanı okur, alan bilinçli korunuyor); `partner/` validate kapsamı dışında |
 
 <sup>1</sup> Gerekçe git geçmişinde kayıtlı değil (commit mesajı `updated`); senaryonun kendi
 içeriğinden çıkarıldı. Doğrusunu bilen varsa bu satırı düzeltsin.
@@ -41,6 +43,56 @@ içeriğinden çıkarıldı. Doğrusunu bilen varsa bu satırı düzeltsin.
 ## Senaryo Detayları
 
 Her senaryonun ayrıntısı kendi README'sinde / test sınıfının XML özetinde durur. Öne çıkanlar:
+
+### error-boundary-lab
+
+İki workflow (`error-boundary-lab`, `error-boundary-lab-global`) ve bir hub state üzerinden her
+boundary vakası ayrı transition. İkiye bölünmesinin sebebi yapısal: workflow seviyesi bir boundary
+**her** task için `HasAnyBoundary`'yi true yapar, dolayısıyla "hiçbir yerde boundary yok" kontrolü
+global boundary ile aynı akışta yaşayamaz. State seviyesi vakaları "zone" state'lerin `onEntries`'ine
+konur — runtime'ın baktığı state boundary'si `instance.CurrentState` üzerindedir ve OnExecute (30)
+ChangeState'ten (50) önce, OnEntry (60) sonra koşar.
+
+Hata enjeksiyonu iki kaynaktan: fırlatan script task (dış bağımlılık yok) ve MockLab
+(`api/eb-lab/fail-500`, `fail-503`, `flaky` = 500,500,200). MockLab kapalıyken yalnız iki retry testi
+skip olur.
+
+**Bu senaryonun bulup düzelttiği altı kusur** (hepsi vnext tarafında, `feature/incident-table`):
+
+1. `MoveInstanceIncidentsToTable` migration'ının iç foreign key'i `principalSchema: "public"` idi.
+   `MultiSchemaNpgsqlMigrationsSqlGenerator`, `CreateTableOperation`'ın **iç** FK'lerini yeniden
+   yazmadığı için her flow şemasının FK'si `public."Instances"`'ı gösterdi ve backfill 13 şemada
+   `23503` ile düştü. Düzeltme: `principalSchema: null` (repo'nun `Initial`'dan beri konvansiyonu).
+2. `LoadActiveIncidentsAsync`'in no-tracking dalı, satırları **başka bir DbContext'in izlediği**
+   aggregate'in EF navigation'ına ekliyordu; o context commit ederken onları yeni çocuk sanıp tekrar
+   INSERT ediyor, retry isteği `PK_InstanceIncidents` ihlaliyle patlıyor ve yanıt gövdesi yarıda
+   kesiliyordu. Düzeltme: yüklenen satırlar aggregate'in **detached** listesinde tutuluyor, detached
+   bir incident'ın resolve'u `IInstanceIncidentRepository.ResolveAllAsync` ile açıkça yazılıyor.
+3. Blok incident içeriğini gömüyordu: state function en sıcak okuma yolunda incident tablosunu
+   okuyor, geçmiş endpoint'inin verisini kopyalıyor ve bir bayatlık deliği taşıyordu (bir state'te A
+   resolve edilip B açılınca hiçbir fingerprint üyesi kımıldamadığı için client 304'te kalıp A'yı
+   göstermeye devam ediyordu). Düzeltme: blok artık yalnız bayrak + iki link taşıyor
+   (`ResponseShapeVersion` v9), `metadata.incident` de aynı şekle geçti; state function ve instance
+   GET'i hiç incident sorgusu atmıyor, liste görünümündeki batch sorgu kalktı (2026-09-07).
+4. Bir `abort` **iki** incident yazıyordu: boundary'nin verdict'i ve pipeline'ın fault için yazdığı
+   `Pipeline` katmanlı ikinci satır. Task step'i incident'ı save'den **sonra** eklediği için
+   `MarkInstanceFaultedAsync`'in taze UoW'daki yeniden yüklemesi `HasActiveIncident`'ı hâlâ false
+   görüyor ve fallback satırını yazıyordu. Sonuç: faulted instance'ta `incident.active` boundary
+   verdict'i taşımıyordu. Düzeltme: üç task step'i incident'ı **save'den önce** kaydediyor
+   (2026-09-07).
+5. Yeniden fault eden retry `Active` olarak yerleşiyordu. Retry isteği aggregate'i ambient request
+   scope'unda **tracked** yükleyip `Unfault()` uyguluyor, fault ise `RequiresNew` bir scope'ta
+   koşuyordu; istek sonundaki ambient commit kendi bayat Active'ini F'in üzerine yazıyor ve instance
+   bir daha retry edilemiyordu (`Instance:100027`). Düzeltme: no-tracking yükleme +
+   `IInstanceRepository.TryUnfaultAsync` CAS'ı (2026-09-07).
+6. Kurtulan instance hâlâ aktif incident bildiriyordu. `Unfault()` yalnız en yeni incident'ı
+   resolve ediyordu; `HasActiveIncident` fingerprint materyali olduğu için bayat sinyal long-poll
+   eden client'a da yansıyordu. Düzeltme: `Instance.ResolveOpenIncidents()` açık kümenin tamamını
+   kapatır, detached retry yolunda karşılığı `ResolveAllAsync` (2026-09-07).
+
+Hâlâ **ölçülüp pinlenen** iki davranış (`retryCount` her zaman 0; `ignore`/`log` incident yazmaz ve
+hook'un kalanını atlar — ikincisi doğru davranış olarak onaylandı) ve "değişirse ne yapılmalı"
+notları `tests/Core.IntegrationTests/Tests/ErrorBoundaryLab/README.md` içinde.
 
 ### chain-busy
 `chain-busy-root` (A) → `chain-busy-middle` (B) → `chain-busy-leaf` (C). Zincir tamamen auto
@@ -157,6 +209,27 @@ Detay: [`tests/Core.IntegrationTests/Tests/ScheduleAfterAuto/README.md`](tests/C
 
 ---
 
+### cross-domain-lab
+`core/xd-parent` bir zincir yürütür: `xd-subflow` (stateType 4, `process.domain: partner`) partner'da
+`xd-child`'ı başlatır; child `child-approve` (şema + `xd-approver` rolü) ile parent ÜZERİNDEN
+tamamlanır ve parent resume eder. Sonraki her manuel transition tek bir cross-domain task tipi taşır
+(14 → `xd-worker`, 11 → `xd-remote`, 12 `remote-advance`, 19+13 okuma, 15 `attributes.testId`
+filtresi), böylece kırmızı bir test tek bir task tipine işaret eder. Descent testleri parent'a
+sorup partner içeriğini bekler: `view` → `xd-child-review-view`, `schema` → `xd-child-approve`,
+`authorize` → child'ın rol kararı (200/403), `data?extensions=xd-child-ext` → partner extension'ı,
+gövde parent verisi (bilinçli pinlenmiş; runtime bunu değiştirirse test kırılır).
+
+Kritik detaylar: parent aktif subflow boyunca **yapısal olarak Busy** → testler gözlenen (leaf)
+state'i bekler; `child-approve` rol kısıtlı olduğu için state fonksiyonu **rolle** okunur (rolsüz
+okuma yalnız cancel girdilerini gösterir — bu bir hata değil, rol filtresidir). Partner bileşenleri
+harici-stack modunda SDK hook'u çağrılmadığı için `CrossDomainLabFixture`'da yayınlanır. Lab tarafında
+`nameformat` çözücüsü daprd 1.16.x'te yok; `appconfig` açıkça `mdns` pinler.
+
+Detay: [`tests/Core.IntegrationTests/Tests/CrossDomainLab/README.md`](tests/Core.IntegrationTests/Tests/CrossDomainLab/README.md)
+· lab: [`labs/cross-domain/README.md`](labs/cross-domain/README.md)
+
+---
+
 ## Çalıştırma
 
 ### Integration testler
@@ -224,3 +297,8 @@ python3 api-tests/fan-out-documents/fanout-load.py --publish --instances 20 --it
 | `future-pay` collateral subflow + parent resume bacağı | Bu leg'in resume davranışı assert edilmiyor | Domain'deki fault izole edildiğinde kapatılmalı |
 | `account-opening` konteynerli ortamda kırmızı | Wizard/branch kapsamı fiilen ölçülmüyor | `notify-state` / `set-or-get-cache` onEntry task'ları fault'luyor |
 | `data-integrity-lab` `run-parallel` hang | Paralel task veri bütünlüğü ölçülmüyor | 120s'te settle olmadığı doğrulandı |
+| Abort iki incident yazıyor | Faulted instance'ta `incident.active` pipeline satırıdır ve `boundaryAction` taşımaz; boundary verdict'i bir önceki satırdadır | `MarkInstanceFaultedAsync`'teki `!HasActiveIncident` guard'ı taze bir UoW'da yeniden yüklüyor, boundary'nin incident'ı orada görünmüyor. `Tests/ErrorBoundaryLab` pinliyor |
+| `incident.retryCount` her zaman 0 | Retry sayısı client'a hiç ulaşmıyor | Engine, retry policy'yi boundary aksiyon sonucuna iliştirmiyor; deneme sayısı yalnız instance verisinden okunabiliyor |
+| `ignore`/`log` incident yazmıyor ve hook'un kalanını atlıyor | Dokümante edilen "informational, resolved incident" niyeti gerçekleşmiyor; aksiyondan sonraki task'lar koşmuyor | Devam-tipi sonuç boundary aksiyonu iliştirmeden dönüyor, pipeline step incident yazan dala girmiyor |
+| Kurtulan instance hâlâ aktif incident bildiriyor | Başarılı retry sonrası `hasActiveIncident` true kalıyor (abort iki incident bırakıyor, `Unfault()` yalnız birini resolve ediyor) | "Neden takıldı?" ekranı sağlıklı instance'ta bayat sebep gösterir |
+| Yeniden fault eden retry'dan sonra statü yanıtla çelişiyor | Retry gövdesi `"status":"F"` derken instance `Active` yerleşiyor ve artık `retry` edilemiyor (`Instance:100027`) | Ambient scope'un bayat Active'i, `RequiresNew` scope'un yazdığı Faulted'ı eziyor (retry yolunda cross-UoW last-writer-wins) |
