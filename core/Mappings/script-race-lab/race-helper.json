@@ -1,0 +1,17 @@
+{
+  "key": "race-helper",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-race-lab"
+  ],
+  "attributes": {
+    "name": "RaceHelper",
+    "location": "./src/RaceHelper.csx",
+    "code": "using System;\n\nnamespace Acme.Helpers;\n\n/// <summary>\n/// Global helper for the script-race-lab fixture.\n/// <para>\n/// Its body is irrelevant; its existence is the point. A workflow that declares\n/// <c>scripts.helpers</c> makes every script it compiles share the helper set's\n/// singleton-lifetime AssemblyLoadContext, and a shared context cannot hold two assemblies with\n/// the same simple name \u2014 which is the collision the fixture reproduces.\n/// </para>\n/// </summary>\npublic static class RaceHelper\n{\n    /// <summary>Deterministic stamp, so a test can assert the helper really resolved.</summary>\n    public static string Stamp(string testId) => \"race:\" + (testId ?? \"none\");\n}\n",
+    "encoding": "NAT"
+  }
+}
