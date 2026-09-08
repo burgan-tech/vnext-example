@@ -29,6 +29,7 @@ On kosullar: orchestration (4201) + execution (4202) host'lari ve docker altyapi
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -37,7 +38,8 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 DOMAIN = "core"
 ROOT_WF = "chain-busy-root"
 MIDDLE_WF = "chain-busy-middle"
@@ -198,10 +200,14 @@ def run_iteration(it):
 
 
 def main():
+    global BASE
     ap = argparse.ArgumentParser()
     ap.add_argument("--iterations", type=int, default=5)
     ap.add_argument("--publish", action="store_true", help="calistirmadan once flow'lari publish et")
+    ap.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
     args = ap.parse_args()
+    BASE = args.base_url.rstrip("/") + "/api/v1"
 
     print("=" * 72)
     print("Accept-time SubFlow chain reserve testi — chain-busy A -> B -> C")

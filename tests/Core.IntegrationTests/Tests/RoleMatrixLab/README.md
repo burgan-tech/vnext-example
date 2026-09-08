@@ -93,7 +93,8 @@ dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~RoleMatrixL
 ```
 
 Lokal runtime'a bağlamak için (geliştirme sırasında doğru yol — container image eski kodu taşır)
-`tests/Core.IntegrationTests/test.runsettings` içindeki satırı yorumdan çıkar:
+`tests/Core.IntegrationTests/test.runsettings` içindeki satırın set olduğunu doğrula (repoda commit'li;
+farklı port için git-ignore'lu `test.runsettings.local`):
 
 ```xml
 <VNEXT_BASE_URL>http://localhost:4201</VNEXT_BASE_URL>

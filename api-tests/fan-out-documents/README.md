@@ -173,7 +173,8 @@ MockLab seed'i `etc/docker/config/seed/fan-out-documents-collection.json` içerm
 
 > **Runtime sürümü.** FanOutTask henüz release edilmedi. Container image'ı **eski kodu taşır**;
 > senaryoyu lokalde derlenen runtime'a karşı koşun. Integration testler için
-> `tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL`'i açın.
+> `tests/Core.IntegrationTests/test.runsettings` içindeki `VNEXT_BASE_URL` (repoda commit'li) lokal
+> orchestrator'ı göstermeli; farklı port için git-ignore'lu `test.runsettings.local` kullanın.
 
 > **`npm run validate` bu senaryoda BAŞARISIZ** — `@burgan-tech/vnext-schema@0.0.52` enum'u
 > `"20"`de bittiği için `attributes.type: "21"` reddediliyor. Bileşen doğru; şema paketi release
