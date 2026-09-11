@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "subflow-orchestration",
@@ -181,6 +181,57 @@
               {
                 "language": "en-US",
                 "label": "Proceed to SubFlow"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "enter-interaction",
+            "target": "child-interaction-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter Interaction State"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-interaction-state",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Interaction State"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "interaction": {
+          "longPoll": {
+            "terminate": true,
+            "fallbackTimeoutSeconds": 10,
+            "roles": []
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "leave-interaction",
+            "target": "child-manual-state",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Leave Interaction State"
               }
             ],
             "onExecutionTasks": []

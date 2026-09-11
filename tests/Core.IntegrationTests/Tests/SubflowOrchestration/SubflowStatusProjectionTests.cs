@@ -283,4 +283,107 @@ public class SubflowStatusProjectionTests : WorkflowTestBase
         Assert.Equal(HttpStatusCode.OK, pollStatus);
         Assert.Equal("C", Parse(body).GetProperty("status").GetString());
     }
+
+    // ── the interaction signal, seen from the level the client polls ─────────
+
+    /// <summary>
+    /// The client polls the PARENT and never learns which level it is talking to — so an
+    /// interaction declared deep in the chain has to arrive in the parent's own body, with an ack
+    /// href addressed to the instance the client is holding. The signal is also independent of the
+    /// status: the child pauses in Busy while the acknowledgement is pending, and "busy" is exactly
+    /// when the client must stop polling and render, not when it should keep waiting.
+    /// </summary>
+    [Fact]
+    public async Task TheChildsInteractionSignal_ArrivesOnTheParentsPoll_WithAnAckHrefForTheParent()
+    {
+        var parentId = await StartAndRestInTheChildAsync("interaction");
+        await WarmTheCacheAndTakeTheEtagAsync(parentId);
+
+        await AcceptAsync(parentId, "enter-interaction");
+        await WaitForObservedStateAsync(Parent, parentId, "child-interaction-state");
+
+        var (status, _, body) = await PollStateAsync(Parent, parentId);
+        Assert.Equal(HttpStatusCode.OK, status);
+        var state = Parse(body);
+
+        var interaction = state.GetProperty("interaction");
+        Assert.True(interaction.GetProperty("terminateLongPoll").GetBoolean(),
+            "the child's long-poll termination signal never reached the parent's body");
+        Assert.Equal(10, interaction.GetProperty("fallbackTimeoutSeconds").GetInt32());
+
+        // Addressed to the instance being polled, not to the child that declared it.
+        var ackHref = interaction.GetProperty("ack").GetProperty("href").GetString() ?? "";
+        Assert.Contains(parentId, ackHref);
+        Assert.EndsWith("/longpoll/ack", ackHref);
+
+        // Independent of status: the pause holds the chain Busy and the signal stands anyway.
+        Assert.Equal("child-interaction-state", state.GetProperty("state").GetString());
+        Assert.Equal("B", state.GetProperty("status").GetString());
+    }
+
+    /// <summary>
+    /// The same signal for a client that is actually long-polling — asleep on the ETag it took
+    /// while the chain was idle. If that poll answered 304, the client would keep waiting through
+    /// the very state whose whole purpose is to tell it to stop.
+    /// </summary>
+    [Fact]
+    public async Task ALongPollerHoldingTheIdleEtag_IsWokenByTheInteractionState()
+    {
+        var parentId = await StartAndRestInTheChildAsync("interaction-etag");
+        var idleEtag = await WarmTheCacheAndTakeTheEtagAsync(parentId);
+
+        await AcceptAsync(parentId, "enter-interaction");
+        await WaitForObservedStateAsync(Parent, parentId, "child-interaction-state");
+
+        var (status, _, body) = await PollStateAsync(Parent, parentId, idleEtag);
+
+        Assert.Equal(HttpStatusCode.OK, status);
+        Assert.True(Parse(body).GetProperty("interaction").GetProperty("terminateLongPoll").GetBoolean());
+    }
+
+    /// <summary>
+    /// Acknowledging on the parent — the only instance the client knows — resumes the paused
+    /// pipeline two levels down and the chain comes back to Active without leaving the state.
+    /// </summary>
+    [Fact]
+    public async Task AcknowledgingOnTheParent_ResumesThePausedChild()
+    {
+        var parentId = await StartAndRestInTheChildAsync("interaction-ack");
+        await AcceptAsync(parentId, "enter-interaction");
+        await WaitForObservedStateAsync(Parent, parentId, "child-interaction-state");
+
+        var (_, _, body) = await PollStateAsync(Parent, parentId);
+        var ackHref = Parse(body).GetProperty("interaction").GetProperty("ack")
+            .GetProperty("href").GetString()!;
+
+        var (ackStatus, ackBody) = await SendRawAsync(HttpMethod.Post, ToAbsolute(ackHref), null, Headers());
+        Assert.True((int)ackStatus < 400, $"the acknowledge was refused with {(int)ackStatus}: {ackBody}");
+
+        await WaitForObservedStatusAsync(parentId, "A", TimeSpan.FromSeconds(30));
+        Assert.Equal("child-interaction-state", (await GetObservedStateAsync(Parent, parentId)).State);
+    }
+
+    /// <summary>
+    /// And when nobody acknowledges, the declared fallback window resumes it anyway — the pause is
+    /// a courtesy to the client, never a way for a client that walked away to strand the chain.
+    /// </summary>
+    [Fact]
+    public async Task TheFallbackWindow_ResumesTheChain_WhenNobodyAcknowledges()
+    {
+        var parentId = await StartAndRestInTheChildAsync("interaction-fallback");
+        await AcceptAsync(parentId, "enter-interaction");
+        await WaitForObservedStateAsync(Parent, parentId, "child-interaction-state");
+
+        // fallbackTimeoutSeconds is 10 on this state; allow generous slack for the scheduler.
+        await WaitForObservedStatusAsync(parentId, "A", TimeSpan.FromSeconds(60));
+
+        Assert.Equal("child-interaction-state", (await GetObservedStateAsync(Parent, parentId)).State);
+    }
+
+    /// <summary>Hrefs in the body are api-version-relative; the raw client needs the full path.</summary>
+    private static string ToAbsolute(string href)
+    {
+        var trimmed = href.TrimStart('/');
+        return trimmed.StartsWith("api/", StringComparison.Ordinal) ? trimmed : $"api/v1/{trimmed}";
+    }
 }

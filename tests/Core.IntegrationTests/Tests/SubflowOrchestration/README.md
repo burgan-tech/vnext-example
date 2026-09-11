@@ -7,7 +7,7 @@ Two test classes over the same three-level reference chain
 |---|---|
 | `SubflowOrchestrationTests` | The chain itself: the collect gate, subflow start, the full lifecycle unwind, the parent's `$self` shared transition, `updateData` data-only short-circuit, cancel. |
 | `SubStateRelayTests` | The parent's **`effectiveState`** — how far a descendant's state travels up the chain, and the ordering guard that protects it. |
-| `SubflowStatusProjectionTests` | The **status** half of the same projection, and the conditional GET that carries it: what a long-polling client observes from its own 202 until the chain completes. |
+| `SubflowStatusProjectionTests` | The **status** half of the same projection, the conditional GET that carries it, and the **interaction** signal a descendant raises: what a long-polling client observes from its own 202 until the chain completes. |
 
 ---
 
@@ -178,15 +178,46 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 ### Pass criterion
 
-All 7 green. Three of them are the regression guards and were verified red against a runtime built
+All 11 green. Five of them are the regression guards and were verified red against a runtime built
 from `master` (`e1205b82`) on 2026-09-11, immediately before and after the same test run on the
 fixed runtime:
 
 | Test | On `master` |
 |---|---|
 | `ThePollRightAfterAn202_SeesBusy_AndNoLongerOffersTheAcceptedTransition` | **red** — `Expected: "B", Actual: "A"` (the preprod defect, reproduced locally) |
-| `AClientHoldingTheIdleEtag_IsNotToldNotModified_AfterItAcceptsATransition` | **red** |
+| `AClientHoldingTheIdleEtag_IsNotToldNotModified_AfterItAcceptsATransition` | **red** — `Expected: OK, Actual: NotModified` |
 | `AStatusOnlyEpisode_MovesTheEtagForALongPoller` | **red** — `Expected: OK, Actual: NotModified` |
+| `AcknowledgingOnTheParent_ResumesThePausedChild` | **red** — the chain never comes back to Active for a poller |
+| `TheFallbackWindow_ResumesTheChain_WhenNobodyAcknowledges` | **red** — same |
+
+### The interaction signal
+
+Four of the eleven cover `interaction.longPoll` from the seat that matters: the client polls the
+**parent** and never learns which level it is talking to, so a signal declared two levels down has
+to arrive in the parent's own body with an ack href addressed to the instance the client is
+holding.
+
+`child-interaction-state` was added to the child flow for this (`enter-interaction` from
+`child-manual-state`, `leave-interaction` back; `terminate: true`, `fallbackTimeoutSeconds: 10`).
+Both flows were patch-bumped to 1.0.1 — publishing is version-immutable — and the parent's subflow
+reference moved with them.
+
+What they pin:
+
+- The signal is **independent of the status**. The pipeline pauses on entry, so the chain is Busy
+  while the acknowledgement is pending — and Busy is exactly when the client must stop polling and
+  render, not when it should keep waiting. One single response is asserted for `terminateLongPoll`,
+  the fallback window, the ack href and `status: "B"`.
+- A long-poller asleep on the idle ETag is **woken** by the interaction state. A 304 there would
+  make the client wait through the very state whose purpose is to tell it to stop.
+- Acknowledging **on the parent** resumes the paused child two levels down.
+- The fallback window resumes it when nobody acknowledges — a client that walked away cannot
+  strand the chain.
+
+The last two were red on `master`, for the reason this whole change exists: the child resumes and
+settles **in the state it was already in**, so nothing was published, the parent's fingerprint never
+moved, and the poller kept being served a Busy body with no later event able to correct it. The
+long-poll interaction path is therefore the most user-visible instance of the missing release.
 
 ### What is deliberately NOT asserted
 

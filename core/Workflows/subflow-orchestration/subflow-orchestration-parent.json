@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "subflow-orchestration",
@@ -182,7 +182,7 @@
           "process": {
             "key": "subflow-orchestration-child",
             "domain": "core",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "flow": "sys-flows"
           },
           "mapping": {
