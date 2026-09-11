@@ -7,6 +7,7 @@ Two test classes over the same three-level reference chain
 |---|---|
 | `SubflowOrchestrationTests` | The chain itself: the collect gate, subflow start, the full lifecycle unwind, the parent's `$self` shared transition, `updateData` data-only short-circuit, cancel. |
 | `SubStateRelayTests` | The parent's **`effectiveState`** — how far a descendant's state travels up the chain, and the ordering guard that protects it. |
+| `SubflowStatusProjectionTests` | The **status** half of the same projection, and the conditional GET that carries it: what a long-polling client observes from its own 202 until the chain completes. |
 
 ---
 
@@ -110,3 +111,96 @@ with no broker latency or replica contention; they are not a production percenti
 - `InstancesCorrelations.ModifiedAt` is **not** refreshed when only the sub-state columns are
   written, so it cannot be used as an "applied at" timestamp for a DB-side latency probe. Use the
   APM spans.
+
+---
+
+## `SubflowStatusProjectionTests`
+
+### What it checks
+
+A client polling a parent sees the chain's **status** move the moment the chain moves — on the
+unconditional poll and, above all, on the conditional one it is actually long-polling with.
+
+### Why it exists
+
+Preprod, 2026-09-10, trace `0dbc92d9a7b2015c6daef80fff232272` (instance
+`7212ed29-09da-48f6-a645-0ba97353a652`, runtime 0.0.92): an async transition on a parent inside an
+active subflow answered 202, and the client's next `GET …/functions/state` returned the
+**pre-transition body** — `status: "A"`, the old state, and the transition it had just accepted
+still listed. The client followed that body's `hasView: true`, asked for the view, and got a 404
+(`View definition not found for state kyc-main-form`). The served body had been built **142 seconds**
+earlier.
+
+Two defects behind it:
+
+1. **Nothing the accept writes was visible to the poller's validation.** The accept reserves the
+   chain correctly — the leaf goes Active → Busy under the status lock before the 202 commits — but
+   a parent holding an open SubFlow correlation is Busy for that subflow's whole lifetime by design,
+   its correlation rows are untouched, and `SubFlowStateChangedAt` moves only when the child reports
+   a state change. The parent's state fingerprint was therefore bit-identical before and after, and
+   the active-subflow snapshot cached against it (`#928`) stayed valid across exactly the transition
+   it must not survive. Fixed by `Instance.EffectiveStatus` — the client-visible status, folded into
+   `InstanceStateFingerprint` and the ETag material, maintained by the busy walk on the way down.
+2. **The release had no way up when the state did not change.** A `$self` shared transition (here
+   `shared-child-mark`) brings the child to rest in the state it started in; `ChangeState` arms
+   nothing when previous == new, so the rest point published nothing and every ancestor the accept
+   had stamped Busy stayed Busy — with no later event to correct it. The settlement's own
+   Busy→Active CAS is now a second reason to publish, and the notification carries the sub-item's
+   status plus a per-instance sequence that orders it without a wall clock.
+
+The TTL that was supposed to bound the staleness does not exist in practice: Aether's Dapr cache
+provider truncates a sub-second TTL to `0` seconds and then omits the metadata entirely, so the
+"500 ms" snapshot is written with no expiry at all. Correctness here rests on the fingerprint, not
+on a TTL.
+
+### The chain and the critical step
+
+```
+parent  parent-subflow-state   (SubFlow state, Busy for the child's lifetime)
+ └─ child  child-manual-state  (Active, waiting for a human)   ← every test starts here
+     ├─ proceed-to-subflow  → child-subflow-state → grandchild grandchild-initial
+     └─ shared-child-mark   → $self, same state, status B→A    ← the status-only rest point
+```
+
+The critical step is **the poll immediately after the 202**. A warm cache entry is the precondition,
+not an accident: `WarmTheCacheAndTakeTheEtagAsync` makes sure a response built before the accept is
+sitting in the state-function cache, which is the only condition under which the defect appears.
+
+### How to run
+
+Prerequisites: the runtime under test built from the `vnext` working tree and running
+(`cd ../vnext/etc/docker && ./run-docker.sh up core`). MockLab is **not** needed — these flows have
+no HTTP tasks. `VNEXT_BASE_URL` is already committed in `test.runsettings`.
+
+```bash
+dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/test.runsettings --filter "FullyQualifiedName~SubflowStatusProjectionTests" -v minimal
+```
+
+### Pass criterion
+
+All 7 green. Three of them are the regression guards and were verified red against a runtime built
+from `master` (`e1205b82`) on 2026-09-11, immediately before and after the same test run on the
+fixed runtime:
+
+| Test | On `master` |
+|---|---|
+| `ThePollRightAfterAn202_SeesBusy_AndNoLongerOffersTheAcceptedTransition` | **red** — `Expected: "B", Actual: "A"` (the preprod defect, reproduced locally) |
+| `AClientHoldingTheIdleEtag_IsNotToldNotModified_AfterItAcceptsATransition` | **red** |
+| `AStatusOnlyEpisode_MovesTheEtagForALongPoller` | **red** — `Expected: OK, Actual: NotModified` |
+
+### What is deliberately NOT asserted
+
+- **The column.** `EffectiveStatus` is fingerprint material and is never served; asserting it would
+  pin an implementation detail the runtime intends to keep private. Everything here is asserted
+  through what a client can see: the state function's `status`, its `transitions` list and its ETag.
+- **Latency.** Same reasoning as `SubStateRelayTests`: these are guarantees, not percentiles.
+
+### Known limits
+
+- The two tests that assert only "the chain returns to Active"
+  (`TheChainReturnsToActive_…`, `AnEpisodeThatChangesNoState_StillReleasesTheChain`) also pass on
+  `master`, because the observed status is served from a LIVE descent whenever the cache misses.
+  They pin the behaviour, not the fix — the ETag variants are the regression guards.
+- `RunAcceptedAsync` cannot be used on a chain: it waits for the addressed instance to leave Busy,
+  and a parent with an open correlation never does. These tests use a local `AcceptAsync` plus an
+  observed-state/status wait.

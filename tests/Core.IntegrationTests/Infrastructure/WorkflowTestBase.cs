@@ -190,6 +190,29 @@ public abstract class WorkflowTestBase : IntegrationTestBase
                 response.Body.GetProperty("status").GetString() ?? "");
     }
 
+    /// <summary>
+    /// The state function exactly as a long-polling client calls it: the raw status code, the
+    /// <c>ETag</c> and the body. Nothing else here can express the conditional GET —
+    /// <see cref="GetObservedStateAsync"/> goes through the SDK client, which neither sends
+    /// <c>If-None-Match</c> nor returns the response headers, so a 304 is invisible to it.
+    /// </summary>
+    /// <param name="ifNoneMatch">The ETag a client is holding; omit for an unconditional poll.</param>
+    /// <returns>Status, the ETag the runtime answered with (null on 304 without one), and the raw
+    /// body (empty on 304).</returns>
+    protected async Task<(HttpStatusCode Status, string? ETag, string Body)> PollStateAsync(
+        string workflow, string instanceId, string? ifNoneMatch = null, string? roles = null)
+    {
+        using var request = new HttpRequestMessage(
+            HttpMethod.Get, $"api/v1/core/workflows/{workflow}/instances/{instanceId}/functions/state");
+        foreach (var (key, value) in Headers(roles)) request.Headers.TryAddWithoutValidation(key, value);
+        if (!string.IsNullOrEmpty(ifNoneMatch)) request.Headers.TryAddWithoutValidation("If-None-Match", ifNoneMatch);
+
+        using var response = await _raw.SendAsync(request);
+        var etag = response.Headers.ETag?.ToString()
+                   ?? (response.Headers.TryGetValues("ETag", out var values) ? values.FirstOrDefault() : null);
+        return (response.StatusCode, etag, await response.Content.ReadAsStringAsync());
+    }
+
     /// <summary>Instance data (attributes) — where task output lands.</summary>
     protected async Task<JsonElement> GetAttributesAsync(string workflow, string instanceId, string? roles = null)
     {
