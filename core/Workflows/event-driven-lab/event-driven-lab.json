@@ -1,0 +1,113 @@
+{
+  "key": "event-driven-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "event-driven-lab",
+    "event",
+    "pubsub",
+    "tracing"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Event Driven Lab"
+      }
+    ],
+    "functions": [],
+    "extensions": [],
+    "event": {
+      "mapping": {
+        "location": "./src/StartEventMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFdvcmtmbG93LWxldmVsIGV2ZW50IG1hcHBpbmc6IHR1cm5zIGEgcmF3IGJyb2tlciBtZXNzYWdlIGludG8gYSBuZXcgaW5zdGFuY2UuCi8vLyA8cGFyYT4KLy8vIFJlYWNoZWQgdGhyb3VnaCA8Yz5QT1NUIC4uLi9pbnN0YW5jZXMvZXZlbnRzP2FjdGlvbj1zdGFydDwvYz4sIHdoaWNoIGEgRGFwciBTdWJzY3JpcHRpb24gcm91dGVzCi8vLyB0byBmcm9tIHRoZSB0b3BpYy4gVGhlIHJ1bnRpbWUgaGFzIGFscmVhZHkgdW53cmFwcGVkIHRoZSBDbG91ZEV2ZW50IGVudmVsb3BlLCBzbwovLy8gPGM+Y29udGV4dC5FdmVudFBheWxvYWQ8L2M+IGlzIHRoZSBtZXNzYWdlIHRoZSBwdWJsaXNoZXIgYWN0dWFsbHkgc2VudC4KLy8vIDwvcGFyYT4KLy8vIDxwYXJhPgovLy8gPGM+SW5zdGFuY2VLZXk8L2M+IGlzIHRoZSBjb3JyZWxhdGlvbiBjb250cmFjdCBmb3IgZXZlcnl0aGluZyB0aGF0IGZvbGxvd3M6IHRoZSBhcHByb3ZlIGV2ZW50Ci8vLyBsYXRlciBmaW5kcyB0aGlzIGluc3RhbmNlIGJ5IGV4YWN0bHkgdGhpcyB2YWx1ZSwgc28gaXQgbXVzdCBjb21lIGZyb20gdGhlIHBheWxvYWQgYW5kIG5vdCBiZQovLy8gZ2VuZXJhdGVkIGhlcmUuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTdGFydEV2ZW50TWFwcGluZyA6IElFdmVudE1hcHBpbmcKewogICAgcHVibGljIGFzeW5jIFRhc2s8RXZlbnRNYXBwaW5nUmVzdWx0PiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgcGF5bG9hZCA9IGNvbnRleHQuRXZlbnRQYXlsb2FkOwoKICAgICAgICByZXR1cm4gYXdhaXQgVGFzay5Gcm9tUmVzdWx0KG5ldyBFdmVudE1hcHBpbmdSZXN1bHQKICAgICAgICB7CiAgICAgICAgICAgIEluc3RhbmNlS2V5ID0gKHN0cmluZylwYXlsb2FkLm9yZGVySWQsCiAgICAgICAgICAgIEJvZHkgPSBuZXcKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgb3JkZXJJZCA9IChzdHJpbmcpcGF5bG9hZC5vcmRlcklkLAogICAgICAgICAgICAgICAgYW1vdW50ID0gcGF5bG9hZC5hbW91bnQsCiAgICAgICAgICAgICAgICAvLyBQcm92ZXMgdGhlIGluc3RhbmNlIHdhcyBjcmVhdGVkIGJ5IHRoZSBldmVudCBwYXRoIHJhdGhlciB0aGFuIGJ5IGFuIEhUVFAgc3RhcnQuCiAgICAgICAgICAgICAgICBzdGFydGVkQnkgPSAiZXZlbnQiLAogICAgICAgICAgICAgICAgYXBwcm92YWxzID0gMAogICAgICAgICAgICB9CiAgICAgICAgfSk7CiAgICB9Cn0K"
+      }
+    },
+    "startTransition": {
+      "key": "start-event-driven-lab",
+      "target": "awaiting-approval",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Event Driven Lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "awaiting-approval",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting Approval"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "approve-by-event",
+            "target": "approved",
+            "triggerType": 3,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve By Event"
+              }
+            ],
+            "event": {
+              "mapping": {
+                "location": "./src/ApproveEventMapping.csx",
+                "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFRyYW5zaXRpb24tbGV2ZWwgZXZlbnQgbWFwcGluZyBmb3IgPGM+YXBwcm92ZS1ieS1ldmVudDwvYz4gKDxjPnRyaWdnZXJUeXBlOiAzPC9jPikuCi8vLyA8cGFyYT4KLy8vIENvcnJlbGF0ZXMgYnkgYnVzaW5lc3Mga2V5OiB0aGUgcnVudGltZSBsb29rcyB1cCB0aGUgQUNUSVZFIGluc3RhbmNlIHdob3NlIGtleSBlcXVhbHMKLy8vIDxjPkluc3RhbmNlS2V5PC9jPi4gTm8gbWF0Y2ggaXMgYSBub3JtYWwgYW5zd2VyIOKAlCB0aGUgZW5kcG9pbnQgYWNrcyBzbyB0aGUgYnJva2VyIGRvZXMgbm90Ci8vLyByZWRlbGl2ZXIgZm9yZXZlciDigJQgd2hpY2ggaXMgd2h5IHRoZSB0ZXN0IGFzc2VydHMgb24gdGhlIGluc3RhbmNlIHJhdGhlciB0aGFuIG9uIHRoZSByZXNwb25zZS4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEFwcHJvdmVFdmVudE1hcHBpbmcgOiBJRXZlbnRNYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPEV2ZW50TWFwcGluZ1Jlc3VsdD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHBheWxvYWQgPSBjb250ZXh0LkV2ZW50UGF5bG9hZDsKCiAgICAgICAgcmV0dXJuIGF3YWl0IFRhc2suRnJvbVJlc3VsdChuZXcgRXZlbnRNYXBwaW5nUmVzdWx0CiAgICAgICAgewogICAgICAgICAgICBJbnN0YW5jZUtleSA9IChzdHJpbmcpcGF5bG9hZC5vcmRlcklkLAogICAgICAgICAgICBCb2R5ID0gbmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGRlY2lzaW9uID0gKHN0cmluZylwYXlsb2FkLmRlY2lzaW9uLAogICAgICAgICAgICAgICAgYXBwcm92ZWRCeSA9IChzdHJpbmcpcGF5bG9hZC5hcHByb3ZlZEJ5CiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgIH0KfQo="
+              }
+            },
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "event-lab-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/RecordApprovalMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBXcml0ZXMgd2hhdCB0aGUgZXZlbnQgY2FycmllZCBpbnRvIGluc3RhbmNlIGRhdGEsIHNvIHRoZSB0ZXN0IGNhbiBhc3NlcnQgdGhhdCB0aGUgdHJhbnNpdGlvbiByYW4KLy8vIHdpdGggdGhlIG1hcHBlZCBib2R5IHJhdGhlciB0aGFuIG1lcmVseSB0aGF0IHRoZSBzdGF0ZSBtb3ZlZC4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFJlY29yZEFwcHJvdmFsTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGJvZHkgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGJvZHkuYXBwcm92YWxzID0gMTsKICAgICAgICBib2R5LmRlY2lzaW9uID0gY29udGV4dC5Cb2R5Py5kZWNpc2lvbjsKICAgICAgICBib2R5LmFwcHJvdmVkQnkgPSBjb250ZXh0LkJvZHk/LmFwcHJvdmVkQnk7CgogICAgICAgIHJldHVybiBhd2FpdCBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGJvZHkgfSk7CiAgICB9CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgICAgID0+IGF3YWl0IFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5Cb2R5IH0pOwp9Cg=="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "approved",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Approved"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
