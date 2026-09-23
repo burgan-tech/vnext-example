@@ -51,10 +51,11 @@ public sealed class LongPollOverrideTests : SubflowOverrideLabTestBase
     }
 
     /// <summary>
-    /// The window the body reports must be the window the job was ARMED with. It is not persisted
-    /// anywhere readable (the long-poll ack <c>InstanceJobs</c> row has no <c>ExecuteAt</c>, and the
-    /// Dapr job is scheduled directly), so it is measured by behaviour: a 5 s override on a 600 s child
-    /// must resume the child — token cleared, interaction gone, status Active — within seconds.
+    /// The window the body reports must be the window the job was ARMED with. Since runtime
+    /// <c>5f60ab4b</c> the long-poll ack <c>InstanceJobs</c> row carries <c>ExecuteAt</c>, but no read
+    /// surface exposes it and this suite has no database access, so it is measured by behaviour — which
+    /// is also the stronger claim (the job actually fires, not just was scheduled): a 5 s override on a
+    /// 600 s child must resume the child — token cleared, interaction gone, status Active — within seconds.
     /// </summary>
     [Fact]
     public async Task TheArmedFallbackJobFiresOnTheParentsWindow()

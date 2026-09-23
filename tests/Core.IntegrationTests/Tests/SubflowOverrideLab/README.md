@@ -96,10 +96,16 @@ Loglar (20300/20305/20101) ve persist edilen satırlar test dışında kontrol e
   `must NOT have additional property "interaction"` / `"views"` ile düşer. SDK JSON'u doğrudan
   `/definitions/publish`'e gönderdiği için test engeli değil. Şema değişikliği yerel bir vnext-schema
   dalında, yayınlanmadı.
-- **Pencere kalıcı olarak okunamıyor:** long-poll ack `InstanceJobs` satırı (`JobType 4`,
-  `…longpoll-ack`) `ExecuteAt` taşımıyor (`HandleLongPollTerminationStep.ScheduleFallbackAsync`
-  `InstanceJob.Create`'e `executeAt` geçmiyor) ve Dapr job'u `directly: true` ile planlanıyor. Pencere bu
-  yüzden davranışsal ölçülür: işlenen job satırının `ModifiedAt − CreatedAt` farkı ve 5 s testi.
+- **Pencere API'den okunamıyor:** runtime `5f60ab4b` ile long-poll ack `InstanceJobs` satırı
+  (`JobType 4`, `…longpoll-ack`) artık `ExecuteAt` taşıyor — Dapr job'unun kurulduğu anın aynısı, etkin
+  pencereden (child'ın kendi değeri ya da parent override'ı). Ancak hiçbir okuma yüzeyi bu satırı
+  göstermiyor ve suite'in veritabanı erişimi yok; test bu yüzden davranışsal ölçümü korur (5 s testi:
+  job'un gerçekten ateşlendiğini kanıtlar, yalnız planlandığını değil). Önceki runtime'da (`e7cb023c`)
+  `ExecuteAt` NULL'dı ve pencere işlenen satırın `ModifiedAt − CreatedAt` farkından ölçülmüştü
+  (120.2 s / 5.1 s). Postgres doğrulaması (2026-09-23, `subflow_override_lab_child.InstanceJobs`,
+  `JobType=4`): düzeltme öncesi 22 satırın 0'ında `ExecuteAt` dolu, düzeltme sonrası 10/10 dolu;
+  `ExecuteAt − CreatedAt` = 600.0 / 120.0 / 5.0 s (child'ın kendi penceresi / parent override / kısa
+  override).
 
 ## Koşu kaydı
 
