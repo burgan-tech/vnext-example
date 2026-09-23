@@ -1,0 +1,143 @@
+{
+  "key": "timeout-lab-root",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "timeout-lab",
+    "workflow-timeout",
+    "state-function"
+  ],
+  "attributes": {
+    "_comment": "A workflow-level timeout short enough to fire inside a test run. Nothing else in this repo could exercise one: the only two authored timeouts are PT15M. The instance parks in root-waiting doing nothing, so the deadline is the only thing that moves it — which is what lets a test assert both halves of the contract in one run: the state function's `timeout` block while it is pending, and the instance actually landing on `target` when it fires. NOTE the duration is an absolute budget from START, not an idle window: timer.reset is required by the schema and read nowhere in the runtime.",
+    "type": "F",
+    "timeout": {
+      "key": "root-abandoned",
+      "target": "root-timedout",
+      "versionStrategy": "Minor",
+      "timer": {
+        "reset": "never",
+        "duration": "PT20S"
+      }
+    },
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Timeout Lab — root flow with a workflow-level timeout"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-timeout-lab-root",
+      "target": "root-waiting",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Timeout Lab Root"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "root-waiting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting (the timeout is the only thing that moves this)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "root-finish",
+            "target": "root-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish before the deadline"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "root-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "root-timedout",
+        "stateType": 3,
+        "subType": 8,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timed out (pulled here by the workflow timeout)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "root-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "cancel": {
+      "key": "cancel-timeout-lab-root",
+      "target": "root-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Timeout Lab Root"
+        }
+      ]
+    }
+  }
+}

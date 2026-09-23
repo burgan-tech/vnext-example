@@ -1,0 +1,18 @@
+{
+  "key": "ht-a-spawn-process",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": ["human-task-chain", "subprocess", "dapr"],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "partner",
+      "flow": "ht-d",
+      "version": "1.0.6",
+      "useDapr": true,
+      "timeoutSeconds": 30
+    }
+  }
+}

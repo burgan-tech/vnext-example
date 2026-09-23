@@ -1,0 +1,317 @@
+{
+  "key": "ht-a",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.6",
+  "tags": [
+    "human-task-chain",
+    "human-task",
+    "subflow",
+    "core"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Human Task Chain HT-A (core)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-ht-a",
+      "target": "ht-a-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel ht-a"
+        }
+      ],
+      "roles": [
+        {
+          "role": "ht-approver",
+          "grant": "allow"
+        },
+        {
+          "role": "ht-a-approver",
+          "grant": "allow"
+        },
+        {
+          "role": "ht-blocked",
+          "grant": "deny"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-ht-a",
+      "target": "ht-a-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ht-a"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ht-a-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-a initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-a-spawn-process",
+            "target": "ht-a-spawn",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-a: spawn a SubProcess"
+              }
+            ],
+            "rule": {
+              "location": "./src/SpawnProcessRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBGaXJlcyB0aGUgcm9vdCdzIFN1YlByb2Nlc3MgYnJhbmNoIHdoZW4gdGhlIHBheWxvYWQgYXNrcyBmb3IgaXQgKDxjPm1vZGUgPSAicHJvY2VzcyI8L2M+KS4KLy8vIEEgU3ViUHJvY2VzcyBpcyBmaXJlLWFuZC1mb3JnZXQ6IHRoZSByb290IGRvZXMgbm90IHdhaXQgZm9yIGl0IGFuZCBub3RoaW5nIHByb2plY3RzIGl0cyBzdGF0ZQovLy8gdXB3YXJkLCBzbyB0aGUgdHdvIGJlY29tZSBpbmRlcGVuZGVudCB1bml0cyBvZiB3b3JrIGFuZCB0aGUgbGlzdCBtdXN0IGNhcnJ5IEJPVEguCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTcGF3blByb2Nlc3NSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgc3Bhd24gPSBkYXRhICE9IG51bGwKICAgICAgICAgICAgICAgICAgICAmJiBkYXRhLlRyeUdldFZhbHVlKCJtb2RlIiwgb3V0IHZhciBtb2RlKQogICAgICAgICAgICAgICAgICAgICYmIG1vZGUgIT0gbnVsbAogICAgICAgICAgICAgICAgICAgICYmIG1vZGUuVG9TdHJpbmcoKSA9PSAicHJvY2VzcyI7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiU3Bhd25Qcm9jZXNzUnVsZTogc3Bhd249e3NwYXdufSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoc3Bhd24pOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "ht-a-descend",
+            "target": "ht-a-subflow",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-a: descend to ht-b"
+              }
+            ],
+            "rule": {
+              "location": "./src/DescendRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEZXNjZW5kIHdoaWxlIGBob3BzYCBpcyBwb3NpdGl2ZS4gRXZlcnkgc3ViZmxvdyBtYXBwaW5nIGRlY3JlbWVudHMgaXQsIHNvIHRoZSBwYXlsb2FkJ3MgaW5pdGlhbAovLy8gdmFsdWUgYWxvbmUgZGVjaWRlcyB3aGljaCBsZXZlbCBlbmRzIHVwIGhvbGRpbmcgdGhlIGh1bWFuIHRhc2sg4oCUIHRoZSBkZWZpbml0aW9uIGNoYWluIGlzIHRoZQovLy8gc2FtZSBmb3IgYWxsIHRocmVlIHNjZW5hcmlvcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIERlc2NlbmRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgaG9wcyA9IDA7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJob3BzIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgaG9wcyk7CiAgICAgICAgfQoKICAgICAgICB2YXIgZGVzY2VuZCA9IGhvcHMgPiAwOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiRGVzY2VuZFJ1bGU6IGhvcHM9e2hvcHN9IGRlc2NlbmQ9e2Rlc2NlbmR9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChkZXNjZW5kKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "ht-a-to-human",
+            "target": "ht-a-human",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-a: rest in the human state"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-a-subflow",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-a subflow"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "ht-b",
+            "domain": "core",
+            "version": "1.0.6",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/HtaToNextSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gSGFuZHMgdGhlIGNoYWluIGRvd24gb25lIGxldmVsOiBkZWNyZW1lbnRzIGBob3BzYCwgY2FycmllcyBgdGVzdElkYCwgYW5kIGdpdmVzIHRoZSBjaGlsZCBpdHMgT1dOCi8vLyBodW1hblRhc2sgdGV4dC4gVGhlIGRpc3RpbmN0IHRleHQgcGVyIGxldmVsIGlzIHRoZSBwb2ludCDigJQgYSB0ZXN0IGNhbiB0aGVuIHRlbGwgd2hldGhlciB0aGUKLy8vIGxpc3RlZCB0aXRsZSBjYW1lIGZyb20gdGhlIGxlYWYgb3Igd2FzIHRha2VuIGZyb20gYW4gYW5jZXN0b3IuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBIdGFUb05leHRTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBob3BzID0gMDsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoImhvcHMiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBob3BzKTsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgY2hpbGRJbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgY2hpbGRJbnB1dC5ob3BzID0gaG9wcyAtIDE7CgogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgidGVzdElkIiwgb3V0IHZhciB0ZXN0SWQpICYmIHRlc3RJZCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgY2hpbGRJbnB1dC50ZXN0SWQgPSB0ZXN0SWQ7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIGh1bWFuVGFzayA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaHVtYW5UYXNrLnRpdGxlID0gIkhULUIgc3RlcCI7CiAgICAgICAgaHVtYW5UYXNrLmRlc2NyaXB0aW9uID0gIkhULUIgc3RlcCBkZXNjcmlwdGlvbiI7CiAgICAgICAgY2hpbGRJbnB1dC5odW1hblRhc2sgPSBodW1hblRhc2s7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiSHRhVG9OZXh0U3ViRmxvd01hcHBpbmc6IGRlc2NlbmRpbmcgdG8gSFQtQiB3aXRoIGhvcHM9e2hvcHMgLSAxfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNoaWxkSW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-a-subflow-done",
+            "target": "ht-a-completed",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-a: subflow finished"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-a-spawn",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-a spawn SubProcess"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-a-spawned",
+            "target": "ht-a-human",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-a: carry on after spawning"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ht-a-spawn-process",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/SpawnProcessMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFRhc2sgMTQgKFN1YlByb2Nlc3MpIG1hcHBpbmcgZm9yIGh0LWEtc3Bhd24tcHJvY2VzcyAtPiBwYXJ0bmVyL2h0LWQsIGZpcmUtYW5kLWZvcmdldCBvdmVyIERhcHIKLy8vIHNlcnZpY2UgaW52b2NhdGlvbi4gSXQgZ2V0cyBpdHMgT1dOIGhvcCBidWRnZXQsIGJlY2F1c2UgaXQgaXMgbm90IGEgY29udGludWF0aW9uIG9mIHRoZSByb290J3MKLy8vIGNoYWluIOKAlCBpdCBpcyBhIHNlcGFyYXRlIHVuaXQgb2Ygd29yayB0aGF0IG1heSBpdHNlbGYgZGVzY2VuZCB0aHJvdWdoIFN1YkZsb3dzLgovLy8gPC9zdW1tYXJ5PgovLy8gPHJlbWFya3M+Ci8vLyBBIHN0YXRlIGNhbiBubyBsb25nZXIgc3RhcnQgYSBTdWJQcm9jZXNzIGRpcmVjdGx5ICg8Yz5zdGF0ZS5zdWJGbG93LnR5cGU6ICJQIjwvYz4gaXMgcmVqZWN0ZWQgYXQKLy8vIHB1Ymxpc2ggYnkgdGhlIHJ1bnRpbWUncyB2YWxpZGF0b3Ig4oCUIGEgc3RhdGUgc3RhcnRzIGEgU3ViRmxvdyBhbmQgb25seSBhIFN1YkZsb3cpLiBTdWJQcm9jZXNzCi8vLyBzdGFydCBpcyBub3cgZXhwcmVzc2VkIGFzIHRoaXMgPGM+U3ViUHJvY2Vzc1Rhc2s8L2M+ICh0eXBlICIxNCIpIHdpcmVkIG9uIHRoZSB0cmFuc2l0aW9uJ3MKLy8vIDxjPm9uRXhlY3V0aW9uVGFza3M8L2M+LCB3aGljaCBpcyB3aHkgdGhpcyBtYXBwaW5nIGltcGxlbWVudHMgPGM+SU1hcHBpbmc8L2M+IGFuZCBjYXN0cyBpdHMgdGFzawovLy8gdG8gPGM+U3ViUHJvY2Vzc1Rhc2s8L2M+IGluc3RlYWQgb2YgaW1wbGVtZW50aW5nIDxjPklTdWJQcm9jZXNzTWFwcGluZzwvYz4gYWdhaW5zdCBhCi8vLyA8Yz5zdWJGbG93LnByb2Nlc3M8L2M+IGJsb2NrLgovLy8gPC9yZW1hcmtzPgpwdWJsaWMgY2xhc3MgU3Bhd25Qcm9jZXNzTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc3ViID0gdGFzayBhcyBTdWJQcm9jZXNzVGFzayA/PyB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgU3ViUHJvY2Vzc1Rhc2siKTsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2U/LkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgaG9wcyA9IDA7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJwcm9jZXNzSG9wcyIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGludC5UcnlQYXJzZShyYXcuVG9TdHJpbmcoKSwgb3V0IGhvcHMpOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyBib2R5ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBib2R5LmhvcHMgPSBob3BzOwoKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRlc3RJZCIsIG91dCB2YXIgdGVzdElkKSAmJiB0ZXN0SWQgIT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIGJvZHkudGVzdElkID0gdGVzdElkOwogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyBodW1hblRhc2sgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGh1bWFuVGFzay50aXRsZSA9ICJIVC1EIHByb2Nlc3Mgc3RlcCI7CiAgICAgICAgaHVtYW5UYXNrLmRlc2NyaXB0aW9uID0gIkhULUQgcHJvY2VzcyBzdGVwIGRlc2NyaXB0aW9uIjsKICAgICAgICBib2R5Lmh1bWFuVGFzayA9IGh1bWFuVGFzazsKCiAgICAgICAgc3ViLlNldERvbWFpbigicGFydG5lciIpOwogICAgICAgIHN1Yi5TZXRGbG93KCJodC1kIik7CiAgICAgICAgc3ViLlNldFZlcnNpb24oIjEuMC42Iik7CiAgICAgICAgc3ViLlNldFVzZURhcHIodHJ1ZSk7CiAgICAgICAgc3ViLlNldFN5bmMoZmFsc2UpOwogICAgICAgIHN1Yi5TZXRCb2R5KGJvZHkpOwoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlNwYXduUHJvY2Vzc01hcHBpbmc6IHNwYXduaW5nIGh0LWQgYXMgU3ViUHJvY2VzcyB3aXRoIGhvcHM9e2hvcHN9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIC8vIEZpcmUtYW5kLWZvcmdldDogdGhlIFN1YlByb2Nlc3MgaXMgYW4gaW5kZXBlbmRlbnQgdW5pdCBvZiB3b3JrIGFuZCBub3RoaW5nIHByb2plY3RzIGl0cwogICAgICAgIC8vIHN0YXRlIHVwd2FyZCwgc28gdGhlcmUgaXMgbm90aGluZyB0byBtZXJnZSBiYWNrIGludG8gaHQtYSdzIG93biBkYXRhLgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQp9Cg=="
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "ht-a-human",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-a human task"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "ht-approver",
+            "grant": "allow"
+          },
+          {
+            "role": "ht-a-approver",
+            "grant": "allow"
+          },
+          {
+            "role": "ht-blocked",
+            "grant": "deny"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-a-approve",
+            "target": "ht-a-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-a: approve"
+              }
+            ],
+            "roles": [
+              {
+                "role": "ht-approver",
+                "grant": "allow"
+              },
+              {
+                "role": "ht-a-approver",
+                "grant": "allow"
+              },
+              {
+                "role": "ht-blocked",
+                "grant": "deny"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-a-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-a completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "ht-a-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-a cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "key": "ht-f",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "credit",
+  "version": "1.0.6",
+  "tags": [
+    "human-task-chain",
+    "human-task",
+    "subflow",
+    "credit"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Human Task Chain HT-F (credit)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-ht-f",
+      "target": "ht-f-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel ht-f"
+        }
+      ],
+      "roles": [
+        {
+          "role": "ht-approver",
+          "grant": "allow"
+        },
+        {
+          "role": "ht-f-approver",
+          "grant": "allow"
+        },
+        {
+          "role": "ht-blocked",
+          "grant": "deny"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-ht-f",
+      "target": "ht-f-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ht-f"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ht-f-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-f initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-f-to-human",
+            "target": "ht-f-human",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-f: rest in the human state"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-f-human",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-f human task"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "ht-approver",
+            "grant": "allow"
+          },
+          {
+            "role": "ht-f-approver",
+            "grant": "allow"
+          },
+          {
+            "role": "ht-blocked",
+            "grant": "deny"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-f-approve",
+            "target": "ht-f-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-f: approve"
+              }
+            ],
+            "roles": [
+              {
+                "role": "ht-approver",
+                "grant": "allow"
+              },
+              {
+                "role": "ht-f-approver",
+                "grant": "allow"
+              },
+              {
+                "role": "ht-blocked",
+                "grant": "deny"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-f-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-f completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "ht-f-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-f cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

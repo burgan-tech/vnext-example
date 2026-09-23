@@ -1,0 +1,106 @@
+{
+  "key": "timeout-lab-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "timeout-lab",
+    "subflow",
+    "timeout-override"
+  ],
+  "attributes": {
+    "_comment": "timeout is NULL on purpose, and that is the whole point of this fixture. The deadline this child runs under comes from its PARENT's subFlow.overrides.timeout. Until the effective-timeout resolver landed, that override was read only when the job was armed: the job fired on schedule, the handler read THIS definition, found no timeout and returned — so the child sat here forever with a deadline that could never arrive. Do not 'fix' this file by giving the child its own timeout; that would delete the regression.",
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Timeout Lab — child with no timeout of its own"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-timeout-lab-child",
+      "target": "child-waiting",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Timeout Lab Child"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "child-waiting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting (only the parent's override deadline moves this)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-finish",
+            "target": "child-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish before the deadline"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "child-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "child-timedout",
+        "stateType": 3,
+        "subType": 8,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timed out (target of the PARENT's timeout override)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
