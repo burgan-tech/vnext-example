@@ -1,9 +1,17 @@
 # Cross-Domain Lab
 
-Üç vNext domain'i tek Docker ağında ayağa kaldıran kalıcı lokal ortam. `core` ve `partner` **lokalde
+Dört vNext domain'i tek Docker ağında ayağa kaldıran kalıcı lokal ortam. `core`, `partner` ve `credit` **lokalde
 derlenen** runtime imajlarıyla koşar, açılışta kendilerini `discovery` domain'ine kaydeder ve
 birbirlerine **Dapr Name Resolution + Service Invocation** ile ulaşır (`ServiceDiscovery:Provider=dapr`).
 Cross-domain davranış (SubFlow/SubProcess, trigger task'ları, fonksiyon descent'i) buraya karşı ölçülür.
+
+## Neden dört domain
+
+İki iş domain'i bir sınırı kanıtlar, üçü **ikincisini** kanıtlar — ve ikinci sınırı geçen, istemcinin çağırdığı
+runtime değildir. `human-task-chain` senaryosunda zincir `core → partner → credit` şeklinde iner ve
+`partner → credit` hop'unu **partner'ın kendi runtime'ı** yapar; `core` credit ile hiç konuşmaz. Üçüncü iş
+domain'i olmadan tam da o hop test edilmemiş kalır. `lab.sh verify` bu yüzden iki sidecar invoke'unu birden
+dener (`core → partner` ve `partner → credit`).
 
 ## Topoloji
 
@@ -11,6 +19,7 @@ Cross-domain davranış (SubFlow/SubProcess, trigger task'ları, fonksiyon desce
 |---|---|---|---|---|---|
 | `core` | http://localhost:4201 | :3005 | `vnext-app-core` | `*:dapr-nr` (lokal) | parent akışlar, cross-domain task'lar |
 | `partner` | http://localhost:4211 | :3015 | `vnext-app-partner` | `*:dapr-nr` (lokal) | child / remote akışlar |
+| `credit` | http://localhost:4221 | :3025 | `vnext-app-credit` | `*:dapr-nr` (lokal) | **ikinci** sınırın öbür tarafı — `partner`'ın çağırdığı domain |
 | `discovery` | http://localhost:4231 | :3035 | `vnext-app-discovery` | `*:dapr-nr` (lokal) | registry (`@burgan-tech/vnext-discovery-runtime`) |
 
 **Her üç domain de lokalde derlenen imajlarla koşar** (`orchestrator`, `execution`, `inbox`, `outbox`,

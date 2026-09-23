@@ -1,0 +1,63 @@
+{
+  "key": "subflow-start-failure-lab-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-start-failure-lab",
+    "child",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Start Failure Lab Child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-subflow-start-failure-lab-child",
+      "target": "child-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Child"
+        }
+      ],
+      "schema": {
+        "key": "subflow-start-failure-lab-child-start",
+        "domain": "core",
+        "flow": "sys-schemas",
+        "version": "1.0.0"
+      }
+    },
+    "states": [
+      {
+        "key": "child-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "key": "authorization-chain-lab-root-narrow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "authorization-chain-lab",
+    "root-narrow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Authorization Chain Lab Two-Level Root"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-root",
+      "target": "root-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel"
+        }
+      ]
+    },
+    "updateData": {
+      "key": "update-root-data",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Data"
+        }
+      ]
+    },
+    "exit": {
+      "key": "exit-root",
+      "target": "root-done",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Exit"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-authorization-chain-lab-root-narrow",
+      "target": "root-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "root-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "root initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "auto-root-to-waiting",
+            "target": "waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/ChainAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIFRoZSBjaGFpbiBtdXN0IGFzc2VtYmxlIGl0c2VsZiBvbiBzdGFydDogYW4gYXV0aG9yaXphdGlvbiB0ZXN0IHdhbnRzIHRoZSBpbnN0YW5jZSBhbHJlYWR5Ci8vIHNpdHRpbmcgYXQgdGhlIGRlZXBlc3QgbGVhZiwgbm90IGEgZml4dHVyZSB0aGUgdGVzdCBoYXMgdG8gZHJpdmUgaG9wIGJ5IGhvcC4KcHVibGljIGNsYXNzIENoYWluQWx3YXlzVHJ1ZVJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwp9Cg=="
+            }
+          }
+        ]
+      },
+      {
+        "key": "waiting",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "waiting"
+          }
+        ],
+        "view": null,
+        "transitions": [],
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "authorization-chain-lab-mid-terminal",
+            "domain": "core",
+            "version": "1.0.1",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/ChainSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLyBQYXNzLXRocm91Z2g6IHRoaXMgbGFiIG1lYXN1cmVzIGF1dGhvcml6YXRpb24sIG5vdCBkYXRhIGZsb3cuIFRoZSBjaGlsZCBvbmx5IG5lZWRzIHRvCi8vIHN0YXJ0OyBub3RoaW5nIGRvd25zdHJlYW0gcmVhZHMgd2hhdCBpdCB3YXMgc3RhcnRlZCB3aXRoLgpwdWJsaWMgY2xhc3MgQ2hhaW5TdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGlucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpbnB1dC5zdGFydGVkQnlDaGFpbkxhYiA9IHRydWU7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gaW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgICAgID0+IFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7Cn0K"
+          },
+          "overrides": {
+            "states": {
+              "mid-waiting": {
+                "queryRoles": [
+                  {
+                    "role": "chain.admin",
+                    "grant": "allow"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "key": "root-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "root done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      },
+      {
+        "key": "root-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "root cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      }
+    ],
+    "queryRoles": [
+      {
+        "role": "chain.reader",
+        "grant": "allow"
+      },
+      {
+        "role": "chain.admin",
+        "grant": "allow"
+      },
+      {
+        "role": "chain.mid-only",
+        "grant": "allow"
+      }
+    ]
+  }
+}

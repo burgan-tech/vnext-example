@@ -1,0 +1,25 @@
+{
+  "key": "til-statestore-set",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "statestore",
+    "set"
+  ],
+  "attributes": {
+    "type": "17",
+    "config": {
+      "command": "set",
+      "key": "til:statestore:roundtrip",
+      "value": {
+        "source": "til-statestore-set",
+        "marker": "til-roundtrip-value"
+      },
+      "ttlInSeconds": 300
+    }
+  }
+}

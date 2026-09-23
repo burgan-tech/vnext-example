@@ -1,0 +1,25 @@
+{
+  "key": "til-soap-ok",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "soap",
+    "mocklab",
+    "success"
+  ],
+  "attributes": {
+    "type": "16",
+    "config": {
+      "url": "API_BASEURL/api/til/soap-ok",
+      "soapAction": "TilPing",
+      "soapVersion": "1.1",
+      "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <TilPing xmlns=\"http://tasklab.example/til\">\n      <Message>ping</Message>\n    </TilPing>\n  </soap:Body>\n</soap:Envelope>",
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}
