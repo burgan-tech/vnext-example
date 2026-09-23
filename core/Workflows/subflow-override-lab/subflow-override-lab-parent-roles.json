@@ -1,0 +1,165 @@
+{
+  "key": "subflow-override-lab-parent-roles",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.2",
+  "tags": [
+    "integration-test",
+    "subflow-override-lab",
+    "parent-roles"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Override Lab parent-roles"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-parent",
+      "target": "parent-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-subflow-override-lab-parent-roles",
+      "target": "parent-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "parent-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "parent initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "auto-parent-to-waiting",
+            "target": "waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/OverrideLabAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIEVhY2ggZmxvdyB3YWxrcyBpdHNlbGYgdG8gaXRzIHdhaXRpbmcgc3RhdGUgc28gYSB0ZXN0IG9ubHkgc3RhcnRzIHRoZSB0b3AuCnB1YmxpYyBjbGFzcyBPdmVycmlkZUxhYkFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+IFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "waiting",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "waiting"
+          }
+        ],
+        "view": null,
+        "transitions": [],
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "subflow-override-lab-child",
+            "domain": "core",
+            "version": "1.0.2",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/OverrideLabSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLyBQYXNzLXRocm91Z2ggZm9yIGRhdGEuIEl0IERPRVMgZm9yd2FyZCB0aGUgY2FsbGVyJ3Mgcm9sZSBoZWFkZXJzOiBTdWJmbG93U3RhcnRlciBzZW5kcyB0aGUgY2hpbGQKLy8gb25seSB0aGUgaGVhZGVycyB0aGUgaW5wdXQgbWFwcGluZyByZXR1cm5zLCBhbmQgdGhlIGxvbmctcG9sbCBhcm0gKG9yZGVyIDc1KSBwYXVzZXMgb25seSB3aGVuIHRoZQovLyBUUklHR0VSSU5HIGNhbGxlciBzYXRpc2ZpZXMgdGhlIGVmZmVjdGl2ZSBsb25nLXBvbGwgcm9sZXMuIFdpdGhvdXQgdGhpcyBmb3J3YXJkIGEgcm9sZXMtYXJtZWQKLy8gbG9uZy1wb2xsIGluIGEgU3ViRmxvdyBjaGlsZCBuZXZlciBwYXVzZXMsIGFuZCBub3RoaW5nIGFib3V0IHRoZSBvdmVycmlkZSB3b3VsZCBiZSBvYnNlcnZhYmxlLgpwdWJsaWMgY2xhc3MgT3ZlcnJpZGVMYWJTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGlucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpbnB1dC5zdGFydGVkQnlPdmVycmlkZUxhYiA9IHRydWU7CgogICAgICAgIHZhciBoZWFkZXJzID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PihTdHJpbmdDb21wYXJlci5PcmRpbmFsSWdub3JlQ2FzZSk7CiAgICAgICAgZm9yZWFjaCAodmFyIG5hbWUgaW4gbmV3W10geyAieC1yb2xlcyIsICJyb2xlIiwgInVzZXJfcmVmZXJlbmNlIiwgIngtZGV2aWNlLWlkIiwgIngtdG9rZW4taWQiIH0pCiAgICAgICAgewogICAgICAgICAgICB0cnkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgc3RyaW5nPyB2YWx1ZSA9IChzdHJpbmc/KWNvbnRleHQuSGVhZGVyc1tuYW1lXTsKICAgICAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yRW1wdHkodmFsdWUpKSBoZWFkZXJzW25hbWVdID0gdmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbikKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgLy8gaGVhZGVyIGFic2VudAogICAgICAgICAgICB9CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBpbnB1dCwgSGVhZGVycyA9IGhlYWRlcnMgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgICAgID0+IFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7Cn0K"
+          },
+          "overrides": {
+            "states": {
+              "lp-wait": {
+                "interaction": {
+                  "longPoll": {
+                    "roles": [
+                      {
+                        "role": "ovr.parent-ack",
+                        "grant": "allow"
+                      }
+                    ]
+                  }
+                },
+                "views": {
+                  "subflow-override-lab-child-lp-view": {
+                    "key": "subflow-override-lab-missing-view",
+                    "domain": "core",
+                    "version": "1.0.0",
+                    "flow": "sys-views"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "key": "parent-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "parent done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      },
+      {
+        "key": "parent-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "parent cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      }
+    ]
+  }
+}
