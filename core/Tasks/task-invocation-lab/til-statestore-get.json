@@ -1,0 +1,20 @@
+{
+  "key": "til-statestore-get",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "statestore",
+    "get"
+  ],
+  "attributes": {
+    "type": "17",
+    "config": {
+      "command": "get",
+      "key": "til:statestore:roundtrip"
+    }
+  }
+}

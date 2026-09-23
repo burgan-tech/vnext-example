@@ -1,0 +1,173 @@
+{
+  "key": "timeout-lab-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "timeout-lab",
+    "parent",
+    "timeout-override"
+  ],
+  "attributes": {
+    "_comment": "Supplies the child's deadline through subFlow.overrides.timeout — the field the engine used to accept, stamp and then ignore. PT20S so a test can watch it fire; the equivalent field on subflow-orchestration is PT15M and must stay that way, or that scenario's children would start cancelling mid-suite.",
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Timeout Lab — parent supplying a subflow timeout override"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-timeout-lab-parent",
+      "target": "parent-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Timeout Lab Parent"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "parent-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-parent-to-subflow",
+            "target": "parent-subflow",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to subflow"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "parent-subflow",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow (child runs under the parent's override deadline)"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "timeout-lab-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/TimeoutLabSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gTWluaW1hbCBTdWJGbG93IG1hcHBpbmcgZm9yIHRoZSB0aW1lb3V0IGxhYjogdGhlIHNjZW5hcmlvIGlzIGFib3V0IHRoZSBjaGlsZCdzIERFQURMSU5FLCBub3QKLy8vIGFib3V0IGRhdGEsIHNvIG5vdGhpbmcgaXMgbWFwcGVkIGluIGVpdGhlciBkaXJlY3Rpb24gYmV5b25kIGEgbWFya2VyIHRoZSBhc3NlcnRpb25zIGNhbiByZWFkLgovLy8gPC9zdW1tYXJ5PgovLy8gPHJlbWFya3M+Ci8vLyBJdCBleGlzdHMgYmVjYXVzZSA8Yz5zdWJGbG93Lm1hcHBpbmc8L2M+IGlzIHJlcXVpcmVkIGJ5IHRoZSBzY2hlbWEsIG5vdCBiZWNhdXNlIHRoZSBzY2VuYXJpbwovLy8gbmVlZHMgYSB0cmFuc2Zvcm1hdGlvbi4gS2VlcGluZyBpdCBlbXB0eSBpcyBkZWxpYmVyYXRlIOKAlCBhIG1hcHBpbmcgdGhhdCBtb3ZlZCByZWFsIGRhdGEgd291bGQKLy8vIGdpdmUgYSBmYWlsaW5nIHRlc3QgYSBzZWNvbmQgcG9zc2libGUgY2F1c2UuCi8vLyA8L3JlbWFya3M+CnB1YmxpYyBjbGFzcyBUaW1lb3V0TGFiU3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBjaGlsZElucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBjaGlsZElucHV0LnN0YXJ0ZWRCeVRpbWVvdXRMYWJQYXJlbnQgPSB0cnVlOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNoaWxkSW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgbWVyZ2VkID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiltZXJnZWQ7CiAgICAgICAgdmFyIGluc3QgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGlmIChpbnN0ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gaW5zdCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgdGFyZ2V0W2t2LktleV0gPSBrdi5WYWx1ZTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICB0YXJnZXRbImNoaWxkU2V0dGxlZCJdID0gdHJ1ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBtZXJnZWQgfSk7CiAgICB9Cn0K"
+          },
+          "overrides": {
+            "timeout": {
+              "key": "child-abandoned",
+              "target": "child-timedout",
+              "versionStrategy": "Minor",
+              "timer": {
+                "reset": "never",
+                "duration": "PT20S"
+              }
+            }
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-parent-to-completed",
+            "target": "parent-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to completed"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "parent-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "parent-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "cancel": {
+      "key": "cancel-timeout-lab-parent",
+      "target": "parent-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Timeout Lab Parent"
+        }
+      ]
+    }
+  }
+}
