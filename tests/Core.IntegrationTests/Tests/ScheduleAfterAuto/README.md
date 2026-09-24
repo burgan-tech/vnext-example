@@ -102,10 +102,13 @@ MockLab gerekmez — akış yalnız script task (type 7) kullanır, HTTP task yo
 | Test | İddia |
 | --- | --- |
 | `AutoWinner_SuppressesTimerArming_AndTheTimerNeverFires` | `mode: "auto"` ile başlatılan instance `advanced`'e zincirlenir; zincir boyunca (≥2 poll) `gate-timeout` için **hiç** `kind: "scheduled"` girdisi görülmez; `autoAdvances == 1`; timer süresi (8 sn) + 5 sn geçtikten sonra da instance `advanced`'de, `timeoutFired == 0` ve armed girdi yok |
-| `NoAutoWinner_ArmsTheScheduledTransition_AndItFires` | `mode: "park"` ile başlatılan instance `gate`'te bekler; state function `gate-timeout` girdisini makul bir `executeAtUtc` ile gösterir; timer ateşlenir, instance `gate-timedout`'a geçer, `timeoutFired == 1`, `autoAdvances == 0` |
+| `NoAutoWinner_ArmsTheScheduledTransition_AndItFires` | `mode: "park"` ile başlatılan instance `gate`'te bekler; state function `gate-timeout` girdisini makul bir `executeAtUtc` ile **ve tanımdaki `annotations` ile** (`ui/countdown: gate-timeout`, akış 1.0.1) gösterir; timer ateşlenir, instance `gate-timedout`'a geçer, `timeoutFired == 1`, `autoAdvances == 0` |
 
 Doğrulama durumu: **2/2 yeşil** (2026-09-03, lokal runtime, vnext `feature/schedule-after-auto`
-@ `702a03b6`), iki koşu üst üste, ~24 sn.
+@ `702a03b6`), iki koşu üst üste, ~24 sn. **Annotations (2026-09-24):** 2/2 yeşil, lokal runtime
+`claude/annotations-state-function-06d98e`. Scheduled girdileri önceden yalnız job satırından
+kuruluyor ve transition'ın `annotations`'ını düşürüyordu; runtime artık onları job'un `SourceState`'i
+üzerinden tanımdan çözüyor (postgres: `gate-timeout` job'u `SourceState=gate`).
 
 ### Bilinen kısıtlar
 

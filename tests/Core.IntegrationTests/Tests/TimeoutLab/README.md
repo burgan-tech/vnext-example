@@ -72,6 +72,19 @@ Requires the flows to be published (`wf domain use core && wf sync`) against a l
 4. A child running under its parent's override reports **the override's** `key`/`target`, not its own
    (absent) definition, and is pulled to that target.
 5. A parent does not inherit its child's deadline: the block describes the polled instance only.
+6. **Annotations (flows 1.0.1).** Every entry the state body lists carries its definition's
+   `annotations` — `root-finish` (`stateTransition`), `root-note` (`sharedTransition`), and the
+   well-known `cancel`, `exit` and `updateData` — each with a distinct `ui/source` value, and the
+   `timeout` block carries `timeout.annotations` (`ui/countdown: root-deadline`). The child's block
+   carries the **override's** annotations (`parent-override`): the stamp the parent writes carries
+   them, and an override replaces the timeout as a whole. None of the added transitions is ever
+   called; the timeout is still the only thing that moves the instance. Scheduled entries are pinned
+   by `schedule-after-auto`.
+
+   Status: **4/4 green** (2026-09-24, local runtime `claude/annotations-state-function-06d98e`,
+   `VNEXT_BASE_URL=http://localhost:4201`). Evidence beyond the summary: the live state body lists all
+   five kinds with their annotations and `timeout.annotations`; postgres shows the instances bound to
+   `1.0.1` and the child's `subflow.timeout_override` stamp carrying `"annotations":{"ui/countdown":"parent-override"}`.
 
 ## What it caught on its first run
 

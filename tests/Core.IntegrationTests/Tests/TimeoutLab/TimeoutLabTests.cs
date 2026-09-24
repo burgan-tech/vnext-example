@@ -132,6 +132,10 @@ public class TimeoutLabTests : WorkflowTestBase
         Assert.Equal("child-abandoned", timeout!.Value.GetProperty("key").GetString());
         Assert.Equal(ChildTimedOutState, timeout.Value.GetProperty("target").GetString());
 
+        // The override's annotations travel with it — the stamp the parent writes carries them,
+        // and they replace the child's (the child declares no timeout, so it has none of its own).
+        Assert.Equal("parent-override", Annotation(timeout.Value, "ui/countdown"));
+
         // ── and the runtime moves it to exactly that target ──────────────────────
         await WaitUntilAsync(
             async () =>
@@ -144,6 +148,49 @@ public class TimeoutLabTests : WorkflowTestBase
             $"{await DescribeAsync("timeout-lab-child", childId)}",
             Deadline + TimeSpan.FromSeconds(40));
     }
+
+    /// <summary>
+    /// Every entry the state body lists carries its definition's <c>annotations</c>: the state,
+    /// shared and the three well-known workflow-level transitions, and the <c>timeout</c> block. Each
+    /// fixture entry carries a distinct <c>ui/source</c> value, so a dropped or crossed annotation
+    /// names itself. (Scheduled entries are pinned by <c>schedule-after-auto</c>.)
+    /// </summary>
+    [Fact]
+    public async Task RootFlow_StateBodyCarriesTheAnnotationsOfEveryListedEntry()
+    {
+        var instanceId = await StartAsync(RootWorkflow, new { });
+
+        await WaitForInstanceStateAsync(RootWorkflow, instanceId, RootWaitingState);
+
+        var response = await Api.CallInstanceFunctionAsync(RootWorkflow, instanceId, "state", headers: Headers());
+        var body = response.Body;
+
+        var bySource = new Dictionary<string, (string Kind, string? Source)>(StringComparer.Ordinal);
+        foreach (var transition in body.GetProperty("transitions").EnumerateArray())
+        {
+            var name = transition.GetProperty("name").GetString()!;
+            bySource[name] = (transition.GetProperty("kind").GetString()!, Annotation(transition, "ui/source"));
+        }
+
+        var described = string.Join(", ", bySource.Select(kv => $"{kv.Key}={kv.Value.Kind}/{kv.Value.Source ?? "∅"}"));
+        Assert.Equal(("stateTransition", "state"), bySource.GetValueOrDefault("root-finish"));
+        Assert.Equal(("sharedTransition", "shared"), bySource.GetValueOrDefault("root-note"));
+        Assert.Equal(("cancel", "cancel"), bySource.GetValueOrDefault("cancel-timeout-lab-root"));
+        Assert.Equal(("exit", "exit"), bySource.GetValueOrDefault("exit-timeout-lab-root"));
+        Assert.True(bySource.GetValueOrDefault("update-timeout-lab-root") == ("updateData", "updateData"),
+            $"updateData entry missing or without its annotation — transitions: {described}");
+
+        Assert.True(body.TryGetProperty("timeout", out var timeout) && timeout.ValueKind == JsonValueKind.Object,
+            $"no `timeout` block — {await DescribeAsync(RootWorkflow, instanceId)}");
+        Assert.Equal("root-deadline", Annotation(timeout, "ui/countdown"));
+    }
+
+    private static string? Annotation(JsonElement element, string key) =>
+        element.TryGetProperty("annotations", out var annotations)
+        && annotations.ValueKind == JsonValueKind.Object
+        && annotations.TryGetProperty(key, out var value)
+            ? value.GetString()
+            : null;
 
     /// <summary>
     /// The <c>timeout</c> block describes the polled instance and nothing else: a parent whose child

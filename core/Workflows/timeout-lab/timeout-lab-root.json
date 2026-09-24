@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "timeout-lab",
@@ -11,7 +11,7 @@
     "state-function"
   ],
   "attributes": {
-    "_comment": "A workflow-level timeout short enough to fire inside a test run. Nothing else in this repo could exercise one: the only two authored timeouts are PT15M. The instance parks in root-waiting doing nothing, so the deadline is the only thing that moves it — which is what lets a test assert both halves of the contract in one run: the state function's `timeout` block while it is pending, and the instance actually landing on `target` when it fires. NOTE the duration is an absolute budget from START, not an idle window: timer.reset is required by the schema and read nowhere in the runtime.",
+    "_comment": "A workflow-level timeout short enough to fire inside a test run. Nothing else in this repo could exercise one: the only two authored timeouts are PT15M. The instance parks in root-waiting doing nothing, so the deadline is the only thing that moves it — which is what lets a test assert both halves of the contract in one run: the state function's `timeout` block while it is pending, and the instance actually landing on `target` when it fires. NOTE the duration is an absolute budget from START, not an idle window: timer.reset is required by the schema and read nowhere in the runtime. ANNOTATIONS (1.0.1): every entry the state body lists carries a distinct `ui/source` annotation — state (root-finish), shared (root-note), cancel, exit, updateData — and the timeout carries `ui/countdown`, so one read asserts that each kind and the `timeout` block pass their definition's annotations through. None of these transitions is ever called; the timeout still does the moving.",
     "type": "F",
     "timeout": {
       "key": "root-abandoned",
@@ -20,6 +20,9 @@
       "timer": {
         "reset": "never",
         "duration": "PT20S"
+      },
+      "annotations": {
+        "ui/countdown": "root-deadline"
       }
     },
     "labels": [
@@ -71,7 +74,10 @@
                 "language": "en-US",
                 "label": "Finish before the deadline"
               }
-            ]
+            ],
+            "annotations": {
+              "ui/source": "state"
+            }
           }
         ]
       },
@@ -137,7 +143,60 @@
           "language": "en-US",
           "label": "Cancel Timeout Lab Root"
         }
-      ]
-    }
+      ],
+      "annotations": {
+        "ui/source": "cancel"
+      }
+    },
+    "exit": {
+      "key": "exit-timeout-lab-root",
+      "target": "root-completed",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Exit Timeout Lab Root"
+        }
+      ],
+      "annotations": {
+        "ui/source": "exit"
+      }
+    },
+    "updateData": {
+      "key": "update-timeout-lab-root",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update Timeout Lab Root Data"
+        }
+      ],
+      "annotations": {
+        "ui/source": "updateData"
+      }
+    },
+    "sharedTransitions": [
+      {
+        "key": "root-note",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Add a note (shared)"
+          }
+        ],
+        "availableIn": [
+          "root-waiting"
+        ],
+        "annotations": {
+          "ui/source": "shared"
+        }
+      }
+    ]
   }
 }
