@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Core.IntegrationTests.Infrastructure;
 
 namespace Core.IntegrationTests.Tests.AuthorizationChainLab;
@@ -44,71 +45,94 @@ public sealed class MorphIdmProviderTests : AuthorizationChainLabTestBase
             "morph-idm",
             System.StringComparison.OrdinalIgnoreCase);
 
-    private static Dictionary<string, string> As(string user) => new() { ["sub"] = user };
+    /// <summary>
+    /// The caller's identity as the gateway forwards it. <c>act_sub</c> is not decoration: since
+    /// 2026-09-24 the runtime does not call morph-idm at all for a caller carrying neither
+    /// <c>act_sub</c> nor <c>client_id</c> (an anonymous or device token) and resolves it to no roles,
+    /// so a <c>sub</c>-only request would never reach the MockLab seed, which is keyed on <c>sub</c>.
+    /// </summary>
+    private static Dictionary<string, string> As(string user) => new() { ["sub"] = user, ["act_sub"] = user };
 
     /// <summary>
-    /// The decisive one. A caller ASSERTING <c>chain.admin</c> in the <c>role</c>/<c>x-roles</c>
-    /// headers, whose identity service answers "no operations", must be refused.
+    /// A caller ASSERTING <c>chain.admin</c> in the <c>role</c> header is evaluated with it, even
+    /// though morph-idm would answer "no operations" for this identity — because morph-idm is not asked.
     /// </summary>
     /// <remarks>
-    /// This is the property the whole provider exists for. If the header survived as a fallback —
-    /// through a merge, or through an empty answer being read as "nothing to say, use what you have"
-    /// — then a caller could name its own roles, and every grant in every definition would be
-    /// advisory. <c>204</c> is the exact shape that invites the mistake: it is a successful response
-    /// carrying no roles, and treating it as absence rather than as an empty set restores the header.
+    /// Committee decision, 2026-09-25: under morph-idm a request's <c>role</c> header takes precedence
+    /// and the identity service is consulted only for a request without one. This replaces the
+    /// 2026-09-22 rule that the header decides nothing, which this test used to pin in the opposite
+    /// direction (<c>AnAssertedHeaderRoleDoesNotSurviveAnEmptyProviderAnswer</c>).
     /// </remarks>
     [SkippableFact]
-    public async Task AnAssertedHeaderRoleDoesNotSurviveAnEmptyProviderAnswer()
+    public async Task ARoleHeaderDecides_AndMorphIdmIsNotAsked()
     {
         Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
         var chain = await StartChainAsync();
 
-        Assert.False(
+        Assert.True(
             await IsAuthorizedAsync(Root, chain.RootId, Admin, queryRoles: true, extraHeaders: As(EmptyUser)),
-            "the caller named chain.admin in its own headers and morph-idm answered 204 (no " +
-            "operations); an allowed verdict means the header was used as a fallback");
+            "the caller sent role: chain.admin; under the header-precedence rule that is its role set, " +
+            "whatever morph-idm would have answered for this identity");
     }
 
     /// <summary>
-    /// The same rule on the OTHER channel: the <c>role</c> <b>query parameter</b>. A caller whose
-    /// identity service reports no operations must not be able to name its own role in the query
-    /// string either.
+    /// The header decides even when morph-idm is broken for this identity: the request never reaches
+    /// it, so its failure is not in the picture.
     /// </summary>
-    /// <remarks>
-    /// <para>This one was found by probing rather than by reading, after the header case was already
-    /// closed and green. `authorize` fell back to the parameter whenever the provider returned an
-    /// empty set, with no regard for which provider had returned it. Measured on this lab, same caller
-    /// and same instance:</para>
-    /// <code>
-    /// ?queryRoles=true                  -> {"allowed":false}  403
-    /// ?queryRoles=true&amp;role=chain.admin -> {"allowed":true}   200
-    /// </code>
-    /// <para>It matters more than it looks: since the runtime's own gates were removed, `authorize` is
-    /// the only place these questions are answered, so a gateway that forwards the client's query
-    /// string would have been admitting on the client's own claim. The fix is a capability on the
-    /// resolver (<c>ICallerRoleResolver.AllowsRoleParameterFallback</c>) — false for any provider that
-    /// is an authority — rather than a provider-name check inside <c>authorize</c>.</para>
-    /// </remarks>
     [SkippableFact]
-    public async Task TheRoleQueryParameterDoesNotSurviveAnEmptyProviderAnswer()
+    public async Task ARoleHeaderDecides_EvenWhenMorphIdmWouldFail()
     {
         Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
         var chain = await StartChainAsync();
 
-        Assert.False(
+        Assert.True(
+            await IsAuthorizedAsync(Root, chain.RootId, Admin, queryRoles: true, extraHeaders: As(BrokenUser)),
+            "morph-idm answers 500 for this identity, but a request with a role header is not sent to it");
+    }
+
+    /// <summary>
+    /// The <c>role</c> <b>query parameter</b> behaves like the header under morph-idm: with no role
+    /// header, <c>?role=chain.admin</c> is the role set and morph-idm — which would answer "no
+    /// operations" for this identity — is not asked.
+    /// </summary>
+    /// <remarks>
+    /// Changed 2026-09-25 (RoleParameterMode.AsRoleHeader). This test used to pin the opposite
+    /// (<c>TheRoleQueryParameterDoesNotSurviveAnEmptyProviderAnswer</c>): the parameter was ignored
+    /// under morph-idm while the identity service was the only authority. Once the header became
+    /// decisive, the same claim answered 200 through the header and 403 through the query string.
+    /// </remarks>
+    [SkippableFact]
+    public async Task TheRoleQueryParameterBehavesLikeTheRoleHeader()
+    {
+        Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
+        var chain = await StartChainAsync();
+
+        Assert.True(
             await IsAuthorizedAsync(Root, chain.RootId, NoRole, queryRoles: true,
                 extraHeaders: As(EmptyUser), roleParameter: Admin),
-            "morph-idm answered 204 for this caller; naming chain.admin in the query string must not " +
-            "override that — it is the header hole reached through a different channel");
+            "with no role header, ?role=chain.admin is the role set exactly as a role header would be");
+    }
+
+    /// <summary>A real role header wins over the parameter.</summary>
+    [SkippableFact]
+    public async Task ARealRoleHeaderWinsOverTheRoleQueryParameter()
+    {
+        Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
+        var chain = await StartChainAsync();
+
+        Assert.False(
+            await IsAuthorizedAsync(Root, chain.RootId, "chain.nobody", queryRoles: true,
+                extraHeaders: As(AdminUser), roleParameter: Admin),
+            "the header says chain.nobody; the parameter must not add chain.admin to it");
     }
 
     /// <summary>
-    /// And the parameter is not merely ignored for <c>queryRoles</c>: <c>ack</c> composes it
-    /// ADDITIVELY, which would otherwise leave it as the one target where a caller still names its own
-    /// role.
+    /// <c>ack</c> follows the same header rule as the other targets under morph-idm. Nothing is awaiting
+    /// here, so both calls answer "allowed" idempotently; what is pinned is that the parameter does not
+    /// change that answer.
     /// </summary>
     [SkippableFact]
-    public async Task TheRoleQueryParameterDoesNotReachTheAckPreflightEither()
+    public async Task TheRoleQueryParameterDoesNotChangeAnIdleAckAnswer()
     {
         Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
         var chain = await StartChainAsync();
@@ -156,25 +180,38 @@ public sealed class MorphIdmProviderTests : AuthorizationChainLabTestBase
     }
 
     /// <summary>
-    /// A provider that cannot answer must refuse, not degrade to an empty role set.
+    /// For a request WITHOUT a role header, a provider that cannot answer resolves to an EMPTY role set —
+    /// it no longer breaks the request — and that empty set is refused by an allowlist, not granted.
     /// </summary>
     /// <remarks>
-    /// Empty and unknown look the same one line later and mean opposite things. An unreachable
-    /// identity service would, under the permissive reading, turn every allowlist into a silent
-    /// blanket denial and every blacklist into a silent blanket ALLOW — the second of which is an
-    /// outage that grants access. The refusal is explicit instead: 403 with
-    /// <c>Authorization:CallerRoleResolutionFailed</c>.
+    /// Changed 2026-09-24. The refusal used to be a resolution error (403
+    /// <c>Authorization:CallerRoleResolutionFailed</c>) on every surface; now the request is
+    /// evaluated on an empty set. The oracle still answers <c>{"allowed":false}</c> because the
+    /// root's <c>queryRoles</c> is an allowlist nothing empty can match — a verdict, not an error. The
+    /// blacklist half of the old worry is closed in the grant engine: a role-less caller cannot pass a
+    /// role-bound deny. The state function is served (200) for the same caller, which is the point.
     /// </remarks>
     [SkippableFact]
-    public async Task AnUnreachableProviderRefusesRatherThanResolvingToNoRoles()
+    public async Task AnUnreachableProviderIsEvaluatedAsNoRoles_AndTheAllowlistRefusesIt()
     {
         Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
         var chain = await StartChainAsync();
 
-        var (status, _) = await AuthorizeAsync(
-            Root, chain.RootId, Admin, queryRoles: true, extraHeaders: As(BrokenUser));
+        // No role header: that is the only request morph-idm is asked about.
+        var (status, body) = await AuthorizeAsync(
+            Root, chain.RootId, NoRole, queryRoles: true, extraHeaders: As(BrokenUser));
 
         Assert.Equal(HttpStatusCode.Forbidden, status);
+        Assert.Equal(JsonValueKind.Object, body.ValueKind);
+        Assert.True(body.TryGetProperty("allowed", out var allowed),
+            "the refusal must be the oracle's verdict, not a CallerRoleResolutionFailed error body");
+        Assert.False(allowed.GetBoolean());
+        Assert.DoesNotContain("110004", body.GetRawText());
+
+        var (stateStatus, _) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/workflows/{Root}/instances/{chain.RootId}/functions/state",
+            headers: Merge(Headers(NoRole), As(BrokenUser)));
+        Assert.Equal(HttpStatusCode.OK, stateStatus);
     }
 
     /// <summary>
@@ -183,12 +220,9 @@ public sealed class MorphIdmProviderTests : AuthorizationChainLabTestBase
     /// be about the same caller the gateway's oracle was asked about.
     /// </summary>
     /// <remarks>
-    /// This replaces an earlier assertion that the state function answers <c>403</c> for a caller
-    /// morph-idm reports no operations for. That premise is gone with the gate: the read is served
-    /// either way. What remains observable — and is the real risk under a provider change — is role
-    /// RESOLUTION: if the read path fell back to the <c>role</c> header here while <c>authorize</c>
-    /// asked the identity service, the two would be describing different callers and the gateway's
-    /// verdict would be attached to the wrong request.
+    /// What is observable — and is the real risk under a provider change — is role RESOLUTION: the read
+    /// path and <c>authorize</c> must describe the same caller. Both apply the same precedence: a role
+    /// header when the request carries one, otherwise morph-idm's answer.
     /// </remarks>
     [SkippableFact]
     public async Task TheReadSurfacesResolveRolesThroughTheSameProvider()
@@ -204,14 +238,23 @@ public sealed class MorphIdmProviderTests : AuthorizationChainLabTestBase
         Assert.Equal(HttpStatusCode.OK, withRoles);
         Assert.Contains("record-note", TransitionKeys(Parse(granted)));
 
-        // Same instance, and the caller now ASSERTS chain.admin in its own headers — but morph-idm
-        // answers 204 for it. The header must not put the transition back.
+        // Same instance, an identity morph-idm answers 204 for, and no role header: nothing is offered.
         var (withoutRoles, empty) = await SendRawAsync(HttpMethod.Get,
             $"api/v1/core/workflows/{Root}/instances/{chain.RootId}/functions/state",
-            headers: Merge(Headers(Admin), As(EmptyUser)));
+            headers: Merge(Headers(NoRole), As(EmptyUser)));
 
         Assert.Equal(HttpStatusCode.OK, withoutRoles);
         Assert.DoesNotContain("record-note", TransitionKeys(Parse(empty)));
+
+        // Same identity, now ASSERTING chain.admin in the role header: the header decides (committee
+        // decision 2026-09-25), so the read surface offers the transition — the same verdict the
+        // oracle gives in ARoleHeaderDecides_AndMorphIdmIsNotAsked.
+        var (withHeader, headerBody) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/workflows/{Root}/instances/{chain.RootId}/functions/state",
+            headers: Merge(Headers(Admin), As(EmptyUser)));
+
+        Assert.Equal(HttpStatusCode.OK, withHeader);
+        Assert.Contains("record-note", TransitionKeys(Parse(headerBody)));
     }
 
     private static IReadOnlyList<string> TransitionKeys(System.Text.Json.JsonElement body)

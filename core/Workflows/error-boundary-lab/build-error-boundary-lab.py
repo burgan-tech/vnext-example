@@ -357,8 +357,113 @@ GLOBAL = {
 }
 
 
+# ── subflow fault chain: eb-sf-root → eb-sf-mid → eb-sf-leaf ─────────────────
+#
+# Mirrors a preprod chain (onboarding kyc-main-workflow → kyc-form-subflow →
+# kyc-form-contact-subflow, 2026-09-24): the LEAF's HTTP task answers 400 and its global boundary
+# aborts, so the leaf faults; the MID has only a global abort, so the propagated fault faults it
+# too; the ROOT's global boundary notifies with a transition, so the root routes to an error end
+# and COMPLETES. The question the chain answers is what each level's incident record looks like
+# afterwards — in particular the root's, which handled the fault instead of faulting.
+SF_RULE = "EbAlwaysTrueRule.csx"
+SF_MAPPING = "EbSubFlowPassMapping.csx"
+
+
+def auto(key, target, text):
+    return dict(transition(key, target, text, trigger=1), rule=code(SF_RULE))
+
+
+def subflow_state(key, text, child, transitions):
+    node = state(key, text, state_type=4, transitions=transitions)
+    node["subFlow"] = {
+        "type": "S",
+        "process": {"key": child, "domain": "core", "version": VERSION, "flow": "sys-flows"},
+        "mapping": code(SF_MAPPING),
+    }
+    return node
+
+
+def sf_workflow(key, text, states, start_target, boundary, extra=None):
+    attributes = {
+        "type": "F",
+        "timeout": None,
+        "labels": label(text),
+        "functions": [],
+        "features": [],
+        "extensions": [],
+        "errorBoundary": {"onError": boundary},
+        "startTransition": {
+            "key": f"start-{key}",
+            "target": start_target,
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": label(f"Start {text}"),
+            "onExecutionTasks": [],
+        },
+        "states": states,
+    }
+    attributes.update(extra or {})
+    return {
+        "key": key,
+        "flow": "sys-flows",
+        "flowVersion": "1.0.0",
+        "domain": "core",
+        "version": VERSION,
+        "tags": ["integration-test", "error-boundary-lab", "subflow", "incident", "subflow-fault-chain"],
+        "attributes": attributes,
+    }
+
+
+SF_LEAF = sf_workflow(
+    "eb-sf-leaf", "EB SubFlow chain leaf",
+    [
+        state("l-initial", "Leaf initial", state_type=1,
+              transitions=[auto("l-to-call", "l-call", "Leaf: call the API")]),
+        state("l-call", "Leaf: HTTP call answers 400",
+              entries=[hook(1, "eb-http-400-task", HTTP_MAPPING)],
+              transitions=[auto("l-call-success", "l-done", "Leaf: call succeeded")]),
+        terminal("l-done", "Leaf done", 1),
+    ],
+    "l-initial",
+    # Same shape as the preprod leaf: a global abort (default priority), no transition.
+    [{"action": 0, "priority": 100}],
+)
+
+SF_MID = sf_workflow(
+    "eb-sf-mid", "EB SubFlow chain mid",
+    [
+        state("m-initial", "Mid initial", state_type=1,
+              transitions=[auto("m-to-leaf", "m-in-leaf", "Mid: start the leaf")]),
+        subflow_state("m-in-leaf", "Mid: waiting on the leaf", "eb-sf-leaf",
+                      [auto("m-leaf-done", "m-done", "Mid: leaf finished")]),
+        terminal("m-done", "Mid done", 1),
+    ],
+    "m-initial",
+    [{"action": 0, "priority": 100}],
+)
+
+SF_ROOT = sf_workflow(
+    "eb-sf-root", "EB SubFlow chain root",
+    [
+        state("r-initial", "Root initial", state_type=1,
+              transitions=[auto("r-to-mid", "r-in-mid", "Root: start the mid")]),
+        subflow_state("r-in-mid", "Root: waiting on the mid", "eb-sf-mid",
+                      [auto("r-mid-done", "r-done", "Root: mid finished")]),
+        terminal("r-done", "Root done", 1),
+        terminal("r-error-end", "Root error end", 2),
+    ],
+    "r-initial",
+    # Same shape as the preprod root: a notify with a transition, so the root HANDLES the fault.
+    [{"action": 4, "transition": "r-has-error", "priority": 10}],
+    extra={"sharedTransitions": [
+        dict(transition("r-has-error", "r-error-end", "Root: a subflow faulted"),
+             availableIn=["r-in-mid"]),
+    ]},
+)
+
+
 def main():
-    for workflow in (LAB, GLOBAL):
+    for workflow in (LAB, GLOBAL, SF_ROOT, SF_MID, SF_LEAF):
         out = ROOT / f"{workflow['key']}.json"
         out.write_text(json.dumps(workflow, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         cases = len(workflow["attributes"]["states"][0]["transitions"])
