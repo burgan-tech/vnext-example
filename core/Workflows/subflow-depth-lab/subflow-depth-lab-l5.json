@@ -1,0 +1,135 @@
+{
+  "key": "subflow-depth-lab-l5",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow",
+    "subflow-depth-lab"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Subflow Depth Lab L5"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-subflow-depth-lab-l5",
+      "target": "l5-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start L5"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "l5-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "L5 Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-l5-to-waiting",
+            "target": "l5-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Waiting"
+              }
+            ],
+            "onExecutionTasks": [],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "l5-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Leaf Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "leaf-ping",
+            "target": "l5-waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Leaf Ping (self-loop)"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "leaf-finish",
+            "target": "l5-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Leaf Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "l5-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "L5 Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
