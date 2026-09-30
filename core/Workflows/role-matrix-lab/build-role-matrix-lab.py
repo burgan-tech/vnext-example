@@ -46,12 +46,16 @@ REPO = os.path.abspath(os.path.join(ROOT, "..", "..", ".."))
 FUNCTION_DIR = os.path.join(REPO, "core", "Functions", "role-matrix-lab")
 
 VERSION = "1.0.0"
+# Workflow ayri surumlenir: field-masking lab (2026-09-28) master semayi ve SeedCaseMapping'i degistirdi;
+# publish surum-degismezdir (ayni surum farkli icerik -> 409 Instance:100002), function degismedi.
+WORKFLOW_VERSION = "1.0.3"
 
 ENTRY_TASK = {"key": "role-matrix-entry-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 EXEC_TASK = {"key": "role-matrix-exec-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 SUMMARY_TASK = {"key": "role-matrix-summary-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
+SELF_READ_TASK = {"key": "role-matrix-self-read-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 
-MASTER_SCHEMA = {"key": "role-matrix-master", "domain": "core", "version": "1.0.0", "flow": "sys-schemas"}
+MASTER_SCHEMA = {"key": "role-matrix-master", "domain": "core", "version": "1.0.3", "flow": "sys-schemas"}
 DECISION_SCHEMA = {"key": "role-matrix-decision", "domain": "core", "version": "1.0.0", "flow": "sys-schemas"}
 REVIEW_VIEW = {"key": "role-matrix-review-view", "domain": "core", "version": "1.0.0", "flow": "sys-views"}
 SUMMARY_FUNCTION = {"key": "role-matrix-summary", "domain": "core", "version": "1.0.0", "flow": "sys-functions"}
@@ -285,6 +289,19 @@ def build_workflow():
             ],
             "onExecutionTasks": [exec_task("RecordNoteMapping.csx")],
         },
+        # field-masking lab: bir GetInstanceData (type 13) task'i BU instance'i okur ve iki korumali
+        # alani (x-masking + x-roles) korumasiz alanlara kopyalar. Trigger task okumasi sistem
+        # kimligiyle yapilir (SystemRead): kopyalar, cagiranin rolu ne olursa olsun SAKLANAN degeri
+        # tasimalidir. Grant yok: cagiran her rolle calistirabilir.
+        {
+            "key": "mirror-self",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": label("Mirror Protected Fields ($self)"),
+            "availableIn": ["intake"],
+            "onExecutionTasks": [task("SelfReadMapping.csx", SELF_READ_TASK)],
+        },
     ]
 
     attributes = {
@@ -318,7 +335,7 @@ def build_workflow():
         "flow": "sys-flows",
         "flowVersion": "1.0.0",
         "domain": "core",
-        "version": VERSION,
+        "version": WORKFLOW_VERSION,
         "tags": ["integration-test", "role-matrix-lab", "authorization", "roles", "query-roles"],
         "attributes": attributes,
     }
