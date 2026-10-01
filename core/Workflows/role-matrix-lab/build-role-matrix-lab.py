@@ -48,7 +48,7 @@ FUNCTION_DIR = os.path.join(REPO, "core", "Functions", "role-matrix-lab")
 VERSION = "1.0.0"
 # Workflow ayri surumlenir: field-masking lab (2026-09-28) master semayi ve SeedCaseMapping'i degistirdi;
 # publish surum-degismezdir (ayni surum farkli icerik -> 409 Instance:100002), function degismedi.
-WORKFLOW_VERSION = "1.0.3"
+WORKFLOW_VERSION = "1.0.8"
 
 ENTRY_TASK = {"key": "role-matrix-entry-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 EXEC_TASK = {"key": "role-matrix-exec-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
@@ -289,10 +289,10 @@ def build_workflow():
             ],
             "onExecutionTasks": [exec_task("RecordNoteMapping.csx")],
         },
-        # field-masking lab: bir GetInstanceData (type 13) task'i BU instance'i okur ve iki korumali
-        # alani (x-masking + x-roles) korumasiz alanlara kopyalar. Trigger task okumasi sistem
-        # kimligiyle yapilir (SystemRead): kopyalar, cagiranin rolu ne olursa olsun SAKLANAN degeri
-        # tasimalidir. Grant yok: cagiran her rolle calistirabilir.
+        # field-masking lab: bir GetInstanceData (type 13) task'i BU instance'i okur ve korumali alanlari
+        # korumasiz alanlara kopyalar. Trigger task okumasi task'in KENDI basliklariyla degerlendirilir
+        # (transition'i cagiranin kimligiyle degil); bu mapping baslik vermez, okuma rolsuzdur.
+        # Grant yok: cagiran her rolle calistirabilir.
         {
             "key": "mirror-self",
             "target": "$self",
@@ -301,6 +301,16 @@ def build_workflow():
             "labels": label("Mirror Protected Fields ($self)"),
             "availableIn": ["intake"],
             "onExecutionTasks": [task("SelfReadMapping.csx", SELF_READ_TASK)],
+        },
+        # Ayni okuma, ama task'in KENDI basliklarinda auditor rolu var (input binding): kimligi gelistirici verir.
+        {
+            "key": "mirror-self-auditor",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": label("Mirror Protected Fields as Auditor ($self)"),
+            "availableIn": ["intake"],
+            "onExecutionTasks": [task("SelfReadAuditorMapping.csx", SELF_READ_TASK)],
         },
     ]
 

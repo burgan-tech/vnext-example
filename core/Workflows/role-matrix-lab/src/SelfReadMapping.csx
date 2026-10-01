@@ -5,14 +5,18 @@ using BBT.Workflow.Definitions;
 using BBT.Workflow.Scripting;
 
 /// <summary>
-/// Task 13 (GetInstanceData) reading THIS instance, then copying protected fields into unguarded
-/// ones: <c>maskedExceptAuditor</c> (x-masking), <c>auditTrail</c> (x-roles, auditor only) and
-/// <c>vault.email</c> (x-encryption encrypt — also read straight from the script context).
+/// Task 13 (GetInstanceData) reading THIS instance WITHOUT task headers, then copying protected fields into unguarded
+/// ones: <c>maskedExceptAuditor</c> (x-masking), <c>auditTrail</c> (x-roles, auditor only), <c>customer.contact.phone</c>
+/// (x-roles-guarded parent + hash) and <c>vault.email</c> (x-encryption encrypt).
 /// <para>
-/// A trigger task reads under the engine's own identity (the runtime's SystemRead flag): no x-roles
-/// pruning, no x-masking. The copies must therefore hold the STORED values whatever roles the caller
-/// of the transition carried. Before the flag, the read ran the x-roles filter with the caller's ambient
-/// roles, so a Maker-driven copy of auditTrail came back empty — the red baseline this fixture records.
+/// A trigger task carries its caller's credential (sub, act_sub, position, client_id, role) wherever its own mapping sets
+/// none. This mapping sets none, so the read is the transition caller's: a maker sees masks, pruned fields and the
+/// encrypted value as its token; an auditor sees them in clear. The script's own view (<c>context.Instance.Data</c>)
+/// always shows the token; <c>context.Instance.DecryptAsync(path)</c> opens this instance's own field.
+/// </para>
+/// <para>
+/// The token itself is NOT copied: the write guard refuses an encrypted value at any path other than its own
+/// (<c>EncryptedValueReservedException</c>), so <c>mirroredVaultEmail</c> records <c>"&lt;token&gt;"</c> instead.
 /// </para>
 /// </summary>
 public class SelfReadMapping : ScriptBase, IMapping
@@ -24,7 +28,7 @@ public class SelfReadMapping : ScriptBase, IMapping
         return Task.FromResult(new ScriptResponse());
     }
 
-    public Task<ScriptResponse> OutputHandler(ScriptContext context)
+    public async Task<ScriptResponse> OutputHandler(ScriptContext context)
     {
         // Body = { isSuccess, data: <GetInstanceDataOutput { data, extensions, ... }>, ... }
         var dto = Get(context.Body, "data") ?? context.Body;
@@ -34,23 +38,34 @@ public class SelfReadMapping : ScriptBase, IMapping
         var audit = Get(data, "auditTrail")?.ToString();
         // Nested, x-roles-guarded parent (customer.contact, maker denied) + x-encryption hash child.
         var phone = Get(Get(Get(data, "customer"), "contact"), "phone")?.ToString();
-        // x-encryption "encrypt": the system read and the engine's own script context both see plaintext.
+        // x-encryption "encrypt": the task read gets the token unless its caller is exempt; the script's own view
+        // (context.Instance.Data). DecryptAsync opens the instance's OWN field by path; the value the task returned,
+        // handed to it as if it were a path, is not a path of this instance and stays closed.
         var vaultEmail = Get(Get(data, "vault"), "email")?.ToString();
         var scriptVaultEmail = Get(Get(context.Instance?.Data, "vault"), "email")?.ToString();
+        var decrypted = context.Instance is null ? null : await context.Instance.DecryptAsync("vault.email");
+        var decryptedTaskValue = context.Instance is null ? null : await context.Instance.DecryptAsync(vaultEmail ?? "vault.none");
         LogInformation($"SelfReadMapping: copied masked={(masked == null ? "<absent>" : "present")} audit={(audit == null ? "<absent>" : "present")}");
 
-        return Task.FromResult(new ScriptResponse
+        return new ScriptResponse
         {
             Data = new
             {
                 mirroredMasked = masked ?? "<absent>",
                 mirroredAuditTrail = audit ?? "<absent>",
                 mirroredPhone = phone ?? "<absent>",
-                mirroredVaultEmail = vaultEmail ?? "<absent>",
-                scriptSawVaultEmail = scriptVaultEmail ?? "<absent>"
+                mirroredVaultEmail = vaultEmail == null ? "<absent>"
+                    : vaultEmail.StartsWith("ENCRYPTED:AES256:", StringComparison.Ordinal) ? "<token>" : vaultEmail,
+                // A token may not be written to another field (the write funnel refuses it): record a marker.
+                scriptSawVaultEmail = Marker(scriptVaultEmail),
+                decryptedVaultEmail = decrypted ?? "<null>",
+                decryptedTaskValue = decryptedTaskValue ?? "<null>"
             }
-        });
+        };
     }
+
+    private static string Marker(string? value) =>
+        value == null ? "<absent>" : value.StartsWith("ENCRYPTED:AES256:", StringComparison.Ordinal) ? "<token>" : value;
 
     private static object? Get(object? node, string name)
     {

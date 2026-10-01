@@ -244,30 +244,21 @@ public class SchemaFieldExposureNestedTests : RoleMatrixLabTestBase
 
     // ── one decision, every surface ──────────────────────────────────────────
 
-    /// <summary>
-    /// Instance GET serves data exactly as stored (committee decision; Phase 2 revisits): the same tree for every
-    /// caller, with no x-roles pruning and no masking — only the hash, applied on write, is a digest there too.
-    /// </summary>
-    [Fact]
-    public async Task TheInstanceGet_ServesTheStoredTree_ToEveryCaller()
+    [Theory]
+    [InlineData(Maker)]
+    [InlineData(Approver)]
+    [InlineData(Auditor)]
+    public async Task TheInstanceGet_ServesExactlyTheSameNestedTreeAsTheDataFunction(string roles)
     {
         var instanceId = await StartCaseAsync("nest-surfaces");
 
-        string? reference = null;
-        foreach (var roles in new[] { Maker, Approver, Auditor })
-        {
-            var instance = await Api.GetInstanceAsync(Workflow, instanceId, Headers(roles));
-            var attributes = instance.Body.GetProperty("attributes");
-            var customer = attributes.GetProperty("customer").GetRawText();
-            reference ??= customer;
-            Assert.Equal(reference, customer);
+        var data = await DataAsync(instanceId, roles);
+        var instance = await Api.GetInstanceAsync(Workflow, instanceId, Headers(roles));
+        var attributes = instance.Body.GetProperty("attributes");
 
-            Assert.True(HasPath(attributes, "customer.contact"), $"GET pruned customer.contact for {roles}");
-            Assert.Equal(Tckn, StrAt(attributes, "customer.tckn"));
-            Assert.Equal(Email, StrAt(attributes, "customer.contact.email"));
-            Assert.StartsWith(DigestPrefix, StrAt(attributes, "customer.contact.phone"));
-            Assert.True(HasPath(attributes, "riskScore"), $"GET pruned riskScore for {roles}");
-        }
+        Assert.Equal(data.GetProperty("customer").GetRawText(), attributes.GetProperty("customer").GetRawText());
+        Assert.Equal(data.TryGetProperty("accounts", out _), attributes.TryGetProperty("accounts", out _));
+        Assert.Equal(data.TryGetProperty("riskScore", out _), attributes.TryGetProperty("riskScore", out _));
     }
 
     /// <summary>The sync transition response is the third caller-facing surface and applies the same plan.</summary>
@@ -290,18 +281,30 @@ public class SchemaFieldExposureNestedTests : RoleMatrixLabTestBase
         Assert.DoesNotContain(Email, raw);
     }
 
-    // ── system read: stored nested values are untouched ──────────────────────
+    // ── trigger-task reads follow the TASK'S credential ──────────────────────
 
     /// <summary>
-    /// Driven by the MAKER, who cannot see <c>customer.contact</c> at all. The GetInstanceData task still
-    /// copies the STORED phone out of that hidden subtree — which, hash being applied on write, is the digest.
+    /// A header-less task read is its caller's: driven by the MAKER, from whom customer.contact is hidden, nothing is copied.
     /// </summary>
     [Fact]
-    public async Task ATriggerTaskRead_CopiesAStoredValueOutOfASubtreeTheCallerCannotSee()
+    public async Task ATaskWithoutHeaders_ReadsAsItsCaller_CannotCopyOutOfASubtreeHiddenFromIt()
     {
-        var instanceId = await StartCaseAsync("nest-system-read");
+        var instanceId = await StartCaseAsync("nest-task-maker");
 
         await RunAcceptedAsync(Workflow, instanceId, "mirror-self", new { }, Maker);
+        await WaitUntilSettledAsync(Workflow, instanceId, Approver);
+        await AssertNotFaultedAsync(Workflow, instanceId, Approver);
+
+        Assert.Equal("<absent>", StrAt(await DataAsync(instanceId, Approver), "mirroredPhone"));
+    }
+
+    /// <summary>With an auditor credential the task sees customer.contact and copies the stored digest of the phone.</summary>
+    [Fact]
+    public async Task ATaskReadWithAnAuditorCredential_CopiesOutOfASubtreeItsCallerCannotSee()
+    {
+        var instanceId = await StartCaseAsync("nest-task-auditor");
+
+        await RunAcceptedAsync(Workflow, instanceId, "mirror-self-auditor", new { }, Maker);
         await WaitUntilSettledAsync(Workflow, instanceId, Approver);
         await AssertNotFaultedAsync(Workflow, instanceId, Approver);
 

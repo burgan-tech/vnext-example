@@ -160,18 +160,19 @@ public class SchemaFieldMaskingTests : RoleMatrixLabTestBase
     // ── other read surfaces ──────────────────────────────────────────────────
 
     /// <summary>
-    /// Instance GET and list serve data exactly as stored (committee decision; Phase 2 revisits): no masking, so the
-    /// masked fields come back in clear, and the hashed field as its stored digest. The data function stays masked.
+    /// Instance GET and list read through the same guarded path as the data function: the same masks, the same digest,
+    /// and the allow-listed auditor sees the value in clear on every surface.
     /// </summary>
     [Fact]
-    public async Task InstanceGetAndList_ServeTheStoredValues_TheDataFunctionStaysMasked()
+    public async Task InstanceGetAndList_ApplyTheSameMasking_AsTheDataFunction()
     {
         var instanceId = await StartCaseAsync("xmask-surfaces");
 
         var instance = await Api.GetInstanceAsync(Workflow, instanceId, Headers(Approver));
         var attributes = instance.Body.GetProperty("attributes");
-        Assert.Equal(Iban, Str(attributes, "maskedForAll"));
-        Assert.Equal(Tckn, Str(attributes, "maskedExceptAuditor"));
+        Assert.Equal(MaskedIban, Str(attributes, "maskedForAll"));
+        Assert.Equal(MaskedTckn, Str(attributes, "maskedExceptAuditor"));
+        Assert.Equal(Placeholder, Str(attributes, "replacedNote"));
         AssertDigest(Str(attributes, "hashedCustomerNo"));
 
         var (listStatus, listBody) = await SendRawAsync(HttpMethod.Get,
@@ -181,13 +182,15 @@ public class SchemaFieldMaskingTests : RoleMatrixLabTestBase
         var item = FindItem(list.RootElement, instanceId);
         Assert.True(item.HasValue, $"instance {instanceId} is not on the first list page");
         var listed = item!.Value.GetProperty("attributes");
-        Assert.Equal(Iban, Str(listed, "maskedForAll"));
-        Assert.Equal(Tckn, Str(listed, "maskedExceptAuditor"));
-        Assert.NotEqual(Placeholder, Str(listed, "replacedNote"));
+        Assert.Equal(MaskedIban, Str(listed, "maskedForAll"));
+        Assert.Equal(MaskedTckn, Str(listed, "maskedExceptAuditor"));
+        Assert.Equal(Placeholder, Str(listed, "replacedNote"));
 
         var (_, data) = await GetDataAttributesAsync(instanceId, Approver);
-        Assert.Equal(MaskedIban, Str(data, "maskedForAll"));
-        Assert.Equal(MaskedTckn, Str(data, "maskedExceptAuditor"));
+        Assert.Equal(Str(data, "maskedExceptAuditor"), Str(attributes, "maskedExceptAuditor"));
+
+        var asAuditor = await Api.GetInstanceAsync(Workflow, instanceId, Headers(Auditor));
+        Assert.Equal(Tckn, Str(asAuditor.Body.GetProperty("attributes"), "maskedExceptAuditor"));
     }
 
     // ── cache / ETag ─────────────────────────────────────────────────────────
@@ -210,20 +213,52 @@ public class SchemaFieldMaskingTests : RoleMatrixLabTestBase
         Assert.Equal(HttpStatusCode.OK, auditor);
     }
 
-    // ── system read: stored data is untouched ────────────────────────────────
+    // ── trigger-task reads follow the TASK'S credential ──────────────────────
 
     /// <summary>
-    /// A GetInstanceData task reads under the engine's own identity. Driven by the MAKER — a caller
-    /// that sees <c>maskedExceptAuditor</c> masked and does not see <c>auditTrail</c> at all — the copies
-    /// must still hold the stored values. On the runtime before the SystemRead flag the auditTrail copy
-    /// came back <c>&lt;absent&gt;</c>: the task read was x-roles-pruned under the caller's roles.
+    /// A GetInstanceData task carries its caller's credential (sub, act_sub, position, client_id, role) wherever its own
+    /// mapping sets none. mirror-self sets none, so it reads AS its caller: driven by the MAKER it copies what the maker
+    /// sees — the mask, and no auditTrail at all.
     /// </summary>
     [Fact]
-    public async Task ATriggerTaskRead_CopiesTheStoredValues_WhateverTheCallerMaySee()
+    public async Task ATaskWithoutHeaders_ReadsAsItsCaller_TheMakerSeesTheMask()
     {
-        var instanceId = await StartCaseAsync("xmask-system");
+        var instanceId = await StartCaseAsync("xmask-task-maker");
 
         await RunAcceptedAsync(Workflow, instanceId, "mirror-self", new { }, Maker);
+        await WaitUntilSettledAsync(Workflow, instanceId, Approver);
+        await AssertNotFaultedAsync(Workflow, instanceId, Approver);
+
+        var (_, attributes) = await GetDataAttributesAsync(instanceId, Approver);
+        Assert.Equal(MaskedTckn, Str(attributes, "mirroredMasked"));
+        Assert.Equal("<absent>", Str(attributes, "mirroredAuditTrail"));
+    }
+
+    /// <summary>The same header-less task driven by the AUDITOR reads as the auditor: the clear value and the audit trail.</summary>
+    [Fact]
+    public async Task ATaskWithoutHeaders_ReadsAsItsCaller_TheAuditorSeesTheClearValue()
+    {
+        var instanceId = await StartCaseAsync("xmask-task-caller-auditor");
+
+        await RunAcceptedAsync(Workflow, instanceId, "mirror-self", new { }, Auditor);
+        await WaitUntilSettledAsync(Workflow, instanceId, Approver);
+        await AssertNotFaultedAsync(Workflow, instanceId, Approver);
+
+        var (_, attributes) = await GetDataAttributesAsync(instanceId, Approver);
+        Assert.Equal(Tckn, Str(attributes, "mirroredMasked"));
+        Assert.Equal("seeded-audit-trail", Str(attributes, "mirroredAuditTrail"));
+    }
+
+    /// <summary>
+    /// mirror-self-auditor gives the task an auditor credential in its input binding: driven by the MAKER, it copies what an
+    /// auditor sees — whoever triggers it. The credential is the developer's to supply.
+    /// </summary>
+    [Fact]
+    public async Task ATaskReadWithAnAuditorCredential_CopiesWhatTheAuditorSees_WhoeverDrivesIt()
+    {
+        var instanceId = await StartCaseAsync("xmask-task-auditor");
+
+        await RunAcceptedAsync(Workflow, instanceId, "mirror-self-auditor", new { }, Maker);
         await WaitUntilSettledAsync(Workflow, instanceId, Approver);
         await AssertNotFaultedAsync(Workflow, instanceId, Approver);
 

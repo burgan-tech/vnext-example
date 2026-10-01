@@ -19,11 +19,18 @@ transition ve her alan, **farklı bir grant kombinasyonunu görünür kılmak** 
 `replacedNote` (`replace` → `[gizli]`). Ayrıca `hashedCustomerNo` `x-encryption.type: hash` taşır: değer **yazılırken**
 `HASHED:SHA256:<hex>` özetine çevrilir (instance'a özgü tuz, `InstanceSecrets` tablosunda), ham değer hiçbir yerde
 kalmaz; herkes (auditor dahil — hash muafiyet almaz) aynı özeti görür, iki instance'ta aynı değer farklı özet üretir.
-`SchemaFieldMaskingTests` bunları data function, ETag/304 ve caller kapsamı üzerinden doğrular; **instance GET/list
-veriyi saklandığı gibi döner** (maskeleme ve `x-roles` yok — komite kararı, Faz 2). `mirror-self` shared transition'ı
-bir GetInstanceData (type 13) task'iyle **kendi** verisini okuyup korumalı alanları korumasız alanlara kopyalar:
-trigger task okuması sistem kimliğiyle yapılır (runtime'ın `SystemRead` bayrağı), kopyalar **saklanan** değeri taşımalıdır.
-Master runtime'da (bayraktan önce) `mirroredAuditTrail` `<absent>` döner — kırmızı taban çizgisi budur.
+`SchemaFieldMaskingTests` bunları data function, ETag/304, caller kapsamı ve **instance GET/list** üzerinden doğrular:
+Faz 2'den (2026-09-30) itibaren GET, liste, data function, senkron yanıt ve Get* task'leri tek okuma servisinden
+(`IInstanceDataReadService`) geçer, hepsi aynı maskeyi ve aynı budamayı uygular. `mirror-self` shared transition'ı bir
+GetInstanceData (type 13) task'iyle **kendi** verisini okuyup korumalı alanları korumasız alanlara kopyalar. Trigger task
+okuması **task'in kendi header'larıyla** değerlendirilir, transition'ı tetikleyenle değil: `mirror-self` header vermez
+(okuma çağıranındır: maker tetiklerse maske, `auditTrail` yok, `vault.email` jeton; auditor tetiklerse açık değerler),
+`mirror-self-auditor` input mapping'inde `role: morph-idm.auditor` verir (açık değerler) — kim tetiklerse tetiklesin.
+Task'in giden başlık seti mapping başlıkları + mapping'in vermediği her biri için çağıranın credential'ıdır (`sub`,
+`act_sub`, `position`, `client_id`, `role`); `role` yalnız çağıranın gönderdiği haliyle, morph-idm'in çözdüğü değil. Mapping ayrıca motorun düz görünümünü
+(`context.Instance.Data`) kaydeder. Jetonun kendisi kopyalanmaz — yazma
+bekçisi başka bir yola konan jetonu reddeder (`EncryptedValueReservedException`), bu yüzden `mirroredVaultEmail` `<token>`
+kaydeder. Faz 1 build'inde (`3b22a803`) bu testlerin 11'i kırmızıdır — ayırt edici taban çizgisi budur.
 
 **İç içe veri (`SchemaFieldExposureNestedTests`).** Yalnız primitif alanlarla mutlu yol yeterli değil: `customer`
 nesnesinin altında `x-roles` ALLOW yaprağı (`segment`), `x-roles` DENY alt ağacı (`contact`, maker hariç herkes;
@@ -32,7 +39,7 @@ yaprağı (`address.line1`) var; ayrıca bütün olarak korunan nesne dizisi (`a
 (`riskScore`), `$InstanceStarter` (`ownerNote`, `act_sub` ile) ve korumasız string dizisi (`tags`). Her ALLOW
 alanı izinli, izinsiz, izinli+reddedilen ve rolsüz çağıranla ayrı ayrı doğrulanır; gizlenen alt ağacın hiçbir
 çocuğunun hiçbir biçimi (açık, maskeli, hash) data function gövdesinde görünmemelidir. Data function ve senkron
-transition yanıtı aynı ağacı döndürür; instance GET her çağırana saklanan ağacı (budamasız, maskesiz; `phone` özet) döner.
+transition yanıtı aynı ağacı döndürür; instance GET her rol için data function'la **birebir aynı** ağacı döner.
 
 ## Neden var
 
@@ -139,20 +146,50 @@ Alan görünürlüğü 46 test yeşil (6 `x-roles` + 9 maskeleme/hash + 31 iç i
 **Şifreleme (`SchemaFieldEncryptionTests`, `x-encryption.type: encrypt`).** Master şema `1.0.3` bir `vault`
 nesnesi taşır: `email` (encrypt, auditor için allow-only muafiyet, `format: email`), `pin` (encrypt, muafiyetsiz) ve
 `label` (şifresiz). Start transition'ı üçünü de açık yazar; runtime iki şifreli alanı `InstancesData."Data"`
-kolonunda `ENCRYPTED:AES256:i1:…` jetonu olarak saklar, motor düz metin görür. Anahtar ve tuz instance başına ilk
+kolonunda `ENCRYPTED:AES256:i1:…` jetonu olarak saklar; instance verisi motorda da bu ham haliyle durur. Anahtar ve tuz instance başına ilk
 korumalı yazmada runtime tarafından üretilir ve flow şemasının `InstanceSecrets` tablosunda tutulur (config/Vault
 yok; önbellek yalnız süreç içi, Redis'e yazılmaz). Doğrulananlar: data function ve senkron transition yanıtında
 auditor `email`'i açık, diğer herkes (maker, approver, rolsüz, yanlış yazılmış rol) saklanan jetonu görür; `pin`'i
-herkes jeton görür; instance GET ve liste herkese jetonu döner; `mirror-self`'in sistem okuması ve mapping'in kendi
-script context'i düz metni görür; değişmeyen değer sonraki yazmalarda aynı jetonu korur (ve `format: email`
+herkes jeton görür; instance GET, liste ve senkron yanıt aynı muafiyeti uygular (auditor açık, approver jeton);
+header'sız `mirror-self` task okuması çağıranın görüşünü (maker → jeton), `mirror-self-auditor` düz metin alır;
+mapping'in kendi script context'i jetonu görür ve `context.Instance.DecryptAsync("vault.email")` ile açar; değişmeyen değer sonraki yazmalarda aynı jetonu korur (ve `format: email`
 validasyonu geçmeye devam eder); okunan jetonun aynen geri gönderilmesi no-op'tur; başka instance'ın jetonu ya da düz
 alana konan önek 400 `Instance:100041` ile reddedilir; şifreli yola (ve üst nesnesine) filtre 400 döner. Kolonun ve
 anahtar satırlarının içeriği testin dışında psql ile doğrulanır:
 `SELECT "Data"->'vault', "Data"->>'hashedCustomerNo' FROM role_matrix_lab."InstancesData" WHERE "IsLatest" ORDER BY "EnteredAt" DESC LIMIT 3;`
 ve `SELECT count(*) FROM role_matrix_lab."InstanceSecrets";`.
 
-- `ATriggerTaskRead_CopiesTheStoredValues_WhateverTheCallerMaySee` — maskeli/budanmış alanı
-  göremeyen Maker'ın tetiklediği GetInstanceData task'i bile saklanan değeri kopyalar.
+- `AHeaderlessTaskRead_CopiesWhatARoleLessCallerSees` / `ATaskReadWithAnAuditorCredential_CopiesWhatTheAuditorSees_WhoeverDrivesIt`
+  — Maker tetikler; task header'sızken rolsüz caller'ın gördüğünü, auditor header'ıyla auditor'ün gördüğünü kopyalar.
+
+**2026-10-01 koşusu (ham veri modeli, master ile birleşik build)** — vnext `feature/field-masking-x-masking`
+(`c4cf7c32`): `InstanceData.Data` her yerde DB'deki ham hal, çözme yalnız istendiğinde (`DecryptAsync`, okuma bekçisi,
+yazma hunisi), context yüklemesindeki `Instance:100040` kapısı kaldırıldı. Fixture değişmedi (workflow `1.0.8`).
+RoleMatrixLab 92/115, 23 kırmızı önceki koşularla aynı küme; alan görünürlüğü/maskeleme/şifreleme sınıflarında kırmızı
+yok. Tam paket 332/393 — kalan kırmızılar bilinen kümeler: queryRoles gateway kararı (RoleMatrixLab 16 + AccountOpening
+ve ErrorBoundaryLab 403 birer), CS8197 (5), `act_sub` olmadan `$InstanceStarter` (2), partner domain kapalı
+(HumanTaskChain 10, CrossDomainLab 14), DataIntegrityLab Busy (2), TaskInvocationLab Dapr metadata (1). psql: bu
+koşunun satırlarında `vault.email` / `vault.pin` hep jeton, hash yolları hep özet, düz metin 0; Redis'te anahtar/tuz yok.
+
+**2026-10-01 koşusu (credential seti)** — task'in giden başlık seti artık çağıranın `sub`, `act_sub`, `position`,
+`client_id` ve `role`'ünü taşır (workflow `1.0.8`). Header'sız `mirror-self` testleri çağıranın görüşünü doğrular: maker
+tetikleyince maske / jeton / `auditTrail` yok, auditor tetikleyince açık değer ve `auditTrail`. Paket 92/115, 23 kırmızı
+aynı küme. Ayırt edici: eski kurallı runtime'da (yalnız `sub`/`act_sub`) yeni iki auditor testi kırmızı (90/115).
+
+**2026-10-01 koşusu (Faz B) — script jeton görünümü + `DecryptAsync`** (aynı lokal build, workflow `1.0.7`).
+`mirror-self` script'i `context.Instance.Data`'da `vault.email`'i jeton görür (`scriptSawVaultEmail = <token>`), kendi alanını
+`await context.Instance.DecryptAsync("vault.email")` ile açar (`decryptedVaultEmail` = düz değer) ve task'in döndürdüğü
+jetonu yol diye verince `null` alır (`decryptedTaskValue = <null>`). Paket 90/113, 23 kırmızı Faz A koşusuyla birebir aynı.
+Ayırt edici: aynı fixture Faz A runtime'ına karşı 87/113 — `mirror-self` kullanan 3 test orada kırmızı (`DecryptAsync`
+yok). Bu koşuda 544 satırın hepsinde `vault.email` jeton, düz metin 0; Redis'te korumalı değer yok.
+
+**2026-10-01 koşusu (Faz 2, yalın) — merkezi okuma bekçisi 60/60 yeşil** (vnext `feature/field-masking-x-masking`
+lokal build, commit'siz çalışma ağacı, `run-docker.sh up core`, `http://localhost:4201`, provider `default`; workflow
+`1.0.6`). `SchemaFieldVisibilityTests` 6/6, `SchemaFieldMaskingTests` 11/11, `SchemaFieldExposureNestedTests` 32/32,
+`SchemaFieldEncryptionTests` 11/11; paketin tamamı 90/113, kalan 23 kırmızı aşağıdaki küme ve Faz 1 build'inde
+(`3b22a803`) kırmızı olan 34'ün alt kümesi — yalnız bu build'de kırmızı test yok; Faz 1'de kırmızı olan 11 GET/list/task
+testi burada yeşil. Bu koşuda yazılan 275 satırın hepsinde `vault.email` jeton, düz metin 0, başka alana kopyalanmış
+jeton 0; Redis'te tanım önbelleği dışında korumalı değer taşıyan anahtar yok.
 
 **2026-09-30 koşusu — komite değişikliği sonrası alan görünürlüğü + şifreleme 55/55 yeşil** (vnext
 `feature/field-masking-x-masking` lokal build, `run-docker.sh up core`, `http://localhost:4201`; master şema ve workflow
@@ -206,13 +243,14 @@ kapsamı başına doğru gövdeyi taşıyor (auditor kapsamı açık `tckn` + `r
   `feature/field-masking-x-masking`) yerelde derlenmiş runtime'a karşı yeşildir; önceki runtime anahtar
   kelimeyi yok sayar ve değerleri açık döner.
 - **Şifreleme yalnız instance data'yı kapsar.** `InstanceTransition.Body`, task kayıtları, outbox ve job
-  payload'ları düz metindir (Faz 2); `mirror-self`'in kopyaladığı `mirroredVaultEmail` / `scriptSawVaultEmail`
+  payload'ları düz metindir (Faz 2); `mirror-self`'in kopyaladığı `scriptSawVaultEmail`
   bilerek korumasız alanlardır — kopyalanan değer şifresini kaybeder.
 - **Şifreleme runtime'ı ve migration'ı gerektirir.** `SchemaFieldEncryptionTests` `encrypt` uygulayan yerel build'e ve
   `InstanceSecrets` migration'ı uygulanmış şemaya karşı yeşildir; `SchemaEncryption:EncryptWrites=false` host
   `encrypt`/`hash` şemasının publish'ini reddeder.
-- **Instance GET/list alan korumasını uygulamaz** (komite kararı, Faz 2): `x-roles` ile gizlenen ve maskelenen alanlar
-  orada açık görünür — bu testler bunu bilerek pinler.
+- **Task header'sızsa çağıranı adına okur.** Başka bir kimlikle okumak için credential'ı input mapping'de verin; mapping
+  değeri kazanır (Faz 2, `SystemRead` kaldırıldı).
+- **Liste yalnız son veri satırını yükler**: liste extension'ı `DataList`'te tek satır görür.
 - **Aynı sürümle yeniden publish ETag'i oynatmaz** (bilinen açık, `vnext-meta/known-issues.json`
   `masked-field-same-version-republish-stale-etag`): maskeleme kuralını değiştirince şema sürümünü artırın.
 

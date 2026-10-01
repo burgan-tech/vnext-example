@@ -10,7 +10,8 @@ namespace Core.IntegrationTests.Tests.RoleMatrixLab;
 /// The start transition seeds <c>vault.email</c> (encrypt, allow-only exemption for the auditor), <c>vault.pin</c>
 /// (encrypt, no exemption) and <c>vault.label</c> (plain) in clear. The runtime stores the two encrypted values as
 /// <c>ENCRYPTED:AES256:i1:…</c> tokens under the instance's own key (generated on the first write, kept in the flow
-/// schema's <c>InstanceSecrets</c> table); the engine keeps seeing plaintext. On the data function and the sync
+/// schema's <c>InstanceSecrets</c> table); instance data holds the token everywhere in the engine, and a script opens its
+/// own value with <c>context.Instance.DecryptAsync(path)</c>. On the data function and the sync
 /// response the auditor gets the plaintext of <c>vault.email</c> and every other caller the stored token; instance
 /// GET and list serve the stored token to everyone. The column contents and the secret rows are checked outside the
 /// test (psql) — see the README.
@@ -85,16 +86,14 @@ public class SchemaFieldEncryptionTests : RoleMatrixLabTestBase
     }
 
     [Fact]
-    public async Task InstanceGetAndList_ServeTheStoredToken_TheSyncResponseAppliesTheExemption()
+    public async Task InstanceGetListAndSyncResponse_ApplyTheSameExemption_AsTheDataFunction()
     {
         var instanceId = await StartCaseAsync("xenc-surfaces");
 
-        // GET and list serve data as stored: the token, even to the allow-listed auditor.
-        foreach (var roles in new[] { Approver, Auditor })
-        {
-            var instance = await Api.GetInstanceAsync(Workflow, instanceId, Headers(roles));
-            Assert.StartsWith(TokenPrefix, StrAt(instance.Body.GetProperty("attributes"), "vault.email"));
-        }
+        var asApprover = await Api.GetInstanceAsync(Workflow, instanceId, Headers(Approver));
+        Assert.StartsWith(TokenPrefix, StrAt(asApprover.Body.GetProperty("attributes"), "vault.email"));
+        var asAuditor = await Api.GetInstanceAsync(Workflow, instanceId, Headers(Auditor));
+        Assert.Equal(VaultEmail, StrAt(asAuditor.Body.GetProperty("attributes"), "vault.email"));
 
         var (listStatus, listBody) = await SendRawAsync(HttpMethod.Get,
             $"api/v1/core/workflows/{Workflow}/instances?pageSize=100", headers: HeadersFor(Approver));
@@ -145,14 +144,16 @@ public class SchemaFieldEncryptionTests : RoleMatrixLabTestBase
         }
     }
 
-    // ── engine sees plaintext ────────────────────────────────────────────────
+    // ── scripts see the token, DecryptAsync opens it ────────────────────────────────────────────
 
     /// <summary>
-    /// The mirror-self task reads the instance as a system read and its mapping also reads its own script context:
-    /// both must see the plaintext. (The copies land in unguarded fields — a documented consequence of copying.)
+    /// A script sees the token in its own view (<c>context.Instance.Data</c>) and opens it with
+    /// <c>context.Instance.DecryptAsync(path)</c>. A header-less task read is its caller's — here the MAKER, who is not on the
+    /// exemption list — so the task response carries the token too, and that token, handed to DecryptAsync as if it were a
+    /// path, stays closed: only the instance's own fields are decryptable.
     /// </summary>
     [Fact]
-    public async Task TheEngine_ScriptsAndSystemReads_SeeThePlaintext()
+    public async Task AScriptSeesTheToken_AndDecryptAsyncOpensOnlyItsOwnField()
     {
         var instanceId = await StartCaseAsync("xenc-engine");
 
@@ -161,9 +162,38 @@ public class SchemaFieldEncryptionTests : RoleMatrixLabTestBase
         await AssertNotFaultedAsync(Workflow, instanceId, Approver);
 
         var (_, attributes) = await GetDataAttributesAsync(instanceId, Approver);
-        Assert.Equal(VaultEmail, StrAt(attributes, "mirroredVaultEmail"));
-        Assert.Equal(VaultEmail, StrAt(attributes, "scriptSawVaultEmail"));
+        Assert.Equal("<token>", StrAt(attributes, "mirroredVaultEmail")); // the maker's read: the token
+        Assert.Equal("<token>", StrAt(attributes, "scriptSawVaultEmail"));
+        Assert.Equal(VaultEmail, StrAt(attributes, "decryptedVaultEmail"));
+        Assert.Equal("<null>", StrAt(attributes, "decryptedTaskValue"));
         Assert.StartsWith(TokenPrefix, StrAt(attributes, "vault.email"));
+    }
+
+    /// <summary>The same header-less task driven by the AUDITOR reads as the auditor, who is exempt: the plaintext.</summary>
+    [Fact]
+    public async Task ATaskWithoutHeaders_DrivenByTheAuditor_GetsThePlaintext()
+    {
+        var instanceId = await StartCaseAsync("xenc-task-caller-auditor");
+
+        await RunAcceptedAsync(Workflow, instanceId, "mirror-self", new { }, Auditor);
+        await WaitUntilSettledAsync(Workflow, instanceId, Approver);
+        await AssertNotFaultedAsync(Workflow, instanceId, Approver);
+
+        var (_, attributes) = await GetDataAttributesAsync(instanceId, Approver);
+        Assert.Equal(VaultEmail, StrAt(attributes, "mirroredVaultEmail"));
+    }
+
+    [Fact]
+    public async Task ATaskReadWithAnAuditorCredential_GetsThePlaintext()
+    {
+        var instanceId = await StartCaseAsync("xenc-task-auditor");
+
+        await RunAcceptedAsync(Workflow, instanceId, "mirror-self-auditor", new { }, Maker);
+        await WaitUntilSettledAsync(Workflow, instanceId, Approver);
+        await AssertNotFaultedAsync(Workflow, instanceId, Approver);
+
+        var (_, attributes) = await GetDataAttributesAsync(instanceId, Approver);
+        Assert.Equal(VaultEmail, StrAt(attributes, "mirroredVaultEmail"));
     }
 
     /// <summary>
