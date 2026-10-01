@@ -72,6 +72,22 @@
           "contentType": "application/json"
         }
       ]
+    },
+    {
+      "httpMethod": "POST",
+      "route": "api/eb-lab/fail-400",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 400,
+      "responseBody": "{\n  \"error\": {\n    \"code\": \"EB_LAB_400\",\n    \"message\": \"Deliberate 400 for error-boundary-lab (subflow fault chain)\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Always 400 — the leaf task of the subflow fault chain (eb-sf-leaf), mirroring a business 400 from a downstream API",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
     }
   ]
 }

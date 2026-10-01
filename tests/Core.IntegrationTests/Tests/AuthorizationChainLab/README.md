@@ -126,6 +126,43 @@ ortam değişkeni yok, tek duruş var.
    gürültülü kırılmıyordu; istemci o state'in her poll'ünde bir ack atıp başarı okuyordu.
    `ResponseShapeVersion` v10→v11.
 
+**2026-09-25 — `?role=` parametresi de header gibi davranır: 9/9** (aynı branch, `morph-idm`).
+`authorize`'ın `role` query parametresi artık istekte `role` header'ı yoksa **header olarak**
+resolver'a veriliyor (`RoleParameterMode.AsRoleHeader`): rol kümesi `[X]` olur, morph-idm'e gidilmez;
+gerçek header parametreye üstün gelir; `ack` dahil her hedefte. `TheRoleQueryParameterDoesNotSurvive…`
+ters çevrilip `TheRoleQueryParameterBehavesLikeTheRoleHeader` oldu, `ARealRoleHeaderWinsOverTheRoleQueryParameter`
+eklendi. Kanıt: MockLab sayacı — `?role=maker` ile header'sız istek **0** `get-roles` çağrısı, parametresiz
+istek 1 çağrı. `default` provider'da davranış değişmedi; yetki suite'leri yine master'daki 21 bilinen
+kırmızıyla birebir.
+
+**2026-09-25 — `role` header'ı önceliklidir: 8/8** (runtime lokal build, branch
+`feature/morph-idm-header-role-precedence`, `CallerRoleProvider__Provider=morph-idm`). Komite kararı:
+istekte boş olmayan bir `role` header'ı varsa o roller çağıranın kümesidir ve morph-idm'e **hiç
+sorulmaz**; header yoksa eskisi gibi morph-idm'e sorulur (hata/boş cevap → boş küme). Birleştirme
+yok — header servisin cevabının yerine geçer. `?role=` query parametresi bu kararın kapsamında değil,
+morph-idm altında hâlâ yok sayılıyor. Testlerde: `AnAssertedHeaderRoleDoesNotSurviveAnEmptyProviderAnswer`
+ters çevrilip `ARoleHeaderDecides_AndMorphIdmIsNotAsked` oldu, `ARoleHeaderDecides_EvenWhenMorphIdmWouldFail`
+eklendi, kesinti testi ve okuma yüzeyi testi header'sız isteğe çekildi (header'lı istek artık provider'ı
+ölçmez). Kanıt: OpenObserve'de `Auth.ResolveRoles` `outcome=header` span'leri (`idm-broken` için 3
+`header` + 3 `failed/http_status`); MockLab `_admin/logs`'ta `idm-broken` için yalnızca 6 `get-roles`
+çağrısı (3 header'sız istek × 1 retry) ve hiçbir çağrıda `role` header'ı yok. Aynı runtime `default`
+provider'la yetki suite'leri: 93 geçti / 30 kırmızı (21 benzersiz test) — master'daki bilinen
+kırmızılarla birebir aynı (`RoleMatrixLab` 19, `AccountOpening` 1, `ErrorBoundaryLab` 1).
+
+**2026-09-25 — provider hatası artık boş küme: 7/7** (runtime lokal build, branch
+`feature/role-resolution-fail-open-deny-closed`, `CallerRoleProvider__Provider=morph-idm`). morph-idm'in
+hiçbir hatası isteği kırmıyor: 4xx/5xx, timeout, bağlantı hatası, parse edilemeyen gövde, `204` /
+`roles: []` hepsi **boş rol kümesi**; `act_sub` ve `client_id` ikisi de yoksa runtime morph-idm'e hiç
+sormuyor. Bunu güvenli yapan şart aynı değişiklikte: **rolsüz çağıran, role-bound (statik rol / `$role.`)
+bir deny'ı geçemez** — aksi halde kesinti her blacklist'i açardı. `AnUnreachableProviderRefusesRather…`
+testi `AnUnreachableProviderIsEvaluatedAsNoRoles_AndTheAllowlistRefusesIt` oldu: `authorize?queryRoles=true`
+yine 403 ama gövde `{"allowed":false}` (bir **karar**, `Authorization:110004` hata gövdesi değil), aynı
+çağıran için state function **200**. `As()` artık `sub` ile birlikte `act_sub` da gönderiyor — göndermeseydi
+yeni ön koşul yüzünden MockLab seed'ine hiç ulaşılmazdı. Kanıt: host log'unda `idm-broken` için
+`fail … [20442] FailureKind=http_status, StatusCode=500`, `idm-empty` için `warn … [20441]
+EmptyReason=no_content`; OpenObserve'de `Auth.ResolveRoles` span'leri `outcome=failed` + `failure_kind=http_status`
+(status ERROR), `outcome=empty` + `empty_reason=no_content` (UNSET), memo-hit span'leri aynı tag'lerle.
+
 **2026-09-23 — `morph-idm` provider'ı: 7/7.** Orchestration host'u
 `CallerRoleProvider__Provider=morph-idm` + MockLab (`morph-idm-roles-collection.json`) ile üçüncü kez
 başlatıldı; sonra varsayılan provider'a geri alınıp 44'lük suite tekrar koşuldu (44 geçti, 5 atlandı
