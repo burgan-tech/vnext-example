@@ -1,0 +1,30 @@
+{
+  "key": "til-http-ok",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "http",
+    "mocklab",
+    "success"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/til/ok",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "task-invocation-lab"
+      },
+      "contentType": "application/json",
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

@@ -43,6 +43,7 @@ rotasyon sonrasi bayatlik penceresi en fazla `Scripting:SecretCache:TtlSeconds` 
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -51,7 +52,8 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 DOMAIN = "core"
 WF = "secret-cache-lab"
 USER = "11111111-1111-1111-1111-111111111111"
@@ -207,13 +209,17 @@ def summarize(tag, data, audit_delta):
 
 
 def main():
+    global BASE
     ap = argparse.ArgumentParser()
     ap.add_argument("--ttl", type=int, default=30,
                     help="Runtime'daki Scripting:SecretCache:TtlSeconds degeri (varsayilan 30)")
     ap.add_argument("--publish", action="store_true", help="Bilesenleri once publish et")
     ap.add_argument("--keep-secret", action="store_true",
                     help="Test sonunda Vault'taki orijinal degeri geri yazma")
+    ap.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
     args = ap.parse_args()
+    BASE = args.base_url.rstrip("/") + "/api/v1"
 
     print("== On kosullar")
     if not ensure_audit():

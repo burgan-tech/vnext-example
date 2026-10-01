@@ -1,0 +1,280 @@
+{
+  "key": "ht-d",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "partner",
+  "version": "1.0.6",
+  "tags": [
+    "human-task-chain",
+    "human-task",
+    "subflow",
+    "partner"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Human Task Chain HT-D (partner)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-ht-d",
+      "target": "ht-d-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel ht-d"
+        }
+      ],
+      "roles": [
+        {
+          "role": "ht-approver",
+          "grant": "allow"
+        },
+        {
+          "role": "ht-d-approver",
+          "grant": "allow"
+        },
+        {
+          "role": "ht-blocked",
+          "grant": "deny"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-ht-d",
+      "target": "ht-d-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ht-d"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ht-d-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-d initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-d-descend",
+            "target": "ht-d-subflow",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-d: descend to ht-e"
+              }
+            ],
+            "rule": {
+              "location": "./src/DescendRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEZXNjZW5kIHdoaWxlIGBob3BzYCBpcyBwb3NpdGl2ZS4gRXZlcnkgc3ViZmxvdyBtYXBwaW5nIGRlY3JlbWVudHMgaXQsIHNvIHRoZSBwYXlsb2FkJ3MgaW5pdGlhbAovLy8gdmFsdWUgYWxvbmUgZGVjaWRlcyB3aGljaCBsZXZlbCBlbmRzIHVwIGhvbGRpbmcgdGhlIGh1bWFuIHRhc2sg4oCUIHRoZSBkZWZpbml0aW9uIGNoYWluIGlzIHRoZQovLy8gc2FtZSBmb3IgYWxsIHRocmVlIHNjZW5hcmlvcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIERlc2NlbmRSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgaG9wcyA9IDA7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJob3BzIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgaG9wcyk7CiAgICAgICAgfQoKICAgICAgICB2YXIgZGVzY2VuZCA9IGhvcHMgPiAwOwogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiRGVzY2VuZFJ1bGU6IGhvcHM9e2hvcHN9IGRlc2NlbmQ9e2Rlc2NlbmR9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChkZXNjZW5kKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "ht-d-to-human",
+            "target": "ht-d-human",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-d: rest in the human state"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-d-subflow",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-d subflow"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "ht-e",
+            "domain": "credit",
+            "version": "1.0.6",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/HtdToNextSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gSGFuZHMgdGhlIGNoYWluIGRvd24gb25lIGxldmVsOiBkZWNyZW1lbnRzIGBob3BzYCwgY2FycmllcyBgdGVzdElkYCwgYW5kIGdpdmVzIHRoZSBjaGlsZCBpdHMgT1dOCi8vLyBodW1hblRhc2sgdGV4dC4gVGhlIGRpc3RpbmN0IHRleHQgcGVyIGxldmVsIGlzIHRoZSBwb2ludCDigJQgYSB0ZXN0IGNhbiB0aGVuIHRlbGwgd2hldGhlciB0aGUKLy8vIGxpc3RlZCB0aXRsZSBjYW1lIGZyb20gdGhlIGxlYWYgb3Igd2FzIHRha2VuIGZyb20gYW4gYW5jZXN0b3IuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBIdGRUb05leHRTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIHZhciBob3BzID0gMDsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoImhvcHMiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpbnQuVHJ5UGFyc2UocmF3LlRvU3RyaW5nKCksIG91dCBob3BzKTsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgY2hpbGRJbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgY2hpbGRJbnB1dC5ob3BzID0gaG9wcyAtIDE7CgogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgidGVzdElkIiwgb3V0IHZhciB0ZXN0SWQpICYmIHRlc3RJZCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgY2hpbGRJbnB1dC50ZXN0SWQgPSB0ZXN0SWQ7CiAgICAgICAgfQoKICAgICAgICBkeW5hbWljIGh1bWFuVGFzayA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaHVtYW5UYXNrLnRpdGxlID0gIkhULUUgc3RlcCI7CiAgICAgICAgaHVtYW5UYXNrLmRlc2NyaXB0aW9uID0gIkhULUUgc3RlcCBkZXNjcmlwdGlvbiI7CiAgICAgICAgY2hpbGRJbnB1dC5odW1hblRhc2sgPSBodW1hblRhc2s7CgogICAgICAgIExvZ0luZm9ybWF0aW9uKCQiSHRkVG9OZXh0U3ViRmxvd01hcHBpbmc6IGRlc2NlbmRpbmcgdG8gSFQtRSB3aXRoIGhvcHM9e2hvcHMgLSAxfSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGNoaWxkSW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQp9Cg=="
+          },
+          "overrides": {
+            "states": {
+              "ht-e-human": {
+                "queryRoles": [
+                  {
+                    "role": "xd-override-only",
+                    "grant": "allow"
+                  },
+                  {
+                    "role": "ht-blocked",
+                    "grant": "deny"
+                  }
+                ]
+              }
+            },
+            "transitions": {
+              "ht-e-approve": {
+                "roles": [
+                  {
+                    "role": "xd-override-only",
+                    "grant": "allow"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-d-subflow-done",
+            "target": "ht-d-completed",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-d: subflow finished"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-d-human",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-d human task"
+          }
+        ],
+        "queryRoles": [
+          {
+            "role": "ht-approver",
+            "grant": "allow"
+          },
+          {
+            "role": "ht-d-approver",
+            "grant": "allow"
+          },
+          {
+            "role": "ht-blocked",
+            "grant": "deny"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-d-approve",
+            "target": "ht-d-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-d: approve"
+              }
+            ],
+            "roles": [
+              {
+                "role": "ht-approver",
+                "grant": "allow"
+              },
+              {
+                "role": "ht-d-approver",
+                "grant": "allow"
+              },
+              {
+                "role": "ht-blocked",
+                "grant": "deny"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-d-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-d completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "ht-d-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-d cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

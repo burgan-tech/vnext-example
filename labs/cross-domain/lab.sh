@@ -18,7 +18,8 @@
 #   VNEXT_SRC_DIR          vnext runtime source checkout             (default: ../vnext next to vnext-example)
 #   VNEXT_LAB_IMAGE_TAG    image tag for core/partner                (default: dapr-nr)
 #   VNEXT_DISCOVERY_IMAGE_TAG   image tag for the discovery domain   (default: latest)
-#   VNEXT_DISCOVERY_PACKAGE / _VERSION   npm package published into discovery (default: @burgan-tech/vnext-discovery-runtime 0.0.6)
+#   VNEXT_DISCOVERY_PACKAGE / _VERSION   npm package published into discovery (default: @burgan-tech/vnext-discovery-runtime 0.0.7
+#                                        — 0.0.7 is the first with the domain-list function the cache warm-up reads)
 set -euo pipefail
 
 LAB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,15 +40,15 @@ DAPR_VERSION="${VNEXT_LAB_DAPR_VERSION:-1.18.0}"
 PROVIDER="${VNEXT_LAB_DISCOVERY_PROVIDER:-dapr}"
 case "$PROVIDER" in dapr|http) ;; *) echo "VNEXT_LAB_DISCOVERY_PROVIDER must be dapr or http" >&2; exit 1;; esac
 DISCOVERY_PKG="${VNEXT_DISCOVERY_PACKAGE:-@burgan-tech/vnext-discovery-runtime}"
-DISCOVERY_PKG_VERSION="${VNEXT_DISCOVERY_PACKAGE_VERSION:-0.0.6}"
+DISCOVERY_PKG_VERSION="${VNEXT_DISCOVERY_PACKAGE_VERSION:-0.0.7}"
 NETWORK="vnext-development"
 OVERLAY_MARKER="# --- cross-domain lab overlay"
 
 # domain -> port offset (create-domain.sh: app 4201+off, init 3005+off, dapr http 42110+off*100)
 # (a case, not an associative array: macOS ships bash 3.2)
-offset_of() { case "$1" in core) echo 0;; partner) echo 10;; discovery) echo 30;; *) die "unknown domain $1";; esac; }
-DOMAINS_APP=(core partner)          # register themselves + run local images
-ALL_DOMAINS=(discovery core partner)
+offset_of() { case "$1" in core) echo 0;; partner) echo 10;; credit) echo 20;; discovery) echo 30;; *) die "unknown domain $1";; esac; }
+DOMAINS_APP=(core partner credit)   # register themselves + run local images
+ALL_DOMAINS=(discovery core partner credit)
 
 # compose services per domain, WITHOUT vnext-component-publisher (it publishes core-runtime, not ours)
 SERVICES="vnext-db-migrator vnext-db-migrator-dapr vnext-app vnext-orchestration-dapr vnext-execution-app vnext-execution-dapr vnext-worker-inbox vnext-worker-inbox-dapr vnext-worker-outbox vnext-worker-outbox-dapr vnext-init"
@@ -138,10 +139,15 @@ wait_health() {
 
 publish_discovery_package() {
   local port; port=$(init_port discovery)
-  local probe; probe=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$(app_port discovery)/api/v1/discovery/functions/domain-lookup?key=__probe__")
-  if [ "$probe" = 404 ] && curl -s "http://localhost:$(app_port discovery)/api/v1/discovery/functions/domain-lookup?key=__probe__" | grep -q domainName; then
-    ok "discovery components already published"; return
+  # Probe domain-list, NOT domain-lookup. Both packages carry domain-lookup, so probing it says
+  # "already published" for a pre-0.0.7 package too — and leaves missing exactly the function this
+  # version pin exists for, the one the cache warm-up and morph-idm-api's aggregation both read.
+  # A 404 with errorCode Cache:300001 means the function itself is absent from the runtime backend.
+  local body; body=$(curl -s "http://localhost:$(app_port discovery)/api/v1/discovery/functions/domain-list")
+  if ! echo "$body" | grep -q 'Cache:300001'; then
+    ok "discovery components already published (domain-list present)"; return
   fi
+  log "domain-list missing — (re)publishing the discovery package"
   log "publishing $DISCOVERY_PKG@$DISCOVERY_PKG_VERSION into discovery via init :$port"
   local job; job=$(curl -s -X POST "http://localhost:$port/api/package/publish" -H 'Content-Type: application/json' \
       -d "{\"packageName\":\"$DISCOVERY_PKG\",\"version\":\"$DISCOVERY_PKG_VERSION\",\"reInitialize\":true}" \
@@ -209,8 +215,15 @@ cmd_verify() {
   local inv; inv=$(docker exec vnext-app-core sh -c "wget -qO- -S http://localhost:$(dapr_http core)/v1.0/invoke/vnext-app-partner/method/health 2>&1 | head -1" 2>/dev/null || true)
   if echo "$inv" | grep -q '200'; then ok "core sidecar -> vnext-app-partner /health: $inv"
   else fail "core sidecar could not invoke vnext-app-partner: ${inv:-no response}"; rc=1; fi
+
+  # The SECOND boundary. A chain like human-task-chain crosses core -> partner -> credit, and the
+  # partner runtime makes that second hop itself — core never talks to credit. Proving only
+  # core -> partner would leave exactly that hop unverified.
+  local inv2; inv2=$(docker exec vnext-app-partner sh -c "wget -qO- -S http://localhost:$(dapr_http partner)/v1.0/invoke/vnext-app-credit/method/health 2>&1 | head -1" 2>/dev/null || true)
+  if echo "$inv2" | grep -q '200'; then ok "partner sidecar -> vnext-app-credit /health: $inv2"
+  else fail "partner sidecar could not invoke vnext-app-credit: ${inv2:-no response}"; rc=1; fi
   local prov; prov=$(docker exec vnext-app-core sh -c 'echo $ServiceDiscovery__Provider' 2>/dev/null || echo "?")
-  [ $rc -eq 0 ] && ok "lab ready: core :$(app_port core)  partner :$(app_port partner)  discovery :$(app_port discovery)  (ServiceDiscovery provider: ${prov:-?})"
+  [ $rc -eq 0 ] && ok "lab ready: core :$(app_port core)  partner :$(app_port partner)  credit :$(app_port credit)  discovery :$(app_port discovery)  (ServiceDiscovery provider: ${prov:-?})"
   return $rc
 }
 

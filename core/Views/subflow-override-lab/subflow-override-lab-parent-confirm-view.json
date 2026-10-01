@@ -1,0 +1,28 @@
+{
+  "key": "subflow-override-lab-parent-confirm-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-override-lab",
+    "pseudo-ui"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Text",
+        "content": {
+          "en": "parent transition-scoped override",
+          "tr": "parent transition-scoped override"
+        },
+        "variant": "headlineMedium"
+      }
+    }
+  }
+}

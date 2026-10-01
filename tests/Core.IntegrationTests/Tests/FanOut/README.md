@@ -289,8 +289,9 @@ dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~FanOutConfi
 ```
 
 FanOutTask henüz release edilmedi; container image eski kodu taşır. Lokalde derlenen runtime'a karşı
-koşmak için `tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL`'i
-(`http://localhost:4201`) açın ve vNext çalışma alanında altyapı + **4 app'i** ayağa kaldırın
+koşmak için `tests/Core.IntegrationTests/test.runsettings` içinde `VNEXT_BASE_URL`'in
+(`http://localhost:4201`, repoda commit'li) set olduğunu doğrulayın ve vNext çalışma alanında altyapı +
+**4 app'i** ayağa kaldırın
 (`--launch-profile http`). `VNEXT_BASE_URL` boşsa SDK kendi Testcontainers stack'ini **image'lardan**
 kaldırır — image eski runtime'ı taşıdığı için bu her sonucu sessizce geçersiz kılar.
 

@@ -111,6 +111,7 @@ runtime eski gömülü script'i sunmaya devam eder.
 | `RetryPolicyTests` | `1 + maxRetries` çağrı (`httpAttempts` instance verisinden), tükenince fallback kuralın uygulanması, 3. denemede kurtarma (incident **yok**). MockLab gerekir. |
 | `ContinueActionsTests` | `ignore`/`log`/boundary-yok: pipeline devam eder, incident **yok**, ve hook'un kalan task'ları **koşmaz**. |
 | `SecuredIncidentsTests` | `queryRoles` kapısı: rolsüz çağıran state function, `/incidents` ve `/incidents/active` üçünden de **403** alır (404 değil — yoksa "arıza yok" ile "bilmeye yetkin yok" ayırt edilemez); rollüsü 200. |
+| `SubFlowFaultChainTests` | 3 seviyeli SubFlow zinciri (`eb-sf-root` → `eb-sf-mid` → `eb-sf-leaf`): leaf'in HTTP task'ı **400** alır ve global abort ile fault'lar, mid global abort ile fault'lar, root'un global `notify` kuralı `r-has-error` ile `r-error-end`'e götürür ve root **Completed** olur. Root'ta tek incident **vardır** (`errorLayer=SubFlow`, `task`/`statusCode` leaf'ten, `boundaryAction=Notify`/`Global`) ve **resolve edilmiştir**; `hasActiveIncident=false`, `active` linki yok, `/incidents/active` 404. Fault'lanan mid ve leaf'te incident açık kalır. MockLab gerekir (`api/eb-lab/fail-400`). |
 
 ## Ölçülen davranış (tasarlanan değil)
 
@@ -126,6 +127,16 @@ kırmızıya döner — o zaman README, `TEST-SCENARIOS.md` ve testler birlikte 
    iliştirmeden döndürdüğü için pipeline step'i incident yazan dala hiç girmez. Ayrıca koordinatör
    hatalı task'ta durur, sonraki task'lar koşmaz (marker damgası yok).
 
+3. **SubFlow fault'unu `notify`/transition ile karşılayan parent'ın incident'ı resolve edilir.**
+   `SubflowFaultService` incident'ı parent'a boundary verdict'iyle yazar, sonra boundary
+   transition'ını koşar; `FinalizeTransitionStep` başarıyla biten her error-boundary transition'ında
+   açık incident'ları kapatır — task seviyesindeki rollback/notify ile aynı kural. Sonuç: root
+   `hasActiveIncident=false` ve `incident.active` göstermez, ama geçmişte (`history.href`) resolve
+   edilmiş satır durur. Preprod'dan gelen "subflow'da HTTP 400, ana akış error-end'de bitti, ana
+   akışta incident yok" bildirimi (onboarding `kyc-main-workflow`, 0.0.93, 2026-09-24) bu davranışın
+   kendisi — kayıp değil, resolve. Ürün kararı "karşılanmış subflow fault'u root'ta aktif kalsın"
+   olursa değişecek testler `SubFlowFaultChainTests`'tir.
+
 ## Bu paketin bulup düzelttiği kusurlar
 
 | Kusur | Belirti | Düzeltme |
@@ -138,6 +149,9 @@ kırmızıya döner — o zaman README, `TEST-SCENARIOS.md` ve testler birlikte 
 | Kurtulan instance hâlâ aktif incident bildiriyordu | Başarılı retry'dan sonra instance `landed`/`C` olmasına rağmen `hasActiveIncident` true kalıyordu; `HasActiveIncident` fingerprint materyali olduğu için long-poll eden client'a da yansıyordu | `Instance.ResolveActiveIncident` → `ResolveOpenIncidents`: yüklü kümedeki **tüm** açık satırları kapatır ve bayrağı yeniden hesaplar. Detached retry yolunda karşılığı `ResolveAllAsync` |
 
 ## Doğrulama durumu
+
+2026-09-24: vnext `master` @ `f6c5c828` lokal core runtime'a karşı `SubFlowFaultChainTests` **5/5 yeşil**; paketin tamamı 35/36 — tek kırmızı `SecuredIncidentsTests.WithoutTheRole_…Refuse` (403 bekliyor, 200 alıyor): vnext #1027 `queryRoles` kapısını runtime'dan kaldırıp `authorize`'a taşıdığı için bu test bayat, bu değişiklikle ilgisiz.
+
 
 Lokal runtime'a (`feature/incident-table`) karşı art arda iki koşu: **31/31 yeşil**, koşu başına
 ~1 dk 46 sn. İlk doğrulama 2026-09-06'da ölçülen davranışa göre yapıldı; üç davranışsal kusur

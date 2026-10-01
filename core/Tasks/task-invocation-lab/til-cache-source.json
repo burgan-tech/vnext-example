@@ -1,0 +1,23 @@
+{
+  "key": "til-cache-source",
+  "version": "1.0.1",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "http",
+    "mocklab",
+    "cache-source"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/til/cache-source",
+      "method": "GET",
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

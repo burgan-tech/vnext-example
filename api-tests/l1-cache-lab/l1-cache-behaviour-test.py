@@ -33,6 +33,7 @@ Component dosyalari: ./components/*.{surum}.json — her surum ayri dosyadir.
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -41,7 +42,8 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 DOMAIN = "core"
 WF = "l1-cache-lab"
 USER = "11111111-1111-1111-1111-111111111111"
@@ -191,11 +193,15 @@ def task_version_of(request_text, candidates):
 
 
 def main():
+    global BASE
     ap = argparse.ArgumentParser()
     ap.add_argument("--minor", type=int, default=0,
                     help="calisma surumleri 1.{2N}.0 / 1.{2N+1}.0 olur; ayni runtime'a "
                          "tekrar kosum icin N'i artir (latest asserti ancak taze surumle anlamli)")
+    ap.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
     args = ap.parse_args()
+    BASE = args.base_url.rstrip("/") + "/api/v1"
 
     v_old = f"1.{2 * args.minor}.0"
     v_new = f"1.{2 * args.minor + 1}.0"

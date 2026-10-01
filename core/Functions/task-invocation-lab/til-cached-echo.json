@@ -1,0 +1,45 @@
+{
+  "key": "til-cached-echo",
+  "version": "1.0.1",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "function",
+    "cache"
+  ],
+  "attributes": {
+    "scope": "D",
+    "rawResponse": false,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Task Invocation Lab — Cached Echo"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Task Invocation Lab — Onbellekli Echo"
+      }
+    ],
+    "cache": {
+      "key": "til:fncache:echo",
+      "ttlInSeconds": 60,
+      "bypassOnCacheError": true
+    },
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "til-http-ok",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/TilCachedEchoMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHRpbC1jYWNoZWQtZWNobyDigJQgdGhlIHByb2JlIGZvciB0aGUgRlVOQ1RJT04gUkVTUE9OU0UgQ0FDSEUgcGF0aAovLy8gKDxjPklTdGF0ZVN0b3JlQ2FjaGVHYXRld2F5PC9jPiDihpIgPGM+SVRhc2tJbnZvY2F0aW9uRGlzcGF0Y2hlcjwvYz4pLCB3aGljaCBpc3N1ZSAjMTAwNyBtb3ZlZCBvbnRvCi8vLyB0aGUgc2FtZSByb3V0aW5nIHNlYW0gYXMgdGhlIGZpdmUgd2lyZSB0YXNrIHR5cGVzLiBObyBvdGhlciBzY2VuYXJpbyBpbiB0aGlzIHJlcG9zaXRvcnkgY29uZmlndXJlcwovLy8gPGM+ZnVuY3Rpb24uY2FjaGU8L2M+LCBzbyB3aXRob3V0IHRoaXMgZnVuY3Rpb24gdGhhdCBnYXRld2F5IGlzIG5ldmVyIGV4ZXJjaXNlZCBlbmQgdG8gZW5kIGFuZCB0aGUKLy8vIDxjPkNhY2hlLkdldDwvYz4vPGM+Q2FjaGUuU2V0PC9jPiBzcGFucyBpdCBlbWl0cyAoY29tcG9uZW50IHR5cGUgPGM+ZnVuY3Rpb24tcmVzcG9uc2U8L2M+KSBuZXZlcgovLy8gYXBwZWFyIGluIGEgdHJhY2UuCi8vLyA8cGFyYT4KLy8vIERlbGliZXJhdGVseSB0cml2aWFsOiBpdCB3cmFwcyB0aGUgPGM+dGlsLWh0dHAtb2s8L2M+IE1vY2tMYWIgY2FsbCBzbyBhIGNhY2hlIE1JU1MgY29zdHMgb25lCi8vLyBvdXRib3VuZCBIVFRQIHJvdW5kIHRyaXAgYW5kIGEgSElUIGNvc3RzIG5vbmUuIFRoZSBtZWFzdXJhYmxlIGRpZmZlcmVuY2UgYmV0d2VlbiB0aGUgdHdvIGlzIHRoZQovLy8gd2hvbGUgcG9pbnQg4oCUIHRoZSBmdW5jdGlvbidzIG93biBib2R5IG11c3Qgbm90IGFkZCBub2lzZS4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFRpbENhY2hlZEVjaG9NYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIC8vIFRoZSB0YXNrIGRlZmluaXRpb24gc2hpcHMgdGhlIEFQSV9CQVNFVVJMIHBsYWNlaG9sZGVyIGFuZCByZWxpZXMgb24gaXRzIElOUFVUIEhBTkRMRVIgdG8KICAgICAgICAvLyByZXNvbHZlIGl0LiBBIGZ1bmN0aW9uIHN1cHBsaWVzIGl0cyBvd24gbWFwcGluZywgd2hpY2ggcmVwbGFjZXMgdGhlIHRhc2sncyDigJQgc28gd2l0aG91dAogICAgICAgIC8vIHRoaXMgbGluZSB0aGUgVVJMIHN0YXlzIHJlbGF0aXZlIGFuZCB0aGUgY2FsbCBkaWVzIHdpdGggInJlcXVlc3QgVVJJIG11c3QgYmUgYWJzb2x1dGUiLgogICAgICAgIGlmICh0YXNrIGlzIEh0dHBUYXNrIGh0dHBUYXNrKQogICAgICAgIHsKICAgICAgICAgICAgdmFyIGFwaUJhc2VVcmwgPSBHZXRDb25maWdWYWx1ZSgiRXhhbXBsZTpBcGlCYXNlVXJsIiwgImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSIpOwogICAgICAgICAgICBodHRwVGFzay5TZXRVcmwoaHR0cFRhc2suVXJsLlJlcGxhY2UoIkFQSV9CQVNFVVJMIiwgYXBpQmFzZVVybCkpOwogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcGF5bG9hZCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcGF5bG9hZDsKCiAgICAgICAgLy8gQSB2YWx1ZSB0aGF0IGNoYW5nZXMgcGVyIGV4ZWN1dGlvbjogd2hlbiB0aGUgY2FjaGUgc2VydmVzIHRoZSByZXNwb25zZSwgdGhpcyBzdGF5cwogICAgICAgIC8vIGZyb3plbiBhdCB0aGUgdmFsdWUgY29tcHV0ZWQgb24gdGhlIG1pc3Mg4oCUIHdoaWNoIGlzIGhvdyBhIHRlc3QgdGVsbHMgYSBoaXQgZnJvbSBhIG1pc3MKICAgICAgICAvLyB3aXRob3V0IHJlYWRpbmcgc3BhbnMuCiAgICAgICAgdGFyZ2V0WyJjb21wdXRlZEF0VXRjIl0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIk8iKTsKICAgICAgICB0YXJnZXRbInNvdXJjZSJdID0gInRpbC1jYWNoZWQtZWNobyI7CgogICAgICAgIGR5bmFtaWMgcmVzcG9uc2UgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3BvbnNlKVsiZGF0YSJdID0gcGF5bG9hZDsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlRpbENhY2hlZEVjaG9NYXBwaW5nOiByZXNwb25zZSBjb21wdXRlZCAodGhpcyBsaW5lIGRvZXMgTk9UIHJ1biBvbiBhIGNhY2hlIGhpdCkiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXNwb25zZSB9KTsKICAgIH0KfQo="
+      }
+    }
+  }
+}

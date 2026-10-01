@@ -1,0 +1,67 @@
+{
+  "collection": {
+    "name": "morph-idm-roles",
+    "description": "get-roles endpoint for the morph-idm caller-role provider. Only the authorization-chain-lab's MorphIdmProviderTests use it, and only while the runtime runs with CallerRoleProvider:Provider=morph-idm.",
+    "color": "#0ea5e9"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "GET",
+      "route": "api/1/morph-idm/functions/get-roles",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\"roles\":[\"chain.admin\",\"chain.mid-admin\",\"chain.leaf-admin\",\"chain.reader\"]}",
+      "contentType": "application/json",
+      "description": "Operation set of the caller, keyed on the `sub` header the resolver sends. The runtime asks WITHOUT a role header on purpose: with one the real endpoint switches to a yes/no check for that single role, and the runtime needs the whole set. The unkeyed default hands the suite's ordinary caller a working set so the chain can be assembled; the four keyed users are the ones the assertions turn on.",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-admin",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"chain.admin\"]}",
+          "contentType": "application/json",
+          "priority": 0,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-leaf-only",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"chain.leaf-only\"]}",
+          "contentType": "application/json",
+          "priority": 1,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-empty",
+          "statusCode": 204,
+          "responseBody": "",
+          "contentType": "application/json",
+          "priority": 2,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-broken",
+          "statusCode": 500,
+          "responseBody": "{\"error\":\"provider unavailable\"}",
+          "contentType": "application/json",
+          "priority": 3,
+          "responseHeaders": []
+        }
+      ],
+      "sequenceItems": []
+    }
+  ]
+}

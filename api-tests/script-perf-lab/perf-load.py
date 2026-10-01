@@ -96,13 +96,13 @@ def http_text(url, timeout=30):
         return -1, str(error)
 
 
-def publish():
+def publish(base_url):
     """Kardes publish.py'yi oldugu gibi calistirir; bilesen listesi orada tek yerde durur."""
     path = Path(__file__).resolve().parent / "publish.py"
     spec = importlib.util.spec_from_file_location("script_perf_lab_publish", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.main() == 0
+    return module.main(argv=[], base_url=base_url) == 0
 
 
 def start_one(args, label):
@@ -337,7 +337,7 @@ def main():
 
     if args.publish:
         print("Publish:")
-        if not publish():
+        if not publish(args.base_url):
             return 1
 
     if not args.skip_cold:

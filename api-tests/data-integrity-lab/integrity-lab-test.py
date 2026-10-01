@@ -39,6 +39,7 @@ On kosullar: orchestration host (4201) + docker infra (postgres, mocklab) ayakta
 import argparse
 import concurrent.futures as cf
 import json
+import os
 import subprocess
 import sys
 import threading
@@ -48,7 +49,8 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 DOMAIN = "core"
 WF = "data-integrity-lab"
 SCHEMA = "data_integrity_lab"
@@ -361,12 +363,16 @@ def publish_definitions():
 
 
 def main():
+    global BASE
     ap = argparse.ArgumentParser()
     ap.add_argument("--iterations", type=int, default=6)
     ap.add_argument("--threshold", type=int, default=4)
     ap.add_argument("--burst", type=int, default=4)
     ap.add_argument("--publish", action="store_true", help="once task+flow tanimlarini publish et")
+    ap.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
     args = ap.parse_args()
+    BASE = args.base_url.rstrip("/") + "/api/v1"
 
     if args.publish:
         print("== Definition publish ==")

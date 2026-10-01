@@ -1,0 +1,28 @@
+{
+  "key": "subflow-override-lab-legacy-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-override-lab",
+    "pseudo-ui"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Text",
+        "content": {
+          "en": "legacy parent-side override",
+          "tr": "legacy parent-side override"
+        },
+        "variant": "headlineMedium"
+      }
+    }
+  }
+}

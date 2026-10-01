@@ -1,0 +1,144 @@
+{
+  "key": "authorization-chain-lab-mid-terminal",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "authorization-chain-lab",
+    "mid-terminal"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Authorization Chain Lab Mid (terminal)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-authorization-chain-lab-mid-terminal",
+      "target": "mid-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Mid Terminal"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "mid-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "mid initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "auto-mid-to-mid-waiting",
+            "target": "mid-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/ChainAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIFRoZSBjaGFpbiBtdXN0IGFzc2VtYmxlIGl0c2VsZiBvbiBzdGFydDogYW4gYXV0aG9yaXphdGlvbiB0ZXN0IHdhbnRzIHRoZSBpbnN0YW5jZSBhbHJlYWR5Ci8vIHNpdHRpbmcgYXQgdGhlIGRlZXBlc3QgbGVhZiwgbm90IGEgZml4dHVyZSB0aGUgdGVzdCBoYXMgdG8gZHJpdmUgaG9wIGJ5IGhvcC4KcHVibGljIGNsYXNzIENoYWluQWx3YXlzVHJ1ZVJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwp9Cg=="
+            }
+          }
+        ]
+      },
+      {
+        "key": "mid-waiting",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Mid Waiting (terminal)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "finish-mid",
+            "target": "mid-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish Mid"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "mid-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "mid done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      },
+      {
+        "key": "mid-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "mid cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      }
+    ],
+    "queryRoles": [
+      {
+        "role": "chain.reader",
+        "grant": "allow"
+      },
+      {
+        "role": "chain.admin",
+        "grant": "allow"
+      },
+      {
+        "role": "chain.mid-only",
+        "grant": "allow"
+      }
+    ]
+  }
+}

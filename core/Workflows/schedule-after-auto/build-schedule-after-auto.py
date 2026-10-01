@@ -50,7 +50,7 @@ workflow = {
     "flow": "sys-flows",
     "flowVersion": "1.0.0",
     "domain": "core",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "tags": [
         "integration-test",
         "schedule-after-auto",
@@ -105,6 +105,9 @@ workflow = {
                         "labels": label("Gate Timeout (8s)"),
                         "timer": timer("GateTimeoutTimer.csx"),
                         "onExecutionTasks": [hook("TimeoutMapping.csx")],
+                        # Surfaced on the state function's kind:"scheduled" entry (runtime resolves it
+                        # from the job's source state); the test reads it back.
+                        "annotations": {"ui/countdown": "gate-timeout"},
                     },
                 ],
             },

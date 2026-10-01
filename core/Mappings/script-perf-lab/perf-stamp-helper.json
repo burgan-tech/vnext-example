@@ -12,7 +12,7 @@
   "attributes": {
     "name": "PerfStampHelper",
     "location": "./src/PerfStampHelper.csx",
-    "code": "using System;\n\nnamespace Perf.Helpers;\n\n/// <summary>\u0130kinci helper \u2014 helper-set'in \u00e7ok \u00fcyeli (A7) yolunu tetiklemek i\u00e7in var.</summary>\npublic static class PerfStampHelper\n{\n    public static string Stage(int stage, string instanceId) =>\n        \"perf:\" + stage + \":\" + (instanceId ?? \"none\");\n}\n",
+    "code": "using System;\n\nnamespace Perf.Helpers;\n\n/// <summary>İkinci helper — helper-set'in çok üyeli (A7) yolunu tetiklemek için var.</summary>\npublic static class PerfStampHelper\n{\n    public static string Stage(int stage, string instanceId) =>\n        \"perf:\" + stage + \":\" + (instanceId ?? \"none\");\n}\n",
     "encoding": "NAT"
   }
 }

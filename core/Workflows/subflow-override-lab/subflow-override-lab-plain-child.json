@@ -1,0 +1,138 @@
+{
+  "key": "subflow-override-lab-plain-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.2",
+  "tags": [
+    "integration-test",
+    "subflow-override-lab",
+    "plain-child"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Override Lab Plain Child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-subflow-override-lab-plain-child",
+      "target": "plain-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Plain Child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "plain-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "plain initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "auto-plain-to-plain-wait",
+            "target": "plain-wait",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/OverrideLabAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIEVhY2ggZmxvdyB3YWxrcyBpdHNlbGYgdG8gaXRzIHdhaXRpbmcgc3RhdGUgc28gYSB0ZXN0IG9ubHkgc3RhcnRzIHRoZSB0b3AuCnB1YmxpYyBjbGFzcyBPdmVycmlkZUxhYkFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+IFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "plain-wait",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Plain Wait (no long-poll)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "subflow-override-lab-child-plain-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": false
+        },
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "finish-plain",
+            "target": "plain-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "plain-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "plain done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      },
+      {
+        "key": "plain-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "plain cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      }
+    ]
+  }
+}

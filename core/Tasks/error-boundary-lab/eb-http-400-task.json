@@ -1,0 +1,30 @@
+{
+  "key": "eb-http-400-task",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "error-boundary-lab",
+    "http",
+    "mocklab",
+    "always-400",
+    "subflow-fault-chain"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/eb-lab/fail-400",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "error-boundary-lab"
+      },
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

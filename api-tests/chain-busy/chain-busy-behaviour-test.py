@@ -47,6 +47,7 @@ Flow'lar 1.2.0 surumunde; `--publish` leaf-first publish + re-initialize yapar.
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -55,7 +56,8 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 DOMAIN = "core"
 ROOT_WF = "chain-busy-root"
 MIDDLE_WF = "chain-busy-middle"
@@ -534,6 +536,7 @@ def publish():
 # ── main ────────────────────────────────────────────────────────────────────
 
 def main():
+    global BASE
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--iterations", type=int, default=2)
@@ -545,7 +548,10 @@ def main():
                          "uzerinden gider; onceki case'lerin olaylari drenaj halindeyken yeni bir "
                          "kaskad gecikebilir. 0 = bekleme yok.")
     ap.add_argument("--list", action="store_true", help="case'leri listele ve cik")
+    ap.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
     args = ap.parse_args()
+    BASE = args.base_url.rstrip("/") + "/api/v1"
 
     if args.list:
         for name in sorted(CASES):

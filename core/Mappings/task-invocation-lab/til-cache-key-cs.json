@@ -1,0 +1,19 @@
+{
+  "key": "til-cache-key-cs",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "cacheaside",
+    "cache-key"
+  ],
+  "attributes": {
+    "name": "TilCacheKeyCsRef",
+    "location": "./src/TilCacheKeyCsRef.csx",
+    "code": "using System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\n\n/// <summary>\n/// CacheAside key script, C# (Roslyn) form, served from <c>sys-mappings</c> and referenced with\n/// <c>\"encoding\": \"REF\"</c> by <c>til-cacheaside-key-cs-ref</c>. Per-instance key.\n/// </summary>\npublic class TilCacheKeyCsRef : ICacheKeyMapping\n{\n    public Task<string?> Handler(ScriptContext context)\n        => Task.FromResult<string?>($\"til:ca:{context.Instance?.Key}:cs-ref\");\n}\n",
+    "encoding": "NAT"
+  }
+}

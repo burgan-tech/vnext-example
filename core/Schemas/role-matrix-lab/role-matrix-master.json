@@ -1,6 +1,6 @@
 {
   "key": "role-matrix-master",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -85,6 +85,243 @@
             "reject"
           ],
           "description": "The submitted decision, echoed from the approve/reject transition payload."
+        },
+        "maskedForAll": {
+          "type": "string",
+          "description": "x-masking without roles: every caller sees it masked (keepLast 4). Proves the transform runs for the most privileged reader too.",
+          "x-masking": {
+            "operator": "mask",
+            "params": {
+              "keepLast": 4
+            }
+          }
+        },
+        "maskedExceptAuditor": {
+          "type": "string",
+          "description": "x-masking with a deny-only exemption list: the auditor sees it clear, every other caller (including one with no roles or a misspelled role) sees it masked.",
+          "x-masking": {
+            "operator": "mask",
+            "params": {
+              "keepLast": 3
+            },
+            "roles": [
+              {
+                "role": "morph-idm.auditor",
+                "grant": "allow"
+              }
+            ]
+          }
+        },
+        "replacedNote": {
+          "type": "string",
+          "description": "x-masking replace: every caller sees the fixed placeholder.",
+          "x-masking": {
+            "operator": "replace",
+            "params": {
+              "value": "[gizli]"
+            }
+          }
+        },
+        "mirroredMasked": {
+          "type": "string",
+          "description": "Unguarded copy of maskedExceptAuditor written by the mirror-self transition's GetInstanceData task (system read)."
+        },
+        "mirroredAuditTrail": {
+          "type": "string",
+          "description": "Unguarded copy of auditTrail written by the mirror-self transition's GetInstanceData task (system read)."
+        },
+        "hashedCustomerNo": {
+          "type": "string",
+          "description": "x-encryption hash with a deny-only exemption: the auditor sees it clear, every other caller sees the salted SHA-256 digest (salt = host SchemaEncryption:HashSalt).",
+          "x-encryption": {
+            "type": "hash",
+            "params": {
+              "algorithm": "sha256"
+            },
+            "purpose": "PII-Identification",
+            "redactInLogs": true,
+            "retentionDays": 2555
+          }
+        },
+        "customer": {
+          "type": "object",
+          "description": "Nested exposure fixture. The object itself is unguarded; its children carry every rule shape so pruning and masking are observed below the root.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Unguarded nested control field."
+            },
+            "tckn": {
+              "type": "string",
+              "description": "Nested x-masking with a deny-only exemption for the auditor.",
+              "x-masking": {
+                "operator": "mask",
+                "params": {
+                  "keepLast": 3
+                },
+                "roles": [
+                  {
+                    "role": "morph-idm.auditor",
+                    "grant": "allow"
+                  }
+                ]
+              }
+            },
+            "segment": {
+              "type": "string",
+              "description": "Nested x-roles ALLOW list: approver and auditor only.",
+              "x-roles": [
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.auditor",
+                  "grant": "allow"
+                }
+              ]
+            },
+            "contact": {
+              "type": "object",
+              "description": "Nested x-roles DENY-only subtree: everyone except the maker (and except a role-less caller, who cannot clear a role-bound deny). Its children carry their own rules, which never run for a caller the parent hides.",
+              "x-roles": [
+                {
+                  "role": "morph-idm.maker",
+                  "grant": "deny"
+                }
+              ],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "x-masking": {
+                    "operator": "mask",
+                    "params": {
+                      "keepFirst": 2,
+                      "keepLast": 4
+                    }
+                  }
+                },
+                "phone": {
+                  "type": "string",
+                  "x-encryption": {
+                    "type": "hash",
+                    "purpose": "PII",
+                    "redactInLogs": true
+                  }
+                },
+                "address": {
+                  "type": "object",
+                  "properties": {
+                    "city": {
+                      "type": "string"
+                    },
+                    "line1": {
+                      "type": "string",
+                      "x-roles": [
+                        {
+                          "role": "morph-idm.auditor",
+                          "grant": "allow"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "accounts": {
+          "type": "array",
+          "description": "Array of objects guarded as a whole by an ALLOW list (approver, auditor). Items keep their shape and number types for the callers who see it.",
+          "x-roles": [
+            {
+              "role": "morph-idm.approver",
+              "grant": "allow"
+            },
+            {
+              "role": "morph-idm.auditor",
+              "grant": "allow"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "iban": {
+                "type": "string"
+              },
+              "balance": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "riskScore": {
+          "type": "number",
+          "description": "Non-string field guarded by an ALLOW list (auditor only).",
+          "x-roles": [
+            {
+              "role": "morph-idm.auditor",
+              "grant": "allow"
+            }
+          ]
+        },
+        "ownerNote": {
+          "type": "string",
+          "description": "Predefined grant: only the caller whose act_sub started the instance sees it.",
+          "x-roles": [
+            {
+              "role": "$InstanceStarter",
+              "grant": "allow"
+            }
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "description": "Unguarded array of strings: must come back verbatim and in order.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mirroredPhone": {
+          "type": "string",
+          "description": "Unguarded copy of customer.contact.phone written by mirror-self's GetInstanceData task (system read)."
+        },
+        "vault": {
+          "type": "object",
+          "description": "x-encryption encrypt lab: stored as AES-256-GCM tokens in InstancesData, plaintext in the engine; the auditor reads clear, everyone else the stored token.",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "x-encryption": {
+                "type": "encrypt",
+                "roles": [
+                  {
+                    "role": "morph-idm.auditor",
+                    "grant": "allow"
+                  }
+                ],
+                "purpose": "PII"
+              }
+            },
+            "pin": {
+              "type": "string",
+              "x-encryption": {
+                "type": "encrypt"
+              }
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        },
+        "mirroredVaultEmail": {
+          "type": "string",
+          "description": "System-read copy of vault.email (trigger tasks read plaintext)."
+        },
+        "scriptSawVaultEmail": {
+          "type": "string",
+          "description": "vault.email as the engine's script context sees it (plaintext)."
         }
       }
     },

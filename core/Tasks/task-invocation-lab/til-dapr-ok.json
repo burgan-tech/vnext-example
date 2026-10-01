@@ -1,0 +1,29 @@
+{
+  "key": "til-dapr-ok",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "dapr",
+    "mocklab",
+    "success"
+  ],
+  "attributes": {
+    "type": "3",
+    "config": {
+      "appId": "mocklab",
+      "methodName": "api/til/ok",
+      "httpVerb": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "task-invocation-lab"
+      },
+      "timeoutSeconds": 10
+    }
+  }
+}

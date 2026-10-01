@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "description": "credit domain — third business domain of the cross-domain lab, so a chain can cross TWO boundaries (see labs/cross-domain/README.md)",
+  "domain": "credit",
+  "runtimeVersion": "0.0.61",
+  "schemaVersion": "0.0.53",
+  "paths": {
+    "componentsRoot": "credit",
+    "tasks": "Tasks",
+    "views": "Views",
+    "functions": "Functions",
+    "extensions": "Extensions",
+    "workflows": "Workflows",
+    "schemas": "Schemas",
+    "mappings": "Mappings"
+  },
+  "exports": {
+    "functions": [],
+    "workflows": [],
+    "tasks": [],
+    "views": [],
+    "schemas": [],
+    "extensions": [],
+    "mappings": [],
+    "visibility": "private",
+    "metadata": {
+      "description": "Components published into the credit lab domain by the HumanTaskChain integration tests",
+      "maintainer": "vNext Team",
+      "license": "MIT",
+      "keywords": [
+        "credit",
+        "vnext",
+        "cross-domain",
+        "human-task"
+      ]
+    }
+  },
+  "dependencies": {
+    "domains": [],
+    "npm": []
+  },
+  "referenceResolution": {
+    "enabled": true,
+    "validateOnBuild": true,
+    "strictMode": true,
+    "validateReferenceConsistency": true,
+    "validateSchemas": true,
+    "allowedHosts": [
+      "registry.npmjs.org",
+      "npm.vnext.com",
+      "npm.pkg.github.com"
+    ],
+    "schemaValidationRules": {
+      "enforceKeyFormat": true,
+      "enforceVersionFormat": true,
+      "enforceFilenameConsistency": true,
+      "allowUnknownProperties": false
+    }
+  }
+}

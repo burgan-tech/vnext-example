@@ -24,6 +24,7 @@ JMeter kurulu olmayan makineler icin stdlib-only karsiligidir.
 import argparse
 import importlib.util
 import json
+import os
 import statistics
 import sys
 import time
@@ -33,7 +34,8 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-BASE = "http://localhost:4201/api/v1"
+DEFAULT_BASE_URL = os.environ.get("VNEXT_BASE_URL", "http://localhost:4201").rstrip("/")
+BASE = DEFAULT_BASE_URL + "/api/v1"  # main() icinde --base-url ile ezilir
 DOMAIN = "core"
 PARENT_WF = "script-race-lab-parent"
 TERMINAL = {"C", "F", "P"}
@@ -60,13 +62,13 @@ def http(method, url, body=None, timeout=60):
         return -1, {"error": str(error)}
 
 
-def publish():
+def publish(base_url):
     """Kardes publish.py'yi oldugu gibi calistirir; bilesen listesi orada tek yerde durur."""
     path = Path(__file__).resolve().parent / "publish.py"
     spec = importlib.util.spec_from_file_location("script_race_lab_publish", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.main() == 0
+    return module.main(argv=[], base_url=base_url) == 0
 
 
 def start_one(index):
@@ -115,15 +117,19 @@ def settle_one(record, timeout_s):
 
 
 def main():
+    global BASE
     parser = argparse.ArgumentParser(description="script-race-lab paralel yuk surucusu")
     parser.add_argument("--parallel", type=int, default=30, help="baslatilacak instance sayisi")
     parser.add_argument("--publish", action="store_true", help="olcumden once publish adimini kos")
     parser.add_argument("--timeout", type=int, default=180, help="instance basina settle butcesi (s)")
+    parser.add_argument("--base-url", default=DEFAULT_BASE_URL,
+                    help="orchestrator base URL (varsayilan: VNEXT_BASE_URL ortam degiskeni ya da http://localhost:4201)")
     args = parser.parse_args()
+    BASE = args.base_url.rstrip("/") + "/api/v1"
 
     if args.publish:
         print("Publish:")
-        if not publish():
+        if not publish(args.base_url):
             return 1
 
     print("\n%d instance baslatiliyor (max_workers=%d)..." % (args.parallel, args.parallel))

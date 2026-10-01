@@ -63,7 +63,7 @@ public class ScheduleAfterAutoTests : WorkflowTestBase
             async () =>
             {
                 probes++;
-                var (present, executeAt) = await ScheduledEntryAsync(instanceId);
+                var (present, executeAt, _) = await ScheduledEntryAsync(instanceId);
                 if (present) everSeenAt ??= executeAt ?? "(entry without executeAtUtc)";
 
                 var (state, status) = await GetInstanceStateAsync(Workflow, instanceId);
@@ -108,11 +108,13 @@ public class ScheduleAfterAutoTests : WorkflowTestBase
         await WaitUntilSettledAsync(Workflow, instanceId);
 
         string? executeAtRaw = null;
+        string? countdownAnnotation = null;
         await WaitUntilAsync(
             async () =>
             {
-                var (present, executeAt) = await ScheduledEntryAsync(instanceId);
+                var (present, executeAt, countdown) = await ScheduledEntryAsync(instanceId);
                 executeAtRaw = executeAt;
+                countdownAnnotation = countdown;
                 return present;
             },
             $"no '{ScheduledTransition}' scheduled entry was exposed by the state function — " +
@@ -120,6 +122,10 @@ public class ScheduleAfterAutoTests : WorkflowTestBase
             TimeSpan.FromSeconds(20));
 
         Assert.NotNull(executeAtRaw);
+
+        // The scheduled entry carries the transition definition's annotations, like every other
+        // transitions[] kind. It used to be built from the job row alone and dropped them.
+        Assert.Equal("gate-timeout", countdownAnnotation);
 
         var executeAt = DateTimeOffset.Parse(executeAtRaw!, CultureInfo.InvariantCulture,
             DateTimeStyles.AdjustToUniversal);
@@ -167,8 +173,8 @@ public class ScheduleAfterAutoTests : WorkflowTestBase
     }
 
     /// <summary>
-    /// Whether the state function currently exposes the gate's scheduled entry, and its
-    /// <c>executeAtUtc</c>.
+    /// Whether the state function currently exposes the gate's scheduled entry, its
+    /// <c>executeAtUtc</c>, and its <c>annotations["ui/countdown"]</c>.
     /// <para>
     /// Presence and <c>executeAtUtc</c> are reported separately on purpose:
     /// <c>WorkflowTestBase.GetScheduledExecuteAtAsync</c> returns null both when no entry is armed
@@ -176,19 +182,24 @@ public class ScheduleAfterAutoTests : WorkflowTestBase
     /// the entry itself.
     /// </para>
     /// </summary>
-    private async Task<(bool Present, string? ExecuteAt)> ScheduledEntryAsync(string instanceId)
+    private async Task<(bool Present, string? ExecuteAt, string? Countdown)> ScheduledEntryAsync(string instanceId)
     {
         var response = await Api.CallInstanceFunctionAsync(Workflow, instanceId, "state", headers: Headers());
-        if (!response.Body.TryGetProperty("transitions", out var transitions)) return (false, null);
+        if (!response.Body.TryGetProperty("transitions", out var transitions)) return (false, null, null);
 
         foreach (var transition in transitions.EnumerateArray())
         {
             if (!transition.TryGetProperty("kind", out var kind) || kind.GetString() != "scheduled") continue;
             if (!transition.TryGetProperty("name", out var name) || name.GetString() != ScheduledTransition) continue;
 
-            return (true, transition.TryGetProperty("executeAtUtc", out var at) ? at.GetString() : null);
+            var countdown = transition.TryGetProperty("annotations", out var annotations)
+                            && annotations.ValueKind == JsonValueKind.Object
+                            && annotations.TryGetProperty("ui/countdown", out var value)
+                ? value.GetString()
+                : null;
+            return (true, transition.TryGetProperty("executeAtUtc", out var at) ? at.GetString() : null, countdown);
         }
 
-        return (false, null);
+        return (false, null, null);
     }
 }

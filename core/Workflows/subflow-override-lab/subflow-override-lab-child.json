@@ -1,0 +1,180 @@
+{
+  "key": "subflow-override-lab-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.2",
+  "tags": [
+    "integration-test",
+    "subflow-override-lab",
+    "child"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Override Lab Child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-subflow-override-lab-child",
+      "target": "child-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": [
+          {
+            "key": "auto-child-to-lp-wait",
+            "target": "lp-wait",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/OverrideLabAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIEVhY2ggZmxvdyB3YWxrcyBpdHNlbGYgdG8gaXRzIHdhaXRpbmcgc3RhdGUgc28gYSB0ZXN0IG9ubHkgc3RhcnRzIHRoZSB0b3AuCnB1YmxpYyBjbGFzcyBPdmVycmlkZUxhYkFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+IFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "lp-wait",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Long-poll Wait"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "subflow-override-lab-child-lp-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": false
+        },
+        "subFlow": null,
+        "interaction": {
+          "longPoll": {
+            "terminate": true,
+            "fallbackTimeoutSeconds": 600,
+            "roles": [
+              {
+                "role": "ovr.child-ack",
+                "grant": "allow"
+              }
+            ]
+          }
+        },
+        "transitions": [
+          {
+            "key": "confirm",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Confirm"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "subflow-override-lab-child-confirm-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": false
+            }
+          },
+          {
+            "key": "note",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Note"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "subflow-override-lab-child-lp-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": false
+            }
+          }
+        ]
+      },
+      {
+        "key": "child-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      },
+      {
+        "key": "child-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "transitions": []
+      }
+    ]
+  }
+}

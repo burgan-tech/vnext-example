@@ -1,0 +1,32 @@
+{
+  "key": "subflow-start-failure-lab-child-start",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-start-failure-lab",
+    "input-schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:subflow-start-failure-lab-child-start",
+      "title": "SubFlow Start Failure Lab Child Start",
+      "description": "Deliberately requires a field the parent's ParentToChildSubFlowMapping never supplies, so the child's start transition fails schema validation post-commit, inside StartSubflowJobHandler/SubflowStarter — after HandleSubFlowStep has already committed the parent's InstanceCorrelation.",
+      "type": "object",
+      "required": ["mustProvide"],
+      "properties": {
+        "mustProvide": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Must Provide",
+          "x-labels": { "en": "Must Provide", "tr": "Zorunlu Alan" }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

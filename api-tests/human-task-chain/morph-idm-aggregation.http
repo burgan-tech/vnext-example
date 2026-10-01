@@ -1,0 +1,162 @@
+### morph-idm-api human-task aggregation — hand-driven walkthrough
+###
+### Runs the whole client path one hop at a time, so a failure can be attributed to a layer
+### instead of to "the list is empty". Prerequisites and the container command are in README.md.
+###
+### Ports: core :4201 · partner :4211 · credit :4221 · discovery :4231 · morph-idm :5288
+
+@core = http://localhost:4201
+@partner = http://localhost:4211
+@credit = http://localhost:4221
+@discovery = http://localhost:4231
+@idm = http://localhost:5288
+@role = ht-approver
+@user = integration-test-user
+
+
+### 1. Discovery knows the domains
+# morph-idm fans out over exactly this list. The baseUrls are CONTAINER-INTERNAL
+# (http://vnext-app-core:5000), which is why morph-idm has to run on the lab network — see README.
+GET {{discovery}}/api/v1/discovery/functions/domain-list
+
+
+### 2. The same domain, resolved singly
+# domain-lookup and domain-list read different caches. When they disagree, the bulk key
+# (vnext||custom:discovery:domains:active in Redis) is the stale one.
+GET {{discovery}}/api/v1/discovery/functions/domain-lookup?key=core
+
+
+### 3. core's own human-task list — the row the client will see
+# One row per waiting ROOT. The title comes from the LEAF, however deep it is.
+GET {{core}}/api/v1/core/functions/human-task
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+
+
+### 4. The same list, bypassing the 60 s response cache
+# Use this after starting or completing an instance; otherwise the cached answer is served and
+# the change looks like it never happened.
+GET {{core}}/api/v1/core/functions/human-task
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+X-VNext-Cache-Override: true
+
+
+### 5. partner's list — no root of the chain, but every spawned SubProcess
+# The chain's partner level is a SubFlow child (Type=S): the SAME unit of work as core's root, so
+# it is represented there and must NOT appear again here. A `ht-a` row or one of core's root ids
+# showing up means the selection predicate started listing S children.
+# A SubProcess (Type=P, step 11) is the opposite case: an independent flow that partner lists on
+# its own — workflow `ht-d`, `instanceId` equal to its `id` (never its parent's inherited Key),
+# and the title of the leaf it descended to on its own (`HT-F step` with processHops=2).
+GET {{partner}}/api/v1/partner/functions/human-task
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+
+
+### 6. credit's list — expected EMPTY, for the same reason
+GET {{credit}}/api/v1/credit/functions/human-task
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+
+
+### 7. The aggregation — what a client actually calls
+# Each row carries domainName, so a task is traceable back to the domain that answered.
+# The body also carries `truncated` and `truncatedDomains`: vNext bounds each domain's answer
+# (PerSchemaLimit per flow, ResultCap per response) and says so with X-VNext-HumanTask-Truncated;
+# morph-idm merges those into one flag and echoes the same header on its own response. Without it a
+# cut list is indistinguishable from a complete one - it is simply shorter.
+GET {{idm}}/api/discovery/human-tasks
+act_sub: {{user}}
+role: {{role}}
+
+
+### 8. Start a chain that rests two levels down (leaf = ht-c)
+POST {{core}}/api/v1/core/workflows/ht-a/instances/start?sync=true
+Content-Type: application/json
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+
+{
+  "hops": 2,
+  "testId": "http-file-s1",
+  "humanTask": { "title": "HT-A step", "description": "HT-A step description" }
+}
+
+
+### 9. Start a chain that crosses BOTH boundaries (leaf = ht-f, in credit)
+POST {{core}}/api/v1/core/workflows/ht-a/instances/start?sync=true
+Content-Type: application/json
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+
+{
+  "hops": 5,
+  "testId": "http-file-s3",
+  "humanTask": { "title": "HT-A step", "description": "HT-A step description" }
+}
+
+
+### 11. Start a root that SPAWNS a SubProcess into partner (async — see note)
+# `mode: "process"` arms the ht-a-spawn state (subFlow.type = "P") and processHops sends the
+# SubProcess two further SubFlow levels, into credit. The root itself rests in ht-a-human, so this
+# one start produces TWO rows in two different domains' answers: core's root ("HT-A step") and
+# partner's SubProcess ("HT-F step").
+#
+# NOTE: no `?sync=true`. A state-level SubProcess followed by an automatic transition cannot be
+# started synchronously today — the post-commit ContinueParent continuation re-enters the pipeline
+# with IsPreReserved = false while the instance is still Busy from the stage it belongs to, so
+# admission answers 409 conflict.Instance:100031. See TEST-SCENARIOS.md § Bilinen Kapsam Açıkları.
+POST {{core}}/api/v1/core/workflows/ht-a/instances/start
+Content-Type: application/json
+x-roles: {{role}}
+role: {{role}}
+user_reference: {{user}}
+x-device-id: http-file
+
+{
+  "mode": "process",
+  "hops": 0,
+  "processHops": 2,
+  "testId": "http-file-spawn",
+  "humanTask": { "title": "HT-A step", "description": "HT-A step description" }
+}
+
+
+### 12. The caller's context travelling down, and the domains' truncation coming back
+# Cache override: vNext's response cache is 60 s with no validation query, so a client that just
+# completed a task would otherwise read the pre-change list for a full TTL. Send this twice with the
+# SAME act_sub and compare durations against step 7 - with the header every read rebuilds.
+# Correlation: traceparent / x-request-id are forwarded verbatim into every domain, so one client
+# request can be followed across morph-idm and the whole fan-out. Every forwarded name is on vNext's
+# volatile-header denylist, which is what keeps them OUT of its cache key - a per-request value that
+# entered the key would turn every call into a miss.
+GET {{idm}}/api/discovery/human-tasks
+act_sub: {{user}}
+role: {{role}}
+X-VNext-Cache-Override: true
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+x-request-id: http-file-correlation-1
+
+
+### 10. A caller holding a different role — expected to see none of the chain rows
+# The leaf's approve transition grants only ht-approver, and cancel is role-gated too, so this
+# proves the filter ran against the LEAF's transition set.
+GET {{core}}/api/v1/core/functions/human-task
+x-roles: some.other.role
+role: some.other.role
+user_reference: {{user}}
+x-device-id: http-file
+X-VNext-Cache-Override: true
