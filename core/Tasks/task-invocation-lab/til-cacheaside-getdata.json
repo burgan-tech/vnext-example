@@ -1,6 +1,6 @@
 {
-  "key": "til-cacheaside",
-  "version": "1.0.1",
+  "key": "til-cacheaside-getdata",
+  "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -8,17 +8,23 @@
     "integration-test",
     "task-invocation-lab",
     "cacheaside",
-    "statestore"
+    "statestore",
+    "get-instance-data",
+    "issue-1048"
   ],
   "attributes": {
     "type": "18",
     "config": {
-      "key": "til:cacheaside:roundtrip",
+      "key": {
+        "location": "dynamicExpresso",
+        "encoding": "NAT",
+        "code": "\"til:ca:\" + context.Instance.Key + \":getdata\""
+      },
       "ttlInSeconds": 60,
       "sourceTask": {
-        "key": "til-cache-source",
+        "key": "til-getdata-source",
         "domain": "core",
-        "version": "1.0.1",
+        "version": "1.0.0",
         "flow": "sys-tasks"
       },
       "sourceMapping": {
