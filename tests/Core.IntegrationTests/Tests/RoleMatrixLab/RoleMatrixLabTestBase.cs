@@ -182,7 +182,18 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
         var (status, body) = await CallInstanceFunctionAsync(instanceId, "data", roles);
         if (status != HttpStatusCode.OK) return (status, default);
 
-        // The data function answers either the attributes themselves or an envelope carrying them.
-        return (status, body.TryGetProperty("attributes", out var attributes) ? attributes : body);
+        // The data function answers an envelope: { "data": { …attributes… }, "eTag", "entityEtag",
+        // "extensions" } (GetInstanceDataOutput). Older shapes carried "attributes". Unwrap whichever is
+        // there — reading the envelope's own keys made every field-level assertion look at the wrong
+        // object, which is why SchemaFieldVisibilityTests was red since the suite was written.
+        if (body.ValueKind == JsonValueKind.Object)
+        {
+            if (body.TryGetProperty("attributes", out var attributes) && attributes.ValueKind == JsonValueKind.Object)
+                return (status, attributes);
+            if (body.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object)
+                return (status, data);
+        }
+
+        return (status, body);
     }
 }
