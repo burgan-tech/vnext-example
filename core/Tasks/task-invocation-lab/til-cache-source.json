@@ -1,6 +1,6 @@
 {
   "key": "til-cache-source",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -14,7 +14,7 @@
   "attributes": {
     "type": "6",
     "config": {
-      "url": "http://localhost:3001/api/til/cache-source",
+      "url": "API_BASEURL/api/til/cache-source",
       "method": "GET",
       "timeoutSeconds": 10,
       "validateSsl": true

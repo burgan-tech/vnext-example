@@ -158,15 +158,19 @@ public class TaskTypeInvocationTests : TaskInvocationLabTestBase
     /// second instance against the same static key reads the cache instead of calling the source
     /// again. See this class's remarks for why this specific assertion (unlike the StateStore
     /// round-trip above) is not repeated in <see cref="ResultModelParityTests"/>.
+    /// <para>
+    /// Since vnext #1048 the cached value is the SOURCE mapping's output
+    /// (<c>TilCacheSourceMapping</c>: <c>{ shaped, computedAtUtc, payload }</c>), so the source's
+    /// <c>value</c> is read from <c>tilData.payload</c>. The per-instance-key, stamp-checked version of
+    /// this round-trip is <see cref="CacheAsideSourceAsTaskTests"/>.
+    /// </para>
     /// </summary>
     [SkippableFact]
     public async Task CacheAsideRoundTrip_MissesThenHits()
     {
         Skip.If(!await IsMockLabUpAsync(),
             $"MockLab is not reachable at {MockLabBaseUrl()} — start it with `docker compose up -d` " +
-            "in the repo root (or set MOCKLAB_BASE_URL). til-cache-source is a literal " +
-            "http://localhost:3001 URL (see the component build report) so MOCKLAB_BASE_URL cannot " +
-            "redirect it.");
+            "in the repo root (or set MOCKLAB_BASE_URL).");
 
         var firstInstanceId = await RunCaseAsync("case-cacheaside");
         var (firstState, firstStatus) = await GetInstanceStateAsync(Workflow, firstInstanceId);
@@ -175,7 +179,7 @@ public class TaskTypeInvocationTests : TaskInvocationLabTestBase
 
         var firstProjection = await GetProjectionAsync(firstInstanceId);
         Assert.True(BoolOrFalse(firstProjection, "tilHasData"));
-        Assert.Equal("til-cache-source-value", firstProjection.GetProperty("tilData").GetProperty("value").GetString());
+        Assert.Equal("til-cache-source-value", firstProjection.GetProperty("tilData").GetProperty("payload").GetProperty("value").GetString());
 
         var secondInstanceId = await RunCaseAsync("case-cacheaside");
         var (secondState, secondStatus) = await GetInstanceStateAsync(Workflow, secondInstanceId);
@@ -184,13 +188,13 @@ public class TaskTypeInvocationTests : TaskInvocationLabTestBase
 
         var secondProjection = await GetProjectionAsync(secondInstanceId);
         Assert.True(BoolOrFalse(secondProjection, "tilHasData"));
-        Assert.Equal("til-cache-source-value", secondProjection.GetProperty("tilData").GetProperty("value").GetString());
+        Assert.Equal("til-cache-source-value", secondProjection.GetProperty("tilData").GetProperty("payload").GetProperty("value").GetString());
 
         // The second call MUST observe the cache — either as a hit on this pair's own write, or
         // (per this class's remarks) because some other case already warmed the same static key
         // within its 60s TTL. Either way CacheHit must be true by the second call.
         //
-        // Note the casing: 'tilMetadata' is CacheAsideInvocation.BuildMetadata's raw
+        // Note the casing: 'tilMetadata' is CacheAsideTaskExecutor.BuildMetadata's raw
         // Dictionary<string, object> (PascalCase keys: StoreName/Key/CacheHit/Refreshed/ETag), but
         // instance-data persistence/read-back serializes it with the runtime's camelCase policy —
         // dictionary KEYS are data, not property names, so they get camelCased on the wire exactly

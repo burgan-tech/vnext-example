@@ -33,6 +33,49 @@ ilk kez örnekleniyor. `tilTaskType` alanı ayrıca bu dalda routing'e bağlı o
 damgalanmış bir alan (build raporuna bakın) ve `InstanceTasks` günlüğüne serileştiriliyor, bu yüzden
 `ResultModelParityTests` özellikle onu hedefliyor.
 
+## CacheAside source-as-task (vnext #1048, 2026-10-01)
+
+**Ne denetliyor:** CacheAside (tip 18) miss'te kaynağı **task olarak** çalıştırır —
+`config.sourceMapping` kaynağın `IMapping`'idir: `InputHandler` kaynak çağrısından ÖNCE (yalnız
+miss'te), `OutputHandler` SONRA koşar ve cache'e yazılan onun `Data`'sıdır. Transition seviyesi
+`onExecutionTasks[].mapping` (`TilResultProjection`) her task'ta olduğu gibi sonuç üzerinde, hit VE
+miss'te koşar; `context.Body.metadata` `CacheHit`/`Refreshed`/`Key` (`custom:` önekli store
+anahtarı)/`StoreName`/`ETag` taşır. `key` string ya da `ScriptCode`'dur (`location:
+"dynamicExpresso"` → expression, aksi halde C# `ICacheKeyMapping`), NAT/B64/REF; `keyExpression`
+kalktı. Düz metin `"encoding": "NAT"` demek ZORUNDA — varsayılan B64.
+
+**Neden var:** vnext #1048 — miss'te `sourceMapping.InputHandler` hiç koşmuyordu; anahtarı runtime'da
+`SetKey(...)` ile verilen bir GetInstanceData kaynağı `/instances//data` çağırıyordu.
+
+**Bileşenler:** `TilCacheSourceMapping.csx` (kaynak mapping'i: `HttpTask` → `API_BASEURL` çözümü,
+`GetInstanceDataTask` → `SetKey(Instance.Data.targetKey)`; çıktı `{ shaped, computedAtUtc, payload }`),
+`til-getdata-source` (tip 13, statik anahtarsız), `til-cacheaside-getdata`, altı
+`til-cacheaside-key-*` (DE NAT/B64/REF, C# NAT/B64/REF; REF gövdeleri `core/Mappings/task-invocation-lab/`
+altındaki `til-cache-key-de` / `til-cache-key-cs`). Mevcut `til-cacheaside` 1.0.1'e taşındı:
+`sourceMapping` artık `TilCacheSourceMapping` (eskiden `TilResultProjection` idi; yeni semantikte bu
+projeksiyonun kendisini cache'lerdi), `til-cache-source` 1.0.1 literal `localhost:3001` yerine
+`API_BASEURL` kullanıyor. Bu yüzden cache'teki değer artık şekillenmiş nesne ve kaynağın `value`'su
+`tilData.payload.value`'dan okunuyor.
+
+**Anahtarlar instance başına** (`til:ca:{instanceKey}:{variant}`, instance anahtarı testin seçtiği bir
+GUID) — bir HIT ancak AYNI instance'taki önceki koşudan gelebilir. Aynı-anahtar yeniden koşusu: yeni
+case transition'larının hepsi `$self` hedefler, instance `ready`'de kalır ve aynı transition ikinci
+kez çalıştırılır. `computedAtUtc` kaynak anında bir kez damgalanır; ikinci koşuda değişmemesi kaynağın
+tekrar çalışmadığını bayraktan bağımsız kanıtlar.
+
+| Test | İddia |
+| --- | --- |
+| `SourceInputResolvesUrl_MissThenHit` | 1. koşu `cacheHit=false`, `refreshed=true`, `tilData.shaped=true`, `payload.value` MockLab değeri; aynı-anahtar 2. koşu `cacheHit=true`, `computedAtUtc` aynı. |
+| `GetInstanceDataSource_SetKey_FillsCacheAndServesHit` | #1048 kabul kriteri: statik anahtarsız tip-13 kaynak, `SetKey` çağıran sourceMapping ile miss'te cache'i doldurur (hedef instance'ın benzersiz marker'ı `payload`'da) ve sonraki koşuya HIT servis eder (aynı damga). MockLab gerekmez. |
+| `KeyScript_AllKinds` (6 vaka) | `tilMetadata.key == "custom:til:ca:{instanceKey}:{variant}"` — `de-nat`, `de-b64`, `de-ref`, `cs-nat`, `cs-b64`, `cs-ref`. |
+| `CacheAsideRoundTrip_MissesThenHits` (mevcut) | Hâlâ geçer; yalnız okuma yolu `tilData.payload.value` oldu. |
+
+Koşu: `dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/test.runsettings
+--filter "FullyQualifiedName~TaskInvocationLab.CacheAsideSourceAsTaskTests|FullyQualifiedName~TaskInvocationLab.TaskTypeInvocationTests.CacheAsideRoundTrip_MissesThenHits"`.
+Önkoşul: vnext #1048 dalından lokal derlenmiş runtime, MockLab (yalnız GetInstanceData testi onsuz koşar).
+Bileşenler bu dalın şemasıyla (`vnext-schema` `feature/cacheaside-source-as-task`) doğrulandı; yayımlanmış
+0.0.53 şeması nesne-`key`'i tanımaz.
+
 ## Akış şeması
 
 Tek workflow (`task-invocation-lab`, tip `F`), hub state `ready` üzerinde bir case başına bir
@@ -50,6 +93,8 @@ task-invocation-lab
     case-statestore-set ────► landed              (Dapr state store'a yaz)
     case-statestore-get ────► landed              (aynı statik anahtarı oku)
     case-cacheaside ────────► landed              (til-cache-source üzerinden read-through; iki instance = miss + hit)
+    case-cacheaside-getdata ─► $self (ready)       (GetInstanceData kaynağı, anahtarı sourceMapping SetKey ile — vnext#1048)
+    case-cacheaside-key-{de,cs}-{nat,b64,ref} ► $self (ready)   (key script'in altı türü, til-cache-source üzerinden)
     cancel-task-invocation-lab ► til-cancelled     (şekil paraleliği için — error-boundary-lab'dan)
 ```
 
@@ -131,7 +176,6 @@ Workflow__TaskInvocation__Modes__http=Remote \
 Workflow__TaskInvocation__Modes__daprservice=Remote \
 Workflow__TaskInvocation__Modes__soap=Remote \
 Workflow__TaskInvocation__Modes__statestore=Remote \
-Workflow__TaskInvocation__Modes__cacheaside=Remote \
 dotnet run --project orchestration/BBT.Workflow.Orchestration.HttpApi.Host --launch-profile http
 
 # Execution servisi zaten ayakta olmalı (Remote yolun gideceği yer budur)
@@ -150,6 +194,7 @@ dotnet test --settings test.runsettings --filter "FullyQualifiedName~TaskInvocat
 | Sınıf | Doğruladığı |
 | --- | --- |
 | `TaskTypeInvocationTests` | Beş tipin başarı yolu; `landed`, incident yok, projeksiyon alanları (`tilCase`/`tilStatusCode`/`tilHasData`/`tilData`); StateStore set→get round-trip; CacheAside miss→hit round-trip. |
+| `CacheAsideSourceAsTaskTests` | vnext #1048: kaynağın task olarak koşması (sourceMapping InputHandler/OutputHandler), GetInstanceData `SetKey` kabul kriteri, key script'in altı türü — bkz. "CacheAside source-as-task" bölümü. |
 | `ErrorBoundaryInteractionTests` | Task seviyesi Notify/Rollback/Abort'un doğru state'e/incident'e/fault'a götürdüğü; timeout case'inin `onError`+`errorTypes: ["TaskCanceledException"]` üzerinden çalıştığı (ne `onTimeout`, ne `errorCodes`); Notify VE Rollback'in ikisinin de kendi incident'ını landing transition başarıyla tamamlanınca otomatik resolve ettiği; timeout'ta `tilStatusCode`'un null, `tilBodyLength`'in 0 olduğu. |
 | `FunctionResponseCacheTests` | Fonksiyon yanıt cache'inin miss→hit davranışı: ikinci çağrının `computedAtUtc` damgası birincininkiyle AYNI (yani task seti hiç çalışmadı) ve cache'ten dönen yanıt aynı `FunctionResponseOutput` şeklini koruyor. İki modda da değişmeden geçer. |
 | `ResultModelParityTests` | **İki modda da DEĞİŞMEDEN geçmesi gereken** projeksiyon şekli: `tilTaskType` (case-insensitive — bkz. dosyanın XML açıklaması), `tilStatusCode`, metadata anahtar kümesi. Bu dosyanın değeri TEK bir koşudan değil, yukarıdaki iki komutun İKİSİNDEN de gelir. |
@@ -172,11 +217,11 @@ dotnet test --settings test.runsettings --filter "FullyQualifiedName~TaskInvocat
    60 saniyelik TTL'i, bu paketteki BAŞKA bir case (veya aynı paketin `ResultModelParityTests`'i)
    yakın zamanda aynı anahtara dokunduysa "ilk çağrı miss" varsayımını bozabilir —
    `TaskTypeInvocationTests` bunu tek yerde iddia eder ve XML açıklamasında bu riski adlandırır.
-4. **`til-cache-source`'un URL'i literal `http://localhost:3001`.** Component build raporunun
-   bulduğu gibi, `CacheAsideTaskExecutor.InvokeAsync` kaynak task'ın kendi `InputHandler`'ını hiç
-   çalıştırmıyor, bu yüzden `API_BASEURL` placeholder'ı bu task için çözülemiyor. `MOCKLAB_BASE_URL`
-   diğer case'leri yönlendirse bile bu task'ı yönlendirmez — varsayılan MockLab portundan farklı bir
-   ortamda bu test kırılır.
+4. **`til-cache-source`'un URL'i artık `API_BASEURL`** (1.0.1, vnext #1048). Eskiden literal
+   `http://localhost:3001` idi çünkü `CacheAsideTaskExecutor` kaynağın `InputHandler`'ını hiç
+   çalıştırmıyordu; artık kaynak task olarak koşuyor ve `TilCacheSourceMapping.InputHandler`
+   placeholder'ı diğer til HTTP task'ları gibi `Example:ApiBaseUrl`'den çözüyor. CacheAside'ın kendi
+   routing anahtarı da yok: cache I/O `Modes.statestore`'u, kaynak kendi tipinin modunu izler.
 5. **DaprService case'i (`til-dapr-ok`) MockLab'in ayakta olmasının ÖTESİNDE bir önkoşula sahip**:
    lokal Dapr sidecar'ının `mocklab` app-id'sini MockLab'e yönlendiren bir bileşene ihtiyacı var.
    `IsMockLabUpAsync()` yalnız MockLab'in admin API'sini kontrol eder, bu Dapr yönlendirmesini

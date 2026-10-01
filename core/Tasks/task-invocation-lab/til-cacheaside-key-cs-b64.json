@@ -1,6 +1,6 @@
 {
-  "key": "til-cacheaside",
-  "version": "1.0.1",
+  "key": "til-cacheaside-key-cs-b64",
+  "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -8,12 +8,18 @@
     "integration-test",
     "task-invocation-lab",
     "cacheaside",
-    "statestore"
+    "statestore",
+    "cache-key",
+    "issue-1048"
   ],
   "attributes": {
     "type": "18",
     "config": {
-      "key": "til:cacheaside:roundtrip",
+      "key": {
+        "location": "./src/TilCacheKeyCsB64.csx",
+        "encoding": "B64",
+        "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIENhY2hlQXNpZGUga2V5IHNjcmlwdCwgQyMgKFJvc2x5bikgZm9ybSwgZW1iZWRkZWQgd2l0aCB0aGUgZGVmYXVsdCBCNjQgZW5jb2RpbmcgaW4KLy8vIDxjPnRpbC1jYWNoZWFzaWRlLWtleS1jcy1iNjQ8L2M+LiBQZXItaW5zdGFuY2Uga2V5LCBzbyBhIGhpdCBjYW4gb25seSBjb21lIGZyb20gdGhpcyBpbnN0YW5jZS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFRpbENhY2hlS2V5Q3NCNjQgOiBJQ2FjaGVLZXlNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPHN0cmluZz8+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgICAgID0+IFRhc2suRnJvbVJlc3VsdDxzdHJpbmc/PigkInRpbDpjYTp7Y29udGV4dC5JbnN0YW5jZT8uS2V5fTpjcy1iNjQiKTsKfQo="
+      },
       "ttlInSeconds": 60,
       "sourceTask": {
         "key": "til-cache-source",

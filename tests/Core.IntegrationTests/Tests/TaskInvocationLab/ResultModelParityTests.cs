@@ -16,7 +16,7 @@ namespace Core.IntegrationTests.Tests.TaskInvocationLab;
 /// with every type forced back to Remote:
 /// </para>
 /// <code>
-/// # Run 1 — shipped default (Local for http/daprservice/soap/statestore/cacheaside):
+/// # Run 1 — shipped default (Local for http/daprservice/soap/statestore):
 /// dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~TaskInvocationLab.ResultModelParityTests"
 ///
 /// # Run 2 — force every type back to Remote. Set these BEFORE starting the Orchestration host
@@ -26,7 +26,6 @@ namespace Core.IntegrationTests.Tests.TaskInvocationLab;
 /// Workflow__TaskInvocation__Modes__daprservice=Remote \
 /// Workflow__TaskInvocation__Modes__soap=Remote \
 /// Workflow__TaskInvocation__Modes__statestore=Remote \
-/// Workflow__TaskInvocation__Modes__cacheaside=Remote \
 /// dotnet run --project orchestration/BBT.Workflow.Orchestration.HttpApi.Host --launch-profile http
 /// # (the Execution service must also be running for Remote dispatch to have anywhere to go)
 /// dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~TaskInvocationLab.ResultModelParityTests"
@@ -34,6 +33,11 @@ namespace Core.IntegrationTests.Tests.TaskInvocationLab;
 /// <para>
 /// Both runs are expected to pass UNCHANGED — no test here branches on which mode is active, by
 /// design (the whole point is that the caller-visible shape must not need to know).
+/// </para>
+/// <para>
+/// CacheAside has had no routing key of its own since vnext #1048: its cache get/set follows
+/// <c>Modes.statestore</c> and its source runs wherever the source task's own type routes
+/// (<c>Modes.http</c> for <c>til-cache-source</c>), so the two env vars above already cover it.
 /// </para>
 /// <para>
 /// <b>Why <c>tilTaskType</c> is asserted case-insensitively.</b> This field is the parity trap the
@@ -147,7 +151,7 @@ public class ResultModelParityTests : TaskInvocationLabTestBase
     /// <see cref="TaskTypeInvocationTests"/>'s remarks on why that value depends on which other
     /// case in this run last touched the same static cache key, not on the routing mode. What
     /// stays true either way (hit or miss) is the metadata KEY SET and the task type/status code,
-    /// because <c>CacheAsideInvocation.BuildMetadata</c> always attaches the same five keys and the
+    /// because <c>CacheAsideTaskExecutor.BuildMetadata</c> always attaches the same five keys and the
     /// underlying source dispatch always defaults to <c>statusCode: 200</c> on success regardless
     /// of which branch (cache read vs. source dispatch) produced the result.
     /// </summary>
@@ -156,9 +160,7 @@ public class ResultModelParityTests : TaskInvocationLabTestBase
     {
         Skip.If(!await IsMockLabUpAsync(),
             $"MockLab is not reachable at {MockLabBaseUrl()} — start it with `docker compose up -d` " +
-            "in the repo root (or set MOCKLAB_BASE_URL). til-cache-source is a literal " +
-            "http://localhost:3001 URL (see the component build report) so MOCKLAB_BASE_URL cannot " +
-            "redirect it.");
+            "in the repo root (or set MOCKLAB_BASE_URL).");
 
         var instanceId = await RunCaseAsync("case-cacheaside");
         var projection = await GetProjectionAsync(instanceId);
@@ -166,7 +168,7 @@ public class ResultModelParityTests : TaskInvocationLabTestBase
         Assert.Equal("cacheaside", NullableString(projection, "tilTaskType"), ignoreCase: true);
         Assert.Equal(200, NullableLong(projection, "tilStatusCode"));
         Assert.True(BoolOrFalse(projection, "tilHasData"));
-        Assert.Equal("til-cache-source-value", projection.GetProperty("tilData").GetProperty("value").GetString());
+        Assert.Equal("til-cache-source-value", projection.GetProperty("tilData").GetProperty("payload").GetProperty("value").GetString());
 
         AssertMetadataKeySet(projection, "StoreName", "Key", "CacheHit", "Refreshed", "ETag");
     }

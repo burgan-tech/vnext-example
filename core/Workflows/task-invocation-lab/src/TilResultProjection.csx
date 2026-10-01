@@ -35,12 +35,12 @@ using BBT.Workflow.Scripting;
 /// on routing. Normalizing it here would hide a regression instead of surfacing it.
 /// </para>
 /// <para>
-/// <b>CacheAside is the one exception to how this file gets attached.</b>
-/// <c>CacheAsideTaskExecutor.ProcessOutputAsync</c> does not call the transition-level
-/// <c>onExecutionTasks[].mapping</c>'s <c>OutputHandler</c> at all — it reads the task config's own
-/// <c>sourceMapping</c> field instead. <c>til-cacheaside.json</c> therefore points BOTH its
-/// transition-level <c>mapping</c> (harmless no-op InputHandler here) AND its task-level
-/// <c>config.sourceMapping</c> at this same file, so the projection still runs for that case.
+/// <b>CacheAside cases attach this file like every other case</b> (vnext #1048): the transition-level
+/// <c>onExecutionTasks[].mapping</c> <c>OutputHandler</c> runs on the CacheAside result, hit AND miss,
+/// so <c>tilMetadata</c> carries <c>CacheHit</c>/<c>Refreshed</c>/<c>Key</c>/<c>StoreName</c>/<c>ETag</c>
+/// and <c>tilData</c> the cached (shaped) value. The CacheAside task's own <c>config.sourceMapping</c>
+/// is <c>TilCacheSourceMapping.csx</c> — the SOURCE task's mapping, whose output is what gets cached.
+/// Pointing <c>sourceMapping</c> at this file would cache the projection itself.
 /// </para>
 /// </summary>
 public class TilResultProjection : ScriptBase, IMapping

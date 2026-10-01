@@ -1,6 +1,6 @@
 {
-  "key": "til-cacheaside",
-  "version": "1.0.1",
+  "key": "til-cacheaside-key-cs-nat",
+  "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -8,12 +8,18 @@
     "integration-test",
     "task-invocation-lab",
     "cacheaside",
-    "statestore"
+    "statestore",
+    "cache-key",
+    "issue-1048"
   ],
   "attributes": {
     "type": "18",
     "config": {
-      "key": "til:cacheaside:roundtrip",
+      "key": {
+        "location": "./src/TilCacheKeyCsNat.csx",
+        "encoding": "NAT",
+        "code": "using System.Threading.Tasks;\nusing BBT.Workflow.Scripting;\n\n/// <summary>\n/// CacheAside key script, C# (Roslyn) form, embedded with <c>\"encoding\": \"NAT\"</c> in\n/// <c>til-cacheaside-key-cs-nat</c>. Per-instance key, so a hit can only come from this instance.\n/// </summary>\npublic class TilCacheKeyCsNat : ICacheKeyMapping\n{\n    public Task<string?> Handler(ScriptContext context)\n        => Task.FromResult<string?>($\"til:ca:{context.Instance?.Key}:cs-nat\");\n}\n"
+      },
       "ttlInSeconds": 60,
       "sourceTask": {
         "key": "til-cache-source",

@@ -1,6 +1,6 @@
 {
-  "key": "til-cacheaside",
-  "version": "1.0.1",
+  "key": "til-cacheaside-key-cs-ref",
+  "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -8,12 +8,22 @@
     "integration-test",
     "task-invocation-lab",
     "cacheaside",
-    "statestore"
+    "statestore",
+    "cache-key",
+    "issue-1048"
   ],
   "attributes": {
     "type": "18",
     "config": {
-      "key": "til:cacheaside:roundtrip",
+      "key": {
+        "encoding": "REF",
+        "code": {
+          "key": "til-cache-key-cs",
+          "version": "1.0.0",
+          "domain": "core",
+          "flow": "sys-mappings"
+        }
+      },
       "ttlInSeconds": 60,
       "sourceTask": {
         "key": "til-cache-source",

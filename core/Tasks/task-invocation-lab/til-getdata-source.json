@@ -1,0 +1,21 @@
+{
+  "key": "til-getdata-source",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "get-instance-data",
+    "cache-source"
+  ],
+  "attributes": {
+    "type": "13",
+    "config": {
+      "domain": "core",
+      "flow": "task-invocation-lab",
+      "timeoutSeconds": 10
+    }
+  }
+}

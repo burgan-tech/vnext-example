@@ -1,0 +1,19 @@
+{
+  "key": "til-cache-key-de",
+  "version": "1.0.0",
+  "flow": "sys-mappings",
+  "domain": "core",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "task-invocation-lab",
+    "cacheaside",
+    "cache-key",
+    "dynamic-expresso"
+  ],
+  "attributes": {
+    "name": "TilCacheKeyDeRef",
+    "code": "\"til:ca:\" + context.Instance.Key + \":de-ref\"",
+    "encoding": "NAT"
+  }
+}

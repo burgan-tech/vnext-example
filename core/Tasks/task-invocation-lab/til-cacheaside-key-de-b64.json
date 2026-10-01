@@ -1,6 +1,6 @@
 {
-  "key": "til-cacheaside",
-  "version": "1.0.1",
+  "key": "til-cacheaside-key-de-b64",
+  "version": "1.0.0",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -8,12 +8,18 @@
     "integration-test",
     "task-invocation-lab",
     "cacheaside",
-    "statestore"
+    "statestore",
+    "cache-key",
+    "issue-1048"
   ],
   "attributes": {
     "type": "18",
     "config": {
-      "key": "til:cacheaside:roundtrip",
+      "key": {
+        "location": "dynamicExpresso",
+        "encoding": "B64",
+        "code": "InRpbDpjYToiICsgY29udGV4dC5JbnN0YW5jZS5LZXkgKyAiOmRlLWI2NCI="
+      },
       "ttlInSeconds": 60,
       "sourceTask": {
         "key": "til-cache-source",
