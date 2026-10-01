@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "tags": [
     "integration-test",
     "error-boundary-lab",
@@ -97,7 +97,7 @@
           "process": {
             "key": "eb-sf-leaf",
             "domain": "core",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "flow": "sys-flows"
           },
           "mapping": {

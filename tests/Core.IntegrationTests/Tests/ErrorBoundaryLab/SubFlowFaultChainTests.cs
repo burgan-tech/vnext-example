@@ -75,6 +75,34 @@ public class SubFlowFaultChainTests : ErrorBoundaryLabTestBase
         Assert.True(Flag(incident, "isResolved"), $"the root's incident is still open: {Summarize(incident)}");
     }
 
+    /// <summary>
+    /// What a mapping running INSIDE the root's error-boundary handling reads from
+    /// <c>context.Incident</c>: the boundary transition's own task (<c>probeTransition</c>) and the
+    /// error end's OnEntry (<c>probeEntry</c>), both before <c>FinalizeTransitionStep</c> resolves
+    /// the incident. Before the fix both saw <c>hasActiveIncident: true</c> with no active incident
+    /// and a count of 0 — the script context read the snapshot's EF navigation, which is empty on a
+    /// snapshot.
+    /// </summary>
+    [Theory]
+    [InlineData("probeTransition")]
+    [InlineData("probeEntry")]
+    public async Task AMappingInsideTheBoundaryHandling_SeesTheSubFlowIncident(string slot)
+    {
+        var chain = await RunChainAsync();
+        if (chain is null) return;
+
+        var attributes = await GetAttributesAsync(Root, chain.Value.Root);
+        Assert.True(attributes.TryGetProperty(slot, out var probe), $"the {slot} mapping never ran: {attributes}");
+
+        Assert.True(Flag(probe, "hasActiveIncident"), $"{slot}: {probe}");
+        Assert.True(Flag(probe, "activeIncidentPresent"), $"{slot} saw no active incident: {probe}");
+        Assert.Equal(1, Number(probe, "totalIncidentCount"));
+        Assert.Equal("eb-http-400-task", Text(probe, "activeTask"));
+        Assert.Equal(400, Number(probe, "activeStatusCode"));
+        Assert.Equal("Notify", Text(probe, "activeBoundaryAction"));
+        Assert.EndsWith("Task:Http:eb-http-400-task:400", Text(probe, "activeErrorCode"));
+    }
+
     [Fact]
     public async Task TheRootReportsNoActiveIncident_OnEverySurface()
     {

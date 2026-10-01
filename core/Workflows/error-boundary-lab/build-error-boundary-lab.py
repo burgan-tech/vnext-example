@@ -76,7 +76,9 @@ ROOT = Path(__file__).resolve().parent
 #         handler runs on failed attempts too, so the old httpSucceeded stamp was true even when
 #         the call had failed; httpAttempts/httpLastStatus are what actually discriminate, and
 #         httpAttempts is how the retry tests prove a recovery without reading MockLab's logs.
-VERSION = "1.1.0"
+# 1.2.0 — eb-sf-root carries an incident probe on its boundary transition and error-end OnEntry
+#         (context.Incident as a mapping sees it while the root handles a subflow fault).
+VERSION = "1.2.0"
 
 VIEWER_ROLE = "eb-lab.viewer"
 
@@ -367,6 +369,7 @@ GLOBAL = {
 # afterwards — in particular the root's, which handled the fault instead of faulting.
 SF_RULE = "EbAlwaysTrueRule.csx"
 SF_MAPPING = "EbSubFlowPassMapping.csx"
+PROBE_MAPPING = "EbIncidentProbeMapping.csx"
 
 
 def auto(key, target, text):
@@ -450,13 +453,19 @@ SF_ROOT = sf_workflow(
         subflow_state("r-in-mid", "Root: waiting on the mid", "eb-sf-mid",
                       [auto("r-mid-done", "r-done", "Root: mid finished")]),
         terminal("r-done", "Root done", 1),
-        terminal("r-error-end", "Root error end", 2),
+        # The OnEntry probe records what context.Incident shows AFTER the state change, still
+        # inside the boundary transition's hop (FinalizeTransitionStep resolves it after this).
+        dict(terminal("r-error-end", "Root error end", 2),
+             onEntries=[hook(1, "eb-incident-probe-task-2", PROBE_MAPPING)]),
     ],
     "r-initial",
     # Same shape as the preprod root: a notify with a transition, so the root HANDLES the fault.
     [{"action": 4, "transition": "r-has-error", "priority": 10}],
     extra={"sharedTransitions": [
-        dict(transition("r-has-error", "r-error-end", "Root: a subflow faulted"),
+        # The OnExecute probe records what context.Incident shows to the boundary transition's
+        # own mapping — the place a domain developer branches on the subflow's failure.
+        dict(transition("r-has-error", "r-error-end", "Root: a subflow faulted",
+                        [hook(1, "eb-incident-probe-task", PROBE_MAPPING)]),
              availableIn=["r-in-mid"]),
     ]},
 )
