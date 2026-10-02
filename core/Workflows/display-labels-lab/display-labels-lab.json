@@ -1,0 +1,233 @@
+{
+  "key": "display-labels-lab",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "display-labels-lab",
+    "labels"
+  ],
+  "attributes": {
+    "_comment": "Every surface a client renders carries display text: the current state (dl-review, Human), each transition (labelled state transition with a schema, transition into a subFlow state, labelled $self shared transition), each target state, the workflow timeout's target, the state view, the transition schema, the master schema and the declared function (til-cached-echo, already labelled). The timeout is PT10M so it never fires during a run — only its block is asserted.",
+    "type": "F",
+    "timeout": {
+      "key": "dl-abandoned",
+      "target": "dl-expired",
+      "versionStrategy": "Minor",
+      "timer": {
+        "reset": "never",
+        "duration": "PT10M"
+      }
+    },
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Etiket Lab"
+      },
+      {
+        "language": "en-US",
+        "label": "Display Labels Lab"
+      }
+    ],
+    "schema": {
+      "key": "display-labels-lab-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "functions": [
+      {
+        "key": "til-cached-echo",
+        "domain": "core",
+        "version": "1.0.1",
+        "flow": "sys-functions"
+      }
+    ],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-dl",
+      "target": "dl-review",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "tr-TR",
+          "label": "Başlat"
+        },
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "sharedTransitions": [
+      {
+        "key": "dl-note",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Not ekle"
+          },
+          {
+            "language": "en-US",
+            "label": "Add note"
+          }
+        ],
+        "availableIn": [
+          "dl-review"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "key": "dl-review",
+        "stateType": 1,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "İnceleme"
+          },
+          {
+            "language": "en-US",
+            "label": "Review"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "display-labels-lab-review-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": false
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "dl-approve",
+            "target": "dl-approved",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Onayla"
+              },
+              {
+                "language": "en-US",
+                "label": "Approve"
+              }
+            ],
+            "schema": {
+              "key": "display-labels-lab-decision",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            }
+          },
+          {
+            "key": "dl-ask-sub",
+            "target": "dl-sub",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Alt akışa gönder"
+              },
+              {
+                "language": "en-US",
+                "label": "Send to child flow"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "dl-sub",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Alt Akışta"
+          },
+          {
+            "language": "en-US",
+            "label": "In Child Flow"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "display-labels-lab-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/DisplayLabelsLabSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gTWluaW1hbCBTdWJGbG93IG1hcHBpbmcgZm9yIHRoZSBkaXNwbGF5LWxhYmVscyBsYWI6IHRoZSBzY2VuYXJpbyBpcyBhYm91dCB3aGF0IHRoZSByZWFkCi8vLyBzdXJmYWNlcyBERVNDUklCRSwgbm90IGFib3V0IGRhdGEsIHNvIG5vdGhpbmcgaXMgbWFwcGVkIGJleW9uZCBhIG1hcmtlci4KLy8vIDwvc3VtbWFyeT4KLy8vIDxyZW1hcmtzPgovLy8gSXQgZXhpc3RzIGJlY2F1c2UgPGM+c3ViRmxvdy5tYXBwaW5nPC9jPiBpcyByZXF1aXJlZCBieSB0aGUgc2NoZW1hLiBLZWVwaW5nIGl0IGVtcHR5IGlzCi8vLyBkZWxpYmVyYXRlIOKAlCBhIG1hcHBpbmcgdGhhdCBtb3ZlZCByZWFsIGRhdGEgd291bGQgZ2l2ZSBhIGZhaWxpbmcgdGVzdCBhIHNlY29uZCBwb3NzaWJsZSBjYXVzZS4KLy8vIDwvcmVtYXJrcz4KcHVibGljIGNsYXNzIERpc3BsYXlMYWJlbHNMYWJTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGNoaWxkSW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGNoaWxkSW5wdXQuc3RhcnRlZEJ5RGlzcGxheUxhYmVsc0xhYiA9IHRydWU7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY2hpbGRJbnB1dCB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBtZXJnZWQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KW1lcmdlZDsKICAgICAgICBpZiAoY29udGV4dC5JbnN0YW5jZS5EYXRhIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBpbnN0KQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgfQogICAgICAgIHRhcmdldFsiY2hpbGRTZXR0bGVkIl0gPSB0cnVlOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG1lcmdlZCB9KTsKICAgIH0KfQo="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "dl-approved",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Onaylandı"
+          },
+          {
+            "language": "en-US",
+            "label": "Approved"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "dl-expired",
+        "stateType": 3,
+        "subType": 8,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Süresi Doldu"
+          },
+          {
+            "language": "en-US",
+            "label": "Expired"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

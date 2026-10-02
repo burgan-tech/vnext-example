@@ -1,0 +1,106 @@
+{
+  "key": "display-labels-lab-child",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "display-labels-lab",
+    "labels"
+  ],
+  "attributes": {
+    "_comment": "Child of display-labels-lab. Its review state is Human with labels, so a parent polled during the subflow window must describe THIS state (stateSubType human, the child's stateLabels) and pass the child's own transition entries — labels and target — through unchanged.",
+    "type": "S",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Etiket Lab — alt akış"
+      },
+      {
+        "language": "en-US",
+        "label": "Display Labels Lab — child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-dl-child",
+      "target": "child-review",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "tr-TR",
+          "label": "Alt akışı başlat"
+        },
+        {
+          "language": "en-US",
+          "label": "Start child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-review",
+        "stateType": 1,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Alt İnceleme"
+          },
+          {
+            "language": "en-US",
+            "label": "Child Review"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-done",
+            "target": "child-finished",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Alt işi bitir"
+              },
+              {
+                "language": "en-US",
+                "label": "Finish child work"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "child-finished",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Alt Akış Tamamlandı"
+          },
+          {
+            "language": "en-US",
+            "label": "Child Finished"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

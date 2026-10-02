@@ -1,0 +1,38 @@
+{
+  "key": "display-labels-lab-review-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "display-labels-lab",
+    "labels"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "İnceleme Ekranı"
+      },
+      {
+        "language": "en-US",
+        "label": "Review Screen"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Text",
+        "content": {
+          "en": "review",
+          "tr": "inceleme"
+        },
+        "variant": "headlineMedium"
+      }
+    }
+  }
+}
