@@ -1,0 +1,131 @@
+{
+  "key": "implicit-start-lab-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "implicit-start-lab",
+    "initial-state-declared",
+    "subflow-parent"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Implicit Start Lab parent (declares Initial, starts an Initial-less child)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-implicit-parent",
+      "target": "waiting",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "waiting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting (declared Initial state)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-child",
+            "target": "in-child",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to child"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "in-child",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "In child (SubFlow)"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "implicit-start-lab-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/ImplicitStartLabSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gTWluaW1hbCBTdWJGbG93IG1hcHBpbmcgZm9yIGltcGxpY2l0LXN0YXJ0LWxhYi1wYXJlbnQuIFRoZSBzY2VuYXJpbyBpcyBhYm91dCBXSEVSRSB0aGUgY2hpbGQgaXMKLy8vIGJvcm4gKHRoZSBydW50aW1lJ3MgaW1wbGljaXQgPGM+JHN0YXJ0PC9jPiBzb3VyY2Ugc3RhdGUsIGJlY2F1c2UgdGhlIGNoaWxkIGRlY2xhcmVzIG5vIEluaXRpYWwKLy8vIHN0YXRlKSwgbm90IGFib3V0IGRhdGEsIHNvIG9ubHkgYSBtYXJrZXIgY3Jvc3NlcyB0aGUgYm91bmRhcnkgaW4gZWFjaCBkaXJlY3Rpb24uCi8vLyA8L3N1bW1hcnk+Ci8vLyA8cmVtYXJrcz4KLy8vIEl0IGV4aXN0cyBiZWNhdXNlIDxjPnN1YkZsb3cubWFwcGluZzwvYz4gaXMgcmVxdWlyZWQgYnkgdGhlIHNjaGVtYS4gS2VlcGluZyBpdCB0cml2aWFsIGlzCi8vLyBkZWxpYmVyYXRlOiBhIG1hcHBpbmcgdGhhdCBtb3ZlZCByZWFsIGRhdGEgd291bGQgZ2l2ZSBhIGZhaWxpbmcgdGVzdCBhIHNlY29uZCBwb3NzaWJsZSBjYXVzZS4KLy8vIDwvcmVtYXJrcz4KcHVibGljIGNsYXNzIEltcGxpY2l0U3RhcnRMYWJTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGNoaWxkSW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGNoaWxkSW5wdXQuc3RhcnRlZEJ5SW1wbGljaXRTdGFydExhYlBhcmVudCA9IHRydWU7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY2hpbGRJbnB1dCB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5pbXBsaWNpdFN0YXJ0Q2hpbGRTZXR0bGVkID0gdHJ1ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-child-done",
+            "target": "done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto after child"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
