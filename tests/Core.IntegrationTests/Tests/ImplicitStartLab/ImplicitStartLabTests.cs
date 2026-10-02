@@ -82,6 +82,8 @@ public class ImplicitStartLabTests : WorkflowTestBase
                 lastState = root.GetProperty("state").GetString();
                 lastStatus = root.GetProperty("status").GetString();
 
+                // Rarely fires: the pipeline leaves $start within the start request. The test's value is
+                // that an async start does not fail and comes to rest on step-1.
                 if (lastState == ImplicitStart)
                 {
                     var transitions = root.TryGetProperty("transitions", out var t) && t.ValueKind == JsonValueKind.Array

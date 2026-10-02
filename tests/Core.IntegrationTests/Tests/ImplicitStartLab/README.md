@@ -64,11 +64,7 @@ bekleniyor. SDK publisher ham JSON gönderdiği için testler bundan etkilenmez.
 
 ## Geçme kriteri ve bilinen sınırlar
 
-7/7 yeşil (6 test, biri iki case'li theory).
+7/7 yeşil (6 test, biri iki case'li theory), lokal runtime vnext `860c4a26` üzerinde.
 
-**Bilinen kırmızı (2026-10-02, runtime `21d6875e`):** `Start_WithoutInitialState_Async_PollNeverFails`.
-`sync=false` start **500** döner. `JobName.ForAsyncTransition(instanceId, sourceState: "$start", ...)`
-→ `JobName.ValidateKey` `$` karakterini reddeder ("must ... contain only [A-Za-z0-9_-] to form a
-valid Dapr job name"). Instance satırı exception'dan önce yazıldığı için `$start`/`A` durumunda,
-sıfır transition ile yetim kalır. Varsayılan `sync=false` olduğundan, sync parametresi vermeyen her
-client Initial'sız bir akışı başlatamaz. Bu bir runtime kusuru, test tarafında çözülmez.
+Geçmiş: bu senaryo, Initial'sız bir akışın `sync=false` start'ının 500 döndüğünü buldu
+(`JobName` source state `$start`'taki `$` karakterini reddediyordu). Kusur vnext `860c4a26`'da düzeltildi.
