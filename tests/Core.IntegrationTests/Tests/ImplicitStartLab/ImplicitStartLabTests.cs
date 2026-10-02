@@ -10,9 +10,9 @@ namespace Core.IntegrationTests.Tests.ImplicitStartLab;
 /// <para>
 /// When no Initial state is declared, the runtime supplies an implicit source state keyed
 /// <c>$start</c> (<c>WellKnownStateKeys.Start</c>); the instance is born there and
-/// <c>startTransition.target</c> alone decides where it enters. <c>$start</c> is never a resting
-/// point: the start transition leaves it inside the same pipeline, so a client must never be
-/// stranded on it, and the only trace it leaves is the first history row's <c>fromState</c>.
+/// <c>startTransition.target</c> alone decides where it enters. the instance sits at <c>$start</c>
+/// only until the start transition commits (visible during an async start); afterwards the only
+/// trace it leaves is the first history row's <c>fromState</c>.
 /// </para>
 /// <para>
 /// The parent flow DECLARES an Initial state and is the regression side: an Initial-declaring
