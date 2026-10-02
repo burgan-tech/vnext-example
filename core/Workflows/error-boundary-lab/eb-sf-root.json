@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "tags": [
     "integration-test",
     "error-boundary-lab",
@@ -98,7 +98,7 @@
           "process": {
             "key": "eb-sf-mid",
             "domain": "core",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "flow": "sys-flows"
           },
           "mapping": {
@@ -158,7 +158,21 @@
         ],
         "view": null,
         "subFlow": null,
-        "onEntries": [],
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "eb-incident-probe-task-2",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/EbIncidentProbeMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSZWNvcmRzIHdoYXQgPGM+Y29udGV4dC5JbmNpZGVudDwvYz4gc2hvd3MgdG8gYSBtYXBwaW5nIHJ1bm5pbmcgaW5zaWRlIHRoZSByb290J3MgZXJyb3ItYm91bmRhcnkKLy8vIGhhbmRsaW5nIG9mIGEgc3ViZmxvdyBmYXVsdCAoZWItc2Ytcm9vdDogdGhlIDxjPnItaGFzLWVycm9yPC9jPiB0cmFuc2l0aW9uIGFuZCB0aGUKLy8vIDxjPnItZXJyb3ItZW5kPC9jPiBPbkVudHJ5KS4gVGhlIHNsb3QgcHJlZml4IGNvbWVzIGZyb20gdGhlIHRhc2sga2V5IHNvIG9uZSBtYXBwaW5nIHNlcnZlcyBib3RoCi8vLyBzbG90cy4gVGhpcyBpcyBleGFjdGx5IHdoYXQgYSBkb21haW4gZGV2ZWxvcGVyIHJlYWRzIHRvIGJyYW5jaCBvbiB0aGUgc3ViZmxvdydzIGZhaWx1cmUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBFYkluY2lkZW50UHJvYmVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc2xvdCA9IGNvbnRleHQuSW5zdGFuY2U/LkN1cnJlbnRTdGF0ZSA9PSAici1lcnJvci1lbmQiID8gInByb2JlRW50cnkiIDogInByb2JlVHJhbnNpdGlvbiI7CiAgICAgICAgdmFyIGluZm8gPSBjb250ZXh0LkluY2lkZW50OwogICAgICAgIHZhciBhY3RpdmUgPSBpbmZvPy5BY3RpdmVJbmNpZGVudDsKCiAgICAgICAgZHluYW1pYyBwcm9iZSA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcHJvYmUuY29udGV4dEhhc0luY2lkZW50SW5mbyA9IGluZm8gIT0gbnVsbDsKICAgICAgICBwcm9iZS5oYXNBY3RpdmVJbmNpZGVudCA9IGluZm8/Lkhhc0FjdGl2ZUluY2lkZW50ID8/IGZhbHNlOwogICAgICAgIHByb2JlLmluY2lkZW50c0xvYWRlZCA9IGluZm8/LkluY2lkZW50c0xvYWRlZCA/PyBmYWxzZTsKICAgICAgICBwcm9iZS50b3RhbEluY2lkZW50Q291bnQgPSBpbmZvPy5Ub3RhbEluY2lkZW50Q291bnQgPz8gLTE7CiAgICAgICAgcHJvYmUuYWN0aXZlSW5jaWRlbnRQcmVzZW50ID0gYWN0aXZlICE9IG51bGw7CiAgICAgICAgcHJvYmUuYWN0aXZlRXJyb3JDb2RlID0gYWN0aXZlPy5FcnJvckNvZGU7CiAgICAgICAgcHJvYmUuYWN0aXZlU3RhdHVzQ29kZSA9IGFjdGl2ZT8uU3RhdHVzQ29kZTsKICAgICAgICBwcm9iZS5hY3RpdmVUYXNrID0gYWN0aXZlPy5UYXNrOwogICAgICAgIHByb2JlLmFjdGl2ZUJvdW5kYXJ5QWN0aW9uID0gYWN0aXZlPy5Cb3VuZGFyeUFjdGlvbjsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdClbc2xvdF0gPSBwcm9iZTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkViSW5jaWRlbnRQcm9iZU1hcHBpbmdbe3Nsb3R9XTogaGFzPXtwcm9iZS5oYXNBY3RpdmVJbmNpZGVudH0gYWN0aXZlPXtwcm9iZS5hY3RpdmVJbmNpZGVudFByZXNlbnR9IGxvYWRlZD17cHJvYmUuaW5jaWRlbnRzTG9hZGVkfSBjb3VudD17cHJvYmUudG90YWxJbmNpZGVudENvdW50fSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
         "onExits": [],
         "transitions": []
       }
@@ -175,7 +189,21 @@
             "label": "Root: a subflow faulted"
           }
         ],
-        "onExecutionTasks": [],
+        "onExecutionTasks": [
+          {
+            "order": 1,
+            "task": {
+              "key": "eb-incident-probe-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/EbIncidentProbeMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSZWNvcmRzIHdoYXQgPGM+Y29udGV4dC5JbmNpZGVudDwvYz4gc2hvd3MgdG8gYSBtYXBwaW5nIHJ1bm5pbmcgaW5zaWRlIHRoZSByb290J3MgZXJyb3ItYm91bmRhcnkKLy8vIGhhbmRsaW5nIG9mIGEgc3ViZmxvdyBmYXVsdCAoZWItc2Ytcm9vdDogdGhlIDxjPnItaGFzLWVycm9yPC9jPiB0cmFuc2l0aW9uIGFuZCB0aGUKLy8vIDxjPnItZXJyb3ItZW5kPC9jPiBPbkVudHJ5KS4gVGhlIHNsb3QgcHJlZml4IGNvbWVzIGZyb20gdGhlIHRhc2sga2V5IHNvIG9uZSBtYXBwaW5nIHNlcnZlcyBib3RoCi8vLyBzbG90cy4gVGhpcyBpcyBleGFjdGx5IHdoYXQgYSBkb21haW4gZGV2ZWxvcGVyIHJlYWRzIHRvIGJyYW5jaCBvbiB0aGUgc3ViZmxvdydzIGZhaWx1cmUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBFYkluY2lkZW50UHJvYmVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc2xvdCA9IGNvbnRleHQuSW5zdGFuY2U/LkN1cnJlbnRTdGF0ZSA9PSAici1lcnJvci1lbmQiID8gInByb2JlRW50cnkiIDogInByb2JlVHJhbnNpdGlvbiI7CiAgICAgICAgdmFyIGluZm8gPSBjb250ZXh0LkluY2lkZW50OwogICAgICAgIHZhciBhY3RpdmUgPSBpbmZvPy5BY3RpdmVJbmNpZGVudDsKCiAgICAgICAgZHluYW1pYyBwcm9iZSA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcHJvYmUuY29udGV4dEhhc0luY2lkZW50SW5mbyA9IGluZm8gIT0gbnVsbDsKICAgICAgICBwcm9iZS5oYXNBY3RpdmVJbmNpZGVudCA9IGluZm8/Lkhhc0FjdGl2ZUluY2lkZW50ID8/IGZhbHNlOwogICAgICAgIHByb2JlLmluY2lkZW50c0xvYWRlZCA9IGluZm8/LkluY2lkZW50c0xvYWRlZCA/PyBmYWxzZTsKICAgICAgICBwcm9iZS50b3RhbEluY2lkZW50Q291bnQgPSBpbmZvPy5Ub3RhbEluY2lkZW50Q291bnQgPz8gLTE7CiAgICAgICAgcHJvYmUuYWN0aXZlSW5jaWRlbnRQcmVzZW50ID0gYWN0aXZlICE9IG51bGw7CiAgICAgICAgcHJvYmUuYWN0aXZlRXJyb3JDb2RlID0gYWN0aXZlPy5FcnJvckNvZGU7CiAgICAgICAgcHJvYmUuYWN0aXZlU3RhdHVzQ29kZSA9IGFjdGl2ZT8uU3RhdHVzQ29kZTsKICAgICAgICBwcm9iZS5hY3RpdmVUYXNrID0gYWN0aXZlPy5UYXNrOwogICAgICAgIHByb2JlLmFjdGl2ZUJvdW5kYXJ5QWN0aW9uID0gYWN0aXZlPy5Cb3VuZGFyeUFjdGlvbjsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdClbc2xvdF0gPSBwcm9iZTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkViSW5jaWRlbnRQcm9iZU1hcHBpbmdbe3Nsb3R9XTogaGFzPXtwcm9iZS5oYXNBY3RpdmVJbmNpZGVudH0gYWN0aXZlPXtwcm9iZS5hY3RpdmVJbmNpZGVudFByZXNlbnR9IGxvYWRlZD17cHJvYmUuaW5jaWRlbnRzTG9hZGVkfSBjb3VudD17cHJvYmUudG90YWxJbmNpZGVudENvdW50fSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KfQo="
+            }
+          }
+        ],
         "availableIn": [
           "r-in-mid"
         ]
