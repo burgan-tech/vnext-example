@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
@@ -8,6 +9,15 @@ using BBT.Workflow.Scripting;
 /// humanTask text. The distinct text per level is the point — a test can then tell whether the
 /// listed title came from the leaf or was taken from an ancestor.
 /// </summary>
+/// <remarks>
+/// It also FORWARDS the caller's identity (<c>sub</c>, <c>act_sub</c>). Propagating the credential into
+/// a SubFlow is the flow author's job: the runtime inherits the ambient user only for the first
+/// child (the post-commit start job); from depth 2 on, SubflowStarter sends the child exactly the
+/// headers this mapping returns, and a child started without them records no creator — so
+/// <c>$InstanceStarter</c> / <c>$InstanceBehalfOfStarter</c> at a deeper leaf could never match.
+/// Role headers are deliberately NOT forwarded: the chain's role-based tests rely on the child
+/// being started without them.
+/// </remarks>
 public class HtaToNextSubFlowMapping : ScriptBase, ISubFlowMapping
 {
     public Task<ScriptResponse> InputHandler(ScriptContext context)
@@ -45,8 +55,22 @@ public class HtaToNextSubFlowMapping : ScriptBase, ISubFlowMapping
         humanTask.description = "HT-B step description";
         childInput.humanTask = humanTask;
 
-        LogInformation($"HtaToNextSubFlowMapping: descending to HT-B with hops={hops - 1}");
-        return Task.FromResult(new ScriptResponse { Data = childInput });
+        var headers = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in new[] { "sub", "act_sub" })
+        {
+            try
+            {
+                string? value = (string?)context.Headers[name];
+                if (!string.IsNullOrEmpty(value)) headers[name] = value;
+            }
+            catch (Exception)
+            {
+                // header absent on this request
+            }
+        }
+
+        LogInformation($"HtaToNextSubFlowMapping: descending to HT-B with hops={hops - 1}, identity headers={headers.Count}");
+        return Task.FromResult(new ScriptResponse { Data = childInput, Headers = headers });
     }
 
     public Task<ScriptResponse> OutputHandler(ScriptContext context)

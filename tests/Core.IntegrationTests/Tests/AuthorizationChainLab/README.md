@@ -132,7 +132,8 @@ diyen bir kâhine danışıyor olurdu.
 | `ARoleThatPassesEveryLevelIsAllowedEverywhere` | `TheLeafsAdmittedRoleIsAllowedAtEveryLevel` | root/mid/leaf `true` | aynı |
 | `ALeafOnlyRoleIsRefusedAtTheRoot` | `ARoleTheRootRefusesIsAllowedWhileTheLeafAdmitsIt` | `chain.leaf-admin` kökte `false` | kökte **`true`**, mid'de **`true`**, leaf'te `true` |
 | — | `ALeafWithNoQueryRolesAllowsWhateverTheRootDeclares` (yeni, `root-open`/`leaf-open`) | (konjonksiyonla `chain.reader`/rolsüz kökte `false` olurdu) | admin, reader, rolsüz kökte **`true`**; leaf doğrudan `true` |
-| `AuthorizeAgreesWithTheStateFunction…`, `ARoleLessCallerIsRefused` | aynı adlar | — | değişmedi |
+| `AuthorizeAgreesWithTheStateFunctionWhereBothResolveTheSameGrants` | `TheStateFunctionServesWhateverAuthorizeAnswers` (fix round 1: ad, kapılar kalktığından beri ölçülmeyen "agreement"ı iddia ediyordu) | state 403 değil | aynı |
+| `ARoleLessCallerIsRefused` | aynı ad | — | değişmedi |
 | `MorphIdmProviderTests.TheConjunctionStillHoldsOnProviderSuppliedRoles` | `TheLeafDecidesOnProviderSuppliedRoles` | `false` | `false` (sebep: leaf'in damgalı override'ı) |
 
 `ChainOverrideTests`, `AckAndParentRetainedTests`, `DataDescentAsymmetryTests`, `EnforcementPostureTests`

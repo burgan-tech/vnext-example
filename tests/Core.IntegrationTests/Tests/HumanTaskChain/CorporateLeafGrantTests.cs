@@ -23,6 +23,11 @@ namespace Core.IntegrationTests.Tests.HumanTaskChain;
 /// G2 allow allOf[$InstanceBehalfOfStarter, $user.$.context.Instance.Data.customerId]
 /// G3 allow allOf[$InstanceStarter, ht-starter-probe]     ← hop probe, not part of the issue's example
 /// </code>
+/// <para><b>Identity propagation is the flow author's job.</b> The runtime gives a SubFlow child the
+/// caller's identity only at depth 1 (the post-commit start job runs under the ambient user). From depth
+/// 2 on, <c>SubflowStarter</c> sends the child exactly the headers the parent's subflow mapping returns,
+/// so the chain's <c>HtXToNextSubFlowMapping</c>s forward <c>sub</c> and <c>act_sub</c> explicitly
+/// (decision K8). Without that a deeper leaf records no creator and the identity leaves cannot match.</para>
 /// <para><b>The case</b>: started by ALİ (<c>act_sub=u-ali</c>) on behalf of <c>c-acme</c>
 /// (<c>sub</c>), about the customer <c>u-veli</c>. Every subflow mapping carries <c>customerId</c>
 /// down, so the leaf's own data has it.</para>
@@ -173,7 +178,23 @@ public class CorporateLeafGrantTests(VNextTestEnvironment environment, CrossDoma
     }
 
     /// <summary>
-    /// Same domain: A → B → C, leaf <c>ht-c-corporate-human</c> in core. Even here the leaf is
+    /// Depth 1: A → B, leaf <c>ht-b-corporate-human</c> in core. The one level where the runtime itself
+    /// gives the child the caller's identity (the post-commit start job runs under the ambient user), so
+    /// this proves the grant logic independently of the fixture's identity-forwarding mappings.
+    /// </summary>
+    [SkippableFact]
+    public async Task CorporateLeaf_DepthOne_TheRuntimeInheritsTheIdentity()
+    {
+        var (rootId, leafFlow, leafId) = await StartCorporateCaseAsync(hops: 1, leafFlow: "ht-b");
+
+        await AssertLeafCarriesTheStartersIdentityAsync(leafFlow, leafId);
+        await AssertCorporateVisibilityAsync(rootId);
+    }
+
+    /// <summary>
+    /// Same domain: A → B → C, leaf <c>ht-c-corporate-human</c> in core. From depth 2 on the child is
+    /// created with exactly the headers its parent's subflow mapping returns, so the leaf records the
+    /// starter only because every <c>HtXToNextSubFlowMapping</c> forwards <c>sub</c> / <c>act_sub</c>. Even here the leaf is
     /// evaluated in an isolated scope, so the identity must travel in the request.
     /// </summary>
     [SkippableFact]

@@ -40,7 +40,7 @@ public sealed class CombinatorGrantTests : RoleMatrixLabTestBase
     private sealed record Caller(string? Roles, string ActSub, string Sub);
 
     // The plan's cast.
-    private static readonly Caller Ali = new(Customer, "u-ali", "u-ali");             // starter (act_sub)
+    private static readonly Caller Ali = new(Customer, "u-ali", "c-acme");            // starter: act_sub u-ali, acting for c-acme (sub)
     private static readonly Caller Ops = new(CorporateOps, "u-ops", "c-acme");        // behalf-of starter (sub)
     private static readonly Caller OpsElsewhere = new(CorporateOps, "u-ops", "c-other");
     private static readonly Caller Veli = new(null, "u-veli", "c-acme");              // role-less, sub = behalf-of starter
@@ -56,8 +56,9 @@ public sealed class CombinatorGrantTests : RoleMatrixLabTestBase
     }
 
     /// <summary>
-    /// Starts a case AS ALİ on behalf of <c>c-acme</c>: <c>CreatedBy = u-ali</c>,
-    /// <c>CreatedByBehalfOf = c-acme</c>. The start body becomes the instance data.
+    /// Starts a case AS ALİ on behalf of <c>c-acme</c>: <c>CreatedBy = u-ali</c> (from <c>act_sub</c>),
+    /// <c>CreatedByBehalfOf = c-acme</c> (from <c>sub</c> — which is why <see cref="Ali"/>'s subject is
+    /// <c>c-acme</c>, not <c>u-ali</c>). The start body becomes the instance data.
     /// </summary>
     private async Task<string> StartCaseAsAliAsync(string tag)
     {
@@ -188,7 +189,7 @@ public sealed class CombinatorGrantTests : RoleMatrixLabTestBase
     /// <remarks>
     /// The plan's table (§3), row by row:
     /// <list type="table">
-    ///   <item>ALİ (starter): iban visible (anyOf Yes ∨ No), masked; riskNote absent (no allow).</item>
+    ///   <item>ALİ (starter, sub c-acme): iban visible (anyOf Yes ∨ Yes), masked; riskNote absent (allow ops = No; deny No ∧ Yes = No).</item>
     ///   <item>OPS (sub = behalf-of starter): iban visible and RAW (exemption); riskNote absent (deny Yes ∧ Yes).</item>
     ///   <item>ops for another subject: iban raw; riskNote PRESENT (deny Yes ∧ No = No, allow Yes).</item>
     ///   <item>VELİ (role-less, sub = behalf-of starter): iban visible (anyOf No ∨ Yes), masked; riskNote absent (allow Unknown).</item>
@@ -201,7 +202,7 @@ public sealed class CombinatorGrantTests : RoleMatrixLabTestBase
         var instanceId = await StartCaseAsAliAsync("comb-xroles");
 
         var ali = await DataAsAsync(Ali, instanceId);
-        AssertMasked(Str(ali, "iban"), "ALİ is the starter: anyOf admits, but he is not in the masking exemption");
+        AssertMasked(Str(ali, "iban"), "ALİ is the starter (and the behalf-of starter): anyOf admits, but he is not in the masking exemption");
         Assert.Null(Str(ali, "riskNote"));
         Assert.Equal("u-veli", Str(ali, "customerId"));
 

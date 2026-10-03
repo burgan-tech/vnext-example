@@ -66,13 +66,19 @@ public sealed class ChainLeafDecisionTests : AuthorizationChainLabTestBase
     /// The read surface no longer refuses on <c>queryRoles</c> — that decision belongs to the
     /// gateway — whatever <c>authorize</c> says about the same caller.
     /// </summary>
+    /// <remarks>
+    /// Was <c>AuthorizeAgreesWithTheStateFunctionWhereBothResolveTheSameGrants</c>. Agreement stopped being
+    /// the contract when the read gates were removed (2026-09-23); the name kept claiming it. The
+    /// <c>authorize</c> call stays only so the helper's own guard (200/403 with a matching
+    /// <c>allowed</c> body) runs for every role row.
+    /// </remarks>
     [Theory]
     [InlineData(Reader)]
     [InlineData(Admin)]
     [InlineData(LeafAdmin)]
     [InlineData(MidAdmin)]
     [InlineData(null)]
-    public async Task AuthorizeAgreesWithTheStateFunctionWhereBothResolveTheSameGrants(string? roles)
+    public async Task TheStateFunctionServesWhateverAuthorizeAnswers(string? roles)
     {
         var chain = await StartChainAsync();
 
