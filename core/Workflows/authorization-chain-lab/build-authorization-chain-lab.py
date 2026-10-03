@@ -13,7 +13,7 @@ Uretilenler:
   core/Workflows/authorization-chain-lab/authorization-chain-lab-leaf-open.json
   core/Workflows/authorization-chain-lab/src/*.csx
 
-K9 notu (2026-10-03, role-grant combinators): `authorize?queryRoles=true` artik zincirin
+Leaf-only notu (2026-10-03, role-grant combinators): `authorize?queryRoles=true` artik zincirin
 KONJONKSIYONU degil — yalniz en derin aktif leaf karar verir (damgali override ?? leaf state
 queryRoles ?? leaf workflow queryRoles). Asagidaki (1) maddesindeki "konjonksiyon" anlatimi
 tarihcedir; `chain.reader` kokte yine reddedilir ama sebebi leaf'tir. `root-open` + `leaf-open`
@@ -455,10 +455,10 @@ def build_leaf_open():
     """
     A terminal child that declares NO queryRoles at all — neither on its state nor on its workflow.
     <para>
-    K9 (role-grant combinators, 2026-10-03): `authorize?queryRoles=true` is decided by the deepest
+    Leaf-only rule (role-grant combinators, 2026-10-03): `authorize?queryRoles=true` is decided by the deepest
     active leaf alone, and an empty grant set allows. Paired with `root-open`, whose OWN queryRoles
     admit chain.admin only, this is the "root refuses, leaf is empty" shape: under the old chain
-    conjunction the root's allowlist refused chain.reader and a role-less caller; under K9 the leaf
+    conjunction the root's allowlist refused chain.reader and a role-less caller; under the leaf-only rule the leaf
     decides and both are allowed while the instance is inside the SubFlow.
     </para>
     """
@@ -571,7 +571,7 @@ def main():
         "root-narrow",
     ))
     write(build_mid_terminal())
-    # K9 pair: the root's own allowlist names chain.admin only, its child declares nothing.
+    # Leaf-only pair: the root's own allowlist names chain.admin only, its child declares nothing.
     write(build_two_level_root(
         "authorization-chain-lab-root-open",
         None,

@@ -6,7 +6,7 @@
 yüzeylerinin fiilen uyguladığı kapıyla aynı olduğunu — ve parent'ın subflow override'larının
 **hop başına**, çocuğa damgalanmış haritadan çözüldüğünü.
 
-> **2026-10-03 — K9: karar yalnız leaf'te (role-grant combinators, vnext `feature/role-grant-combinators`).**
+> **2026-10-03 — leaf-only kuralı: karar yalnız leaf'te (role-grant combinators, vnext `feature/role-grant-combinators`).**
 > `authorize?queryRoles=true` artık zincirin **konjonksiyonu değil**: aktif SubFlow'u olan bir instance
 > için cevap **en derin aktif leaf'in** verdiktidir — `damgalı parent override ?? leaf state queryRoles ??
 > leaf workflow queryRoles`. Üst seviyeler AND'lenmez: kökün `queryRoles`'u instance SubFlow'dayken kimseyi
@@ -67,13 +67,13 @@ sebebini söylüyor:
 | `chain.leaf-admin` | ❌ | — | ✅ |
 | `chain.mid-only` | ❌ | — | — (yalnız `root-plain` üzerinden görünür) |
 
-**K9 sonrası okuma:** zincirde kararı yalnız son sütun (MID→LEAF override = `chain.leaf-admin`,
+**Leaf-only kuralı sonrası okuma:** zincirde kararı yalnız son sütun (MID→LEAF override = `chain.leaf-admin`,
 `chain.admin`) verir. `chain.reader` kökte **yine reddedilir** (leaf onu kabul etmiyor), `chain.leaf-admin`
 ise kökte ve mid'de **artık kabul edilir** (eskiden kökün allowlist'i reddediyordu).
 
 `authorization-chain-lab-root-open` → `authorization-chain-lab-leaf-open` (2026-10-03) iki seviyeli bir çift:
 kökün kendi `queryRoles`'u yalnız `chain.admin`, leaf'in state'inde ve workflow'unda hiç `queryRoles` yok,
-override da yok. "Kök dar + leaf boş" şeklidir: K9 ile kökte `chain.reader` ve rolsüz caller da **izinli**.
+override da yok. "Kök dar + leaf boş" şeklidir: leaf-only kuralıyla kökte `chain.reader` ve rolsüz caller da **izinli**.
 
 `authorization-chain-lab-root-plain` aynı MID'i **override bildirmeden** başlatır: "override yoksa
 nesnenin kendi tanımı uygulanır" yarısının kontrol grubu. Onsuz REPLACE iddiası tek yönlü kalırdı.
@@ -100,7 +100,7 @@ Runtime, `queryRoles`'u okuma yüzeylerinde (`state`, `data`, `view`, `schema`, 
 dönmüyor ve hiçbiri kapıya sormuyor.
 
 **`queryRoles` kaldırılmadı, yeri değişti.** Hâlâ değerlendiriliyor — ama `GET .../functions/authorize?queryRoles=true`
-tarafından (2026-10-03'ten beri, K9, aktif korelasyon zincirinin en derin leaf'inde). Silinen şey,
+tarafından (2026-10-03'ten beri, leaf-only kuralı, aktif korelasyon zincirinin en derin leaf'inde). Silinen şey,
 runtime'ın aynı kararın **ikinci** kopyası. Bu suite'in geri kalan 40 testi zaten o cevabın doğruluğunu
 ölçüyor; bu bölüm yalnızca ikinci kopyanın gitmiş olduğunu ölçüyor.
 
@@ -113,17 +113,21 @@ diyen bir kâhine danışıyor olurdu.
 45 testin tamamı yeşil (2026-10-03'ten itibaren; önceden 44). En ayırt edici dördü:
 
 - `ChainLeafDecisionTests.ARoleTheRootRefusesIsAllowedWhileTheLeafAdmitsIt` — kökün grant'ları hâlâ
-  AND'leniyorsa **yeşil olamaz** (K9'un "kök deny + leaf allow" vakası).
+  AND'leniyorsa **yeşil olamaz** (leaf-only kuralının "kök deny + leaf allow" vakası).
 - `ChainLeafDecisionTests.ALeafWithNoQueryRolesAllowsWhateverTheRootDeclares` — kökün allowlist'i hâlâ
-  karar veriyorsa ya da boş küme izin vermiyorsa kırmızı (K9'un "kök dar + leaf boş" vakası).
+  karar veriyorsa ya da boş küme izin vermiyorsa kırmızı (leaf-only kuralının "kök dar + leaf boş" vakası).
 - `ChainOverrideTests.AnAncestorsOverrideDoesNotReachTheGrandchild` — override aşağı taşınırsa kırmızı.
 - `ChainOverrideTests.ADirectlyAddressedLeafAnswersTheSameAsItsStateFunction` — damgalı harita
   yerine parent-taraflı okuyucu kullanılırsa kırmızı.
 
 ## Koşu kaydı
 
-**2026-10-03 — K9 (leaf-only `queryRoles`): yazıldı, henüz koşulmadı** (runtime branch
-`feature/role-grant-combinators`; infra kapalıydı, `dotnet build` yeşil). `ChainConjunctionTests`
+**2026-10-03 — leaf-only `queryRoles`: koşuldu, 45 geçti / 0 kırmızı / 9 skip** (54 test; runtime lokal build
+`feature/role-grant-combinators` @ `3bdd5f12`, yalnız core, `VNEXT_BASE_URL=http://localhost:4201`; skip'ler
+`MorphIdmProviderTests` — morph-idm provider'lı ayrı başlatma ister). Leaf-only beklentilerin hepsi yeşil,
+`ARoleTheRootRefusesIsAllowedWhileTheLeafAdmitsIt`, `ALeafWithNoQueryRolesAllowsWhateverTheRootDeclares`,
+`TheLeafsAdmittedRoleIsAllowedAtEveryLevel` ve `TheRootsOwnAllowDoesNotAdmitWhatTheLeafRefuses` dahil. Trace
+doğrulaması yapılmadı (openobserve/elasticsearch MCP'leri bu oturumda erişilemezdi); zamanlama iddiası yok. `ChainConjunctionTests`
 → `ChainLeafDecisionTests` (dosya da yeniden adlandırıldı). Eski → yeni beklenti:
 
 | Eski test | Yeni test | Eski beklenti | Yeni beklenti |
@@ -138,7 +142,7 @@ diyen bir kâhine danışıyor olurdu.
 
 `ChainOverrideTests`, `AckAndParentRetainedTests`, `DataDescentAsymmetryTests`, `EnforcementPostureTests`
 değişmedi (yalnız yorumlar): hepsi ya doğrudan adreslenen leaf'te ya da parent'ta cevaplanan hedeflerde
-(`transitionKey` parent-retained, `ack`) çalışıyor, K9 onları etkilemiyor. Fixture: mevcut akışlar birebir
+(`transitionKey` parent-retained, `ack`) çalışıyor, leaf-only kuralı onları etkilemiyor. Fixture: mevcut akışlar birebir
 aynı üretiliyor (sürüm `1.0.1` kaldı); yalnız iki **yeni** anahtar eklendi (`root-open`, `leaf-open`).
 
 **2026-09-23 — 44/44.** Runtime lokal build (`claude/remove-authorize-checks-cc40e5`, master tabanı
@@ -253,7 +257,7 @@ tasarlanmış) ama provider tarafının o durumu ne döndürdüğü dağıtım b
   hiçbir domain ekibi yazamıyor. `vnext-meta/features.json` bunun tersini iddia ediyor ("the
   vnext-schema longPoll contract enforces exactly one of roles|rule at authoring time") — **bu iddia
   yanlış**. Ack'in rule-kolu pariteси şema özelliği gönderilene kadar unit testlerde kalıyor.
-- **K9 suite'i henüz koşulmadı** (2026-10-03). Koşmak için: `cd ../vnext/etc/docker && ./run-docker.sh up core`
+- **Leaf-only suite 2026-10-03'te koşuldu** (45/54 yeşil, 9 skip = morph-idm). Yeniden koşmak için: `cd ../vnext/etc/docker && ./run-docker.sh up core`
   (runtime `feature/role-grant-combinators` lokal build), `init` üzerinden sistem paketi
   (`curl -X POST localhost:3005/api/package/runtime/publish -H 'content-type: application/json' -d '{"appDomain":"core"}'`,
   status URL'sini tamamlanana kadar izle), sonra bu repoda `wf domain use core && wf domain active && wf sync`
@@ -262,7 +266,7 @@ tasarlanmış) ama provider tarafının o durumu ne döndürdüğü dağıtım b
   bilinçli. Provider başlangıçta bir kez seçilir, istek başına değişmez; diğer 44 test rolleri
   `x-roles` ile ayrıştırıyor, o header ise bu provider altında kararı vermiyor, dolayısıyla aynı
   suite'i ikinci provider altında koşmak yalnızca her çağrıyı aynı varsayılan role kümesine
-  indirgerdi. Leaf kararı (K9; 2026-10-03 öncesi konjonksiyon) ve override'lar zaten **provider'dan bağımsızdır**: bir rol
+  indirgerdi. Leaf kararı (leaf-only kuralı; 2026-10-03 öncesi konjonksiyon) ve override'lar zaten **provider'dan bağımsızdır**: bir rol
   kümesini tüketirler, onun nereden geldiğine karar vermezler. Provider'a özgü olan **hangi kümenin
   geldiğidir** ve ölçülen tam olarak odur.
 - Bu bir **doğruluk** senaryosu; gecikme iddiası yok, Python yük testi bilinçli olarak yazılmadı.

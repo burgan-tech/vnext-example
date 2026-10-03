@@ -42,7 +42,7 @@ alanı izinli, izinsiz, izinli+reddedilen ve rolsüz çağıranla ayrı ayrı do
 transition yanıtı aynı ağacı döndürür; instance GET her rol için data function'la **birebir aynı** ağacı döner.
 
 **Grant combinator'ları (`allOf` / `anyOf`, 2026-10-03, runtime branch `feature/role-grant-combinators`) —
-yazıldı, henüz koşulmadı.** Ayrı bir akışta: `role-matrix-lab-combinators` (`1.0.0`) + master şema
+koşuldu: `CombinatorGrantTests` 4/4 yeşil** (dört göz, `queryRoles` `allOf`, `x-roles` budama+maske, `sub` ile anahtarlanan önbellekli data yolu; 2026-10-03, runtime `3bdd5f12`). Paketin tamamı 96/119 — 23 kırmızı daha önce kayıtlı bilinen küme, aynı kategori ve sayıda (queryRoles kararı gateway'in: 16; function mapping CS8197 → 500: 5; act_sub'sız `$InstanceStarter`: 2). Trace doğrulaması yapılmadı (openobserve/elasticsearch erişilemezdi). Ayrı bir akışta: `role-matrix-lab-combinators` (`1.0.0`) + master şema
 `role-matrix-combinator-master` (`1.0.0`). Ana akışa dokunulmadı — 113 test onun transition ve alan
 listelerini birebir okuyor. Bir grant `role` XOR `allOf` XOR `anyOf` taşır, çocuklar yalnız `{ "role": … }`
 (derinlik 1). Değerlendirme Kleene: rol-bağlı yaprak rolsüz caller için *Unknown*, kimlik yaprakları
@@ -56,12 +56,12 @@ Vaka ALİ (`act_sub=u-ali`) tarafından `c-acme` adına (`sub`) başlatılır, m
 | `checking.approve` — `authorize?transitionKey=approve` | allow `maker`, deny `allOf[maker, $PreviousUser]` | `FourEyes_TheMakerWhoSubmittedMayNotApprove_AnotherMakerMay` | `submit`'i yapan maker AYŞE `false`; başka maker `true`; maker rolüyle başlatan ALİ `true` (başlatan ≠ önceki kullanıcı); rolsüz `false` (deny `Unknown ∧ No = No` tetiklenmez, allow Unknown kabul etmez); approver `false` |
 | `draft.queryRoles` — `authorize?queryRoles=true` | allow `allOf[morph-idm.customer, $InstanceStarter]` | `QueryRoles_AllOfCustomerAndStarter_AdmitsOnlyTheStarterWhoIsACustomer` | ALİ (customer + başlatan) `true`; başlatmamış customer `false`; customer olmayan başlatan `false`; rolsüz başlatan `false` (Unknown ∧ Yes) |
 | master şema `x-roles` — `data` function | `iban`: allow `anyOf[$InstanceStarter, $InstanceBehalfOfStarter]` + allow `corporate-ops`, `x-masking` keepLast 4 (muaf: `corporate-ops`); `riskNote`: allow `corporate-ops` + deny `allOf[corporate-ops, $InstanceBehalfOfStarter]` | `XRoles_Combinators_PruneAndMaskPerCaller` | ALİ: iban maskeli, riskNote yok · OPS (`sub=c-acme`): iban ham, riskNote yok (deny Yes∧Yes) · başka subject adına ops: iban ham, riskNote **var** · VELİ (rolsüz, `sub=c-acme`): iban maskeli, riskNote yok · ANON: ikisi de yok |
-| aynı, önbellekli yol | — | `XRoles_TheCachedDataPathKeysOnTheSubject` | yalnız `sub`'ı farklı iki ops caller aynı önbellek girdisini paylaşmaz (`CallerScopeHash` artık `sub` içerir, K5) |
+| aynı, önbellekli yol | — | `XRoles_TheCachedDataPathKeysOnTheSubject` | yalnız `sub`'ı farklı iki ops caller aynı önbellek girdisini paylaşmaz (`CallerScopeHash` artık `sub` içerir, sub kapsam kuralı) |
 
 Rol adları lab'ın `morph-idm.` ad alanında (`morph-idm.customer`, `morph-idm.corporate-ops`); plandaki
 `customer-role` / `corporate.ops` örneklerinin karşılığıdır.
 
-**Kapsam dışı bırakılan (d):** `x-masking.roles` içinde combinator'ın publish'te reddedilmesi (K1) bu lab'da
+**Kapsam dışı bırakılan (d):** `x-masking.roles` içinde combinator'ın publish'te reddedilmesi (publish-time ret) bu lab'da
 **yazılmadı** — role-matrix-lab'da publish-negatif bir desen yok (bileşenler SDK ile toplu yayınlanır, hiçbir
 test `POST api/v1/definitions/publish`'i elle çağırmıyor). Desen `ImplicitStartLab` (`PublishAsync(JsonObject)`)
 ve `FanOut` (`FanOutConfigMatrixTests`) içinde var; eklenmesi gerekirse oradan taşınmalı. Kural runtime'da
@@ -270,7 +270,7 @@ kapsamı başına doğru gövdeyi taşıyor (auditor kapsamı açık `tckn` + `r
   property "allOf"*. Şema dosyası (`role-matrix-combinator-master.json`) geçiyor — `x-roles` içeriği şemayla
   doğrulanmıyor. SDK bileşenleri doğrudan publish eder; runtime bu şekli kabul eder. vnext-schema combinator'ları
   yayınlayınca bu madde düşer.
-- **Combinator testleri henüz koşulmadı** (infra kapalıydı; `dotnet build` yeşil). Koşu: `run-docker.sh up core`
+- **Combinator testleri 2026-10-03'te koşuldu** (4/4 yeşil; paket 96/119, 23 bilinen kırmızı). Yeniden koşmak için: `run-docker.sh up core`
   (runtime `feature/role-grant-combinators` lokal build) → `init` sistem paketi → `wf domain use core && wf sync`
   → `dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~RoleMatrixLab.CombinatorGrantTests"`
   (`VNEXT_BASE_URL=http://localhost:4201`).

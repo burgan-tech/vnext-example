@@ -23,7 +23,7 @@ namespace Core.IntegrationTests.Tests.AuthorizationChainLab;
 /// subflow of its own. The gate now reads <c>CurrentState</c>.</para>
 /// <para><b>Why the REPLACE tests still use a two-level chain.</b> Not because the mechanism is
 /// unreachable deeper — it is, now — but because an override is only ever READ at the level that
-/// decides, and under K9 (2026-10-03) that is the deepest active leaf alone: a mid's own grants, and
+/// decides, and under the leaf-only rule (2026-10-03) that is the deepest active leaf alone: a mid's own grants, and
 /// the root's override of the mid, take no part in <c>authorize?queryRoles=true</c> while the mid has
 /// an active SubFlow of its own. The two-level pair (same terminal child, one root overriding it and
 /// one not) is the smallest shape that separates "override replaces" from "no override → own

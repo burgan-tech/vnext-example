@@ -31,7 +31,7 @@ public abstract class AuthorizationChainLabTestBase : WorkflowTestBase
     protected const string RootNarrow = "authorization-chain-lab-root-narrow";
     protected const string MidTerminal = "authorization-chain-lab-mid-terminal";
 
-    // K9 pair (2026-10-03): a root whose OWN queryRoles admit chain.admin only, over a terminal child
+    // Leaf-only pair (2026-10-03): a root whose OWN queryRoles admit chain.admin only, over a terminal child
     // that declares no queryRoles at all. `authorize?queryRoles=true` is decided by the deepest active
     // leaf alone, and an empty grant set allows — so the root's allowlist no longer refuses anyone
     // while the instance is inside that SubFlow.

@@ -102,7 +102,7 @@ public sealed class CombinatorGrantTests : RoleMatrixLabTestBase
         var headers = As(caller);
         // Read fresh: the data function's response cache is keyed by CallerScopeHash, which since this
         // branch includes `sub`. OPS and OPS-elsewhere differ ONLY by sub — a shared entry would be
-        // exactly the leak K5 closes, so the cached path is exercised separately below.
+        // exactly the leak the subject-in-scope-hash rule closes, so the cached path is exercised separately below.
         headers["X-VNext-Cache-Override"] = "true";
 
         var (status, body) = await SendRawAsync(HttpMethod.Get,
@@ -228,7 +228,7 @@ public sealed class CombinatorGrantTests : RoleMatrixLabTestBase
 
     /// <summary>
     /// The cached data path must not serve one subject's pruning to another. OPS and OPS-elsewhere
-    /// differ only by <c>sub</c>; since this branch <c>CallerScopeHash</c> includes it (K5). Without the
+    /// differ only by <c>sub</c>; since this branch <c>CallerScopeHash</c> includes it (subject-in-scope-hash rule). Without the
     /// cache override header the second read would be served from the first one's entry if the key
     /// still ignored <c>sub</c>.
     /// </summary>

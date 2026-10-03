@@ -16,7 +16,7 @@ namespace Core.IntegrationTests.Tests.HumanTaskChain;
 /// another host — so before this branch <c>$InstanceStarter</c>, <c>$PreviousUser</c> and the
 /// behalf-of grants could never match at the leaf. The caller's <c>act_sub</c> and <c>sub</c> now
 /// travel in the hop body (<c>HumanTaskLeafRequest</c>) beside the roles, and every identity leaf is
-/// resolved against the LEAF instance's own <c>CreatedBy</c> / <c>CreatedByBehalfOf</c> / data (K8).</para>
+/// resolved against the LEAF instance's own <c>CreatedBy</c> / <c>CreatedByBehalfOf</c> / data (own-instance rule).</para>
 /// <para><b>The leaf state</b> (<c>{level}-corporate-human</c>, reached with <c>mode = "corporate"</c>):</para>
 /// <code>
 /// G1 allow allOf[corporate.ops, $InstanceBehalfOfStarter]
@@ -27,7 +27,7 @@ namespace Core.IntegrationTests.Tests.HumanTaskChain;
 /// caller's identity only at depth 1 (the post-commit start job runs under the ambient user). From depth
 /// 2 on, <c>SubflowStarter</c> sends the child exactly the headers the parent's subflow mapping returns,
 /// so the chain's <c>HtXToNextSubFlowMapping</c>s forward <c>sub</c> and <c>act_sub</c> explicitly
-/// (decision K8). Without that a deeper leaf records no creator and the identity leaves cannot match.</para>
+/// (own-instance rule). Without that a deeper leaf records no creator and the identity leaves cannot match.</para>
 /// <para><b>The case</b>: started by ALİ (<c>act_sub=u-ali</c>) on behalf of <c>c-acme</c>
 /// (<c>sub</c>), about the customer <c>u-veli</c>. Every subflow mapping carries <c>customerId</c>
 /// down, so the leaf's own data has it.</para>
@@ -144,7 +144,7 @@ public class CorporateLeafGrantTests(VNextTestEnvironment environment, CrossDoma
     }
 
     /// <summary>
-    /// K8 precondition, asserted before any visibility claim: the identity leaves resolve against the
+    /// Own-instance-rule precondition, asserted before any visibility claim: the identity leaves resolve against the
     /// LEAF's own instance, so the leaf must have been created under the starter's identity. A red here
     /// is a finding about how a SubFlow child records its creator, not about the list.
     /// </summary>
@@ -157,7 +157,7 @@ public class CorporateLeafGrantTests(VNextTestEnvironment environment, CrossDoma
         Assert.True(Read("createdBy") == Starter.ActSub && Read("createdByBehalfOf") == Starter.Sub,
             $"{leafFlow}/{leafId} was created by '{Read("createdBy")}' on behalf of '{Read("createdByBehalfOf")}', " +
             $"not by the root's starter ({Starter.ActSub} / {Starter.Sub}); $InstanceStarter / " +
-            "$InstanceBehalfOfStarter evaluate against the leaf's own instance (K8), so the corporate grants " +
+            "$InstanceBehalfOfStarter evaluate against the leaf's own instance (own-instance rule), so the corporate grants " +
             "cannot match until the child records the starter");
     }
 

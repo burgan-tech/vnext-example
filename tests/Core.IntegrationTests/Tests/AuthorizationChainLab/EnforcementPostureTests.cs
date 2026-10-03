@@ -12,7 +12,7 @@ namespace Core.IntegrationTests.Tests.AuthorizationChainLab;
 /// <para><b>What moved and what did not.</b> Authorization for these surfaces now happens at the
 /// Internal Gateway, which asks <c>GET .../functions/authorize?queryRoles=true</c> (and
 /// <c>?ack=true</c>) before the request reaches the runtime. `queryRoles` itself is untouched: it is
-/// still evaluated by that endpoint — since K9 (2026-10-03) at the deepest active leaf of the active-correlation chain. What was
+/// still evaluated by that endpoint — since the leaf-only rule (2026-10-03) at the deepest active leaf of the active-correlation chain. What was
 /// deleted is the runtime's SECOND copy of the decision — not the decision.</para>
 /// <para><b>Why the oracle test is the important one here.</b> A removal is easy to see in a diff;
 /// what is not easy to see is a removal that went one surface too far. If <c>authorize</c> ever

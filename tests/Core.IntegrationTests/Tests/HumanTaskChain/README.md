@@ -211,7 +211,7 @@ block. `ADenyGrantRefusesWhateverElseTheCallerCarries` pins the new rule in both
 
 ### Combinators at the leaf, with the public caller's identity (2026-10-03)
 
-Runtime branch `feature/role-grant-combinators`. **Written, not yet run** (infra was down; `dotnet build` green).
+Runtime branch `feature/role-grant-combinators`. **Run 2026-10-03** (runtime local build `3bdd5f12`, core only, `VNEXT_BASE_URL=http://localhost:4201`; partner/credit/discovery not running): 12 of 23 passed, 11 failed. Green: `CorporateLeaf_SameDomain_TwoAllOfGrantsDecideVisibility`, `CorporateLeaf_DepthOne_TheRuntimeInheritsTheIdentity` and the 10 same-domain tests. All 11 reds are environment — they need the partner/credit domains (cross-domain lab): 2 got `Connection refused (localhost:4211)`, 9 timed out because ht-c's subflow into partner faulted with `Discovery:700002` "Service discovery is disabled" (postgres `ht_c.InstanceIncidents`: 9 rows, all that code). `CorporateLeaf_AcrossADomainBoundary_TheCallersIdentityTravelsInTheHop` therefore remains **unverified** and needs the four-domain lab. Postgres confirms the fixture's identity forwarding: `ht-b-corporate-human` CreatedBy=u-ali, CreatedByBehalfOf=c-acme (depth 1, inherited); `ht-c-corporate-human` the same pair (depth 2, forwarded by the mapping's `sub`/`act_sub` headers). Trace verification not done (openobserve/elasticsearch unreachable); no timing claims.
 
 A start payload with `mode = "corporate"` rests, at the level where `hops` reaches 0, in
 `{level}-corporate-human` instead of `{level}-human`. Its `queryRoles` is the issue's corporate example —
@@ -225,7 +225,7 @@ two `allOf` allows, OR'ed — plus one hop probe that is not part of the example
 
 The case is started by `act_sub=u-ali` on behalf of `sub=c-acme`, about `customerId=u-veli`; every subflow
 mapping now carries `mode` and `customerId` down, because the grants resolve against the **leaf's own**
-instance (K8): its `CreatedBy`, `CreatedByBehalfOf` and data.
+instance (own-instance rule): its `CreatedBy`, `CreatedByBehalfOf` and data.
 
 | Caller (`role` · `act_sub` · `sub`) | G1 | G2 | G3 probe | Listed? |
 |---|---|---|---|---|
@@ -236,7 +236,7 @@ instance (K8): its `CreatedBy`, `CreatedByBehalfOf` and data.
 | `ht-starter-probe` · u-ali · u-ali | No | No | Yes ∧ Yes | **yes** |
 | `ht-starter-probe` · u-x · u-x | No | No | No ∧ Yes | no |
 
-**Identity propagation into a SubFlow is the flow author's job** (decision K8). The runtime gives a child
+**Identity propagation into a SubFlow is the flow author's job** (own-instance rule). The runtime gives a child
 the caller's identity automatically only at **depth 1** — the post-commit start job runs under the ambient
 user. From depth 2 on, `SubflowStarter` sends the child exactly the headers the parent's subflow mapping
 returns (plus the parent/root ids), and a child started without `sub` / `act_sub` records no

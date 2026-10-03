@@ -21,7 +21,7 @@ namespace Core.IntegrationTests.Tests.AuthorizationChainLab;
 /// whole chain), <c>idm-leaf-only</c> (one that does not), <c>idm-empty</c> (<c>204</c>) and
 /// <c>idm-broken</c> (<c>500</c>) — and any other user gets a working default set so the chain can
 /// still be assembled.</para>
-/// <para><b>What is NOT re-proved here.</b> The leaf decision (K9), the overrides and the switch are
+/// <para><b>What is NOT re-proved here.</b> The leaf decision (leaf-only rule), the overrides and the switch are
 /// provider-independent: they consume a role set, they do not decide where it came from. Repeating
 /// all 44 under a second provider would cost a full run to re-measure something already measured.
 /// What IS provider-specific is which set arrives — and that is the whole subject below.</para>
@@ -170,7 +170,7 @@ public sealed class MorphIdmProviderTests : AuthorizationChainLabTestBase
     /// </summary>
     /// <remarks>
     /// Was <c>TheConjunctionStillHoldsOnProviderSuppliedRoles</c>. The verdict (<c>false</c>) is
-    /// unchanged; its reason changed with K9 (2026-10-03): <c>chain.leaf-only</c> is in the leaf's OWN
+    /// unchanged; its reason changed with the leaf-only rule (2026-10-03): <c>chain.leaf-only</c> is in the leaf's OWN
     /// <c>queryRoles</c>, which the mid's stamped override replaces, and the leaf alone decides —
     /// the root's grants no longer take part.
     /// </remarks>

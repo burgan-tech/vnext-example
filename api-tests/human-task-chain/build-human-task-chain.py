@@ -490,7 +490,7 @@ def states(level, nxt, is_root=False):
     #   G3  allow allOf[$InstanceStarter, ht-starter-probe]
     # only the starter (act_sub = the leaf's CreatedBy) holding the probe role passes it — at a remote
     # leaf that is only possible if the caller's act_sub travelled in the leaf hop. Every identity
-    # leaf resolves against THIS (the leaf's) instance (K8).
+    # leaf resolves against THIS (the leaf's) instance (own-instance rule).
     corporate_grants = [
         {"grant": "allow", "allOf": [{"role": "corporate.ops"}, {"role": "$InstanceBehalfOfStarter"}]},
         {"grant": "allow", "allOf": [{"role": "$InstanceBehalfOfStarter"},

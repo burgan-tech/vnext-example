@@ -9,7 +9,7 @@ namespace Core.IntegrationTests.Tests.AuthorizationChainLab;
 /// workflow's — and each level's grants still resolve from the map its DIRECT parent stamped on it.
 /// </summary>
 /// <remarks>
-/// <para><b>What changed (K9, role-grant combinators, vnext <c>feature/role-grant-combinators</c>,
+/// <para><b>What changed (leaf-only rule, role-grant combinators, vnext <c>feature/role-grant-combinators</c>,
 /// 2026-10-03).</b> This class used to be <c>ChainConjunctionTests</c> and pinned the opposite rule:
 /// the polled instance's own <c>queryRoles</c> AND every level beneath it. That conjunction mirrored a
 /// read path that gated twice (root, then leaf). The read surfaces stopped gating on
@@ -103,7 +103,7 @@ public sealed class ChainLeafDecisionTests : AuthorizationChainLabTestBase
     }
 
     /// <summary>
-    /// K9's defining case, "root denies + leaf allows": <c>chain.leaf-admin</c> is absent from the
+    /// The leaf-only rule's defining case, "root denies + leaf allows": <c>chain.leaf-admin</c> is absent from the
     /// root's own allowlist and from the root's override of the mid, and is named by the mid's
     /// override of the leaf. While the instance is inside the SubFlow it is ALLOWED at the root and at
     /// the mid.
@@ -119,7 +119,7 @@ public sealed class ChainLeafDecisionTests : AuthorizationChainLabTestBase
         var chain = await StartChainAsync();
 
         Assert.True(await IsAuthorizedAsync(Root, chain.RootId, LeafAdmin, queryRoles: true),
-            "chain.leaf-admin is absent from the root's allowlist but admitted by the leaf; under K9 " +
+            "chain.leaf-admin is absent from the root's allowlist but admitted by the leaf; under the leaf-only rule " +
             "the leaf decides — a refusal here means the root's own grants were still ANDed in");
         Assert.True(await IsAuthorizedAsync(Mid, chain.MidId, LeafAdmin, queryRoles: true),
             "the mid's own grants and the root's override of the mid refuse chain.leaf-admin; the " +
@@ -128,7 +128,7 @@ public sealed class ChainLeafDecisionTests : AuthorizationChainLabTestBase
     }
 
     /// <summary>
-    /// K9's other new case, "root allows only a narrow set + leaf declares nothing": the leaf's empty
+    /// The leaf-only rule's other new case, "root allows only a narrow set + leaf declares nothing": the leaf's empty
     /// grant set allows, so a role the root refuses — and a caller with no roles at all — are
     /// allowed at the root while the instance is inside that SubFlow.
     /// </summary>
