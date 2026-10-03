@@ -209,6 +209,51 @@ once role A had matched an allow — `[approver, blocked]` passed, and a deny gr
 block. `ADenyGrantRefusesWhateverElseTheCallerCarries` pins the new rule in both orders, because
 "evaluated first" is what makes the answer independent of how the caller's roles happen to be listed.
 
+### Combinators at the leaf, with the public caller's identity (2026-10-03)
+
+Runtime branch `feature/role-grant-combinators`. **Written, not yet run** (infra was down; `dotnet build` green).
+
+A start payload with `mode = "corporate"` rests, at the level where `hops` reaches 0, in
+`{level}-corporate-human` instead of `{level}-human`. Its `queryRoles` is the issue's corporate example —
+two `allOf` allows, OR'ed — plus one hop probe that is not part of the example:
+
+```json
+{ "grant": "allow", "allOf": [ { "role": "corporate.ops" },            { "role": "$InstanceBehalfOfStarter" } ] },
+{ "grant": "allow", "allOf": [ { "role": "$InstanceBehalfOfStarter" }, { "role": "$user.$.context.Instance.Data.customerId" } ] },
+{ "grant": "allow", "allOf": [ { "role": "$InstanceStarter" },         { "role": "ht-starter-probe" } ] }
+```
+
+The case is started by `act_sub=u-ali` on behalf of `sub=c-acme`, about `customerId=u-veli`; every subflow
+mapping now carries `mode` and `customerId` down, because the grants resolve against the **leaf's own**
+instance (K8): its `CreatedBy`, `CreatedByBehalfOf` and data.
+
+| Caller (`role` · `act_sub` · `sub`) | G1 | G2 | G3 probe | Listed? |
+|---|---|---|---|---|
+| `corporate.ops` · u-ops · c-acme | Yes ∧ Yes | Yes ∧ No | No | **yes** |
+| none · u-veli · c-acme | Unknown ∧ Yes | Yes ∧ Yes | No | **yes** |
+| `customer-role` · u-ali · u-ali | No | No | Yes ∧ No | no |
+| none · u-x · u-x | Unknown ∧ No | No | No | no |
+| `ht-starter-probe` · u-ali · u-ali | No | No | Yes ∧ Yes | **yes** |
+| `ht-starter-probe` · u-x · u-x | No | No | No ∧ Yes | no |
+
+`CorporateLeafGrantTests` runs the table twice: leaf `ht-c` (same domain — the leaf hop still runs in an
+isolated scope with no ambient caller) and leaf `ht-d` (partner, across the boundary: core's list reaches it
+over HTTP). The probe rows are the direct proof that `$InstanceStarter` was evaluated against the caller's
+`act_sub` **at the remote leaf** — the identity rides in `HumanTaskLeafRequest` beside the roles. Before any
+visibility claim each test asserts, from the leaf's `GET …/instances/{id}` metadata, that the leaf was created
+by the root's starter (`createdBy = u-ali`, `createdByBehalfOf = c-acme`); a red there is a finding about how
+a SubFlow child records its creator, not about the list.
+
+Fixture changes: all six flows `1.0.6 → 1.0.7`, `ht-a-spawn-process` task `1.0.0 → 1.0.1` (its config and
+`SpawnProcessMapping.csx`'s `SetVersion` pin `ht-d 1.0.7`). The generator was also brought back in line with
+the committed `ht-a` (the SubProcessTask spawn; it still emitted the retired state-level `type: "P"` shape).
+
+Known gap: the installed `@burgan-tech/vnext-schema` (0.0.52) does not know `allOf`/`anyOf`. `npm run validate`
+fails on `core/Workflows/human-task-chain/ht-a.json`, `ht-b.json`, `ht-c.json` (`…/queryRoles/N` and
+`…/transitions/0/roles/N`: *must have required property "role"*, *must NOT have additional property "allOf"*);
+`ht-d`/`ht-e`/`ht-f` carry the same shape but are not in the core validate scope. The SDK publishes them
+directly.
+
 ### The response cache is part of the authorization surface
 
 `TheResponseCacheDoesNotServeOneCallersListToAnother` is the only test here that deliberately does
@@ -236,6 +281,11 @@ misleading, failure. Reading fresh is also what a client is expected to do at a 
 tolerate the TTL, so the header is exercised end to end here rather than only in unit tests.
 
 ## Known limits
+
+- **The 2026-10-03 corporate-leaf tests have not been run yet.** To run them: bring up the cross-domain lab
+  against a runtime built from `feature/role-grant-combinators` (`bash labs/cross-domain/lab.sh images && bash
+  labs/cross-domain/lab.sh up`), then `dotnet test tests/Core.IntegrationTests --settings
+  tests/Core.IntegrationTests/test.runsettings --filter "FullyQualifiedName~HumanTaskChain.CorporateLeafGrantTests"`.
 
 - The chain uses no HTTP tasks, so MockLab is not required.
 - `hops` is trusted as given; there is no upper bound in the definition. The runtime's own

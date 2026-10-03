@@ -28,6 +28,18 @@ public class HtcToNextSubFlowMapping : ScriptBase, ISubFlowMapping
             childInput.testId = testId;
         }
 
+        // The corporate leaf's grants read the LEAF's own data ($user.$.context.Instance.Data.customerId)
+        // and its routing reads `mode`, so both travel down every hop.
+        if (data != null && data.TryGetValue("mode", out var mode) && mode != null)
+        {
+            childInput.mode = mode;
+        }
+
+        if (data != null && data.TryGetValue("customerId", out var customerId) && customerId != null)
+        {
+            childInput.customerId = customerId;
+        }
+
         dynamic humanTask = new ExpandoObject();
         humanTask.title = "HT-D step";
         humanTask.description = "HT-D step description";

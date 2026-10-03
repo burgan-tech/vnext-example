@@ -17,6 +17,20 @@ descent decrements it and the `descend` rule fires only while it is positive. So
 Every level writes its OWN `humanTask.title`, which is what lets a test prove the listed title came
 from the leaf rather than from the root — the defect this scenario exists for.
 
+Corporate leaf (2026-10-03, role-grant combinators, vnext `feature/role-grant-combinators`): a start
+payload with `mode = "corporate"` (and `customerId`) rests, at the level where `hops` reaches 0, in
+`{level}-corporate-human` instead of `{level}-human`. Its `queryRoles` is the issue's corporate
+example — two `allOf` allows, OR'ed — plus one hop probe (`allOf[$InstanceStarter, ht-starter-probe]`)
+that proves the caller's `act_sub` reached the leaf. Every subflow mapping now carries `mode` and
+`customerId` down, because `$user.$.context.Instance.Data.customerId` resolves against the LEAF's own
+data. The installed @burgan-tech/vnext-schema does not know `allOf`/`anyOf`, so `npm run validate`
+fails on these flows until the schema ships them; the SDK publishes them directly.
+
+The root's SubProcess spawn is a `SubProcessTask` (task type 14, `core/Tasks/human-task-chain/
+ht-a-spawn-process.json`) on the `ht-a-spawned` transition — a state may only start a SubFlow. Its
+mapping (`SpawnProcessMapping.csx`) is hand-written and NOT generated; this script only rewrites the
+`SetVersion(...)` literal in it and the task's `config.version` so both follow VERSION.
+
 Generated files are committed; re-run after editing this script, then run
 `labs/cross-domain/encode-scripts.py` to fill each script's base64 `code` from its `.csx`.
 
@@ -24,9 +38,13 @@ Usage: python3 api-tests/human-task-chain/build-human-task-chain.py
 """
 import json
 import os
+import re
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-VERSION = "1.0.6"
+VERSION = "1.0.7"
+# The SubProcessTask component's own version. Publish is version-immutable, so it moves whenever its
+# config (which pins the ht-d version) does.
+SPAWN_TASK_VERSION = "1.0.1"
 SCENARIO = "human-task-chain"
 
 # level key, domain, next level key (None at the leaf end of the definition chain)
@@ -141,6 +159,39 @@ public class SpawnProcessMapping : ScriptBase, ISubProcessMapping
 }
 '''
 
+CORPORATE_RULE = '''using System.Collections.Generic;
+using System.Threading.Tasks;
+using BBT.Workflow.Scripting;
+
+/// <summary>
+/// Rest in the CORPORATE human state when the payload asks for it (<c>mode = "corporate"</c>) and the
+/// hop budget is spent. Mutually exclusive with <c>DescendRule</c> (hops &gt; 0), so the level that
+/// would otherwise rest in <c>{level}-human</c> rests in <c>{level}-corporate-human</c> instead.
+/// </summary>
+public class CorporateRule : ScriptBase, IConditionMapping
+{
+    public Task<bool> Handler(ScriptContext context)
+    {
+        var data = context.Instance.Data as IDictionary<string, object>;
+
+        var hops = 0;
+        if (data != null && data.TryGetValue("hops", out var raw) && raw != null)
+        {
+            int.TryParse(raw.ToString(), out hops);
+        }
+
+        var corporate = data != null
+                        && data.TryGetValue("mode", out var mode)
+                        && mode != null
+                        && mode.ToString() == "corporate";
+
+        var rest = corporate && hops <= 0;
+        LogInformation($"CorporateRule: hops={hops} corporate={corporate} rest={rest}");
+        return Task.FromResult(rest);
+    }
+}
+'''
+
 SUBFLOW_MAPPING = '''using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
@@ -169,6 +220,18 @@ public class {cls} : ScriptBase, ISubFlowMapping
         if (data != null && data.TryGetValue("testId", out var testId) && testId != null)
         {{
             childInput.testId = testId;
+        }}
+
+        // The corporate leaf's grants read the LEAF's own data ($user.$.context.Instance.Data.customerId)
+        // and its routing reads `mode`, so both travel down every hop.
+        if (data != null && data.TryGetValue("mode", out var mode) && mode != null)
+        {{
+            childInput.mode = mode;
+        }}
+
+        if (data != null && data.TryGetValue("customerId", out var customerId) && customerId != null)
+        {{
+            childInput.customerId = customerId;
         }}
 
         dynamic humanTask = new ExpandoObject();
@@ -220,6 +283,17 @@ def states(level, nxt, is_root=False):
             "rule": {"location": "./src/DescendRule.csx", "code": ""},
             "onExecutionTasks": []
         })
+
+    # The corporate leaf (2026-10-03). Rule-guarded, mutually exclusive with descend.
+    initial_transitions.append({
+        "key": f"{level}-to-corporate",
+        "target": f"{level}-corporate-human",
+        "triggerType": 1,
+        "versionStrategy": "Minor",
+        "labels": label(f"{level}: rest in the corporate human state"),
+        "rule": {"location": "./src/CorporateRule.csx", "code": ""},
+        "onExecutionTasks": []
+    })
 
     # The fallback. TransitionKind.DefaultAutoTransition (10) is the runtime's own answer to "run
     # this when no other automatic transition is satisfied" — it is the ONLY automatic transition
@@ -310,25 +384,17 @@ def states(level, nxt, is_root=False):
         })
 
     if is_root:
+        # A plain intermediate state: a state may only start a SubFlow (`subFlow.type: "S"`), so the
+        # SubProcess (fire-and-forget, no resume, no upward projection — which is why the child has
+        # to be listed on its own) is started by a SubProcessTask on the way out.
         result.append({
             "key": f"{level}-spawn",
-            "stateType": 4,
+            "stateType": 2,
             "subType": 0,
             "versionStrategy": "Minor",
             "labels": label(f"{level} spawn SubProcess"),
             "view": None,
-            "subFlow": {
-                # type P — fire-and-forget. The parent gets no resume and no upward state
-                # projection, which is exactly why the child has to be listed on its own.
-                "type": "P",
-                "process": {
-                    "key": "ht-d",
-                    "domain": DOMAIN_OF["ht-d"],
-                    "version": VERSION,
-                    "flow": "sys-flows"
-                },
-                "mapping": {"location": "./src/SpawnProcessMapping.csx", "code": ""}
-            },
+            "subFlow": None,
             "onEntries": [],
             "onExits": [],
             "transitions": [{
@@ -338,7 +404,16 @@ def states(level, nxt, is_root=False):
                 "triggerKind": 10,
                 "versionStrategy": "Minor",
                 "labels": label(f"{level}: carry on after spawning"),
-                "onExecutionTasks": []
+                "onExecutionTasks": [{
+                    "order": 1,
+                    "task": {
+                        "key": f"{level}-spawn-process",
+                        "domain": "core",
+                        "version": SPAWN_TASK_VERSION,
+                        "flow": "sys-tasks"
+                    },
+                    "mapping": {"location": "./src/SpawnProcessMapping.csx", "code": ""}
+                }]
             }]
         })
 
@@ -380,6 +455,42 @@ def states(level, nxt, is_root=False):
                 {"role": f"{level}-approver", "grant": "allow"},
                 {"role": "ht-blocked", "grant": "deny"},
             ],
+            "onExecutionTasks": []
+        }]
+    })
+
+    # The corporate human rest point (2026-10-03). queryRoles is the issue's corporate example:
+    #   G1  allow allOf[corporate.ops, $InstanceBehalfOfStarter]
+    #   G2  allow allOf[$InstanceBehalfOfStarter, $user.$.context.Instance.Data.customerId]
+    # OR'ed. Plus a hop probe that is NOT part of the issue's example:
+    #   G3  allow allOf[$InstanceStarter, ht-starter-probe]
+    # only the starter (act_sub = the leaf's CreatedBy) holding the probe role passes it — at a remote
+    # leaf that is only possible if the caller's act_sub travelled in the leaf hop. Every identity
+    # leaf resolves against THIS (the leaf's) instance (K8).
+    corporate_grants = [
+        {"grant": "allow", "allOf": [{"role": "corporate.ops"}, {"role": "$InstanceBehalfOfStarter"}]},
+        {"grant": "allow", "allOf": [{"role": "$InstanceBehalfOfStarter"},
+                                     {"role": "$user.$.context.Instance.Data.customerId"}]},
+        {"grant": "allow", "allOf": [{"role": "$InstanceStarter"}, {"role": "ht-starter-probe"}]},
+    ]
+    result.append({
+        "key": f"{level}-corporate-human",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": label(f"{level} corporate human task"),
+        "queryRoles": corporate_grants,
+        "view": None,
+        "subFlow": None,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [{
+            "key": f"{level}-corporate-approve",
+            "target": f"{level}-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": label(f"{level}: corporate approve"),
+            "roles": corporate_grants,
             "onExecutionTasks": []
         }]
     })
@@ -462,6 +573,30 @@ def component(level, domain, nxt, is_root):
     }
 
 
+def write_spawn_task(level):
+    """The SubProcessTask the root's spawn transition runs. Its config pins the ht-d version."""
+    task = {
+        "key": f"{level}-spawn-process",
+        "version": SPAWN_TASK_VERSION,
+        "domain": "core",
+        "flow": "sys-tasks",
+        "flowVersion": "1.0.0",
+        "tags": ["human-task-chain", "subprocess", "dapr"],
+        "attributes": {
+            "type": "14",
+            "config": {
+                "domain": DOMAIN_OF["ht-d"],
+                "flow": "ht-d",
+                "version": VERSION,
+                "useDapr": True,
+                "timeoutSeconds": 30
+            }
+        }
+    }
+    write(os.path.join(ROOT, "core", "Tasks", SCENARIO, f"{level}-spawn-process.json"),
+          json.dumps(task, indent=2, ensure_ascii=False) + "\n")
+
+
 def write(path, content):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as handle:
@@ -479,9 +614,16 @@ def main():
 
         src = os.path.join(folder, "src")
         write(os.path.join(src, "DescendRule.csx"), DESCEND_RULE)
+        write(os.path.join(src, "CorporateRule.csx"), CORPORATE_RULE)
         if index == 0:
             write(os.path.join(src, "SpawnProcessRule.csx"), SPAWN_RULE)
-            write(os.path.join(src, "SpawnProcessMapping.csx"), SPAWN_MAPPING)
+            # SpawnProcessMapping.csx is hand-written (SPAWN_MAPPING above is the retired
+            # state-level shape, kept for history). Only its pinned ht-d version follows VERSION.
+            spawn_path = os.path.join(src, "SpawnProcessMapping.csx")
+            with open(spawn_path, encoding="utf-8") as handle:
+                spawn = handle.read()
+            write(spawn_path, re.sub(r'SetVersion\("[^"]*"\)', f'SetVersion("{VERSION}")', spawn))
+            write_spawn_task(level)
         if nxt is not None:
             cls = f"{level.replace('-', '').capitalize()}ToNextSubFlowMapping"
             write(

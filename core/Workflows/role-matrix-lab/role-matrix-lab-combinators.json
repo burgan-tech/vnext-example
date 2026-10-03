@@ -1,0 +1,204 @@
+{
+  "key": "role-matrix-lab-combinators",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "authorization",
+    "roles",
+    "combinators"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Role Matrix Lab (Combinators)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "role-matrix-combinator-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-role-matrix-combinators",
+      "target": "cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel"
+        }
+      ],
+      "onExecutionTasks": [],
+      "roles": [
+        {
+          "role": "morph-idm.maker",
+          "grant": "allow"
+        }
+      ],
+      "availableIn": [
+        "draft",
+        "checking"
+      ]
+    },
+    "startTransition": {
+      "key": "start-role-matrix-combinators",
+      "target": "draft",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Role Matrix Combinators"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "draft",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Draft"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "submit",
+            "target": "checking",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Submit"
+              }
+            ],
+            "onExecutionTasks": [],
+            "roles": [
+              {
+                "role": "morph-idm.maker",
+                "grant": "allow"
+              }
+            ]
+          }
+        ],
+        "queryRoles": [
+          {
+            "grant": "allow",
+            "allOf": [
+              {
+                "role": "morph-idm.customer"
+              },
+              {
+                "role": "$InstanceStarter"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "checking",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Checking"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "approve",
+            "target": "approved",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve"
+              }
+            ],
+            "onExecutionTasks": [],
+            "roles": [
+              {
+                "role": "morph-idm.maker",
+                "grant": "allow"
+              },
+              {
+                "grant": "deny",
+                "allOf": [
+                  {
+                    "role": "morph-idm.maker"
+                  },
+                  {
+                    "role": "$PreviousUser"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "approved",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Approved"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

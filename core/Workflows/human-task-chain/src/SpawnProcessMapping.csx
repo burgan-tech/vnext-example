@@ -46,7 +46,7 @@ public class SpawnProcessMapping : ScriptBase, IMapping
 
         sub.SetDomain("partner");
         sub.SetFlow("ht-d");
-        sub.SetVersion("1.0.6");
+        sub.SetVersion("1.0.7");
         sub.SetUseDapr(true);
         sub.SetSync(false);
         sub.SetBody(body);

@@ -31,6 +31,13 @@ public abstract class AuthorizationChainLabTestBase : WorkflowTestBase
     protected const string RootNarrow = "authorization-chain-lab-root-narrow";
     protected const string MidTerminal = "authorization-chain-lab-mid-terminal";
 
+    // K9 pair (2026-10-03): a root whose OWN queryRoles admit chain.admin only, over a terminal child
+    // that declares no queryRoles at all. `authorize?queryRoles=true` is decided by the deepest active
+    // leaf alone, and an empty grant set allows — so the root's allowlist no longer refuses anyone
+    // while the instance is inside that SubFlow.
+    protected const string RootOpen = "authorization-chain-lab-root-open";
+    protected const string LeafOpen = "authorization-chain-lab-leaf-open";
+
     // ── roles ────────────────────────────────────────────────────────────────
     // Each role is chosen to fail at exactly one level, so a wrong verdict names its own cause.
     //   reader     : root ✓   root's override of mid ✗
@@ -76,7 +83,8 @@ public abstract class AuthorizationChainLabTestBase : WorkflowTestBase
     /// child with nothing beneath it, where the mechanism is reachable.
     /// </para>
     /// </summary>
-    protected async Task<(string RootId, string ChildId)> StartTwoLevelAsync(string workflow)
+    protected async Task<(string RootId, string ChildId)> StartTwoLevelAsync(
+        string workflow, string child = MidTerminal)
     {
         var rootId = await StartAsync(workflow, new { chainRef = $"two-{Guid.NewGuid():N}"[..24] }, Admin);
         await AssertNotFaultedAsync(workflow, rootId, Admin);
@@ -85,8 +93,8 @@ public abstract class AuthorizationChainLabTestBase : WorkflowTestBase
         await WaitUntilAsync(async () =>
         {
             var subs = await GetActiveSubflowsAsync(workflow, rootId, Admin);
-            return subs.TryGetValue(MidTerminal, out childId);
-        }, $"{workflow} {rootId} should open a correlation to {MidTerminal}");
+            return subs.TryGetValue(child, out childId);
+        }, $"{workflow} {rootId} should open a correlation to {child}");
 
         return (rootId, childId!);
     }

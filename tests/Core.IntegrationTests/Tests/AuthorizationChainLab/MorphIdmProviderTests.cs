@@ -21,7 +21,7 @@ namespace Core.IntegrationTests.Tests.AuthorizationChainLab;
 /// whole chain), <c>idm-leaf-only</c> (one that does not), <c>idm-empty</c> (<c>204</c>) and
 /// <c>idm-broken</c> (<c>500</c>) — and any other user gets a working default set so the chain can
 /// still be assembled.</para>
-/// <para><b>What is NOT re-proved here.</b> The conjunction, the overrides and the switch are
+/// <para><b>What is NOT re-proved here.</b> The leaf decision (K9), the overrides and the switch are
 /// provider-independent: they consume a role set, they do not decide where it came from. Repeating
 /// all 44 under a second provider would cost a full run to re-measure something already measured.
 /// What IS provider-specific is which set arrives — and that is the whole subject below.</para>
@@ -165,18 +165,24 @@ public sealed class MorphIdmProviderTests : AuthorizationChainLabTestBase
     }
 
     /// <summary>
-    /// The chain still composes under this provider: a role that clears the root but not the levels
-    /// beneath it is refused, exactly as it is under the default provider.
+    /// The leaf still decides under this provider: a provider-supplied role the leaf's effective
+    /// grants do not admit is refused at the root, exactly as it is under the default provider.
     /// </summary>
+    /// <remarks>
+    /// Was <c>TheConjunctionStillHoldsOnProviderSuppliedRoles</c>. The verdict (<c>false</c>) is
+    /// unchanged; its reason changed with K9 (2026-10-03): <c>chain.leaf-only</c> is in the leaf's OWN
+    /// <c>queryRoles</c>, which the mid's stamped override replaces, and the leaf alone decides —
+    /// the root's grants no longer take part.
+    /// </remarks>
     [SkippableFact]
-    public async Task TheConjunctionStillHoldsOnProviderSuppliedRoles()
+    public async Task TheLeafDecidesOnProviderSuppliedRoles()
     {
         Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
         var chain = await StartChainAsync();
 
         Assert.False(
             await IsAuthorizedAsync(Root, chain.RootId, NoRole, queryRoles: true, extraHeaders: As(LeafOnlyUser)),
-            "chain.leaf-only is granted by the leaf and by no level above it");
+            "chain.leaf-only is replaced away at the leaf by the mid's stamped override, and the leaf decides");
     }
 
     /// <summary>
