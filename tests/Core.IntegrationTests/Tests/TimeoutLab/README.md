@@ -64,7 +64,9 @@ Requires the flows to be published (`wf domain use core && wf sync`) against a l
 
 ## Success criteria
 
-1. A parked instance's state body carries `timeout: { key, target, executeAtUtc }` with a future,
+1. A parked instance's state body carries `timeout: { key, target, executeAtUtc }` (`target` is the
+   object `{ key, stateType, stateSubType, labels }` since vnext `feature/transition-labels-target`,
+   2026-10-03) with a future,
    `Z`-designated UTC instant.
 2. When the deadline passes, the instance reaches exactly the `target` it published.
 3. The block disappears once the instance is terminal — **without** waiting for the asynchronous

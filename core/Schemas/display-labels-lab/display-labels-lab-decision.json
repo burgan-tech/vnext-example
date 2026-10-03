@@ -1,0 +1,39 @@
+{
+  "key": "display-labels-lab-decision",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "display-labels-lab",
+    "labels"
+  ],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Onay Formu"
+      },
+      {
+        "language": "en-US",
+        "label": "Approval Form"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:display-labels-lab-decision",
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Açıklama",
+            "en": "Comment"
+          }
+        }
+      }
+    }
+  }
+}

@@ -66,7 +66,12 @@ public class TimeoutLabTests : WorkflowTestBase
             $"{await DescribeAsync(RootWorkflow, instanceId)}");
 
         Assert.Equal("root-abandoned", timeout!.Value.GetProperty("key").GetString());
-        Assert.Equal(RootTimedOutState, timeout.Value.GetProperty("target").GetString());
+        // Since vnext feature/transition-labels-target `target` is the same object every
+        // transitions[] entry carries (key, stateType, stateSubType, labels) — no longer a string.
+        var rootTarget = timeout.Value.GetProperty("target");
+        Assert.Equal(RootTimedOutState, rootTarget.GetProperty("key").GetString());
+        Assert.Equal("finish", rootTarget.GetProperty("stateType").GetString());
+        Assert.Equal("timeout", rootTarget.GetProperty("stateSubType").GetString());
 
         var executeAtRaw = timeout.Value.GetProperty("executeAtUtc").GetString();
         Assert.False(string.IsNullOrWhiteSpace(executeAtRaw), "executeAtUtc was empty");
@@ -130,7 +135,12 @@ public class TimeoutLabTests : WorkflowTestBase
             "of the effective timeout");
 
         Assert.Equal("child-abandoned", timeout!.Value.GetProperty("key").GetString());
-        Assert.Equal(ChildTimedOutState, timeout.Value.GetProperty("target").GetString());
+        // The override names the CHILD's state, so it resolves in the child's own definition —
+        // a type here proves it, an unresolved target would carry the key alone.
+        var childTarget = timeout.Value.GetProperty("target");
+        Assert.Equal(ChildTimedOutState, childTarget.GetProperty("key").GetString());
+        Assert.Equal("finish", childTarget.GetProperty("stateType").GetString());
+        Assert.Equal("timeout", childTarget.GetProperty("stateSubType").GetString());
 
         // The override's annotations travel with it — the stamp the parent writes carries them,
         // and they replace the child's (the child declares no timeout, so it has none of its own).
