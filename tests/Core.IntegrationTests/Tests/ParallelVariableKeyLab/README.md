@@ -78,7 +78,13 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 ## Geçme kriteri ve bilinen sınırlar
 
-4/4 yeşil. Durum: ⏳ koşu bekliyor (Task 8).
+4/4 yeşil. Durum: ✅ 4/4 yeşil (2026-10-04, runtime `e7c867eb`, `feature/task-variable-key`, lokal
+build, `http://localhost:4201`). Ayırt edici koşu (base `cddab84c`, `variableKey` desteği yok): 0/4 —
+pozitif test parent `F` (`Parallel tasks produced conflicting output for key 'pvkSpawnChild'`), üç
+publish testi 200 döndü. Doğrulama postgres + host loglarıyla yapıldı: parent'ın son data satırında
+üç farklı çocuk id'si, order 1'de `pvk-spawn-child#0` / `#1` ayrı journal satırı, orchestration
+logunda "conflicting output" yok. OpenObserve / Elastic APM span kontrolü yapılamadı (MCP bağlantısı
+yoktu), span süreleri ölçülmedi.
 
 Çocuklar bilinçli olarak bitmez; her koşu `core` şemasında üç `pvk-child` instance'ı `waiting`'te
 bırakır.
