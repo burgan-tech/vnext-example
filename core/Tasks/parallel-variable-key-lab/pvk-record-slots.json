@@ -1,0 +1,15 @@
+{
+  "key": "pvk-record-slots",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "parallel-variable-key-lab",
+    "script-task"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

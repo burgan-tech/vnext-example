@@ -1,0 +1,144 @@
+{
+  "key": "pvk-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "parallel-variable-key-lab",
+    "variable-key",
+    "parallel-tasks",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Parallel Variable Key Lab parent (same task twice at one order)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "spawning",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "spawning",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Spawning (three SubProcess starts, then slot recorder)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "pvk-spawn-child",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/PvkSpawnChildMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFN0YXJ0cyBvbmUgcHZrLWNoaWxkIFN1YlByb2Nlc3MuIEV2ZXJ5IHJ1biBnZXRzIGEgZnJlc2ggaWRlbXBvdGVuY3kga2V5LCBzbyB0aGUgdHdvIG9yZGVyLTEKLy8vIHJ1bnMgY3JlYXRlIHR3byBkaXN0aW5jdCBjaGlsZHJlbiB3aG9zZSBzdGFydCByZXNwb25zZXMgZGlmZmVyIOKAlCB0aGUgc2hhcGUgdGhhdCBtYWRlIHRoZQovLy8gcGFyYWxsZWwgbWVyZ2UgdGhyb3cgYmVmb3JlIHZhcmlhYmxlS2V5LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUHZrU3Bhd25DaGlsZE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN1YiA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2sgPz8gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgc3ViLlNldEtleShHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpKTsKICAgICAgICBzdWIuU2V0Qm9keShuZXcgeyBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZS5JZCB9KTsKICAgICAgICBzdWIuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgLy8gRGVsdGEtb25seTogdGhlIHNsb3QgcmVjb3JkZXIgKG9yZGVyIDMpIHJlYWRzIHRoZSByZXNwb25zZXMsIG5vdGhpbmcgaXMgd3JpdHRlbiBoZXJlLgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbmV3IEV4cGFuZG9PYmplY3QoKSB9KTsKfQo="
+            },
+            "variableKey": "primaryChild"
+          },
+          {
+            "order": 1,
+            "task": {
+              "key": "pvk-spawn-child",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/PvkSpawnChildMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFN0YXJ0cyBvbmUgcHZrLWNoaWxkIFN1YlByb2Nlc3MuIEV2ZXJ5IHJ1biBnZXRzIGEgZnJlc2ggaWRlbXBvdGVuY3kga2V5LCBzbyB0aGUgdHdvIG9yZGVyLTEKLy8vIHJ1bnMgY3JlYXRlIHR3byBkaXN0aW5jdCBjaGlsZHJlbiB3aG9zZSBzdGFydCByZXNwb25zZXMgZGlmZmVyIOKAlCB0aGUgc2hhcGUgdGhhdCBtYWRlIHRoZQovLy8gcGFyYWxsZWwgbWVyZ2UgdGhyb3cgYmVmb3JlIHZhcmlhYmxlS2V5LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUHZrU3Bhd25DaGlsZE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN1YiA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2sgPz8gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgc3ViLlNldEtleShHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpKTsKICAgICAgICBzdWIuU2V0Qm9keShuZXcgeyBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZS5JZCB9KTsKICAgICAgICBzdWIuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgLy8gRGVsdGEtb25seTogdGhlIHNsb3QgcmVjb3JkZXIgKG9yZGVyIDMpIHJlYWRzIHRoZSByZXNwb25zZXMsIG5vdGhpbmcgaXMgd3JpdHRlbiBoZXJlLgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbmV3IEV4cGFuZG9PYmplY3QoKSB9KTsKfQo="
+            },
+            "variableKey": "secondaryChild"
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "pvk-spawn-child",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/PvkSpawnChildMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFN0YXJ0cyBvbmUgcHZrLWNoaWxkIFN1YlByb2Nlc3MuIEV2ZXJ5IHJ1biBnZXRzIGEgZnJlc2ggaWRlbXBvdGVuY3kga2V5LCBzbyB0aGUgdHdvIG9yZGVyLTEKLy8vIHJ1bnMgY3JlYXRlIHR3byBkaXN0aW5jdCBjaGlsZHJlbiB3aG9zZSBzdGFydCByZXNwb25zZXMgZGlmZmVyIOKAlCB0aGUgc2hhcGUgdGhhdCBtYWRlIHRoZQovLy8gcGFyYWxsZWwgbWVyZ2UgdGhyb3cgYmVmb3JlIHZhcmlhYmxlS2V5LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUHZrU3Bhd25DaGlsZE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN1YiA9IHRhc2sgYXMgU3ViUHJvY2Vzc1Rhc2sgPz8gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CiAgICAgICAgc3ViLlNldEtleShHdWlkLk5ld0d1aWQoKS5Ub1N0cmluZygpKTsKICAgICAgICBzdWIuU2V0Qm9keShuZXcgeyBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZS5JZCB9KTsKICAgICAgICBzdWIuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgLy8gRGVsdGEtb25seTogdGhlIHNsb3QgcmVjb3JkZXIgKG9yZGVyIDMpIHJlYWRzIHRoZSByZXNwb25zZXMsIG5vdGhpbmcgaXMgd3JpdHRlbiBoZXJlLgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbmV3IEV4cGFuZG9PYmplY3QoKSB9KTsKfQo="
+            }
+          },
+          {
+            "order": 3,
+            "task": {
+              "key": "pvk-record-slots",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/PvkRecordSlotsMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlYWRzIHRoZSB0aHJlZSBTdWJQcm9jZXNzIHN0YXJ0IHJlc3BvbnNlcyBieSB0aGVpciBzbG90cyBhbmQgcmVjb3JkcyB0aGUgc3RhcnRlZCBpbnN0YW5jZQovLy8gaWRzLiBEaXN0aW5jdCwgbm9uLWVtcHR5IGlkcyBwcm92ZSBlYWNoIHJ1biBrZXB0IGl0cyBvd24gc2xvdDogcHJpbWFyeUNoaWxkIC8gc2Vjb25kYXJ5Q2hpbGQKLy8vIChhdXRob3JlZCB2YXJpYWJsZUtleSwgc2FtZSBvcmRlcikgYW5kIHB2a1NwYXduQ2hpbGQgKGxlZ2FjeSBmYWxsYmFjaywgaXRzIG93biBvcmRlcikuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdmtSZWNvcmRTbG90c01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbInByaW1hcnlDaGlsZElkIl0gPSBTdGFydGVkSWQoY29udGV4dCwgInByaW1hcnlDaGlsZCIpOwogICAgICAgIHRhcmdldFsic2Vjb25kYXJ5Q2hpbGRJZCJdID0gU3RhcnRlZElkKGNvbnRleHQsICJzZWNvbmRhcnlDaGlsZCIpOwogICAgICAgIHRhcmdldFsibGVnYWN5Q2hpbGRJZCJdID0gU3RhcnRlZElkKGNvbnRleHQsICJwdmtTcGF3bkNoaWxkIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIC8vIFN1YlByb2Nlc3Mgc3RhcnQgcmVzcG9uc2UgbmVzdHMgdGhlIG5ldyBpbnN0YW5jZSB1bmRlciBkYXRhLnZhbHVlLmlkOyBkYXRhLmlkIGlzIHRoZQogICAgLy8gZmFsbGJhY2sgc2hhcGUgKHNhbWUgcmVhZGluZyBhcyBjb250cmFjdC1zaWduaW5nJ3MgQ29udHJhY3RTdGFydE9ubGluZU1hcHBpbmcpLgogICAgcHJpdmF0ZSBzdGF0aWMgb2JqZWN0IFN0YXJ0ZWRJZChTY3JpcHRDb250ZXh0IGNvbnRleHQsIHN0cmluZyBzbG90KQogICAgewogICAgICAgIGlmICghY29udGV4dC5UYXNrUmVzcG9uc2UuVHJ5R2V0VmFsdWUoc2xvdCwgb3V0IHZhciByZXNwb25zZSkgfHwgcmVzcG9uc2UgPT0gbnVsbCkgcmV0dXJuIG51bGw7CiAgICAgICAgb2JqZWN0IGlkID0gbnVsbDsKICAgICAgICB0cnkgeyBpZCA9IHJlc3BvbnNlLmRhdGE/LnZhbHVlPy5pZDsgfSBjYXRjaCB7IGlkID0gbnVsbDsgfQogICAgICAgIGlmIChpZCA9PSBudWxsKSB7IHRyeSB7IGlkID0gcmVzcG9uc2UuZGF0YT8uaWQ7IH0gY2F0Y2ggeyBpZCA9IG51bGw7IH0gfQogICAgICAgIHJldHVybiBpZD8uVG9TdHJpbmcoKTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-spawned",
+            "target": "spawned",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to spawned"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "spawned",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Spawned (waits Active)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
