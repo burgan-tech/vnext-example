@@ -83,8 +83,18 @@ build, `http://localhost:4201`). Ayırt edici koşu (base `cddab84c`, `variableK
 pozitif test parent `F` (`Parallel tasks produced conflicting output for key 'pvkSpawnChild'`), üç
 publish testi 200 döndü. Doğrulama postgres + host loglarıyla yapıldı: parent'ın son data satırında
 üç farklı çocuk id'si, order 1'de `pvk-spawn-child#0` / `#1` ayrı journal satırı, orchestration
-logunda "conflicting output" yok. OpenObserve / Elastic APM span kontrolü yapılamadı (MCP bağlantısı
-yoktu), span süreleri ölçülmedi.
+logunda "conflicting output" yok.
+
+Tekrar koşu (2026-10-04, runtime `dd671c18`): senaryo 4/4 yeşil. OpenObserve span'leri (stream `vnext`):
+order 1'deki iki `Task.Execute.pvk-spawn-child` ~5 ms arayla başlayıp paralel koştu (468 / 464 ms,
+`OK`), order 2'deki spawn onlardan sonra (32 ms), `pvk-record-slots` en son (79 ms);
+`Step.RunOnEntryTasks` 610 ms. "conflicting output" log sayısı 0.
+Regresyon kontrolü (`CrossDomainLab` hariç tam suite): 355 geçti / 39 kaldı / 9 atlandı (403). 30 farklı
+kırmızı testten 29'u master runtime'ında (`cddab84c`) da kırmızı (RoleMatrixLab, HumanTaskChain,
+DataIntegrityLab, AccountOpening/ErrorBoundaryLab rol testleri, TaskInvocationLab DaprService).
+Tek fark `SubStateRelayTests.EffectiveState_FollowsTheGrandchild_AcrossTwoLevels`: tam suite yükü
+altında kırmızı, aynı runtime'da tek başına 3/3 ve sınıfıyla birlikte yeşil — zamanlama flake'i,
+regresyon değil.
 
 Çocuklar bilinçli olarak bitmez; her koşu `core` şemasında üç `pvk-child` instance'ı `waiting`'te
 bırakır.
