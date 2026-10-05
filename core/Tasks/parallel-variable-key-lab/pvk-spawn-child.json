@@ -1,0 +1,19 @@
+{
+  "key": "pvk-spawn-child",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "parallel-variable-key-lab",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "core",
+      "flow": "pvk-child",
+      "version": "1.0.0"
+    }
+  }
+}
