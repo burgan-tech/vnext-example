@@ -120,21 +120,31 @@ public class AccountOpeningTests : WorkflowTestBase
         Assert.Equal("A", instanceStatus);
     }
 
+    /// <summary>
+    /// A caller without the flow's roles is refused by <c>authorize?queryRoles=true</c> — the
+    /// gateway's question — while the state function itself answers. Until 2026-10-05 this asserted
+    /// a 403 from the state function, the runtime read gate that was removed on 2026-09-23
+    /// (reads are decided by the gateway, not the engine; see RoleMatrixLab/QueryRoleGateTests).
+    /// </summary>
     [Fact]
-    public async Task WithoutACallerRole_TheStateFunctionIsForbidden()
+    public async Task WithoutACallerRole_AuthorizeRefusesTheReadButTheStateFunctionAnswers()
     {
-        // Discovery surfaces are role-gated. The transition endpoint deliberately is not — roles
-        // describe what a client should offer, not a capability boundary.
         var id = await StartAtTypeSelectionAsync();
 
         var headers = Headers();
         headers.Remove("x-roles");
         headers.Remove("role");
+        var instanceUrl = $"api/v1/core/workflows/{Workflow}/instances/{id}/functions";
 
-        var (status, _) = await SendRawAsync(HttpMethod.Get,
-            $"api/v1/core/workflows/{Workflow}/instances/{id}/functions/state", headers: headers);
+        var (authorize, body) = await SendRawAsync(HttpMethod.Get, $"{instanceUrl}/authorize?queryRoles=true", headers: headers);
+        Assert.Equal(HttpStatusCode.Forbidden, authorize);
+        Assert.Contains("\"allowed\":false", body);
 
-        Assert.Equal(HttpStatusCode.Forbidden, status);
+        var (withRoles, _) = await SendRawAsync(HttpMethod.Get, $"{instanceUrl}/authorize?queryRoles=true", headers: Headers(Roles));
+        Assert.Equal(HttpStatusCode.OK, withRoles);
+
+        var (state, _) = await SendRawAsync(HttpMethod.Get, $"{instanceUrl}/state", headers: headers);
+        Assert.Equal(HttpStatusCode.OK, state);
     }
 
     // NOTE — there is deliberately no "starting without x-device-id faults the instance" test.

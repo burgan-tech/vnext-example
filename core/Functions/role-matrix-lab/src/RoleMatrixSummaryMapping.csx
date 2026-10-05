@@ -63,10 +63,19 @@ public class RoleMatrixSummaryMapping : ScriptBase, IMapping
         return int.TryParse(raw, out var number) ? number : 0;
     }
 
+    /// <summary>
+    /// <c>context.Headers</c> is declared <c>dynamic</c>, and an <c>out var</c> on a dynamic receiver
+    /// does not compile (CS8197 — the function answered 500 on every call from its first commit until
+    /// 2026-10-05). Bind it to a static type first; in production it is a
+    /// <c>Dictionary&lt;string, string&gt;</c>, a parallel-branch clone may hand over an
+    /// <c>IDictionary&lt;string, object&gt;</c>.
+    /// </summary>
     private static string HeaderValue(ScriptContext context, string name)
     {
-        var headers = context.Headers;
-        if (headers != null && headers.TryGetValue(name, out var value) && value != null)
+        object headers = context.Headers;
+        if (headers is IDictionary<string, string> typed && typed.TryGetValue(name, out string text) && text != null)
+            return text;
+        if (headers is IDictionary<string, object> loose && loose.TryGetValue(name, out object value) && value != null)
             return value.ToString();
         return string.Empty;
     }

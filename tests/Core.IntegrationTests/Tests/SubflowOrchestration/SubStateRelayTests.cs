@@ -144,7 +144,7 @@ public class SubStateRelayTests : WorkflowTestBase
         var parentId = await StartAndOpenTheGateAsync("depth2");
         await WaitForObservedStateAsync(Parent, parentId, "child-manual-state");
 
-        await RunAsync(Parent, parentId, "proceed-to-subflow");
+        await SubmitAsync(Parent, parentId, "proceed-to-subflow");
         await WaitForObservedStateAsync(Parent, parentId, "grandchild-initial", timeout: TimeSpan.FromSeconds(60));
 
         // The grandchild's state, on the PARENT, two levels up.

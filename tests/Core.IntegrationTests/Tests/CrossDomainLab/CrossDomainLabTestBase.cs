@@ -68,6 +68,7 @@ public abstract class CrossDomainLabTestBase : WorkflowTestBase
         var testId = NewTestId(tag);
         var parentId = await StartAsync(Parent, new { testId });
         await WaitForInstanceStateAsync(Parent, parentId, "xd-hub");
+        await WaitUntilSettledAsync(Parent, parentId);
         return (parentId, testId);
     }
 
@@ -96,6 +97,13 @@ public abstract class CrossDomainLabTestBase : WorkflowTestBase
         var status = await RunAsync(Parent, parentId, "child-approve", new { approvedBy }, Approver);
         Assert.True((int)status < 400, $"child-approve forward was refused with {(int)status}");
         await WaitForInstanceStateAsync(Parent, parentId, "xd-after-subflow", timeout: TimeSpan.FromSeconds(60));
+
+        // Reaching the state is not the rest point: the parent is still settling the subflow's
+        // completion (Busy) for a moment, and the next step is fast-failed with 409 "instance is
+        // Busy" if it lands in that window — measured on the lab 2026-10-05
+        // (TriggerTaskTests.GetInstance_And_GetInstanceData_ReadRemote, 1 run in 3). Every state of
+        // xd-parent after the subflow is a manual rest point, so waiting for Active cannot hang.
+        await WaitUntilSettledAsync(Parent, parentId, timeout: TimeSpan.FromSeconds(60));
     }
 
     /// <summary>Start → enter subflow → approve → parent in xd-after-subflow. The trigger-task chain starts here.</summary>
@@ -113,6 +121,7 @@ public abstract class CrossDomainLabTestBase : WorkflowTestBase
         var status = await RunAsync(Parent, parentId, transitionKey, new { });
         Assert.True((int)status < 400, $"'{transitionKey}' was refused with {(int)status}");
         await WaitForInstanceStateAsync(Parent, parentId, expectedState, timeout: TimeSpan.FromSeconds(60));
+        await WaitUntilSettledAsync(Parent, parentId, timeout: TimeSpan.FromSeconds(60));
     }
 
     // ── core raw reads (status preserved) ────────────────────────────────────

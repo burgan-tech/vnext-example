@@ -84,11 +84,11 @@ public class SubflowOrchestrationTests : WorkflowTestBase
         // The child rests in a manual state; the request is addressed to the PARENT and relayed
         // down the chain by the runtime.
         await WaitForObservedStateAsync(Parent, parentId, "child-manual-state");
-        await RunAsync(Parent, parentId, "proceed-to-subflow");
+        await SubmitAsync(Parent, parentId, "proceed-to-subflow");
 
         // …which starts the grandchild, and the observed state follows it down another level.
         await WaitForObservedStateAsync(Parent, parentId, "grandchild-initial", timeout: TimeSpan.FromSeconds(60));
-        await RunAsync(Parent, parentId, "complete-grandchild");
+        await SubmitAsync(Parent, parentId, "complete-grandchild");
 
         // Completion then unwinds the whole chain back up to the parent.
         await WaitForInstanceStateAsync(Parent, parentId, "parent-completed", timeout: TimeSpan.FromSeconds(90));
@@ -104,7 +104,7 @@ public class SubflowOrchestrationTests : WorkflowTestBase
         var parentId = await StartAndOpenTheGateAsync("shared");
         await WaitForObservedStateAsync(Parent, parentId, "child-manual-state");
 
-        await RunAsync(Parent, parentId, "shared-common-transition");
+        await SubmitAsync(Parent, parentId, "shared-common-transition");
 
         // $self on a SubFlow state: the parent handles it and does not leave the state.
         await WaitUntilAsync(
@@ -152,7 +152,7 @@ public class SubflowOrchestrationTests : WorkflowTestBase
         var parentId = await StartAndOpenTheGateAsync("cancel");
         await WaitForObservedStateAsync(Parent, parentId, "child-manual-state");
 
-        await RunAsync(Parent, parentId, "cancel-parent");
+        await SubmitAsync(Parent, parentId, "cancel-parent");
         await WaitForInstanceStateAsync(Parent, parentId, "parent-cancelled", timeout: TimeSpan.FromSeconds(60));
 
         var (state, status) = await GetInstanceStateAsync(Parent, parentId);

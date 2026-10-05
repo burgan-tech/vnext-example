@@ -75,13 +75,24 @@ public class SubflowStatusProjectionTests : WorkflowTestBase
     /// subflow's entire lifetime by design — the settle signal for a chain is the OBSERVED state
     /// and status, which is what every test here waits on instead.
     /// </summary>
+    /// <remarks>
+    /// Lock-contention 409s are retried exactly like <see cref="WorkflowTestBase.RunAsync"/> does —
+    /// this was the class's long-standing "409 flake" (1–2 tests in 3 of 4 runs): these tests fire
+    /// the moment the OBSERVED status turns <c>A</c>, which the leaf reports while the parent is
+    /// still applying its relay under the same status lock.
+    /// </remarks>
     private async Task AcceptAsync(string parentId, string transitionKey, object? body = null)
     {
-        var (status, responseBody) = await SendRawAsync(
-            HttpMethod.Patch,
-            $"api/v1/core/workflows/{Parent}/instances/{parentId}/transitions/{transitionKey}?sync=false",
-            body ?? new { },
-            Headers());
+        var url = $"api/v1/core/workflows/{Parent}/instances/{parentId}/transitions/{transitionKey}?sync=false";
+        HttpStatusCode status = default;
+        var responseBody = string.Empty;
+
+        for (var attempt = 1; attempt <= LockContentionAttempts; attempt++)
+        {
+            (status, responseBody) = await SendRawAsync(HttpMethod.Patch, url, body ?? new { }, Headers());
+            if (status != HttpStatusCode.Conflict || !responseBody.Contains("Failed to acquire lock")) break;
+            await Task.Delay(LockContentionDelay);
+        }
 
         Assert.True((int)status < 400, $"'{transitionKey}' was refused with {(int)status}: {responseBody}");
     }

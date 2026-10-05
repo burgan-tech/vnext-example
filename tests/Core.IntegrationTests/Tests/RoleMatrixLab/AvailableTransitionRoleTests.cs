@@ -68,9 +68,14 @@ public class AvailableTransitionRoleTests : RoleMatrixLabTestBase
     [Fact]
     public async Task Escalate_IsOfferedToTheInstanceStarter()
     {
-        var instanceId = await StartCaseInReviewAsync("predefined", startRoles: Approver);
+        var instanceId = await StartCaseInReviewAsync("predefined", startRoles: Approver, actSub: StarterActor);
 
-        Assert.Contains("escalate", await AvailableTransitionKeysAsync(instanceId, Approver));
+        Assert.Contains("escalate", await AvailableTransitionKeysAsync(instanceId, Approver, StarterActor));
+
+        // The grant is the IDENTITY, not the role: the same approver role under another actor is
+        // not the starter, and a caller with no actor identity at all never is.
+        Assert.DoesNotContain("escalate", await AvailableTransitionKeysAsync(instanceId, Approver, "u-someone-else"));
+        Assert.DoesNotContain("escalate", await AvailableTransitionKeysAsync(instanceId, Approver));
     }
 
     // ── no grants ────────────────────────────────────────────────────────────

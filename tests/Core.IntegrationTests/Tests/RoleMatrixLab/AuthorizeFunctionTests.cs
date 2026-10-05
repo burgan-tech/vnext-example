@@ -75,14 +75,15 @@ public class AuthorizeFunctionTests : RoleMatrixLabTestBase
     [Fact]
     public async Task Authorize_DeniesATransitionThatIsNotAvailableInTheCurrentState()
     {
-        var instanceId = await StartCaseAsync("authorize-state-aware");
+        var instanceId = await StartCaseAsync("authorize-state-aware", actSub: StarterActor);
 
-        Assert.False(await IsAuthorizedAsync(instanceId, Approver, transitionKey: "escalate"));
+        // The starter, asking in intake: the grant matches, the state does not.
+        Assert.False(await IsAuthorizedAsync(instanceId, Approver, transitionKey: "escalate", actSub: StarterActor));
 
         await RunAcceptedAsync(Workflow, instanceId, "submit-for-review", new { }, Approver);
         await WaitForInstanceStateAsync(Workflow, instanceId, "review", Approver);
 
-        Assert.True(await IsAuthorizedAsync(instanceId, Approver, transitionKey: "escalate"));
+        Assert.True(await IsAuthorizedAsync(instanceId, Approver, transitionKey: "escalate", actSub: StarterActor));
     }
 
     /// <summary>
@@ -131,22 +132,24 @@ public class AuthorizeFunctionTests : RoleMatrixLabTestBase
     // ── queryRoles target ────────────────────────────────────────────────────
 
     /// <summary>
-    /// <c>queryRoles=true</c> must answer the same thing the read functions do. A middle tier that
-    /// asks first and then reads should never see the two disagree.
+    /// <c>queryRoles=true</c> is the ONLY place the read rule is decided. The read functions no
+    /// longer enforce it (gate removed 2026-09-23 — the gateway asks <c>authorize</c> first), so the
+    /// old "authorize agrees with the state function's status code" check became "authorize refuses
+    /// while the read still answers" for the viewer. Pinned in that form: the root allowlist decides
+    /// in <c>authorize</c>, and the state function answers 200 to all four callers.
     /// </summary>
     [Fact]
-    public async Task Authorize_QueryRoles_MatchesWhatTheReadFunctionsDo()
+    public async Task Authorize_QueryRoles_IsTheOnlyPlaceTheReadRuleIsDecided()
     {
         var instanceId = await StartCaseAsync("authorize-query-intake");
 
-        foreach (var role in new[] { Maker, Approver, Auditor, Viewer })
+        foreach (var (role, expected) in new[] { (Maker, true), (Approver, true), (Auditor, true), (Viewer, false) })
         {
-            var authorized = await IsAuthorizedAsync(instanceId, role, queryRoles: true);
-            var (readStatus, _) = await CallInstanceFunctionAsync(instanceId, "state", role);
+            Assert.Equal(expected, await IsAuthorizedAsync(instanceId, role, queryRoles: true));
 
-            Assert.True(authorized == (readStatus == HttpStatusCode.OK),
-                $"{role}: authorize?queryRoles said {(authorized ? "allowed" : "denied")} " +
-                $"but the state function answered {(int)readStatus}");
+            var (readStatus, _) = await CallInstanceFunctionAsync(instanceId, "state", role);
+            Assert.True(readStatus == HttpStatusCode.OK,
+                $"{role}: the state function answered {(int)readStatus}; reads do not enforce queryRoles");
         }
     }
 

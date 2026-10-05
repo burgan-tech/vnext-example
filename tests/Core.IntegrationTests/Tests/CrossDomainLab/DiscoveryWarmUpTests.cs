@@ -113,6 +113,15 @@ public class DiscoveryWarmUpTests : WorkflowTestBase, IClassFixture<DiscoveryReg
     /// <c>domain-list</c> — the registry evicts its own 24 h function cache on registration — and the
     /// very next forced refresh still succeeds, so the runtime is reading the live list rather than
     /// a value frozen at its own startup.
+    /// <para>
+    /// <b>Known red, and a real defect in the registry PACKAGE (2026-10-05, 2 runs in 3 under
+    /// <c>Provider=http</c>).</b> <c>register-domain-lifecycle</c> starts the <c>domain</c> instance
+    /// with a StartTask that has no <c>sync</c> (default false), and that instance evicts
+    /// <c>discovery:domains:active</c> in its start transition's onExecute — before its own commit. The
+    /// registration answers 200 at .633, this test's read misses at .639 and re-caches the OLD list for
+    /// 24 h, the new row commits at .6555. Do not relax the assertion: the test is what found it.
+    /// TEST-SCENARIOS.md § Bilinen Kapsam Açıkları has the timeline and the proposed package fix.
+    /// </para>
     /// </summary>
     [SkippableFact]
     public async Task NewRegistration_IsVisibleToTheNextWarmUp()

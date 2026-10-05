@@ -1,3 +1,5 @@
+using Core.IntegrationTests.Infrastructure;
+
 namespace Core.IntegrationTests.Tests.CrossDomainLab;
 
 /// <summary>
@@ -12,17 +14,17 @@ namespace Core.IntegrationTests.Tests.CrossDomainLab;
 /// </remarks>
 public sealed class DiscoveryRegistryFixture : IDisposable
 {
-    /// <summary>Discovery registry orchestrator base url, or null when no registry is configured.</summary>
-    public string? RegistryBaseUrl { get; } =
-        Environment.GetEnvironmentVariable("VNEXT_DISCOVERY_BASE_URL")?.Trim().TrimEnd('/') is { Length: > 0 } url
-            ? url
-            : null;
-
     /// <summary>The registry domain, which is also the first path segment of its function urls.</summary>
     public string RegistryDomain { get; } =
         Environment.GetEnvironmentVariable("VNEXT_DISCOVERY_DOMAIN")?.Trim() is { Length: > 0 } domain
             ? domain
             : "discovery";
+
+    /// <summary>
+    /// Discovery registry orchestrator base url, or null when no registry is configured or running
+    /// (see OptionalDomainEndpoint — the url is committed in test.runsettings).
+    /// </summary>
+    public string? RegistryBaseUrl => OptionalDomainEndpoint.Resolve("VNEXT_DISCOVERY_BASE_URL", RegistryDomain);
 
     private HttpClient? _client;
 

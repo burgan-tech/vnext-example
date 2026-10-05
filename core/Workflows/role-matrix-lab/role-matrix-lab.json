@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "tags": [
     "integration-test",
     "role-matrix-lab",
@@ -24,7 +24,7 @@
       {
         "key": "role-matrix-summary",
         "domain": "core",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "flow": "sys-functions"
       }
     ],

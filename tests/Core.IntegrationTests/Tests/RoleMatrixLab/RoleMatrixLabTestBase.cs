@@ -34,6 +34,16 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
     /// <summary>A caller holding no roles at all — neither header spelling is sent.</summary>
     protected const string? NoRole = null;
 
+    /// <summary>
+    /// Actor identity (<c>act_sub</c>) for tests about <c>$InstanceStarter</c>. The runtime records
+    /// the starter from <c>act_sub</c> and matches the grant on it; the suite's standard header set
+    /// carries only <c>user_reference</c>, so without this nobody is ever "the starter" (the two
+    /// reds recorded until 2026-10-05). Scoped to the tests that pass it on purpose: putting
+    /// <c>act_sub</c> in every request would turn every caller into the starter and silently change
+    /// what the other suites mean by "a caller who did not start the case".
+    /// </summary>
+    protected const string StarterActor = "u-role-matrix-starter";
+
     protected RoleMatrixLabTestBase(VNextTestEnvironment environment) : base(environment) { }
 
     // ── lifecycle ────────────────────────────────────────────────────────────
@@ -43,18 +53,21 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
     /// drive it the whole way; tests that care about the starter's identity (the
     /// <c>$InstanceStarter</c> grant on <c>escalate</c>) start their own case explicitly.
     /// </summary>
-    protected async Task<string> StartCaseAsync(string tag, string? roles = Approver)
+    protected async Task<string> StartCaseAsync(string tag, string? roles = Approver, string? actSub = null)
     {
-        var instanceId = await StartAsync(Workflow, new { caseRef = $"{tag}-{Guid.NewGuid():N}"[..24] }, roles);
+        var body = new { caseRef = $"{tag}-{Guid.NewGuid():N}"[..24] };
+        var instanceId = actSub is null
+            ? await StartAsync(Workflow, body, roles)
+            : (await Api.StartInstanceAsync(Workflow, body, HeadersFor(roles, actSub))).Body.GetProperty("id").GetString()!;
         await WaitUntilSettledAsync(Workflow, instanceId, roles ?? Approver);
         await AssertNotFaultedAsync(Workflow, instanceId, roles ?? Approver);
         return instanceId;
     }
 
     /// <summary>Starts a case and drives it into <c>review</c>.</summary>
-    protected async Task<string> StartCaseInReviewAsync(string tag, string? startRoles = Approver)
+    protected async Task<string> StartCaseInReviewAsync(string tag, string? startRoles = Approver, string? actSub = null)
     {
-        var instanceId = await StartCaseAsync(tag, startRoles);
+        var instanceId = await StartCaseAsync(tag, startRoles, actSub);
         await RunAcceptedAsync(Workflow, instanceId, "submit-for-review", new { }, Approver);
         await WaitForInstanceStateAsync(Workflow, instanceId, "review", Approver);
         return instanceId;
@@ -67,12 +80,12 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
     /// body. A non-2xx answer yields <c>default</c> for the body — check the status first.
     /// </summary>
     protected async Task<(HttpStatusCode Status, JsonElement Body)> CallInstanceFunctionAsync(
-        string instanceId, string function, string? roles, string? query = null)
+        string instanceId, string function, string? roles, string? query = null, string? actSub = null)
     {
         var url = $"api/v1/core/workflows/{Workflow}/instances/{instanceId}/functions/{function}"
                   + (query is null ? "" : "?" + query);
 
-        var (status, body) = await SendRawAsync(HttpMethod.Get, url, headers: HeadersFor(roles));
+        var (status, body) = await SendRawAsync(HttpMethod.Get, url, headers: HeadersFor(roles, actSub));
         return (status, Parse(body));
     }
 
@@ -87,7 +100,8 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
         string? transitionKey = null,
         string? functionKey = null,
         bool queryRoles = false,
-        string? roleParameter = null)
+        string? roleParameter = null,
+        string? actSub = null)
     {
         var parts = new List<string>();
         if (transitionKey is not null) parts.Add($"transitionKey={transitionKey}");
@@ -96,15 +110,15 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
         if (roleParameter is not null) parts.Add($"role={roleParameter}");
 
         return CallInstanceFunctionAsync(
-            instanceId, "authorize", roles, parts.Count == 0 ? null : string.Join("&", parts));
+            instanceId, "authorize", roles, parts.Count == 0 ? null : string.Join("&", parts), actSub);
     }
 
     /// <summary>True when <c>authorize</c> answered 200 (allowed); false when it answered 403.</summary>
     protected async Task<bool> IsAuthorizedAsync(
         string instanceId, string? roles, string? transitionKey = null,
-        string? functionKey = null, bool queryRoles = false)
+        string? functionKey = null, bool queryRoles = false, string? actSub = null)
     {
-        var (status, _) = await AuthorizeAsync(instanceId, roles, transitionKey, functionKey, queryRoles);
+        var (status, _) = await AuthorizeAsync(instanceId, roles, transitionKey, functionKey, queryRoles, actSub: actSub);
 
         Assert.True(status is HttpStatusCode.OK or HttpStatusCode.Forbidden,
             $"authorize answered {(int)status}, which is neither allowed (200) nor denied (403)");
@@ -119,9 +133,9 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
     /// they are not caller-triggerable and are not role-filtered, so they would only add noise.
     /// </summary>
     protected async Task<IReadOnlyList<string>> AvailableTransitionKeysAsync(
-        string instanceId, string? roles)
+        string instanceId, string? roles, string? actSub = null)
     {
-        var (status, body) = await CallInstanceFunctionAsync(instanceId, "state", roles);
+        var (status, body) = await CallInstanceFunctionAsync(instanceId, "state", roles, actSub: actSub);
         Assert.Equal(HttpStatusCode.OK, status);
 
         if (!body.TryGetProperty("transitions", out var transitions)) return [];
@@ -162,7 +176,12 @@ public abstract class RoleMatrixLabTestBase : WorkflowTestBase
     /// already omits the role headers when given null, but going through this one keeps the intent
     /// visible at the call sites that are specifically testing a caller with no roles.
     /// </summary>
-    protected static Dictionary<string, string> HeadersFor(string? roles) => Headers(roles);
+    protected static Dictionary<string, string> HeadersFor(string? roles, string? actSub = null)
+    {
+        var headers = Headers(roles);
+        if (actSub is not null) headers["act_sub"] = actSub;
+        return headers;
+    }
 
     private static JsonElement Parse(string body) =>
         string.IsNullOrWhiteSpace(body) ? default : JsonDocument.Parse(body).RootElement.Clone();

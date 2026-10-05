@@ -224,8 +224,19 @@ public class HumanTaskFunctionTests(VNextTestEnvironment environment, CrossDomai
     /// Starts a chain and waits until it has come to rest on a human state somewhere below, which
     /// is exactly when the root becomes listable.
     /// </summary>
+    /// <remarks>
+    /// The domain each depth needs is decided here, once, instead of by a <c>Skip.If</c> per test —
+    /// two tests that started a 4-hop chain without one were 2-minute reds on every core-only run.
+    /// Depth → leaf: 0 <c>ht-a</c>, 1 <c>ht-b</c>, 2 <c>ht-c</c> (core) · 3 <c>ht-d</c> (partner) ·
+    /// 4 <c>ht-e</c>, 5 <c>ht-f</c> (credit, reached THROUGH partner).
+    /// </remarks>
     private async Task<string> StartChainAsync(int hops, string? visibleTo = null)
     {
+        Skip.If(hops >= 3 && lab.PartnerBaseUrl is null,
+            $"a {hops}-hop chain crosses into partner, which is not running — labs/cross-domain/lab.sh up");
+        Skip.If(hops >= 4 && credit.CreditBaseUrl is null,
+            $"a {hops}-hop chain reaches credit, which is not running — labs/cross-domain/lab.sh up");
+
         var instanceId = await StartAsync(Root, new
         {
             hops,
@@ -650,13 +661,22 @@ public class HumanTaskFunctionTests(VNextTestEnvironment environment, CrossDomai
         {
             var offered = await AvailableTransitionsAsync(
                 lab.PartnerBaseUrl!, "partner", "ht-d", htd, role);
-            Assert.DoesNotContain("ht-e-approve", offered);
+            Assert.False(offered.Contains("ht-e-approve"),
+                $"ht-d {htd} offered ht-e-approve to [{role}]: [{string.Join(",", offered)}]");
         }
 
-        // A DENY inside the override wins across roles, on this surface too.
-        var denied = await AvailableTransitionsAsync(
-            lab.PartnerBaseUrl!, "partner", "ht-d", htd, "xd-override-only,ht-blocked");
-        Assert.DoesNotContain("ht-e-approve", denied);
+        // The override's DENY (ht-blocked) lives in its STATE queryRoles — visibility — not in the
+        // transition's grants. Visibility is answered by authorize?queryRoles=true, which refuses
+        // the caller across its other, allowed role; the state function is not that gate (runtime
+        // read gate removed 2026-09-23), so it still lists what the transition grant allows. Until
+        // 2026-10-05 this asserted the state function hid the transition — measured on the lab:
+        // state 200 ['ht-e-approve'], authorize?queryRoles {"allowed":false},
+        // authorize?transitionKey=ht-e-approve {"allowed":true}.
+        const string blocked = "xd-override-only,ht-blocked";
+        Assert.False(await AuthorizeAsync(lab.PartnerBaseUrl!, "partner", "ht-d", htd, blocked, "?queryRoles=true"),
+            "the override's queryRoles DENY must refuse a caller who also holds the allowed role");
+        Assert.Contains("ht-e-approve",
+            await AvailableTransitionsAsync(lab.PartnerBaseUrl!, "partner", "ht-d", htd, blocked));
 
         // Control: the same shape one level up, which nobody overrode, still offers its approve to
         // exactly those roles. This is what separates "the override applied" from "nothing resolved".
@@ -721,12 +741,12 @@ public class HumanTaskFunctionTests(VNextTestEnvironment environment, CrossDomai
             var seesParent = await AuthorizeAsync(partnerUrl, "partner", "ht-d", htd, roles, "?queryRoles=true");
             Assert.Equal(seesLeaf, seesParent);
 
-            // The state function refuses with 403 when visibility is denied (null here), and
-            // otherwise offers exactly what authorize blessed.
+            // The state function answers every caller (read gate removed 2026-09-23 — visibility is
+            // authorize?queryRoles' answer above) and offers exactly what authorize?transitionKey
+            // blessed. Until 2026-10-05 this expected a 403 whenever visibility was denied.
             var offeredLeaf = await OffersAsync(creditUrl, "credit", "ht-e", hte, roles, "ht-e-approve");
-            Assert.Equal(seesLeaf, offeredLeaf is not null);
-            if (offeredLeaf is not null)
-                Assert.Equal(authLeaf, offeredLeaf);
+            Assert.True(offeredLeaf is not null, $"the leaf's state function refused [{roles}]");
+            Assert.Equal(authLeaf, offeredLeaf);
         }
     }
 

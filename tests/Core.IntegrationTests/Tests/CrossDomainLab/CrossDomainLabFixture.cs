@@ -1,3 +1,4 @@
+using Core.IntegrationTests.Infrastructure;
 using VNext.Testing.Sdk.Infrastructure;
 
 namespace Core.IntegrationTests.Tests.CrossDomainLab;
@@ -22,9 +23,11 @@ public sealed class CrossDomainLabFixture : IAsyncLifetime
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static bool _published;
 
-    /// <summary>Partner orchestrator base url, or null when the lab is not configured.</summary>
-    public string? PartnerBaseUrl { get; } =
-        Environment.GetEnvironmentVariable("VNEXT_PARTNER_BASE_URL")?.Trim().TrimEnd('/') is { Length: > 0 } url ? url : null;
+    /// <summary>
+    /// Partner orchestrator base url, or null when the lab is not configured OR not running — the
+    /// url is committed in test.runsettings, so "set" alone proves nothing (see OptionalDomainEndpoint).
+    /// </summary>
+    public string? PartnerBaseUrl { get; } = OptionalDomainEndpoint.Resolve("VNEXT_PARTNER_BASE_URL", "partner");
 
     public async Task InitializeAsync()
     {
