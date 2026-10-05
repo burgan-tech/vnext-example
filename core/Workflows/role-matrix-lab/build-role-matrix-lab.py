@@ -8,6 +8,7 @@ Uretilenler:
   core/Workflows/role-matrix-lab/role-matrix-lab.json
   core/Workflows/role-matrix-lab/src/*.csx            (sayac mapping'leri; elle yazilanlar korunur)
   core/Functions/role-matrix-lab/role-matrix-summary.json
+  core/Workflows/role-matrix-lab/role-matrix-lab-combinators.json   (2026-10-03, combinator'lar)
 
 Bu akis TEK BIR SEYI olcer: yetkilendirme yuzeylerinin birbiriyle tutarli olup olmadigini.
 Davranissal bir pipeline testi degil — her state, her transition ve her alan, farkli bir
@@ -30,6 +31,17 @@ rol kombinasyonunu gorunur kilmak icin secilmistir:
     rol setinin nereden geldiginin predefined grant'leri etkilemedigini gosterir.
   * Master schema'da `decisionNote` (DENY tasiyan set) ve `auditTrail` (tek ALLOW'lu
     allowlist) x-roles ile korunur -> alan bazli budama data function'dan okunabilir.
+
+Combinator'lar (2026-10-03, vnext `feature/role-grant-combinators`) AYRI bir akista,
+`role-matrix-lab-combinators`: ana akisin 113 testi transition/alan listelerini birebir okudugu
+icin ona dokunulmadi. Bir grant `role` XOR `allOf` XOR `anyOf` tasir; cocuklar yalniz `{role}`.
+  * `checking.approve` dort goz: allow maker, deny allOf[maker, $PreviousUser]
+  * `draft.queryRoles`: allow allOf[customer, $InstanceStarter]
+  * master sema `role-matrix-combinator-master`: iban anyOf[$InstanceStarter, $InstanceBehalfOfStarter]
+    + allow corporate-ops (maskeli, corporate-ops muaf); riskNote allow corporate-ops +
+    deny allOf[corporate-ops, $InstanceBehalfOfStarter]
+Kurulu @burgan-tech/vnext-schema allOf/anyOf'u bilmiyor: `npm run validate` bu iki dosyada
+duser (README "Bilinen kisitlar"); SDK dogrudan publish eder.
 
 DIKKAT — task journal'i `(TransitionId, TaskId)` uzerinden tekildir; ayni transition icinde
 ayni task TANIMINI iki kez kullanirsan ikincisi sessizce atlanir. Bu yuzden hook basina ayri
@@ -65,6 +77,12 @@ MAKER = "morph-idm.maker"
 APPROVER = "morph-idm.approver"
 AUDITOR = "morph-idm.auditor"
 VIEWER = "morph-idm.viewer"
+# combinator akisi
+CUSTOMER = "morph-idm.customer"
+CORPORATE_OPS = "morph-idm.corporate-ops"
+
+COMBINATOR_WORKFLOW_VERSION = "1.0.0"
+COMBINATOR_SCHEMA = {"key": "role-matrix-combinator-master", "domain": "core", "version": "1.0.0", "flow": "sys-schemas"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # .csx sablonlari — sayaclar. Elle yazilan mapping'ler (SeedCaseMapping, DecisionMapping)
@@ -351,6 +369,70 @@ def build_workflow():
     }
 
 
+def build_combinator_workflow():
+    """
+    role-matrix-lab-combinators — allOf / anyOf grant'leri, uc yuzeyde:
+
+      draft     (initial)  queryRoles: allow allOf[customer, $InstanceStarter]
+        |  submit           [maker ALLOW]   (bunu yapan, approve icin $PreviousUser olur)
+        v
+      checking  (human)
+        |  approve          [maker ALLOW, deny allOf[maker, $PreviousUser]]   <- dort goz
+        v
+      approved
+
+    Start transition'inda task yok: start govdesi (caseRef, customerId, iban, riskNote) instance
+    datasi olur; alan gorunurlugu master semadan (`role-matrix-combinator-master`) gelir.
+    """
+    states = [
+        state(
+            "draft", 1, 0, "Draft",
+            [manual("submit", "checking", "Submit", roles=grants((MAKER, "allow")))],
+            query_roles=[
+                {"grant": "allow", "allOf": [{"role": CUSTOMER}, {"role": "$InstanceStarter"}]},
+            ],
+        ),
+        state(
+            "checking", 2, 6, "Checking",
+            [
+                manual("approve", "approved", "Approve",
+                       roles=[
+                           {"role": MAKER, "grant": "allow"},
+                           {"grant": "deny", "allOf": [{"role": MAKER}, {"role": "$PreviousUser"}]},
+                       ]),
+            ],
+        ),
+        state("approved", 3, 1, "Approved", []),
+        state("cancelled", 3, 7, "Cancelled", []),
+    ]
+
+    attributes = {
+        "type": "F",
+        "timeout": None,
+        "labels": label("Role Matrix Lab (Combinators)"),
+        "functions": [],
+        "features": [],
+        "extensions": [],
+        "schema": dict(COMBINATOR_SCHEMA),
+        # Root queryRoles YOK: kural yalniz `draft`ta, combinator'la.
+        "sharedTransitions": [],
+        "cancel": manual("cancel-role-matrix-combinators", "cancelled", "Cancel",
+                         roles=grants((MAKER, "allow")), available_in=["draft", "checking"]),
+        "startTransition": manual("start-role-matrix-combinators", "draft", "Start Role Matrix Combinators"),
+        "states": states,
+    }
+
+    return {
+        "key": "role-matrix-lab-combinators",
+        "flow": "sys-flows",
+        "flowVersion": "1.0.0",
+        "domain": "core",
+        "version": COMBINATOR_WORKFLOW_VERSION,
+        "tags": ["integration-test", "role-matrix-lab", "authorization", "roles", "combinators"],
+        "attributes": attributes,
+    }
+
+
 def build_function():
     mapping_path = os.path.join(FUNCTION_DIR, "src", "RoleMatrixSummaryMapping.csx")
     return {
@@ -392,6 +474,11 @@ def main():
         json.dump(build_workflow(), fh, indent=2, ensure_ascii=False)
         fh.write("\n")
 
+    combinator_path = os.path.join(ROOT, "role-matrix-lab-combinators.json")
+    with open(combinator_path, "w") as fh:
+        json.dump(build_combinator_workflow(), fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+
     function_path = os.path.join(FUNCTION_DIR, "role-matrix-summary.json")
     with open(function_path, "w") as fh:
         json.dump(build_function(), fh, indent=2, ensure_ascii=False)
@@ -400,6 +487,7 @@ def main():
     print("uretildi:")
     print("  " + os.path.relpath(workflow_path, REPO))
     print("  " + os.path.relpath(function_path, REPO))
+    print("  " + os.path.relpath(combinator_path, REPO))
     for name in counters:
         print("  core/Workflows/role-matrix-lab/src/" + name)
 

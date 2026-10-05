@@ -9,7 +9,15 @@ Uretilenler:
   core/Workflows/authorization-chain-lab/authorization-chain-lab-root-plain.json
   core/Workflows/authorization-chain-lab/authorization-chain-lab-mid.json
   core/Workflows/authorization-chain-lab/authorization-chain-lab-leaf.json
+  core/Workflows/authorization-chain-lab/authorization-chain-lab-root-open.json
+  core/Workflows/authorization-chain-lab/authorization-chain-lab-leaf-open.json
   core/Workflows/authorization-chain-lab/src/*.csx
+
+Leaf-only notu (2026-10-03, role-grant combinators): `authorize?queryRoles=true` artik zincirin
+KONJONKSIYONU degil — yalniz en derin aktif leaf karar verir (damgali override ?? leaf state
+queryRoles ?? leaf workflow queryRoles). Asagidaki (1) maddesindeki "konjonksiyon" anlatimi
+tarihcedir; `chain.reader` kokte yine reddedilir ama sebebi leaf'tir. `root-open` + `leaf-open`
+cifti "kok reddeder, leaf bos" seklini olcer.
 
 Bu lab TEK BIR SEYI olcer: `authorize` fonksiyonunun AKTIF KORELASYON ZINCIRI boyunca
 verdigi cevabin, okuma yuzeylerinin fiilen uyguladigi kapiyla ayni olup olmadigini.
@@ -412,7 +420,9 @@ def build_mid_terminal():
     return envelope("authorization-chain-lab-mid-terminal", attributes, ("mid-terminal",))
 
 
-def build_two_level_root(key: str, overrides, tag: str):
+def build_two_level_root(key: str, overrides, tag: str,
+                         child: str = "authorization-chain-lab-mid-terminal",
+                         query_roles=None):
     """A root whose child is the TERMINAL mid — two levels, so the child's gate is reachable."""
     mapping = csx("ChainSubFlowMapping", SUBFLOW_MAPPING)
     attributes = {
@@ -433,12 +443,65 @@ def build_two_level_root(key: str, overrides, tag: str):
         },
         "states": [
             initial_state("root", "waiting"),
-            subflow_state("waiting", "authorization-chain-lab-mid-terminal", mapping, overrides),
+            subflow_state("waiting", child, mapping, overrides),
             *finish_states("root"),
         ],
-        "queryRoles": grants(READER, ADMIN, MID_ONLY),
+        "queryRoles": query_roles if query_roles is not None else grants(READER, ADMIN, MID_ONLY),
     }
     return envelope(key, attributes, (tag,))
+
+
+def build_leaf_open():
+    """
+    A terminal child that declares NO queryRoles at all — neither on its state nor on its workflow.
+    <para>
+    Leaf-only rule (role-grant combinators, 2026-10-03): `authorize?queryRoles=true` is decided by the deepest
+    active leaf alone, and an empty grant set allows. Paired with `root-open`, whose OWN queryRoles
+    admit chain.admin only, this is the "root refuses, leaf is empty" shape: under the old chain
+    conjunction the root's allowlist refused chain.reader and a role-less caller; under the leaf-only rule the leaf
+    decides and both are allowed while the instance is inside the SubFlow.
+    </para>
+    """
+    attributes = {
+        "type": "S",
+        "timeout": None,
+        "labels": label("Authorization Chain Lab Leaf (no queryRoles)"),
+        "functions": [],
+        "features": [],
+        "extensions": [],
+        "sharedTransitions": [],
+        "startTransition": {
+            "key": "start-authorization-chain-lab-leaf-open",
+            "target": "leaf-initial",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": label("Start Leaf Open"),
+        },
+        "states": [
+            initial_state("leaf", "leaf-waiting"),
+            {
+                "key": "leaf-waiting",
+                "stateType": 2,
+                "subType": 6,
+                "versionStrategy": "Major",
+                "labels": label("Leaf Waiting (no queryRoles)"),
+                "view": None,
+                "subFlow": None,
+                "transitions": [
+                    {
+                        "key": "finish-leaf",
+                        "target": "leaf-done",
+                        "triggerType": 0,
+                        "versionStrategy": "Minor",
+                        "labels": label("Finish Leaf"),
+                    }
+                ],
+            },
+            *finish_states("leaf"),
+        ],
+        # Deliberately NO "queryRoles" key.
+    }
+    return envelope("authorization-chain-lab-leaf-open", attributes, ("leaf-open",))
 
 
 def build_leaf(key: str, interaction: dict, tag: str):
@@ -508,6 +571,15 @@ def main():
         "root-narrow",
     ))
     write(build_mid_terminal())
+    # Leaf-only pair: the root's own allowlist names chain.admin only, its child declares nothing.
+    write(build_two_level_root(
+        "authorization-chain-lab-root-open",
+        None,
+        "root-open",
+        child="authorization-chain-lab-leaf-open",
+        query_roles=grants(ADMIN),
+    ))
+    write(build_leaf_open())
     write(build_mid())
     write(build_leaf(
         "authorization-chain-lab-leaf",

@@ -1,0 +1,98 @@
+{
+  "key": "role-matrix-combinator-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "role-matrix-lab",
+    "master",
+    "schema",
+    "combinators"
+  ],
+  "attributes": {
+    "type": "schema",
+    "labels": [
+      {
+        "label": "Rol Matrisi Laboratuvarı (Combinator Ana Şema)",
+        "language": "tr-TR"
+      },
+      {
+        "label": "Role Matrix Lab (Combinator Master)",
+        "language": "en-US"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:role-matrix-combinator-master",
+      "title": "Role Matrix Lab Combinator Master",
+      "description": "Instance data for the role-grant combinator cases of role-matrix-lab (vnext feature/role-grant-combinators). iban: anyOf[$InstanceStarter, $InstanceBehalfOfStarter] OR corporate-ops, masked except for corporate-ops. riskNote: corporate-ops allowed unless the same caller is also the behalf-of starter (deny allOf).",
+      "type": "object",
+      "properties": {
+        "caseRef": {
+          "type": "string",
+          "description": "Unguarded control field."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Unguarded. The customer the case is about (the plan's VELİ)."
+        },
+        "iban": {
+          "type": "string",
+          "description": "x-roles combinator: the starter (act_sub) or the behalf-of starter (sub), or corporate-ops. Masked for everyone but corporate-ops.",
+          "x-roles": [
+            {
+              "grant": "allow",
+              "anyOf": [
+                {
+                  "role": "$InstanceStarter"
+                },
+                {
+                  "role": "$InstanceBehalfOfStarter"
+                }
+              ]
+            },
+            {
+              "grant": "allow",
+              "role": "morph-idm.corporate-ops"
+            }
+          ],
+          "x-masking": {
+            "operator": "mask",
+            "params": {
+              "keepLast": 4
+            },
+            "roles": [
+              {
+                "role": "morph-idm.corporate-ops",
+                "grant": "allow"
+              }
+            ]
+          }
+        },
+        "riskNote": {
+          "type": "string",
+          "description": "x-roles four-eyes on data: corporate-ops sees it unless the same caller is the behalf-of starter of the case.",
+          "x-roles": [
+            {
+              "grant": "allow",
+              "role": "morph-idm.corporate-ops"
+            },
+            {
+              "grant": "deny",
+              "allOf": [
+                {
+                  "role": "morph-idm.corporate-ops"
+                },
+                {
+                  "role": "$InstanceBehalfOfStarter"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
