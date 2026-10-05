@@ -70,20 +70,64 @@ public abstract class WorkflowTestBase : IntegrationTestBase
     /// Runs a transition asynchronously: the runtime accepts it, answers 202 and executes it in
     /// a background job. Returns the status so a test can assert on rejections too.
     /// </summary>
+    /// <remarks>
+    /// A 409 whose body says <c>Failed to acquire lock</c> is retried (up to 5 attempts, 200 ms
+    /// apart) before the status is returned. The runtime's status lock is single-attempt BY DESIGN —
+    /// vnext <c>InstanceStatusLock</c>: "the client retry is the back-pressure mechanism" — and a test
+    /// that fires the moment it OBSERVES a state routinely lands while the runtime is still finishing
+    /// that same hop under the lock (a leaf reports its new state while the parent is applying the
+    /// leaf's <c>sub:state-changed</c> relay). Measured 2026-10-05: relay on the parent at
+    /// 08:19:15.5008, the test's accept refused at 15.5100. Before this, every such 409 surfaced as a
+    /// 60-second "never reached state X" timeout. Every other refusal — including the 409 for a
+    /// transition already queued — is returned on the first attempt, untouched.
+    /// </remarks>
     protected async Task<HttpStatusCode> RunAsync(
         string workflow, string instanceId, string transitionKey, object? body = null, string? roles = null)
     {
         var url = $"api/v1/core/workflows/{workflow}/instances/{instanceId}" +
                   $"/transitions/{transitionKey}?sync=false";
 
-        using var request = new HttpRequestMessage(HttpMethod.Patch, url)
+        for (var attempt = 1; ; attempt++)
         {
-            Content = JsonContent.Create(body ?? new { })
-        };
-        foreach (var (key, value) in Headers(roles)) request.Headers.TryAddWithoutValidation(key, value);
+            using var request = new HttpRequestMessage(HttpMethod.Patch, url)
+            {
+                Content = JsonContent.Create(body ?? new { })
+            };
+            foreach (var (key, value) in Headers(roles)) request.Headers.TryAddWithoutValidation(key, value);
 
-        using var response = await _raw.SendAsync(request);
-        return response.StatusCode;
+            using var response = await _raw.SendAsync(request);
+            if (attempt >= LockContentionAttempts || !await IsLockContentionAsync(response))
+                return response.StatusCode;
+
+            await Task.Delay(LockContentionDelay);
+        }
+    }
+
+    /// <summary>Attempts for a transition refused only because its status lock was held.</summary>
+    protected const int LockContentionAttempts = 5;
+
+    /// <summary>Pause between those attempts.</summary>
+    protected static readonly TimeSpan LockContentionDelay = TimeSpan.FromMilliseconds(200);
+
+    /// <summary>
+    /// True for the runtime's transient status-lock refusal (409, <c>Failed to acquire lock</c>) —
+    /// the one conflict a client is expected to retry. See <see cref="RunAsync"/>.
+    /// </summary>
+    protected static async Task<bool> IsLockContentionAsync(HttpResponseMessage response) =>
+        response.StatusCode == HttpStatusCode.Conflict
+        && (await response.Content.ReadAsStringAsync()).Contains("Failed to acquire lock", StringComparison.Ordinal);
+
+    /// <summary>
+    /// <see cref="RunAsync"/> that FAILS the test when the transition is refused, without waiting
+    /// for the addressed instance to settle — for a parent that stays Busy for its subflow's whole
+    /// lifetime, where <see cref="RunAcceptedAsync"/> would wait forever. An ignored refusal here
+    /// used to cost a 60-second timeout on the next wait instead of naming the refusal.
+    /// </summary>
+    protected async Task SubmitAsync(
+        string workflow, string instanceId, string transitionKey, object? body = null, string? roles = null)
+    {
+        var status = await RunAsync(workflow, instanceId, transitionKey, body, roles);
+        Assert.True((int)status < 400, $"'{transitionKey}' on {workflow}/{instanceId} was refused with {(int)status}");
     }
 
     /// <summary>

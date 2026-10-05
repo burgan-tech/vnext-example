@@ -8,15 +8,22 @@ namespace Core.IntegrationTests.Tests.ErrorBoundaryLab;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The incident history AND the active-incident endpoint are gated by exactly the same
-/// <c>queryRoles</c> check as the state function:
-/// a caller who may poll the state may read why it stalled, and a caller who may not gets 403 from
-/// both. That symmetry is the property under test — an incident history readable by callers the
-/// state function refuses would leak the failure detail the gate exists to protect.
+/// The incident history, the active-incident endpoint and the state function share ONE read rule —
+/// the <c>queryRoles</c> of <c>zone-secured</c> — and that rule is answered by
+/// <c>authorize?queryRoles=true</c>, the question the gateway asks before forwarding any read. The
+/// runtime no longer enforces it on the read endpoints themselves (gate removed 2026-09-23, council
+/// <c>2026-09-22-remove-execution-authorization</c>). Until 2026-10-05 the first test here still
+/// expected three 403s from the runtime and was the suite's one ErrorBoundaryLab red.
+/// </para>
+/// <para>
+/// What is still worth pinning: the three read surfaces agree with each other for the same caller,
+/// and <c>authorize</c> refuses a role-less caller while admitting the viewer — so a gateway that
+/// asks first never forwards the incident detail of a secured instance to someone it would not show
+/// the state to.
 /// </para>
 /// <para>
 /// <c>zone-secured</c> carries the grant, not the workflow root, so starting an instance and firing
-/// the case stay open to everyone while every READ of a faulted instance is gated.
+/// the case stay open to everyone while only the reads of a faulted instance are role-bound.
 /// </para>
 /// </remarks>
 public class SecuredIncidentsTests : ErrorBoundaryLabTestBase
@@ -24,24 +31,29 @@ public class SecuredIncidentsTests : ErrorBoundaryLabTestBase
     public SecuredIncidentsTests(VNextTestEnvironment environment) : base(environment) { }
 
     [Fact]
-    public async Task WithoutTheRole_BothTheStateFunctionAndTheIncidentHistoryRefuse()
+    public async Task WithoutTheRole_AuthorizeRefusesTheRead_AndNoReadSurfaceIsGatedByTheRuntime()
     {
         var instanceId = await RunCaseAsync(Workflow, "case-secured", roles: ViewerRole);
         await WaitUntilFaultedAsync(Workflow, instanceId, ViewerRole);
 
-        var (incidentStatus, incidentBody) = await GetIncidentsAsync(Workflow, instanceId);
+        var authorizeUrl = $"api/v1/core/workflows/{Workflow}/instances/{instanceId}/functions/authorize?queryRoles=true";
+        var (roleLess, roleLessBody) = await SendRawAsync(HttpMethod.Get, authorizeUrl, headers: Headers());
+        var (viewer, _) = await SendRawAsync(HttpMethod.Get, authorizeUrl, headers: Headers(ViewerRole));
+
+        Assert.Equal(HttpStatusCode.Forbidden, roleLess);
+        Assert.Contains("\"allowed\":false", roleLessBody);
+        Assert.Equal(HttpStatusCode.OK, viewer);
+
+        // The three read surfaces answer the role-less caller alike — none of them is a second,
+        // divergent copy of the rule above.
+        var (incidentStatus, _) = await GetIncidentsAsync(Workflow, instanceId);
         var (stateStatus, _, _) = await GetStateAsync(Workflow, instanceId);
-        var (activeStatus, _) = await GetActiveIncidentAsync(Workflow, instanceId);
+        var (activeStatus, active) = await GetActiveIncidentAsync(Workflow, instanceId);
 
-        Assert.Equal(HttpStatusCode.Forbidden, incidentStatus);
-        Assert.Equal(HttpStatusCode.Forbidden, stateStatus);
-
-        // The active-incident endpoint is the third surface behind the same gate. It must refuse a
-        // roleless caller rather than answer 404, or "no incident" and "not allowed to know" become
-        // indistinguishable and the gate leaks by omission.
-        Assert.Equal(HttpStatusCode.Forbidden, activeStatus);
-        Assert.Contains("Authorization:110001", incidentBody.ToString());
-        Assert.Contains("zone-secured", incidentBody.ToString());
+        Assert.Equal(HttpStatusCode.OK, incidentStatus);
+        Assert.Equal(HttpStatusCode.OK, stateStatus);
+        Assert.Equal(HttpStatusCode.OK, activeStatus);
+        Assert.Equal("zone-secured", Text(active, "state"));
     }
 
     [Fact]

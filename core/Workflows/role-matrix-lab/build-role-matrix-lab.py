@@ -58,9 +58,13 @@ REPO = os.path.abspath(os.path.join(ROOT, "..", "..", ".."))
 FUNCTION_DIR = os.path.join(REPO, "core", "Functions", "role-matrix-lab")
 
 VERSION = "1.0.0"
+# Function ayri surumlenir: 1.0.1 (2026-10-05) RoleMatrixSummaryMapping'in CS8197 derleme hatasini
+# duzeltti (dynamic Headers uzerinde `out var`); 1.0.0 her cagrida 500 donuyordu.
+FUNCTION_VERSION = "1.0.1"
 # Workflow ayri surumlenir: field-masking lab (2026-09-28) master semayi ve SeedCaseMapping'i degistirdi;
 # publish surum-degismezdir (ayni surum farkli icerik -> 409 Instance:100002), function degismedi.
-WORKFLOW_VERSION = "1.0.8"
+# 1.0.9 (2026-10-05): yalniz SUMMARY_FUNCTION referansi 1.0.1'e cekildi.
+WORKFLOW_VERSION = "1.0.9"
 
 ENTRY_TASK = {"key": "role-matrix-entry-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 EXEC_TASK = {"key": "role-matrix-exec-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
@@ -70,7 +74,7 @@ SELF_READ_TASK = {"key": "role-matrix-self-read-task", "domain": "core", "versio
 MASTER_SCHEMA = {"key": "role-matrix-master", "domain": "core", "version": "1.0.3", "flow": "sys-schemas"}
 DECISION_SCHEMA = {"key": "role-matrix-decision", "domain": "core", "version": "1.0.0", "flow": "sys-schemas"}
 REVIEW_VIEW = {"key": "role-matrix-review-view", "domain": "core", "version": "1.0.0", "flow": "sys-views"}
-SUMMARY_FUNCTION = {"key": "role-matrix-summary", "domain": "core", "version": "1.0.0", "flow": "sys-functions"}
+SUMMARY_FUNCTION = {"key": "role-matrix-summary", "domain": "core", "version": FUNCTION_VERSION, "flow": "sys-functions"}
 
 # ── roller ───────────────────────────────────────────────────────────────────
 MAKER = "morph-idm.maker"
@@ -437,7 +441,7 @@ def build_function():
     mapping_path = os.path.join(FUNCTION_DIR, "src", "RoleMatrixSummaryMapping.csx")
     return {
         "key": "role-matrix-summary",
-        "version": VERSION,
+        "version": FUNCTION_VERSION,
         "domain": "core",
         "flow": "sys-functions",
         "flowVersion": "1.0.0",

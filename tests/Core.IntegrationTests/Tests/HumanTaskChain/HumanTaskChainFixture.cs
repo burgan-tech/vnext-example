@@ -1,3 +1,4 @@
+using Core.IntegrationTests.Infrastructure;
 using VNext.Testing.Sdk.Infrastructure;
 
 namespace Core.IntegrationTests.Tests.HumanTaskChain;
@@ -17,9 +18,11 @@ public sealed class HumanTaskChainFixture : IAsyncLifetime
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static bool _published;
 
-    /// <summary>Credit orchestrator base url, or null when the lab's third business domain is absent.</summary>
-    public string? CreditBaseUrl { get; } =
-        Environment.GetEnvironmentVariable("VNEXT_CREDIT_BASE_URL")?.Trim().TrimEnd('/') is { Length: > 0 } url ? url : null;
+    /// <summary>
+    /// Credit orchestrator base url, or null when the lab's third business domain is absent or not
+    /// running (see OptionalDomainEndpoint — the url is committed in test.runsettings).
+    /// </summary>
+    public string? CreditBaseUrl { get; } = OptionalDomainEndpoint.Resolve("VNEXT_CREDIT_BASE_URL", "credit");
 
     public async Task InitializeAsync()
     {

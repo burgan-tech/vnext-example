@@ -104,8 +104,11 @@ public class ResultModelParityTests : TaskInvocationLabTestBase
         Assert.Equal("daprservice", NullableString(projection, "tilTaskType"), ignoreCase: true);
         Assert.Equal(200, NullableLong(projection, "tilStatusCode"));
 
-        // DaprServiceInvocation attaches no metadata dictionary today, in either routing mode.
-        Assert.Equal(0, ArrayLength(projection, "tilMetadataKeys"));
+        // DaprServiceInvocation attaches exactly these four keys on a response, in either routing
+        // mode (vnext DaprServiceInvocation.cs, since #1018). This used to assert zero keys, but the
+        // assertion was never reached: until the local sidecars could resolve the 'mocklab' app-id
+        // the test skipped above, so the stale expectation only surfaced on 2026-10-05.
+        AssertMetadataKeySet(projection, "AppId", "MethodName", "HttpVerb", "ReasonPhrase");
     }
 
     [SkippableFact]

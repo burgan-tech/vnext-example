@@ -14,17 +14,13 @@ namespace Core.IntegrationTests.Tests.DataIntegrityLab;
 /// failed transition.
 /// </para>
 /// <para>
-/// <b>Known red, and it is NOT a data defect.</b> <see cref="FullLifecycle_ReachesLabCompleted"/>
-/// and <see cref="ParallelTasks_AllLandTheirOwnKeys"/> stay red because the instance never leaves
-/// <c>Busy</c>, so the updateData calls that would satisfy the fan-in gate are refused. Measured on
-/// a stuck instance (local runtime, 2026-08-24): <c>run-parallel</c> COMPLETED in 0.82s and all four
-/// parallel writes landed with distinct timestamps (<c>par1..par4</c>, plus <c>seq1..seq3</c>) — no
-/// write is lost or duplicated. What does not happen is the settle: <c>lab-collect</c>'s auto
-/// transition is gated on <c>labUpdateCount &gt;= labThreshold</c> (0 &gt;= 4 ⇒ false), and with the
-/// rule false the instance is left Busy instead of being resolved back to Active. Red on the
-/// released container image since 2026-08-17 and equally red on a locally built runtime, so it is
-/// not tied to any one build. The settle budget below is deliberately modest: a known hang should
-/// cost the suite a minute, not four.
+/// <b><c>lab-collect</c> is a fan-in gate, not a hang.</b> Its only exit is an automatic transition
+/// whose rule is <c>labUpdateCount &gt;= labThreshold</c>. With the rule false the instance PARKS in
+/// Busy by design (<c>ResolveAvailableStep</c>: a target with auto transitions stays Busy), and every
+/// <c>update-lab-progress</c> (updateData, admitted without a lock) re-runs the auto evaluation.
+/// Until 2026-10-05 the lifecycle tests never sent those updates and waited for
+/// <c>lab-completed</c> — two reds recorded as "stuck Busy" for seven weeks. Verified by hand on a
+/// parked instance: four updateData calls answered 202 and the instance reached lab-completed.
 /// </para>
 /// </summary>
 public class DataIntegrityLabTests : WorkflowTestBase
@@ -33,8 +29,32 @@ public class DataIntegrityLabTests : WorkflowTestBase
 
     public DataIntegrityLabTests(VNextTestEnvironment environment) : base(environment) { }
 
+    /// <summary>labThreshold seeded at start — the number of updateData calls that open lab-collect.</summary>
+    private const int Threshold = 3;
+
     private async Task<string> StartLabAsync() =>
-        await StartAsync(Workflow, new { testId = $"lab-{Guid.NewGuid():N}"[..16] });
+        await StartAsync(Workflow, new { testId = $"lab-{Guid.NewGuid():N}"[..16], labThreshold = Threshold });
+
+    /// <summary>
+    /// Runs <c>run-parallel</c> and opens the <c>lab-collect</c> fan-in gate. Deliberately not
+    /// <c>RunAcceptedAsync</c>: that waits for the instance to leave Busy, and <c>lab-collect</c>
+    /// parks in Busy until the gate opens — so wait for the STATE, then send the updates.
+    /// </summary>
+    private async Task RunParallelAndOpenTheGateAsync(string id)
+    {
+        var status = await RunAsync(Workflow, id, "run-parallel", new { });
+        Assert.True((int)status < 400, $"run-parallel was refused with {(int)status}");
+        await WaitForInstanceStateAsync(Workflow, id, "lab-collect", timeout: TimeSpan.FromSeconds(60));
+
+        await WaitUntilAsync(async () =>
+        {
+            if ((await GetInstanceStateAsync(Workflow, id)).State != "lab-collect") return true;
+            if (await GetCounterAsync(Workflow, id, "labUpdateCount") < Threshold)
+                await RunAsync(Workflow, id, "update-lab-progress",
+                    new { updateNonce = Guid.NewGuid().ToString("N")[..8] });
+            return false;
+        }, $"lab-collect never opened after {Threshold} updateData calls", TimeSpan.FromSeconds(60));
+    }
 
     [Fact]
     public async Task FullLifecycle_ReachesLabCompleted()
@@ -45,7 +65,7 @@ public class DataIntegrityLabTests : WorkflowTestBase
         await RunAcceptedAsync(Workflow, id, "run-sequential", settleTimeout: TimeSpan.FromSeconds(90));
         await WaitForInstanceStateAsync(Workflow, id, "lab-parallel", timeout: TimeSpan.FromSeconds(90));
 
-        await RunAcceptedAsync(Workflow, id, "run-parallel", settleTimeout: TimeSpan.FromSeconds(60));
+        await RunParallelAndOpenTheGateAsync(id);
         await WaitForInstanceStateAsync(Workflow, id, "lab-completed", timeout: TimeSpan.FromSeconds(90));
 
         var (state, status) = await GetInstanceStateAsync(Workflow, id);
@@ -83,7 +103,7 @@ public class DataIntegrityLabTests : WorkflowTestBase
 
         var before = (await GetAttributesAsync(Workflow, id)).EnumerateObject().Count();
 
-        await RunAcceptedAsync(Workflow, id, "run-parallel", settleTimeout: TimeSpan.FromSeconds(60));
+        await RunParallelAndOpenTheGateAsync(id);
         await WaitForInstanceStateAsync(Workflow, id, "lab-completed", timeout: TimeSpan.FromSeconds(90));
 
         var after = (await GetAttributesAsync(Workflow, id)).EnumerateObject().Count();

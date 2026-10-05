@@ -67,6 +67,29 @@ test `POST api/v1/definitions/publish`'i elle çağırmıyor). Desen `ImplicitSt
 ve `FanOut` (`FanOutConfigMatrixTests`) içinde var; eklenmesi gerekirse oradan taşınmalı. Kural runtime'da
 unit seviyesinde pinli (`SchemaComponentValidator`).
 
+## 2026-10-05 — "bilinen 23 kırmızı" kapandı: 104/104 yeşil
+
+vnext `master` @ `1104d8ae` (0.0.99 kapsamı), lokal build, yalnız core, provider `default`. Paket
+**104/104**, ~1 dk. Koşudaki 101 `role_matrix_lab` instance'ının 101'i `A` — "takılma" gözlenmedi
+(tam suite'te bu sınıf alfabetik olarak cross-domain timeout'larının **arkasında** koşuyordu; yalnız
+core ile tam suite önceden 36 dk sürüyor ve RoleMatrixLab'a gelene kadar "asılı" görünüyordu).
+23 kırmızının hiçbiri runtime kusuru değildi:
+
+| Küme | Test | Neden | Düzeltme |
+|---|---|---|---|
+| `queryRoles` okuma kapısı | 15 `QueryRoleGateTests` + `AuthorizeFunctionTests.Authorize_QueryRoles_*` | Kapılar 2026-09-23'te silindi; okuma fonksiyonları her çağırana cevap verir, kural `authorize?queryRoles=true`'dadır | `QueryRoleGateTests` yeniden yazıldı (aşağıda) |
+| Function mapping derlenmiyordu | 5 `CustomFunctionAuthorizationTests` | `RoleMatrixSummaryMapping.csx`: `dynamic` `context.Headers` üzerinde `out var` → CS8197 → her çağrı 500, ilk commit'ten beri | Statik tipe bağlandı; function **`1.0.1`**, workflow **`1.0.9`**; `HasExecuted` zarf-bağımsız (yanıt artık `{ "roleMatrixSummary": { "data": … } }`) |
+| `$InstanceStarter` | `Escalate_IsOfferedToTheInstanceStarter`, `Authorize_DeniesATransitionThatIsNotAvailableInTheCurrentState` | Runtime başlatanı `act_sub`'dan kaydeder; test tabanı yalnız `user_reference` gönderiyordu | `StarterActor` sabiti + `actSub` parametresi — yalnız bu testlerde (global `Headers()`'a eklemek her çağıranı "başlatan" yapardı) |
+
+**`QueryRoleGateTests`'in yeni sözleşmesi.** (1) Kural `authorize?queryRoles=true` ile doğrulanır:
+state'in `queryRoles`'u root'unkini EZER, allowlist dışı rol ve rolsüz çağıran red, `escalated`'da yalnız
+auditor. (2) **Bir deny, aynı çağıranın allow rolüyle geri alınmaz** (Kleene, vnext #1057): `review`'da
+`maker,approver` artık **red** — eski test tersini ("bir ALLOW yeter") pinliyordu. Ama allowlist'te
+yalnız *bulunmayan* rol (`viewer,approver`) çağıranı düşürmez. (3) `ReadFunctions_DoNotEnforceQueryRoles`:
+`intake`'te `state`/`data`/`master`, `review`'da bunlara ek `view` ve `schema?transitionKey=approve`
+her çağırana (rolsüz dahil) **200** döner — kapı geri gelirse bu test kırılır. `view` yalnız `review`'da,
+`schema` yalnız şemalı bir transition'la çözülür; başka yerde 404 yetkiyle ilgisizdir.
+
 ## Neden var
 
 İki geliştirme aynı anda bu fixture'ı doğurdu (2026-08-19, `feature/caller-role-provider`):
@@ -130,7 +153,7 @@ well-known: cancel-role-matrix   [maker, approver]   availableIn: intake, review
 
 | Adım | Neden kritik |
 |---|---|
-| `intake → review` | State `queryRoles`'un root'u **ezdiğini** (birleşmediğini) kanıtlayan tek geçiş. Aynı caller, aynı instance, cevap 200'den 403'e döner. |
+| `intake → review` | State `queryRoles`'un root'u **ezdiğini** (birleşmediğini) kanıtlayan tek geçiş. Aynı caller, aynı instance, `authorize?queryRoles=true` cevabı allowed'dan denied'a döner (okuma fonksiyonları ikisinde de 200 — kapı runtime'da değil). |
 | `record-note` / `review` | `availableIn` rol daraltmasının **AND** olduğunu gösterir. OR ya da per-state grant'leri yok sayan bir implementasyonda transition her iki state'te de görünür kalır. |
 | `reject` | Deny-only set = **blacklist**. Allowlist gibi yorumlanırsa transition herkes için kaybolur — sessiz ve fark edilmesi zor bir regresyon. |
 | `escalate` | `$InstanceStarter` rol string'ine değil **caller kimliğine** bağlıdır. Provider değişiminden sonra bu test kırmızıya dönerse, bozulan kimlik hattıdır, rol hattı değil. |
@@ -138,9 +161,16 @@ well-known: cancel-role-matrix   [maker, approver]   availableIn: intake, review
 
 ## Nasıl çalıştırılır
 
-Ön koşullar: altyapı ayakta (`cd etc/docker && ./run-docker.sh` — vNext çalışma alanında),
-migration gerekiyorsa DbMigrator bir kez, ve 4 app `--launch-profile http` ile.
-MockLab **gerekmez** — bu senaryoda HTTP task yok, hepsi script task.
+| Bağımlılık | Gerekli mi |
+|---|---|
+| Lokal derlenmiş runtime (core, `VNEXT_BASE_URL`) | Evet — `run-docker.sh up core` |
+| Sistem paketi | Evet (taze DB'de bir kez, init container) |
+| MockLab | **Gerekmez** — HTTP task yok, hepsi script task |
+| Dapr scheduler / pub-sub | Gerekmez |
+| partner / credit / discovery | Gerekmez |
+| Caller kimliği | Roller `role` + `x-roles` header'ıyla; `$InstanceStarter` testleri `act_sub` gönderir (`StarterActor`) |
+| morph-idm provider | Gerekmez (provider `default`); morph-idm ile koşulmadı — bilinen açık |
+| Şema doğrulama | `role-matrix-lab-combinators.json` kurulu vnext-schema 0.0.52 ile `npm run validate`'ten düşer; SDK doğrudan publish ettiği için test engeli değil |
 
 ```bash
 dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~RoleMatrixLab"

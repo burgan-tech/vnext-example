@@ -267,6 +267,29 @@ For the full Runtime API reference (request/response schemas, error codes), see 
 
 For the full seed format reference (rule operators, Scriban helpers, sequential responses, dapr invocation), see [`.claude/references/mocklab-seed-format.md`](./.claude/references/mocklab-seed-format.md).
 
+## Integration tests — read before running
+
+`tests/Core.IntegrationTests` is the vNext runtime's behavioural checkpoint. **Before any run, read
+[`TEST-SCENARIOS.md` § Koşum Öncesi Kontrol](TEST-SCENARIOS.md#koşum-öncesi-kontrol--önce-burayı-oku)**
+— environment checklist, suite index with each suite's dependencies, and the traps that make a run
+lie — then the `README.md` of every suite you run (`tests/Core.IntegrationTests/Tests/<Suite>/README.md`).
+
+- Run against a **locally built** runtime (`VNEXT_BASE_URL`, committed in `test.runsettings`), never
+  a container image. Check the hosts on :4201 really come from the checkout you mean to test.
+- Optional runtimes (partner :4211, credit :4221, discovery :4231 — `labs/cross-domain/lab.sh up`)
+  are probed with `GET /health` + the reported `domain` (`Infrastructure/OptionalDomainEndpoint.cs`);
+  when absent their tests **skip**. A cross-domain test that times out instead is a bug in the test.
+- MockLab (`docker compose up -d`, after the infra) is needed by HTTP-task suites; seed changes need `down -v`.
+- Traps that look like regressions but are not: a state whose only exits are rule-false auto
+  transitions **parks in Busy** (wait for the state, drive the `updateData` that opens it); a 409
+  `Failed to acquire lock` is the runtime's single-attempt status lock and is retried by
+  `WorkflowTestBase.RunAsync`; read functions do **not** enforce `queryRoles` (ask
+  `authorize?queryRoles=true`); `$InstanceStarter` matches `act_sub`; publish is version-immutable
+  (patch bump on any fixture change, regenerate with the flow's `build-*.py`).
+- Cluster a red run by error signature before calling anything a regression, and record every run
+  (counts, runtime commit, remaining reds with their cause) in the scenario's `TEST-SCENARIOS.md` row
+  and README in the same commit.
+
 ## Skills
 
 When a user wants to build a component end-to-end, prefer invoking the matching skill (provided by the `vnext-ai-toolkit` plugin) rather than freestyling. Invoke them by their namespaced name:

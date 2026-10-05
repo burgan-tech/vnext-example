@@ -158,15 +158,25 @@ public class CustomFunctionAuthorizationTests : RoleMatrixLabTestBase
         Assert.Equal(HttpStatusCode.OK, status);
     }
 
+    /// <summary>
+    /// True when the mapping's payload (<c>executed: true</c>) is somewhere in the answer. The
+    /// non-raw function envelope has changed under this test twice — a bare <c>data</c> object
+    /// first, today <c>{ "&lt;responseSlot&gt;": { "data": { … } } }</c> keyed by the task's
+    /// response slot (<c>roleMatrixSummary</c>) — and the envelope is not what this class tests, so
+    /// look for the payload at any depth instead of at one path.
+    /// </summary>
     private static bool HasExecuted(JsonElement body)
     {
-        if (body.ValueKind != JsonValueKind.Object) return false;
-
-        // The function's own payload lands under `data` for a non-raw response; tolerate either
-        // shape so the assertion survives an envelope change it is not trying to test.
-        if (body.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object)
-            return data.TryGetProperty("executed", out _) || data.TryGetProperty("caseRef", out _);
-
-        return body.TryGetProperty("executed", out _) || body.TryGetProperty("caseRef", out _);
+        switch (body.ValueKind)
+        {
+            case JsonValueKind.Object:
+                if (body.TryGetProperty("executed", out var executed) && executed.ValueKind == JsonValueKind.True)
+                    return true;
+                return body.EnumerateObject().Any(property => HasExecuted(property.Value));
+            case JsonValueKind.Array:
+                return body.EnumerateArray().Any(HasExecuted);
+            default:
+                return false;
+        }
     }
 }
