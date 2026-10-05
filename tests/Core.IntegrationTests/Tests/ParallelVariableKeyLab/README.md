@@ -91,7 +91,7 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 ## Geçme kriteri ve bilinen sınırlar
 
-İlk 4 test için 4/4 yeşil; beşinci test (`pvk-reuse`) koşu bekliyor (Task 12). Durum: ✅ 4/4 yeşil (2026-10-04, runtime `e7c867eb`, `feature/task-variable-key`, lokal
+5/5 yeşil (son durum aşağıda). İlk 4 testin geçmişi: ✅ 4/4 yeşil (2026-10-04, runtime `e7c867eb`, `feature/task-variable-key`, lokal
 build, `http://localhost:4201`). Ayırt edici koşu (base `cddab84c`, `variableKey` desteği yok): 0/4 —
 pozitif test parent `F` (`Parallel tasks produced conflicting output for key 'pvkSpawnChild'`), üç
 publish testi 200 döndü. Doğrulama postgres + host loglarıyla yapıldı: parent'ın son data satırında
@@ -108,6 +108,19 @@ DataIntegrityLab, AccountOpening/ErrorBoundaryLab rol testleri, TaskInvocationLa
 Tek fark `SubStateRelayTests.EffectiveState_FollowsTheGrandchild_AcrossTwoLevels`: tam suite yükü
 altında kırmızı, aynı runtime'da tek başına 3/3 ve sınıfıyla birlikte yeşil — zamanlama flake'i,
 regresyon değil.
+
+Slot-aware birleştirme koşusu (2026-10-05, runtime `8046dbd6`, `ScriptContext.MergeParallelBranches`):
+senaryo **5/5 yeşil**. Ayırt edici koşu (base `cddab84c`): 0/5 — `pvk-reuse` instance'ı `spawning`'de `F`
+(`Parallel tasks produced conflicting output for key 'pvkSpawnChild'`, ardından `ParallelExecutionFailed`),
+publish testleri 200, `SameTaskTwiceAtOneOrder` `F` (master'da `variableKey` yok). OpenObserve, pvk-reuse
+trace'i `4f5c8cc95f9f65cb2de3fbdf4b067abc`: order 1'deki spawn 124.1 ms, order 2'deki iki spawn paralel
+(51.7 / 46.8 ms, ~46.8 ms örtüşme, `OK`); `Task.Execute.pvk-spawn-child` 15 dk'da n=6, ort 262.9 ms,
+p95/maks 655.6 ms (maks, `SameTaskTwice` testindeki paralel order-1 çifti); rebuild'den sonra
+"conflicting output" log sayısı 0. Postgres: `pvk_reuse` instance'ının son data satırında (1.0.2)
+`firstChildId` / `reusedChildId` / `otherChildId` üçü farklı; üç `pvk-child` `waiting`/`A`.
+Tam suite (`CrossDomainLab` hariç): 357 geçti / 38 kaldı / 9 atlandı (404). Kırmızı 29 farklı testin
+tamamı master'da da kırmızı olan liste; yeni kırmızı yok, önceki koşudaki `SubStateRelayTests` flake'i bu
+koşuda yeşil.
 
 Çocuklar bilinçli olarak bitmez; her koşu `core` şemasında üç `pvk-child` instance'ı `waiting`'te
 bırakır.
