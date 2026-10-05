@@ -71,9 +71,24 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
   --filter "FullyQualifiedName~HumanTaskChain" -v minimal
 ```
 
-`test.runsettings` carries `VNEXT_PARTNER_BASE_URL` and `VNEXT_CREDIT_BASE_URL`. When either is
-unset the scenario that needs it **skips** rather than fails, so the same suite still runs against a
-single-domain stack — Senaryo 1 and both projection-reset tests need only `core`.
+`test.runsettings` carries `VNEXT_PARTNER_BASE_URL` and `VNEXT_CREDIT_BASE_URL`. When either domain
+is **not running** the scenario that needs it **skips** rather than fails, so the same suite still runs
+against a single-domain stack — Senaryo 1 and both projection-reset tests need only `core`.
+
+- "Not running" is decided by a live probe, not by the variable: `GET {url}/health` within 2 s and a
+  `domain` field equal to `partner` / `credit` (`Infrastructure/OptionalDomainEndpoint.cs`). The urls
+  are committed in `test.runsettings`, so before 2026-10-05 the "is it set?" check was always true and
+  11 tests here burned 2 minutes each on a core-only run.
+- The domain a chain needs is decided once, in `StartChainAsync`: **0–2 hops core only, 3 hops
+  partner, 4–5 hops credit (reached through partner)**. Two tests that started a 4-hop chain had no
+  `Skip.If` of their own; the central guard covers them and any new test.
+
+**2026-10-05, four-domain lab (master @ `1104d8ae`): 23/23, three runs in a row.** Two tests were
+deterministically red because they assumed the removed runtime read gate: the parent override's
+`ht-blocked` DENY lives in the overridden STATE `queryRoles` (visibility), so `authorize?queryRoles=true`
+refuses that caller while the state function — no longer a gate — answers 200 and lists `ht-e-approve`
+by its transition grant (`authorize?transitionKey` agrees: allowed). The tests now assert visibility on
+`authorize?queryRoles` and actionability on the state function + `authorize?transitionKey`.
 
 ## The client's side of the path
 

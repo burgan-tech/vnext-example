@@ -199,6 +199,11 @@ dotnet test --settings test.runsettings --filter "FullyQualifiedName~TaskInvocat
 | `FunctionResponseCacheTests` | Fonksiyon yanıt cache'inin miss→hit davranışı: ikinci çağrının `computedAtUtc` damgası birincininkiyle AYNI (yani task seti hiç çalışmadı) ve cache'ten dönen yanıt aynı `FunctionResponseOutput` şeklini koruyor. İki modda da değişmeden geçer. |
 | `ResultModelParityTests` | **İki modda da DEĞİŞMEDEN geçmesi gereken** projeksiyon şekli: `tilTaskType` (case-insensitive — bkz. dosyanın XML açıklaması), `tilStatusCode`, metadata anahtar kümesi. Bu dosyanın değeri TEK bir koşudan değil, yukarıdaki iki komutun İKİSİNDEN de gelir. |
 
+> **2026-10-05:** `DaprService_ProjectionShape_IsStableAcrossRoutingModes` "metadata yok" (0 anahtar)
+> bekliyordu; `DaprServiceInvocation` ise #1018'den beri `AppId`, `MethodName`, `HttpVerb`,
+> `ReasonPhrase` ekliyor. Beklenti hiç sınanmamıştı: lokal sidecar `mocklab` app-id'sini çözemediği
+> sürece test skip ediyordu. Sidecar çözünce kırmızıya döndü; anahtar seti artık pinli.
+
 ## Ölçülen / bilinen sınırlar
 
 1. **`tilTaskType` case-insensitive doğrulanıyor.** Runtime kaynağını okuyarak (çalıştırmadan)

@@ -172,6 +172,16 @@ Prerequisites: the runtime under test built from the `vnext` working tree and ru
 (`cd ../vnext/etc/docker && ./run-docker.sh up core`). MockLab is **not** needed — these flows have
 no HTTP tasks. `VNEXT_BASE_URL` is already committed in `test.runsettings`.
 
+**The old "409 flake" is closed (2026-10-05).** These tests fire the moment the OBSERVED status turns
+`A`; the leaf reports that while the parent is still applying the leaf's `sub:state-changed` relay
+under the parent's status lock, and the status lock is single-attempt by design (vnext
+`InstanceStatusLock`: "client retry is the back-pressure mechanism"). Measured: relay on the parent at
+08:19:15.5008, the test's accept refused with 409 `Failed to acquire lock` at 15.5100.
+`WorkflowTestBase.RunAsync` and this class's `AcceptAsync` now retry exactly that signature (5 × 200 ms);
+every other refusal still fails at once. `SubflowOrchestrationTests` had the same race, hidden: it
+discarded `RunAsync`'s status, so a refused `proceed-to-subflow` surfaced as a 60 s "never reached
+`grandchild-initial`" timeout — forwards now go through `SubmitAsync`, which names the refusal.
+
 ```bash
 dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/test.runsettings --filter "FullyQualifiedName~SubflowStatusProjectionTests" -v minimal
 ```

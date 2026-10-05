@@ -46,9 +46,13 @@ bekler, status'u değil. Her task ayrı transition'da: kırmızı bir test tek b
 
 `CrossDomainLabFixture` partner bileşenlerini (`partner/`, `vnext.partner.config.json`) bir kez yayınlar —
 harici-stack modunda SDK'nın `OnAfterEnvironmentReadyAsync` hook'u çağrılmadığı için fixture'da.
-`VNEXT_PARTNER_BASE_URL` yoksa `SubflowDescentTests` + `TriggerTaskTests` **skip** (`Xunit.SkippableFact`).
+Partner yoksa `SubflowDescentTests` + `TriggerTaskTests` **skip** (`Xunit.SkippableFact`). "Yok" =
+değişken boş **veya** `GET {url}/health` 2 sn'de cevap vermiyor **veya** cevaptaki `domain` `partner`
+değil (`Infrastructure/OptionalDomainEndpoint.cs`, 2026-10-05). Önceden yalnız değişkene bakılıyordu;
+URL `test.runsettings`'te commit'li olduğu için core-only koşuda 14 test 60 sn timeout'la kırmızıya
+düşüyordu. Konsolda `[optional-domain] … dependent tests skip` satırı sebebi söyler.
 `DiscoveryWarmUpTests` ayrı bir fixture (`DiscoveryRegistryFixture`) ve ayrı bir değişken kullanır —
-`VNEXT_DISCOVERY_BASE_URL` yoksa skip; cache kapalıysa (refresh `disabled` döner) yine skip, çünkü
+`VNEXT_DISCOVERY_BASE_URL` boşsa ya da registry `/health`'e `discovery` (veya `VNEXT_DISCOVERY_DOMAIN`) olarak cevap vermiyorsa skip; cache kapalıysa (refresh `disabled` döner) yine skip, çünkü
 `Provider=dapr` altında cache hiç register edilmez ve bu bir kusur değil konfigürasyondur.
 
 ## Çalıştırma
@@ -81,6 +85,20 @@ publisher çıktısındaki `FAIL Conflict` satırları değişmemiş bileşenler
 önceki yayına karşı koşar. Bir bileşeni değiştirdiysen `version`'ı patch bump'la ve onu tam sürümle
 referanslayan yerleri güncelle (ör. `xd-child-ext 1.0.1` → `xd-child.extensions[]` → `xd-child 1.0.1`
 → `xd-parent.subFlow.process.version` → `xd-parent 1.0.1`); aksi hâlde düzeltmen canlıya hiç çıkmaz.
+
+## 2026-10-05 koşusu
+
+master @ `1104d8ae`, lab `dapr-nr` imajları (aynı gün derlendi). `dapr` provider: 12 geçti / 2 skip
+(`DiscoveryWarmUpTests` — cache yalnız `http`'de), art arda üç koşu. `http` provider: 13/14.
+
+- **Düzeltilen test kusuru:** her adım state'e varınca hemen sonrakini gönderiyordu; parent subflow
+  tamamlanmasını settle ederken (Busy) gelen `spawn-subprocess` 409 "instance is Busy" alıyordu (3'te 1).
+  `CrossDomainLabTestBase` artık state'ten sonra Active'i de bekliyor.
+- **Bulunan gerçek kusur (discovery paketi):** `NewRegistration_IsVisibleToTheNextWarmUp` — kayıt
+  StartTask'ı asenkron, `discovery:domains:active` eviction'ı commit'ten önce; yarışı kaybeden kayıt
+  24 saat listede görünmez. Zaman çizelgesi ve öneri: `TEST-SCENARIOS.md` § Bilinen Kapsam Açıkları.
+- **MockLab lab'da yok:** konteynerdeki core `localhost:3001`'e erişemez; lab'da yalnız cross-domain
+  suite'leri koşulur, MockLab'e bağlı suite'ler yerel host runtime'ında (`run-docker.sh up core`).
 
 ## Başarı kriteri / bilinen kısıtlar
 
