@@ -30,6 +30,13 @@ pvk-parent  --start--> spawning [Initial] --auto-spawned (triggerKind 10)--> spa
                 order 2  pvk-spawn-child   (variableKey yok → slot pvkSpawnChild)
                 order 3  pvk-record-slots  (Script: üç slot'tan başlatılan instance id'lerini data'ya yazar)
 
+pvk-reuse   --start--> spawning [Initial] --auto-spawned (triggerKind 10)--> spawned [Intermediate, Active'te bekler]
+              spawning.onEntries:
+                order 1  pvk-spawn-child   (variableKey yok → slot pvkSpawnChild; firstChildId'yi yazar)
+                order 2  pvk-spawn-child   (variableKey yok → pvkSpawnChild'ı YENİDEN yazar) ┐ paralel
+                order 2  pvk-spawn-child   variableKey: otherChild                          ┘
+                order 3  pvk-record-slots  (Script: reusedChildId = pvkSpawnChild, otherChildId = otherChild)
+
 pvk-child   --start--> waiting [Initial]   (bilinçli olarak bitmez)
 ```
 
@@ -44,6 +51,11 @@ Akışlar `core/Workflows/parallel-variable-key-lab/build-parallel-variable-key-
   `primaryChildId` / `secondaryChildId` / `legacyChildId` olarak instance data'ya yazar. Önceki
   order'ların slot'ları ortak context'e birleştirildiği için order 3'teki script onları görür.
 
+- `PvkSpawnFirstMapping.csx` — `PvkSpawnChildMapping`'in InputHandler'ı ile aynı; OutputHandler'ı start
+  yanıtından (`data.value.id`, yedek `data.id`) `firstChildId` yazar.
+- `PvkRecordReuseMapping.csx` — `pvkSpawnChild` ve `otherChild` slot'larını okuyup `reusedChildId` /
+  `otherChildId` olarak yazar.
+
 `pvk-child`'ın tek state'i Initial: sabitlenmiş vnext-schema 0.0.52 Initial'sız akışı reddettiği
 için (bkz. implicit-start-lab) çocuk Intermediate yerine Initial `waiting`'te bekler. Test için fark
 yok, yalnız state anahtarı okunur.
@@ -53,6 +65,7 @@ yok, yalnız state anahtarı okunur.
 | Test | Kanıtladığı |
 |---|---|
 | `SameTaskTwiceAtOneOrder_WithVariableKeys_EachRunKeepsItsOwnSlot` | parent `spawned`'a ulaşır, `F` değil; üç slot dolu ve üç id birbirinden farklı; her çocuk `waiting`'te |
+| `ParallelGroupReusingAnEarlierSlot_OverwritesIt` | `pvk-reuse`: paralel grup, önceki order'ın bıraktığı `pvkSpawnChild` slot'unu yeniden yazar (ardışık koşudaki gibi üzerine yazar); instance `spawned`'a ulaşır, `F` değil; `firstChildId` / `reusedChildId` / `otherChildId` üçü farklı (reused != first, yazımın değiştirdiğini kanıtlar); üç çocuk `waiting`'te. Slot-aware merge öncesi "conflicting output" ile düşerdi |
 | `Publish_SameTaskTwiceAtOneOrder_WithoutVariableKey_Returns400` | order-1 girişlerinden `variableKey` silinince 400; gövdede `pvkSpawnChild` ve `variableKey` |
 | `Publish_SameVariableKeyTwiceAtOneOrder_Returns400` | iki order-1 girişi `variableKey: "child"` → 400; gövdede `'child'` |
 | `Publish_InvalidVariableKeyFormat_Returns400` | `variableKey: "primary-child"` → 400; gövdede ham değer |
@@ -78,7 +91,7 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 ## Geçme kriteri ve bilinen sınırlar
 
-4/4 yeşil. Durum: ✅ 4/4 yeşil (2026-10-04, runtime `e7c867eb`, `feature/task-variable-key`, lokal
+İlk 4 test için 4/4 yeşil; beşinci test (`pvk-reuse`) koşu bekliyor (Task 12). Durum: ✅ 4/4 yeşil (2026-10-04, runtime `e7c867eb`, `feature/task-variable-key`, lokal
 build, `http://localhost:4201`). Ayırt edici koşu (base `cddab84c`, `variableKey` desteği yok): 0/4 —
 pozitif test parent `F` (`Parallel tasks produced conflicting output for key 'pvkSpawnChild'`), üç
 publish testi 200 döndü. Doğrulama postgres + host loglarıyla yapıldı: parent'ın son data satırında

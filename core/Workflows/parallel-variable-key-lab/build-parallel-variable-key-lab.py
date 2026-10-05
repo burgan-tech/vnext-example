@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerates the parallel-variable-key-lab workflow JSON files.
 
-Two flows pin how same-order runs of ONE task keep their own response slot:
+Three flows pin how same-order runs of ONE task keep their own response slot:
 
 * pvk-parent — its Initial state `spawning` runs the same SubProcess task three times:
   twice at order 1 with distinct `variableKey`s (primaryChild / secondaryChild — the shape that
@@ -9,6 +9,9 @@ Two flows pin how same-order runs of ONE task keep their own response slot:
   NO variableKey (legacy slot `pvkSpawnChild`), then a Script task at order 3 that reads the three
   slots from `context.TaskResponse` and records the started instance ids. A default automatic
   transition moves it to `spawned`, where it waits Active.
+* pvk-reuse — order 1 starts a child into the legacy slot `pvkSpawnChild`; order 2 is a parallel
+  group that re-writes that slot (no variableKey) beside `otherChild`; order 3 records both. Pins
+  that a parallel group overwrites a slot an earlier order left, as a sequential run would.
 * pvk-child — the SubProcess started by each run; it parks in `waiting` and never finishes.
 
 Edit ./src/*.csx and re-run — never hand-edit the base64 blob.
@@ -124,6 +127,27 @@ parent = envelope(
     ],
 )
 
+# ── pvk-reuse: a parallel group re-writes a slot an earlier order left ───────
+REUSE_ON_ENTRIES = [
+    entry(1, "pvk-spawn-child", "PvkSpawnFirstMapping.csx"),
+    entry(2, "pvk-spawn-child", "PvkSpawnChildMapping.csx"),
+    entry(2, "pvk-spawn-child", "PvkSpawnChildMapping.csx", "otherChild"),
+    entry(3, "pvk-record-slots", "PvkRecordReuseMapping.csx"),
+]
+
+reuse = envelope(
+    "pvk-reuse",
+    ["variable-key", "parallel-tasks", "subprocess", "slot-reuse"],
+    "Parallel Variable Key Lab reuse (parallel group re-writes an earlier slot)",
+    start("start", "spawning"),
+    [
+        state("spawning", 1, 0, "Spawning (first start, parallel re-write, slot recorder)",
+              [transition("auto-spawned", "spawned", 1, "Auto to spawned")],
+              on_entries=REUSE_ON_ENTRIES),
+        state("spawned", 2, 0, "Spawned (waits Active)"),
+    ],
+)
+
 # ── pvk-child: started by every spawn run; parks and never finishes ───────────
 child = envelope(
     "pvk-child",
@@ -135,7 +159,7 @@ child = envelope(
     ],
 )
 
-for doc in (parent, child):
+for doc in (parent, reuse, child):
     path = ROOT / f"{doc['key']}.json"
     path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"wrote {path.name}")

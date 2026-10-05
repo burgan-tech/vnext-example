@@ -46,6 +46,37 @@ public class ParallelVariableKeyLabTests : WorkflowTestBase
         }
     }
 
+    /// <summary>
+    /// A parallel group re-writing a slot an earlier order left behind overwrites it, as a sequential
+    /// run would. Before the slot-aware merge this faulted with "conflicting output".
+    /// </summary>
+    [Fact]
+    public async Task ParallelGroupReusingAnEarlierSlot_OverwritesIt()
+    {
+        const string Reuse = "pvk-reuse";
+        var id = await StartAsync(Reuse, new { });
+
+        await WaitUntilAsync(async () => (await GetInstanceStateAsync(Reuse, id)).State == "spawned",
+            $"pvk-reuse never reached 'spawned' — {await DescribeAsync(Reuse, id)}", TimeSpan.FromSeconds(60));
+
+        var (_, status) = await GetInstanceStateAsync(Reuse, id);
+        Assert.NotEqual("F", status);
+
+        var data = await GetAttributesAsync(Reuse, id);
+        var first = data.GetProperty("firstChildId").GetString();
+        var reused = data.GetProperty("reusedChildId").GetString();
+        var other = data.GetProperty("otherChildId").GetString();
+
+        Assert.False(string.IsNullOrEmpty(first), "order-1 slot was empty");
+        Assert.False(string.IsNullOrEmpty(reused), "re-written pvkSpawnChild slot was empty");
+        Assert.False(string.IsNullOrEmpty(other), "otherChild slot was empty");
+        // reused != first proves the order-2 write replaced the order-1 value.
+        Assert.Equal(3, new[] { first, reused, other }.Distinct().Count());
+
+        foreach (var childId in new[] { first!, reused!, other! })
+            Assert.Equal("waiting", (await GetInstanceStateAsync("pvk-child", childId)).State);
+    }
+
     [Fact]
     public async Task Publish_SameTaskTwiceAtOneOrder_WithoutVariableKey_Returns400()
     {
