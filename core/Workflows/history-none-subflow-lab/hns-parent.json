@@ -1,0 +1,144 @@
+{
+  "key": "hns-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "history-none-subflow-lab",
+    "parent"
+  ],
+  "attributes": {
+    "type": "F",
+    "history": "none",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "History None SubFlow Lab parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "hns-prepare",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "hns-prepare",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Prepare parentToken"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "hns-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/HnsPrepareMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBoaXN0b3J5LW5vbmUtc3ViZmxvdy1sYWI6IHdyaXRlcyBwYXJlbnRUb2tlbiBiZWZvcmUgdGhlIFN1YkZsb3cgc3RhdGUuIEl0IGlzIG9ubHkgaW4gdGhlIHBhcmVudCdzCi8vLyBpbi1tZW1vcnkgYnVmZmVyIHVudGlsIHRoZSBoYW5kb2ZmIHdyaXRlcyBpdCDigJQgdGhlIGNoaWxkJ3MgaW5wdXQgbWFwcGluZyByZWFkcyB0aGUgcGFyZW50IGZyb20gdGhlCi8vLyBkYXRhYmFzZSwgc28gYSBjaGlsZEVjaG8gZXF1YWwgdG8gcGFyZW50VG9rZW4gcHJvdmVzIHRoZSBoYW5kb2ZmIGZsdXNoLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSG5zUHJlcGFyZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIHZhciB0b2tlbiA9IGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJ0b2tlbiIsIG91dCB2YXIgdmFsdWUpID8gdmFsdWU/LlRvU3RyaW5nKCkgOiAibm9uZSI7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdClbInBhcmVudFRva2VuIl0gPSAidG9rLSIgKyB0b2tlbjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-sub",
+            "target": "hns-sub",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "hns-sub",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow hns-child"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "hns-child",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.0"
+          },
+          "mapping": {
+            "location": "./src/HnsParentToChildMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gaGlzdG9yeS1ub25lLXN1YmZsb3ctbGFiOiBoYW5kcyBwYXJlbnRUb2tlbiB0byB0aGUgY2hpbGQgYW5kIHRha2VzIGNoaWxkRWNobyBiYWNrIGFzIGNoaWxkUmVzdWx0LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSG5zUGFyZW50VG9DaGlsZE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGR5bmFtaWMgaW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KWlucHV0KVsicGFyZW50VG9rZW4iXSA9CiAgICAgICAgICAgIGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJwYXJlbnRUb2tlbiIsIG91dCB2YXIgdG9rZW4pID8gdG9rZW4gOiBudWxsOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGlucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgZHluYW1pYyBvdXRwdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KW91dHB1dClbImNoaWxkUmVzdWx0Il0gPQogICAgICAgICAgICBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgiY2hpbGRFY2hvIiwgb3V0IHZhciBlY2hvKSA/IGVjaG8gOiBudWxsOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG91dHB1dCB9KTsKICAgIH0KfQo="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-done",
+            "target": "hns-done",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "hns-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "key": "hn-full-control",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "history-none-lab",
+    "full-history-control"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "History None Lab full-history control"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "hn-collect",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "hn-collect",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Collect (seed, two parallel slots, summary)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "hn-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/HnSeedMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+aGlzdG9yeS1ub25lLWxhYjogV3JpdGVzIHNlZWRlZD10cnVlIChvcmRlciAxKS48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBIblNlZWRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICAoKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQpWyJzZWVkZWQiXSA9IHRydWU7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "hn-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/HnLeftMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+aGlzdG9yeS1ub25lLWxhYjogT3JkZXItMiBwYXJhbGxlbCBicmFuY2gsIHZhcmlhYmxlS2V5IGxlZnQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSG5MZWZ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgKChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0KVsibGVmdCJdID0gMTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            },
+            "variableKey": "left"
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "hn-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/HnRightMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+aGlzdG9yeS1ub25lLWxhYjogT3JkZXItMiBwYXJhbGxlbCBicmFuY2gsIHZhcmlhYmxlS2V5IHJpZ2h0Ljwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEhuUmlnaHRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICAoKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQpWyJyaWdodCJdID0gMjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            },
+            "variableKey": "right"
+          },
+          {
+            "order": 3,
+            "task": {
+              "key": "hn-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/HnSummarizeMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGhpc3Rvcnktbm9uZS1sYWI6IG9yZGVyIDMgcmVhZHMgd2hhdCBvcmRlcnMgMSBhbmQgMiB3cm90ZS4gVGhlIGRhdGEgaXMgb25seSBpbiB0aGUgaW4tbWVtb3J5Ci8vLyBidWZmZXIgYXQgdGhpcyBwb2ludCAoaGlzdG9yeTogbm9uZSB3cml0ZXMgbm90aGluZyB1bnRpbCBGaW5pc2gpLCBzbyBhIGNvcnJlY3Qgc3VtbWFyeSBwcm92ZXMKLy8vIHRoZSBidWZmZXJlZCBoZWFkIGlzIHdoYXQgbGF0ZXIgdGFza3MgcmVhZCDigJQgcGFyYWxsZWwgYnJhbmNoZXMgaW5jbHVkZWQuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBIblN1bW1hcml6ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICAoKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQpWyJzdW1tYXJ5Il0gPSBOdW1iZXIoZGF0YSwgImxlZnQiKSArIE51bWJlcihkYXRhLCAicmlnaHQiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgZGVjaW1hbCBOdW1iZXIoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGRhdGEsIHN0cmluZyBrZXkpID0+CiAgICAgICAgZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHZhbHVlKSAmJiB2YWx1ZSAhPSBudWxsCiAgICAgICAgICAgID8gQ29udmVydC5Ub0RlY2ltYWwodmFsdWUuVG9TdHJpbmcoKSwgU3lzdGVtLkdsb2JhbGl6YXRpb24uQ3VsdHVyZUluZm8uSW52YXJpYW50Q3VsdHVyZSkKICAgICAgICAgICAgOiAwbTsKfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-route",
+            "target": "hn-route",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to route"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "hn-route",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Route by amount"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-high",
+            "target": "hn-done-high",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "High amount"
+              }
+            ],
+            "rule": {
+              "location": "./src/HnHighRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5oaXN0b3J5LW5vbmUtbGFiOiBhbW91bnQgYWJvdmUgMTAwIHJvdXRlcyB0byBobi1kb25lLWhpZ2guIFJlYWRzIHRoZSBidWZmZXJlZCBkYXRhIChub3RoaW5nIGlzIHBlcnNpc3RlZCB5ZXQpLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEhuSGlnaFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIGFtb3VudCA9IGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJhbW91bnQiLCBvdXQgdmFyIHZhbHVlKSAmJiB2YWx1ZSAhPSBudWxsCiAgICAgICAgICAgID8gQ29udmVydC5Ub0RlY2ltYWwodmFsdWUuVG9TdHJpbmcoKSwgU3lzdGVtLkdsb2JhbGl6YXRpb24uQ3VsdHVyZUluZm8uSW52YXJpYW50Q3VsdHVyZSkKICAgICAgICAgICAgOiAwbTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KGFtb3VudCA+IDEwMG0pOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "key": "to-low",
+            "target": "hn-done-low",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Low amount"
+              }
+            ],
+            "rule": {
+              "location": "./src/HnLowRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5oaXN0b3J5LW5vbmUtbGFiOiBhbW91bnQgdXAgdG8gMTAwIHJvdXRlcyB0byBobi1kb25lLWxvdy4gUmVhZHMgdGhlIGJ1ZmZlcmVkIGRhdGEgKG5vdGhpbmcgaXMgcGVyc2lzdGVkIHlldCkuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSG5Mb3dSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIHZhciBhbW91bnQgPSBkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgiYW1vdW50Iiwgb3V0IHZhciB2YWx1ZSkgJiYgdmFsdWUgIT0gbnVsbAogICAgICAgICAgICA/IENvbnZlcnQuVG9EZWNpbWFsKHZhbHVlLlRvU3RyaW5nKCksIFN5c3RlbS5HbG9iYWxpemF0aW9uLkN1bHR1cmVJbmZvLkludmFyaWFudEN1bHR1cmUpCiAgICAgICAgICAgIDogMG07CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChhbW91bnQgPD0gMTAwbSk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "hn-done-high",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done (high)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "hn-done-low",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done (low)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "key": "hn-stuck",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "history-none-lab",
+    "history-none",
+    "non-terminal-rest"
+  ],
+  "attributes": {
+    "type": "F",
+    "history": "none",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "History None Lab stuck gate"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "hn-gate",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "hn-gate",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Gate (no automatic rule ever fires)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "never-a",
+            "target": "hn-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Never A"
+              }
+            ],
+            "rule": {
+              "location": "./src/HnNeverRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5oaXN0b3J5LW5vbmUtbGFiOiBuZXZlciBzYXRpc2ZpZWQg4oCUIHRoZSBobi1zdHVjayBnYXRlIGNhbm5vdCBsZWF2ZSBpdHMgc3RhdGUuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSG5OZXZlclJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KGZhbHNlKTsKfQo="
+            }
+          },
+          {
+            "key": "never-b",
+            "target": "hn-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Never B"
+              }
+            ],
+            "rule": {
+              "location": "./src/HnNeverRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5oaXN0b3J5LW5vbmUtbGFiOiBuZXZlciBzYXRpc2ZpZWQg4oCUIHRoZSBobi1zdHVjayBnYXRlIGNhbm5vdCBsZWF2ZSBpdHMgc3RhdGUuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSG5OZXZlclJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KGZhbHNlKTsKfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "hn-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done (unreachable at runtime)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
