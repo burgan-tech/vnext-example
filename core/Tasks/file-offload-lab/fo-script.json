@@ -1,0 +1,15 @@
+{
+  "key": "fo-script",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "file-offload-lab",
+    "script-task"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

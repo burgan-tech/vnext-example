@@ -1,0 +1,73 @@
+{
+  "key": "fo-missing-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-lab",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:fo-missing-master",
+      "title": "File Offload Lab Missing Binding Master",
+      "description": "x-storage names a binding component that does not exist on the sidecar: a content upload is 503 Instance:100047 and creates no instance.",
+      "type": "object",
+      "properties": {
+        "passport": {
+          "type": "object",
+          "description": "Binding does not exist.",
+          "x-storage": {
+            "binding": "vnext-blob-missing"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

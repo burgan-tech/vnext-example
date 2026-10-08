@@ -1,0 +1,76 @@
+{
+  "key": "fo-parent-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-lab",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:fo-parent-master",
+      "title": "File Offload Lab Parent Master",
+      "description": "fo-parent declares the same passport x-storage field: a request the parent FORWARDS to its active SubFlow must still be swapped by the leaf (owner = child), not by the parent.",
+      "type": "object",
+      "properties": {
+        "passport": {
+          "type": "object",
+          "description": "Same path as the child's, to catch a parent-side swap.",
+          "x-storage": {
+            "binding": "vnext-blob-local"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
