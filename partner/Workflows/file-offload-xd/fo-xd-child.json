@@ -1,0 +1,105 @@
+{
+  "key": "fo-xd-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "partner",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-xd",
+    "cross-domain-lab",
+    "child",
+    "partner"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Cross-domain x-storage child (partner)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "fo-xd-child-master",
+      "domain": "partner",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "child-waiting",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child waiting for upload"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-upload",
+            "target": "child-waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Child upload"
+              }
+            ]
+          },
+          {
+            "key": "child-finish",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Child finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "child-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "key": "fo-xd-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-xd",
+    "cross-domain-lab",
+    "parent"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Cross-domain x-storage parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "fo-xd-parent-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "p-hub",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "p-hub",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Hub"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "enter-child",
+            "target": "p-child",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter partner child"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "p-child",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow partner/fo-xd-child"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "fo-xd-child",
+            "domain": "partner",
+            "flow": "sys-flows",
+            "version": "1.0.0"
+          },
+          "mapping": {
+            "location": "./src/FoXdParentToChildMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gZmlsZS1vZmZsb2FkLXhkOiBjb3JlIGZvLXhkLXBhcmVudCBzdGFydHMgcGFydG5lciBmby14ZC1jaGlsZCB3aXRoIGEgbm90ZSBvbmx5OyBubyBmaWxlIGlzIGhhbmRlZCBkb3duLgovLy8gT3V0cHV0SGFuZGxlciBjb3BpZXMgbm90aGluZyBiYWNrLCBzbyBhIGNoaWxkIGhhbmRsZSBjYW4gbmV2ZXIgcmVhY2ggdGhlIHBhcmVudCdzIGRhdGEgdGhyb3VnaCB0aGUgbWFwcGluZyDigJQKLy8vIHRoZSBwYXJlbnQtZGF0YSBhc3NlcnRpb25zIHRoZW4gcGluIHRoZSBmb3J3YXJkIHBhdGggYWxvbmUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGb1hkUGFyZW50VG9DaGlsZE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBpbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4paW5wdXQ7CiAgICAgICAgdGFyZ2V0WyJub3RlIl0gPSAic3RhcnRlZC1ieS1jb3JlLXBhcmVudCI7CiAgICAgICAgdGFyZ2V0WyJwYXJlbnRJbnN0YW5jZUlkIl0gPSBjb250ZXh0Lkluc3RhbmNlPy5JZC5Ub1N0cmluZygpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGlucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG5ldyBFeHBhbmRvT2JqZWN0KCkgfSk7Cn0K"
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-done",
+            "target": "p-done",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "p-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

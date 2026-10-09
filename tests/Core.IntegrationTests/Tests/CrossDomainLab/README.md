@@ -43,6 +43,7 @@ bekler, status'u değil. Her task ayrı transition'da: kırmızı bir test tek b
 | `SubflowDescentTests` | 01–06 | child start (partner'da), `state`/`view`/`schema`/`authorize` descent'i, `data?extensions=` descent'i (gövde parent'ta kalır — runtime kararı), parent üzerinden `child-approve` forward + parent resume |
 | `TriggerTaskTests` | 07–11 | 14 fire-and-forget worker, 11 sync start (+`remoteInstanceId`/`remoteKey`), 12 `remote-advance`, 19+13 okuma (`remoteState`, `remoteData.testId`), 15 `attributes.testId` filtresiyle liste |
 | `DiscoveryWarmUpTests` | 12–14 | registry'nin `domain-list` sözleşmesi (düz `items[]`, dört alan, sayfalama zarfı **yok**), `POST utilities/discovery/refresh` → `Refreshed` (runtime function'ı okuyup cache'i yazdı), yeni bir kayıttan sonra listenin büyümesi ve warm-up'ın hâlâ başarılı olması |
+| `FileOffloadCrossDomainTests` | XS-01–05 | `x-storage` domain sınırında: partner yaprağa proxy'lenen sync/async yükleme, leaf-owned handle (partner binding'i + owner), partner `functions/file` 200 / core parent 404, core'dan `GetFileAsync("partner", …)` — bkz. § x-storage |
 
 `CrossDomainLabFixture` partner bileşenlerini (`partner/`, `vnext.partner.config.json`) bir kez yayınlar —
 harici-stack modunda SDK'nın `OnAfterEnvironmentReadyAsync` hook'u çağrılmadığı için fixture'da.
@@ -99,6 +100,51 @@ master @ `1104d8ae`, lab `dapr-nr` imajları (aynı gün derlendi). `dapr` provi
   24 saat listede görünmez. Zaman çizelgesi ve öneri: `TEST-SCENARIOS.md` § Bilinen Kapsam Açıkları.
 - **MockLab lab'da yok:** konteynerdeki core `localhost:3001`'e erişemez; lab'da yalnız cross-domain
   suite'leri koşulur, MockLab'e bağlı suite'ler yerel host runtime'ında (`run-docker.sh up core`).
+
+## x-storage cross-domain (`file-offload-xd`, vnext-client-sdk-core#101)
+
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-file-offload.md` (XS-01..XS-06). Bileşenler
+`core/Workflows/file-offload-xd/build-file-offload-xd.py` ile `./src/*.csx`'ten üretilir (core VE partner
+dosyalarını birlikte yazar; sonra `python3 labs/cross-domain/encode-scripts.py core/Workflows/file-offload-xd`).
+
+```
+core/fo-xd-parent (F, master fo-xd-parent-master — aynı passport x-storage yolu, parent-tarafı swap'ı yakalamak için)
+  p-hub ─enter-child→ p-child (4: S → partner/fo-xd-child) ─auto→ p-done
+partner/fo-xd-child (S, master fo-xd-child-master — passport x-storage: vnext-blob-local)
+  child-waiting ─child-upload→ child-waiting ─child-finish→ child-done
+core/fo-xd-reader (F, şemasız)
+  r-waiting ─read {sourceDomain, sourceFlow, sourceInstance, sourceFileId}→ r-read [onEntry: GetFileAsync → checksum]
+```
+
+| Test | AC | Ölçtüğü |
+|---|---|---|
+| `EnterChild_StartsTheChildInPartner` | XS-01 | core parent'ın `state`'i `child-waiting`, korelasyon `subFlowDomain=partner` |
+| `SyncUpload_ThroughCoreParent_PartnerLeafOwnsTheHandle` | XS-02 | parent'a sync `child-upload` → 200 + parent id; partner verisinde handle (`component`, D-GUID, `size`, `eTag` = SHA-256, `owner = partner/fo-xd-child/<child>`); core parent verisinde/geçmişinde `content`, `passport` ve dosya id'si yok |
+| `AsyncUpload_ThroughCoreParent_Is202_AndThePartnerLeafOwnsTheHandle` | XS-03 | aynısı async → 202 + parent id, dinlenme sonrası aynı koşullar |
+| `FileFunction_PartnerServesTheBytes_CoreParentDoesNotDescend` | XS-04 | partner `functions/file` 200 (SHA-256 = eTag, `ETag` başlığı, mime); core parent'ın `functions/file`'ı aynı id'ye 404 `Instance:100049` |
+| `GetFileAsync_FromCore_ReadsThePartnerFile` | XS-05 | core script'i `GetFileAsync("partner", "fo-xd-child", child, file)` → checksum = eTag, ad/mime/eTag handle'la aynı |
+
+Notlar:
+
+- Okuyucunun gövde anahtarı bilerek `file` **değil** (`sourceFileId`): runtime `content`/`file` üyesi taşıyan her
+  nesneyi dosya referansı sayar ve şemasız bir akışta onu reddedebilir.
+- Child `child-upload`'da kendine döner (plan taslağında `child-done`'a gidiyordu): yaprak aktif kaldığı için core
+  parent'ın `functions/file` 404'ü gerçek bir "iniş yok" kontrolü ve `GetFileAsync` aktif bir instance'ı okur.
+- Parent subflow ömrü boyunca Busy (`B`) — tasarım gereği, yukarıdaki notla aynı.
+- **XS-06 elle:** sidecar imajı distroless (`ls` yok); `docker cp vnext-orchestration-dapr-partner:/tmp/vnext-blobs <dir>`
+  ve aynısı `-core` için. Beklenen: nesneler (dosya adı = handle'ın `file` GUID'i, `shasum -a 256` = `eTag`) yalnız
+  partner'da.
+
+### 2026-10-09 koşusu
+
+Lab imajları vnext `feature/file-offload-x-storage`'dan, `ServiceDiscovery:Provider=dapr`, Dapr 1.18.0, her
+domain'in orchestration sidecar'ında `vnext-blob-local`. `FileOffloadCrossDomain` **5/5** ilk koşuda yeşil; tüm
+`CrossDomainLab` **17 geçti / 2 skip / 0 kırmızı** (skip'ler `dapr` provider'da beklenen warm-up testleri).
+XS-06: partner deposunda 4 nesne (boyutlar 2048/3000/4096/8192, SHA-256'lar eTag'lere eşit), core deposu boş.
+Postgres: core `fo_xd_parent` satırlarında `child-upload` kaydı yok (yalnız `start`/`enter-child`, gövdeler ≤ 21
+bayt), `InstancesData` `content`/`passport` taşımıyor; partner `fo_xd_child.InstanceTransitions.child-upload`
+gövdesi yalnız handle (≤ 348 bayt). Core'un uzak okuması log'da
+`/v1.0/invoke/vnext-app-partner/method/api/v1/partner/workflows/fo-xd-child/instances/<id>/internal/file` → 200.
 
 ## Başarı kriteri / bilinen kısıtlar
 

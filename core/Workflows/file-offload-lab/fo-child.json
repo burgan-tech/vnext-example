@@ -1,0 +1,103 @@
+{
+  "key": "fo-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "file-offload-lab",
+    "child"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "File Offload Lab child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "fo-child-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "c-waiting",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "c-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child waiting for upload"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-upload",
+            "target": "c-waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Child upload"
+              }
+            ]
+          },
+          {
+            "key": "child-finish",
+            "target": "c-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Child finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "c-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

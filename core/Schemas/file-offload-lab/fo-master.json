@@ -1,0 +1,194 @@
+{
+  "key": "fo-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-lab",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:fo-master",
+      "title": "File Offload Lab Master",
+      "description": "Persisted shape of fo-flow. Every x-storage node describes the HANDLE the runtime stores (no content): the client's base64 upload never reaches the instance record.",
+      "type": "object",
+      "properties": {
+        "passport": {
+          "type": "object",
+          "description": "Single file field (object x-storage).",
+          "x-storage": {
+            "binding": "vnext-blob-local"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "files": {
+          "type": "array",
+          "description": "Array of files: the x-storage declaration is on the item schema.",
+          "items": {
+            "type": "object",
+            "description": "One file of the array.",
+            "x-storage": {
+              "binding": "vnext-blob-local"
+            },
+            "properties": {
+              "component": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "mimeType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "size": {
+                "type": "integer"
+              },
+              "eTag": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "flow": {
+                    "type": "string"
+                  },
+                  "instance": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "secret": {
+          "type": "object",
+          "description": "File hidden by x-roles: only fo.auditor sees it (data prunes it, functions/file answers 404).",
+          "x-storage": {
+            "binding": "vnext-blob-local"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "x-roles": [
+            {
+              "role": "fo.auditor",
+              "grant": "allow"
+            }
+          ]
+        },
+        "note": {
+          "type": "string",
+          "description": "Plain field: stays inline."
+        },
+        "relocated": {
+          "type": "boolean",
+          "description": "Set by the to-review transition mapping."
+        },
+        "checksum": {
+          "type": "string",
+          "description": "SHA-256 hex of the passport bytes read back by GetFileAsync in review's onEntry."
+        },
+        "checksumSize": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

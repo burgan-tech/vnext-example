@@ -1,0 +1,104 @@
+{
+  "key": "fo-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "file-offload-lab",
+    "parent"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "File Offload Lab parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "fo-parent-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "p-sub",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "p-sub",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow fo-child"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "fo-child",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.1"
+          },
+          "mapping": {
+            "location": "./src/FoParentToChildMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PmZpbGUtb2ZmbG9hZC1sYWI6IGZvLXBhcmVudCBzdGFydHMgZm8tY2hpbGQgd2l0aCBhIG5vdGUgb25seTsgbm8gZmlsZSBpcyBoYW5kZWQgZG93bi48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGb1BhcmVudFRvQ2hpbGRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVN1YkZsb3dNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgaW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgICgoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KWlucHV0KVsibm90ZSJdID0gInN0YXJ0ZWQtYnktcGFyZW50IjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBpbnB1dCB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBuZXcgRXhwYW5kb09iamVjdCgpIH0pOwp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-done",
+            "target": "p-done",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "p-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
