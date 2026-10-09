@@ -1,0 +1,82 @@
+{
+  "key": "fo-xd-child-master",
+  "version": "1.0.0",
+  "domain": "partner",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-xd",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:partner:fo-xd-child-master",
+      "title": "Cross-domain x-storage child master",
+      "description": "fo-xd-child (partner S SubFlow of core fo-xd-parent) owns the passport file in the partner sidecar's vnext-blob-local binding.",
+      "type": "object",
+      "properties": {
+        "passport": {
+          "type": "object",
+          "x-storage": {
+            "binding": "vnext-blob-local"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": "The child's file."
+        },
+        "note": {
+          "type": "string"
+        },
+        "parentInstanceId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "key": "fo-xd-parent-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-offload-xd",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "schema",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:fo-xd-parent-master",
+      "title": "Cross-domain x-storage parent master",
+      "description": "fo-xd-parent declares the child's passport path too: a request the parent FORWARDS to its partner child must be swapped by the leaf (owner = partner child), never by the core parent.",
+      "type": "object",
+      "properties": {
+        "passport": {
+          "type": "object",
+          "x-storage": {
+            "binding": "vnext-blob-local"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": "Same path as the partner child's, to catch a parent-side swap."
+        },
+        "note": {
+          "type": "string"
+        },
+        "parentInstanceId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
