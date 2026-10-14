@@ -1,0 +1,57 @@
+{
+  "key": "schema-roles-lab-update",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-roles-lab",
+    "x-encryption"
+  ],
+  "attributes": {
+    "type": "transition",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Güncelle"
+      },
+      {
+        "language": "en-US",
+        "label": "Update"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:schema-roles-lab-update",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "a": {
+          "type": "number"
+        },
+        "b": {
+          "type": "number"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "passwordEnc": {
+          "type": "string",
+          "format": "password",
+          "x-encryption": {
+            "source": "client",
+            "key": "urn:client:context:read:device:memory:device.hpke.publicKey",
+            "algorithm": "RSA-OAEP-256",
+            "encoding": "base64url"
+          }
+        }
+      }
+    }
+  }
+}
