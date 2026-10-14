@@ -1,0 +1,19 @@
+{
+  "key": "spl-db-helper",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-mappings",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-plugin-lab",
+    "helper",
+    "script-plugin"
+  ],
+  "attributes": {
+    "name": "SplDb",
+    "location": "./src/SplDbHelper.csx",
+    "code": "using System.Collections.Generic;\nusing System.Threading;\nusing System.Threading.Tasks;\nusing ScriptPluginLab.Sql;\n\nnamespace ScriptPluginLab.Helpers;\n\n/// <summary>\n/// script-plugin-lab — sys-mappings helper that wraps the plugin DLL (ScriptPluginLab.Sql). Same shape\n/// as a team's \"database helper\": the SQL lives here, consumers only call <see cref=\"SplDb.NextAsync\"/>\n/// and never touch the driver types. A consumer declares this helper in scripts.helpers and grants\n/// ScriptPluginLab.Sql in scripts.allowedAssemblies (the helper compiles under the consumer's grant).\n/// </summary>\npublic static class SplDb\n{\n    public static async Task<Dictionary<string, object?>> NextAsync(\n        string connectionString, int n, CancellationToken cancellationToken)\n    {\n        var probe = await SqlProbe.QueryAsync(\n            connectionString,\n            \"select @n::int + 1 as next, current_database() as db\",\n            new Dictionary<string, object?> { [\"n\"] = n },\n            cancellationToken: cancellationToken);\n\n        var data = new Dictionary<string, object?>\n        {\n            [\"ok\"] = probe.Ok,\n            [\"stage\"] = probe.Stage,\n            [\"error\"] = probe.Error,\n            [\"serverVersion\"] = probe.ServerVersion,\n            [\"loadId\"] = probe.LoadId\n        };\n        if (probe.Ok && probe.Rows.Count > 0)\n        {\n            data[\"next\"] = probe.Rows[0][\"next\"];\n            data[\"db\"] = probe.Rows[0][\"db\"];\n        }\n\n        return data;\n    }\n}\n",
+    "encoding": "NAT"
+  }
+}
