@@ -279,6 +279,53 @@ fails on `core/Workflows/human-task-chain/ht-a.json`, `ht-b.json`, `ht-c.json` (
 `ht-d`/`ht-e`/`ht-f` carry the same shape but are not in the core validate scope. The SDK publishes them
 directly.
 
+### A morph-idm role AND the behalf-of starter (2026-10-14)
+
+`IdmBehalfOfGrantTests`, flow `ht-idm-approval` (core, single level, human state `ht-idm-human`). The
+state's `queryRoles` is "(idmFirstApprover OR idmSuperUser) AND `$InstanceBehalfOfStarter`". Grants
+are depth 1, so it is written as the OR of two `allOf`s:
+
+```
+G1 allow allOf[idmFirstApprover, $InstanceBehalfOfStarter]
+G2 allow allOf[idmSuperUser,     $InstanceBehalfOfStarter]
+```
+
+The roles come from the **morph-idm** provider: no request carries a `role` header (a header would
+take precedence and morph-idm would not be asked). The MockLab seed `morph-idm-roles-collection.json`
+answers `get-roles` keyed on `header.sub`. Each case is started by `act_sub = u-idm-agent` on behalf of
+the `sub` named below, so `CreatedByBehalfOf` is that user.
+
+| Test | Started on behalf of | List read by (`sub`) | morph-idm roles | Expected |
+|---|---|---|---|---|
+| `FirstApprover_OnWhoseBehalfTheCaseWasStarted_SeesTheTask` | `idm-first-approver` | same | `idmFirstApprover` | listed (G1) |
+| `SuperUser_OnWhoseBehalfTheCaseWasStarted_SeesTheTask` | `idm-super-user` | same | `idmSuperUser` | listed (G2) |
+| `ARoleHolder_WhoIsNotTheBehalfOfStarter_DoesNotSeeTheTask` | `idm-first-approver` | `idm-first-approver-2`, `idm-super-user` | an admitted role | not listed |
+| `TheBehalfOfStarter_WithoutEitherRole_DoesNotSeeTheTask` | `idm-other` | same | `idmOther` | not listed |
+
+Each negative is read only after a positive read of the same list, so a red cannot hide behind a list
+that is not current yet.
+
+The class skips unless `VNEXT_CALLER_ROLE_PROVIDER=morph-idm`, and the runtime has to be started with
+that provider aimed at MockLab:
+
+```bash
+cd ../vnext/etc/docker
+CallerRoleProvider__Provider=morph-idm \
+CallerRoleProvider__MorphIdm__BaseUrl=http://localhost:3001 \
+CallerRoleProvider__MorphIdm__GetRolesPath=/api/1/morph-idm/functions/get-roles \
+  ./run-docker.sh up core
+cd ../../../vnext-example && docker compose up -d   # seed changes need `docker compose down -v` first
+VNEXT_CALLER_ROLE_PROVIDER=morph-idm dotnet test tests/Core.IntegrationTests \
+  --settings tests/Core.IntegrationTests/test.runsettings --filter "FullyQualifiedName~IdmBehalfOfGrantTests"
+```
+
+**2026-10-14, core only, vnext master @ `db8ba1ce`, morph-idm provider: 4/4 green.** Postgres
+(`ht_idm_approval."Instances"`): 5 instances, all `CreatedBy = u-idm-agent`, `CreatedByBehalfOf` = the
+starter's `sub`, `ht-idm-human` / `A`, `EffectiveStateSubType = 6`, `Type = R`. MockLab `_admin/logs`:
+11 `get-roles` calls (`idm-first-approver` 4, `idm-super-user` 3, `idm-other` 2,
+`idm-first-approver-2` 2), none carrying a `role` header, so the roles did come from the provider.
+Not checked against traces (OpenObserve and Elasticsearch were unreachable).
+
 ### The response cache is part of the authorization surface
 
 `TheResponseCacheDoesNotServeOneCallersListToAnother` is the only test here that deliberately does

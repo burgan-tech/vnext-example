@@ -1,0 +1,223 @@
+{
+  "key": "ht-idm-approval",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "human-task-chain",
+    "human-task",
+    "morph-idm",
+    "core"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Human Task IDM Approval (core)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-ht-idm",
+      "target": "ht-idm-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel ht-idm-approval"
+        }
+      ],
+      "roles": [
+        {
+          "grant": "allow",
+          "allOf": [
+            {
+              "role": "idmFirstApprover"
+            },
+            {
+              "role": "$InstanceBehalfOfStarter"
+            }
+          ]
+        },
+        {
+          "grant": "allow",
+          "allOf": [
+            {
+              "role": "idmSuperUser"
+            },
+            {
+              "role": "$InstanceBehalfOfStarter"
+            }
+          ]
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-ht-idm",
+      "target": "ht-idm-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ht-idm-approval"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ht-idm-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-idm initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-idm-to-human",
+            "target": "ht-idm-human",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-idm: rest in the human state"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-idm-human",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-idm human task"
+          }
+        ],
+        "queryRoles": [
+          {
+            "grant": "allow",
+            "allOf": [
+              {
+                "role": "idmFirstApprover"
+              },
+              {
+                "role": "$InstanceBehalfOfStarter"
+              }
+            ]
+          },
+          {
+            "grant": "allow",
+            "allOf": [
+              {
+                "role": "idmSuperUser"
+              },
+              {
+                "role": "$InstanceBehalfOfStarter"
+              }
+            ]
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ht-idm-approve",
+            "target": "ht-idm-completed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "ht-idm: approve"
+              }
+            ],
+            "roles": [
+              {
+                "grant": "allow",
+                "allOf": [
+                  {
+                    "role": "idmFirstApprover"
+                  },
+                  {
+                    "role": "$InstanceBehalfOfStarter"
+                  }
+                ]
+              },
+              {
+                "grant": "allow",
+                "allOf": [
+                  {
+                    "role": "idmSuperUser"
+                  },
+                  {
+                    "role": "$InstanceBehalfOfStarter"
+                  }
+                ]
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "ht-idm-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-idm completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "ht-idm-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "ht-idm cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
