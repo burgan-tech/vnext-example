@@ -1,0 +1,53 @@
+{
+  "key": "spl-helper-query",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-plugin-lab",
+    "function",
+    "script-plugin"
+  ],
+  "attributes": {
+    "scope": "D",
+    "rawResponse": false,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Script Plugin Lab — Helper Query"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Script Plugin Lab — Helper Query"
+      }
+    ],
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "spl-script",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/SplHelperQueryMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBTY3JpcHRQbHVnaW5MYWIuSGVscGVyczsKCi8vLyA8c3VtbWFyeT4KLy8vIHNjcmlwdC1wbHVnaW4tbGFiIOKAlCBIRUxQRVIgcGF0aDogdGhlIG1hcHBpbmcgcmVhY2hlcyB0aGUgcGx1Z2luIERMTCBvbmx5IHRocm91Z2ggdGhlIHN5cy1tYXBwaW5ncwovLy8gaGVscGVyIHNwbC1kYi1oZWxwZXIgKHNjcmlwdHMuaGVscGVycyksIHRoZSB3YXkgYSB0ZWFtJ3MgZGF0YWJhc2UgaGVscGVyIGlzIGNvbnN1bWVkLiBTYW1lIHF1ZXJ5IGFzCi8vLyBzcGwtZGlyZWN0LXF1ZXJ5OyB0aGUgdHdvIHRvZ2V0aGVyIHByb3ZlIGJvdGggcGF0aHMgcnVuIHRoZSBTQU1FIGxvYWRlZCBjb3B5IG9mIHRoZSBwbHVnaW4uCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTcGxIZWxwZXJRdWVyeU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgYXN5bmMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGNvbm5lY3Rpb25TdHJpbmcgPSBHZXRDb25maWdWYWx1ZSgiU2NyaXB0UGx1Z2luTGFiOkNvbm5lY3Rpb25TdHJpbmciKTsKICAgICAgICBpZiAoc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShjb25uZWN0aW9uU3RyaW5nKSkKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgRGF0YSA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0Pz4geyBbInBhdGgiXSA9ICJoZWxwZXIiLCBbImNvbmZpZ3VyZWQiXSA9IGZhbHNlIH0KICAgICAgICAgICAgfTsKICAgICAgICB9CgogICAgICAgIHZhciBkYXRhID0gYXdhaXQgU3BsRGIuTmV4dEFzeW5jKGNvbm5lY3Rpb25TdHJpbmcsIDQxLCBjb250ZXh0LkNhbmNlbGxhdGlvblRva2VuKTsKICAgICAgICBkYXRhWyJwYXRoIl0gPSAiaGVscGVyIjsKICAgICAgICBkYXRhWyJjb25maWd1cmVkIl0gPSB0cnVlOwogICAgICAgIGRhdGFbInRva2VuQ2FuQmVDYW5jZWxlZCJdID0gY29udGV4dC5DYW5jZWxsYXRpb25Ub2tlbi5DYW5CZUNhbmNlbGVkOwogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9OwogICAgfQp9Cg==",
+        "scripts": {
+          "helpers": [
+            {
+              "key": "spl-db-helper",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-mappings"
+            }
+          ],
+          "allowedAssemblies": [
+            "ScriptPluginLab.Sql"
+          ]
+        }
+      }
+    }
+  }
+}

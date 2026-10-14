@@ -1,0 +1,45 @@
+{
+  "key": "spl-direct-query",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "script-plugin-lab",
+    "function",
+    "script-plugin"
+  ],
+  "attributes": {
+    "scope": "D",
+    "rawResponse": false,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Script Plugin Lab — Direct Query (helper-less)"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Script Plugin Lab — Direct Query (helper-less)"
+      }
+    ],
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "spl-script",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/SplDirectQueryMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBTY3JpcHRQbHVnaW5MYWIuU3FsOwoKLy8vIDxzdW1tYXJ5PgovLy8gc2NyaXB0LXBsdWdpbi1sYWIg4oCUIEhFTFBFUi1MRVNTIHBhdGg6IHRoZSBtYXBwaW5nIGNhbGxzIHRoZSBwbHVnaW4gRExMIChTY3JpcHRQbHVnaW5MYWIuU3FsLCBtb3VudGVkCi8vLyBpbiBTY3JpcHRpbmc6U2FuZGJveDpQbHVnaW5EaXJlY3RvcnkgYW5kIGdyYW50ZWQgdGhyb3VnaCBzY3JpcHRzLmFsbG93ZWRBc3NlbWJsaWVzKSBkaXJlY3RseSwgd2l0aCBubwovLy8gc3lzLW1hcHBpbmdzIGhlbHBlciBpbiBiZXR3ZWVuLiBSdW5zIG9uZSByZWFkLW9ubHksIHBhcmFtZXRlcmlzZWQgcXVlcnkgYWdhaW5zdCBQb3N0Z3JlU1FMLgovLy8gPHBhcmE+Ci8vLyBUaGUgY29ubmVjdGlvbiBzdHJpbmcgY29tZXMgZnJvbSBob3N0IGNvbmZpZ3VyYXRpb24gKFNjcmlwdFBsdWdpbkxhYjpDb25uZWN0aW9uU3RyaW5nKTsgd2hlbiBpdCBpcwovLy8gbm90IHNldCB0aGUgbWFwcGluZyBhbnN3ZXJzIGNvbmZpZ3VyZWQgPSBmYWxzZSBhbmQgdGhlIHRlc3Qgc2tpcHMgaW5zdGVhZCBvZiBmYWlsaW5nLgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU3BsRGlyZWN0UXVlcnlNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CgogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q/PgogICAgICAgIHsKICAgICAgICAgICAgWyJwYXRoIl0gPSAiaGVscGVybGVzcyIsCiAgICAgICAgICAgIFsidG9rZW5DYW5CZUNhbmNlbGVkIl0gPSBjb250ZXh0LkNhbmNlbGxhdGlvblRva2VuLkNhbkJlQ2FuY2VsZWQKICAgICAgICB9OwoKICAgICAgICB2YXIgY29ubmVjdGlvblN0cmluZyA9IEdldENvbmZpZ1ZhbHVlKCJTY3JpcHRQbHVnaW5MYWI6Q29ubmVjdGlvblN0cmluZyIpOwogICAgICAgIGRhdGFbImNvbmZpZ3VyZWQiXSA9ICFzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGNvbm5lY3Rpb25TdHJpbmcpOwogICAgICAgIGlmIChzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGNvbm5lY3Rpb25TdHJpbmcpKQogICAgICAgICAgICByZXR1cm4gbmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGRhdGEgfTsKCiAgICAgICAgdmFyIHByb2JlID0gYXdhaXQgU3FsUHJvYmUuUXVlcnlBc3luYygKICAgICAgICAgICAgY29ubmVjdGlvblN0cmluZywKICAgICAgICAgICAgInNlbGVjdCBAbjo6aW50ICsgMSBhcyBuZXh0LCBjdXJyZW50X2RhdGFiYXNlKCkgYXMgZGIiLAogICAgICAgICAgICBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD8+IHsgWyJuIl0gPSA0MSB9LAogICAgICAgICAgICBjYW5jZWxsYXRpb25Ub2tlbjogY29udGV4dC5DYW5jZWxsYXRpb25Ub2tlbik7CgogICAgICAgIGRhdGFbIm9rIl0gPSBwcm9iZS5PazsKICAgICAgICBkYXRhWyJzdGFnZSJdID0gcHJvYmUuU3RhZ2U7CiAgICAgICAgZGF0YVsiZXJyb3IiXSA9IHByb2JlLkVycm9yOwogICAgICAgIGRhdGFbInNlcnZlclZlcnNpb24iXSA9IHByb2JlLlNlcnZlclZlcnNpb247CiAgICAgICAgZGF0YVsibG9hZElkIl0gPSBwcm9iZS5Mb2FkSWQ7CiAgICAgICAgaWYgKHByb2JlLk9rICYmIHByb2JlLlJvd3MuQ291bnQgPiAwKQogICAgICAgIHsKICAgICAgICAgICAgZGF0YVsibmV4dCJdID0gcHJvYmUuUm93c1swXVsibmV4dCJdOwogICAgICAgICAgICBkYXRhWyJkYiJdID0gcHJvYmUuUm93c1swXVsiZGIiXTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gZGF0YSB9OwogICAgfQp9Cg==",
+        "scripts": {
+          "allowedAssemblies": [
+            "ScriptPluginLab.Sql"
+          ]
+        }
+      }
+    }
+  }
+}
