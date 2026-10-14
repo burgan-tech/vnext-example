@@ -1,0 +1,196 @@
+{
+  "key": "schema-roles-lab-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-roles-lab",
+    "x-computed",
+    "x-encryption"
+  ],
+  "attributes": {
+    "type": "master",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Şema Rolleri Lab Verisi"
+      },
+      {
+        "language": "en-US",
+        "label": "Schema Roles Lab Data"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:schema-roles-lab-master",
+      "type": "object",
+      "properties": {
+        "testId": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string",
+          "x-roles": [
+            {
+              "role": "srl.admin",
+              "grant": "allow"
+            }
+          ]
+        },
+        "fullName": {
+          "type": "string",
+          "readOnly": true,
+          "x-computed": {
+            "evaluatedBy": "runtime",
+            "cases": [
+              {
+                "when": {
+                  "field": "kind",
+                  "operator": "equals",
+                  "value": "corporate"
+                },
+                "join": {
+                  "fields": [
+                    "title"
+                  ]
+                }
+              }
+            ],
+            "fallback": {
+              "join": {
+                "fields": [
+                  "firstName",
+                  "lastName"
+                ],
+                "separator": " "
+              }
+            }
+          }
+        },
+        "a": {
+          "type": "number"
+        },
+        "b": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number",
+          "readOnly": true,
+          "x-computed": {
+            "evaluatedBy": "runtime",
+            "fallback": {
+              "arithmetic": {
+                "op": "add",
+                "fields": [
+                  "a",
+                  "b"
+                ]
+              }
+            }
+          }
+        },
+        "ratio": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ],
+          "readOnly": true,
+          "x-computed": {
+            "evaluatedBy": "runtime",
+            "whenAbsent": "null",
+            "fallback": {
+              "arithmetic": {
+                "op": "divide",
+                "fields": [
+                  "a",
+                  "b"
+                ]
+              }
+            }
+          }
+        },
+        "nickname": {
+          "type": "string",
+          "readOnly": true,
+          "x-computed": {
+            "evaluatedBy": "client",
+            "fallback": {
+              "join": {
+                "fields": [
+                  "firstName"
+                ]
+              }
+            }
+          }
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            },
+            "district": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string",
+              "readOnly": true,
+              "x-computed": {
+                "evaluatedBy": "runtime",
+                "fallback": {
+                  "join": {
+                    "fields": [
+                      "district",
+                      "city"
+                    ],
+                    "separator": ", "
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pin": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq"
+          ],
+          "x-encryption": {
+            "source": "client",
+            "key": "urn:client:context:read:device:memory:device.hpke.publicKey",
+            "algorithm": "HPKE-P256-SHA256-AES128GCM",
+            "envelope": "publicKey"
+          }
+        },
+        "secret": {
+          "type": "string",
+          "x-encryption": {
+            "source": "runtime",
+            "type": "encrypt",
+            "roles": [
+              {
+                "role": "srl.admin",
+                "grant": "allow"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

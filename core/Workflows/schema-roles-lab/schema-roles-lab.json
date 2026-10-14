@@ -1,0 +1,140 @@
+{
+  "key": "schema-roles-lab",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "schema-roles-lab",
+    "x-computed",
+    "x-encryption"
+  ],
+  "attributes": {
+    "_comment": "x-computed (evaluatedBy runtime) on every read surface, computed from the caller's shaped view and never stored; x-encryption source client accepted on the master and on a transition schema and never handled; source runtime (encrypt) unchanged next to it. vnext-schema #153 revision.",
+    "type": "F",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Şema Rolleri Lab"
+      },
+      {
+        "language": "en-US",
+        "label": "Schema Roles Lab"
+      }
+    ],
+    "schema": {
+      "key": "schema-roles-lab-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-srl",
+      "target": "srl-edit",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "tr-TR",
+          "label": "Başlat"
+        },
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "sharedTransitions": [
+      {
+        "key": "srl-update",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Güncelle"
+          },
+          {
+            "language": "en-US",
+            "label": "Update"
+          }
+        ],
+        "schema": {
+          "key": "schema-roles-lab-update",
+          "domain": "core",
+          "version": "1.0.0",
+          "flow": "sys-schemas"
+        },
+        "availableIn": [
+          "srl-edit"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "key": "srl-edit",
+        "stateType": 1,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Düzenleme"
+          },
+          {
+            "language": "en-US",
+            "label": "Edit"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "srl-close",
+            "target": "srl-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Kapat"
+              },
+              {
+                "language": "en-US",
+                "label": "Close"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "srl-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Tamamlandı"
+          },
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
