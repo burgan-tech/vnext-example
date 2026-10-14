@@ -1,7 +1,7 @@
 {
   "collection": {
     "name": "morph-idm-roles",
-    "description": "get-roles endpoint for the morph-idm caller-role provider. Only the authorization-chain-lab's MorphIdmProviderTests use it, and only while the runtime runs with CallerRoleProvider:Provider=morph-idm.",
+    "description": "get-roles endpoint for the morph-idm caller-role provider. Used by the authorization-chain-lab's MorphIdmProviderTests and the human-task-chain's IdmBehalfOfGrantTests, only while the runtime runs with CallerRoleProvider:Provider=morph-idm.",
     "color": "#0ea5e9"
   },
   "folders": [],
@@ -58,6 +58,46 @@
           "responseBody": "{\"error\":\"provider unavailable\"}",
           "contentType": "application/json",
           "priority": 3,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-first-approver",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"idmFirstApprover\"]}",
+          "contentType": "application/json",
+          "priority": 4,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-first-approver-2",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"idmFirstApprover\"]}",
+          "contentType": "application/json",
+          "priority": 5,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-super-user",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"idmSuperUser\"]}",
+          "contentType": "application/json",
+          "priority": 6,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "idm-other",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"idmOther\"]}",
+          "contentType": "application/json",
+          "priority": 7,
           "responseHeaders": []
         }
       ],
