@@ -1,6 +1,6 @@
 {
   "key": "display-labels-lab",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
@@ -34,7 +34,7 @@
     "schema": {
       "key": "display-labels-lab-master",
       "domain": "core",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "flow": "sys-schemas"
     },
     "functions": [
@@ -131,7 +131,7 @@
             "schema": {
               "key": "display-labels-lab-decision",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-schemas"
             }
           },

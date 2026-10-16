@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "partner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "file-offload-xd",
@@ -25,7 +25,7 @@
     "schema": {
       "key": "fo-xd-child-master",
       "domain": "partner",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "flow": "sys-schemas"
     },
     "startTransition": {

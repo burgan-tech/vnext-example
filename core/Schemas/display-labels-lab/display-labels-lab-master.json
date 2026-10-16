@@ -1,6 +1,6 @@
 {
   "key": "display-labels-lab-master",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -10,7 +10,7 @@
     "labels"
   ],
   "attributes": {
-    "type": "schema",
+    "type": "master",
     "labels": [
       {
         "language": "tr-TR",

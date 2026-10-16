@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "role-matrix-lab",
@@ -26,7 +26,7 @@
     "schema": {
       "key": "role-matrix-combinator-master",
       "domain": "core",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "flow": "sys-schemas"
     },
     "sharedTransitions": [],

@@ -1,12 +1,12 @@
 {
   "key": "credit-bureau-result",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
   "tags": ["credit-bureau", "subflow", "master"],
   "attributes": {
-    "type": "workflow",
+    "type": "master",
     "labels": [
       { "label": "Kredi Bürosu Sonucu", "language": "tr-TR" },
       { "label": "Credit Bureau Result", "language": "en-US" }

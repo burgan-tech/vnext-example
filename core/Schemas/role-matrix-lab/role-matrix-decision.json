@@ -1,6 +1,6 @@
 {
   "key": "role-matrix-decision",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -12,7 +12,7 @@
     "schema"
   ],
   "attributes": {
-    "type": "schema",
+    "type": "transition",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "urn:vnext:res:schema:core:role-matrix-decision",

@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "integration-test",
     "subflow-start-failure-lab",
@@ -104,7 +104,7 @@
           "process": {
             "key": "subflow-start-failure-lab-child",
             "domain": "core",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "flow": "sys-flows"
           },
           "mapping": {

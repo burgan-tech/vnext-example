@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "tags": [
     "money-transfer",
     "payments",
@@ -23,7 +23,7 @@
       "key": "money-transfer-master",
       "domain": "core",
       "flow": "sys-schemas",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     "functions": [
       {
@@ -126,7 +126,7 @@
               "key": "money-transfer-input",
               "domain": "core",
               "flow": "sys-schemas",
-              "version": "1.0.0"
+              "version": "1.0.1"
             }
           }
         ],

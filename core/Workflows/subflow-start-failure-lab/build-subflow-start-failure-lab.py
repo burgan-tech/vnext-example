@@ -35,7 +35,8 @@ workflow = {
     "flow": "sys-flows",
     "flowVersion": "1.0.0",
     "domain": "core",
-    "version": "1.0.1",
+    # 1.0.2: child 1.0.1 (its start schema carries the "transition" role, vnext-schema 0.0.56).
+    "version": "1.0.2",
     "tags": [
         "integration-test",
         "subflow-start-failure-lab",
@@ -124,7 +125,7 @@ workflow = {
                         # fires from a genuinely committed-correlation state.
                         "key": "subflow-start-failure-lab-child",
                         "domain": "core",
-                        "version": "1.0.0",
+                        "version": "1.0.1",
                         "flow": "sys-flows",
                     },
                     "mapping": code("ParentToChildSubFlowMapping.csx"),

@@ -22,8 +22,10 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-VERSION = "1.0.1"
-SCHEMA_VERSION = "1.0.0"
+# 1.0.2 / schemas 1.0.1 — the master schemas carry a role (vnext-schema 0.0.56 refuses the legacy
+#         attributes.type "schema"): "master".
+VERSION = "1.0.2"
+SCHEMA_VERSION = "1.0.1"
 TASK = {"key": "fo-script", "domain": "core", "flow": "sys-tasks", "version": "1.0.0"}
 
 

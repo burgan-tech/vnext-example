@@ -1,6 +1,6 @@
 {
   "key": "money-transfer-input",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -93,7 +93,7 @@
         }
       }
     },
-    "type": "schema",
+    "type": "transition",
     "labels": [
       {
         "label": "Para Transferi (Giriş Formu)",

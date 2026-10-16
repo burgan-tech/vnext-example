@@ -13,6 +13,10 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 LAB = "display-labels-lab"
 VERSION = "1.0.0"
+# 1.0.1 — the flow and its two schemas: schema components carry a role (vnext-schema 0.0.56 refuses
+#         the legacy attributes.type "schema"): master -> "master", decision -> "transition".
+FLOW_VERSION = "1.0.1"
+SCHEMA_VERSION = "1.0.1"
 TAGS = ["integration-test", LAB, "labels"]
 
 
@@ -41,8 +45,8 @@ def transition(key, target, tr=None, en=None, **extra):
     return t
 
 
-def component(key, flow, attributes):
-    return {"key": key, "version": VERSION, "domain": "core", "flow": flow,
+def component(key, flow, attributes, version=VERSION):
+    return {"key": key, "version": version, "domain": "core", "flow": flow,
             "flowVersion": "1.0.0", "tags": TAGS, "attributes": attributes}
 
 
@@ -74,7 +78,7 @@ root = component(LAB, "sys-flows", {
     "timeout": {"key": "dl-abandoned", "target": "dl-expired", "versionStrategy": "Minor",
                 "timer": {"reset": "never", "duration": "PT10M"}},
     "labels": labels("Etiket Lab", "Display Labels Lab"),
-    "schema": ref(f"{LAB}-master", "sys-schemas"),
+    "schema": ref(f"{LAB}-master", "sys-schemas", SCHEMA_VERSION),
     "functions": [ref("til-cached-echo", "sys-functions", "1.0.1")],
     "features": [], "extensions": [],
     "startTransition": transition("start-dl", "dl-review", "Başlat", "Start"),
@@ -86,7 +90,7 @@ root = component(LAB, "sys-flows", {
               view={"view": ref(f"{LAB}-review-view", "sys-views"), "loadData": False},
               transitions=[
                   transition("dl-approve", "dl-approved", "Onayla", "Approve",
-                             schema=ref(f"{LAB}-decision", "sys-schemas")),
+                             schema=ref(f"{LAB}-decision", "sys-schemas", SCHEMA_VERSION)),
                   transition("dl-ask-sub", "dl-sub", "Alt akışa gönder", "Send to child flow"),
               ]),
         state("dl-sub", 4, 0, "Alt Akışta", "In Child Flow",
@@ -94,7 +98,7 @@ root = component(LAB, "sys-flows", {
         state("dl-approved", 3, 1, "Onaylandı", "Approved"),
         state("dl-expired", 3, 8, "Süresi Doldu", "Expired"),
     ],
-})
+}, FLOW_VERSION)
 
 view = component(f"{LAB}-review-view", "sys-views", {
     "type": 1, "display": "full-page", "renderer": "pseudo-ui",
@@ -105,18 +109,18 @@ view = component(f"{LAB}-review-view", "sys-views", {
 })
 
 
-def schema(key, tr, en):
+def schema(key, role, tr, en):
     return component(key, "sys-schemas", {
-        "type": "schema", "labels": labels(tr, en),
+        "type": role, "labels": labels(tr, en),
         "schema": {"$schema": "https://json-schema.org/draft/2020-12/schema",
                    "$id": f"urn:vnext:res:schema:core:{key}", "type": "object",
                    "properties": {"comment": {"type": "string", "x-labels": {"tr": "Açıklama", "en": "Comment"}}}},
-    })
+    }, SCHEMA_VERSION)
 
 
 write(ROOT / "core/Workflows" / LAB / f"{LAB}.json", root)
 write(ROOT / "core/Workflows" / LAB / f"{LAB}-child.json", child)
 write(ROOT / "core/Views" / LAB / f"{LAB}-review-view.json", view)
-write(ROOT / "core/Schemas" / LAB / f"{LAB}-decision.json", schema(f"{LAB}-decision", "Onay Formu", "Approval Form"))
-write(ROOT / "core/Schemas" / LAB / f"{LAB}-master.json", schema(f"{LAB}-master", "Etiket Lab Verisi", "Display Labels Lab Data"))
+write(ROOT / "core/Schemas" / LAB / f"{LAB}-decision.json", schema(f"{LAB}-decision", "transition", "Onay Formu", "Approval Form"))
+write(ROOT / "core/Schemas" / LAB / f"{LAB}-master.json", schema(f"{LAB}-master", "master", "Etiket Lab Verisi", "Display Labels Lab Data"))
 print("written")

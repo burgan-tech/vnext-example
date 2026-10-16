@@ -1,12 +1,12 @@
 {
   "key": "loan-approval-decision",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
   "tags": ["loan", "approval", "transition-payload"],
   "attributes": {
-    "type": "schema",
+    "type": "transition",
     "labels": [
       { "label": "Kredi Onay Kararı", "language": "tr-TR" },
       { "label": "Loan Approval Decision", "language": "en-US" }

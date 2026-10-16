@@ -64,15 +64,17 @@ FUNCTION_VERSION = "1.0.1"
 # Workflow ayri surumlenir: field-masking lab (2026-09-28) master semayi ve SeedCaseMapping'i degistirdi;
 # publish surum-degismezdir (ayni surum farkli icerik -> 409 Instance:100002), function degismedi.
 # 1.0.9 (2026-10-05): yalniz SUMMARY_FUNCTION referansi 1.0.1'e cekildi.
-WORKFLOW_VERSION = "1.0.9"
+# 1.0.10 (2026-10-16): sema rolleri (vnext-schema 0.0.56 legacy attributes.type "schema"yi reddeder) —
+#        master -> "master" (1.0.4), decision -> "transition" (1.0.1); yalniz referans surumleri degisti.
+WORKFLOW_VERSION = "1.0.10"
 
 ENTRY_TASK = {"key": "role-matrix-entry-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 EXEC_TASK = {"key": "role-matrix-exec-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 SUMMARY_TASK = {"key": "role-matrix-summary-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 SELF_READ_TASK = {"key": "role-matrix-self-read-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
 
-MASTER_SCHEMA = {"key": "role-matrix-master", "domain": "core", "version": "1.0.3", "flow": "sys-schemas"}
-DECISION_SCHEMA = {"key": "role-matrix-decision", "domain": "core", "version": "1.0.0", "flow": "sys-schemas"}
+MASTER_SCHEMA = {"key": "role-matrix-master", "domain": "core", "version": "1.0.4", "flow": "sys-schemas"}
+DECISION_SCHEMA = {"key": "role-matrix-decision", "domain": "core", "version": "1.0.1", "flow": "sys-schemas"}
 REVIEW_VIEW = {"key": "role-matrix-review-view", "domain": "core", "version": "1.0.0", "flow": "sys-views"}
 SUMMARY_FUNCTION = {"key": "role-matrix-summary", "domain": "core", "version": FUNCTION_VERSION, "flow": "sys-functions"}
 
@@ -85,8 +87,9 @@ VIEWER = "morph-idm.viewer"
 CUSTOMER = "morph-idm.customer"
 CORPORATE_OPS = "morph-idm.corporate-ops"
 
-COMBINATOR_WORKFLOW_VERSION = "1.0.0"
-COMBINATOR_SCHEMA = {"key": "role-matrix-combinator-master", "domain": "core", "version": "1.0.0", "flow": "sys-schemas"}
+# 1.0.1 (2026-10-16): combinator master semasi "master" rolunu tasir (1.0.1).
+COMBINATOR_WORKFLOW_VERSION = "1.0.1"
+COMBINATOR_SCHEMA = {"key": "role-matrix-combinator-master", "domain": "core", "version": "1.0.1", "flow": "sys-schemas"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # .csx sablonlari — sayaclar. Elle yazilan mapping'ler (SeedCaseMapping, DecisionMapping)

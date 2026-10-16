@@ -23,7 +23,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent.parent.parent
 VERSION = "1.0.0"
-SCHEMA_VERSION = "1.0.0"
+# 1.0.1 — the master schemas carry a role (vnext-schema 0.0.56 refuses the legacy attributes.type
+#         "schema"): "master". The two flows that reference them move with them.
+SCHEMA_VERSION = "1.0.1"
+FLOW_VERSIONS = {"fo-xd-parent": "1.0.1", "fo-xd-child": "1.0.1"}
 TASK = {"key": "fo-script", "domain": "core", "flow": "sys-tasks", "version": "1.0.0"}
 BINDING = "vnext-blob-local"
 
@@ -80,7 +83,7 @@ def envelope(domain, key, flow_type, tags, text, schema, target, states):
         "flow": "sys-flows",
         "flowVersion": "1.0.0",
         "domain": domain,
-        "version": VERSION,
+        "version": FLOW_VERSIONS.get(key, VERSION),
         "tags": ["integration-test", "file-offload-xd", "cross-domain-lab", *tags],
         "attributes": attributes,
     }
@@ -115,7 +118,7 @@ def master(domain, key, title, description, passport_description):
         "flowVersion": "1.0.0",
         "tags": ["integration-test", "file-offload-xd", "master", "schema"],
         "attributes": {
-            "type": "schema",
+            "type": "master",
             "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "$id": f"urn:vnext:res:schema:{domain}:{key}",
@@ -141,7 +144,7 @@ outputs = {
                            sub_flow={
                                "type": "S",
                                "process": {"key": "fo-xd-child", "domain": "partner", "flow": "sys-flows",
-                                           "version": VERSION},
+                                           "version": FLOW_VERSIONS["fo-xd-child"]},
                                "mapping": code("FoXdParentToChildMapping.csx"),
                            }),
                      state("p-done", 3, "Done"),

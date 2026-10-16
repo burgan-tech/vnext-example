@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "tags": [
     "banking",
     "account-opening",
@@ -46,7 +46,7 @@
     "extensions": [],
     "schema": {
       "key": "account-opening-master",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "domain": "core",
       "flow": "sys-schemas"
     },
@@ -83,7 +83,7 @@
       ],
       "schema": {
         "key": "initiate-account-opening",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "domain": "core",
         "flow": "sys-schemas"
       },
@@ -373,7 +373,7 @@
             ],
             "schema": {
               "key": "demand-deposit-input",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "domain": "core",
               "flow": "sys-schemas"
             },
@@ -446,7 +446,7 @@
             ],
             "schema": {
               "key": "time-deposit-input",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "domain": "core",
               "flow": "sys-schemas"
             },
@@ -519,7 +519,7 @@
             ],
             "schema": {
               "key": "investment-account-input",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "domain": "core",
               "flow": "sys-schemas"
             },
@@ -592,7 +592,7 @@
             ],
             "schema": {
               "key": "savings-account-input",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "domain": "core",
               "flow": "sys-schemas"
             },
@@ -687,7 +687,7 @@
             "schema": {
               "key": "account-confirmation",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-schemas"
             },
             "rule": null,

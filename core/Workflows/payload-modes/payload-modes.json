@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "payload-modes",
@@ -36,7 +36,7 @@
       ],
       "schema": {
         "key": "payload-modes-input",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "domain": "core",
         "flow": "sys-schemas"
       }
@@ -70,7 +70,7 @@
             ],
             "schema": {
               "key": "payload-modes-input",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "domain": "core",
               "flow": "sys-schemas"
             },

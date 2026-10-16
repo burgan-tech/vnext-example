@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "credit-bureau",
     "subflow",
@@ -26,7 +26,7 @@
       "key": "credit-bureau-result",
       "domain": "core",
       "flow": "sys-schemas",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     "startTransition": {
       "key": "start-inquiry",

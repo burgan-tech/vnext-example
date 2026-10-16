@@ -1,12 +1,12 @@
 {
   "key": "money-transfer-master",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
   "tags": ["money-transfer", "master", "schema"],
   "attributes": {
-    "type": "schema",
+    "type": "master",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "urn:vnext:res:schema:core:money-transfer-master",
