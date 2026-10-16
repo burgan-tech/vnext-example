@@ -62,7 +62,11 @@ ROOT = Path(__file__).resolve().parent
 #         flight (mdop >= item count). That is the shape that made the old F1 leak falsify
 #         summary.timedOut, and no other case covers it — the serial arm always leaves one item
 #         never-started, which kept its code correct even while F1 was open.
-VERSION = "1.3.0"
+# 1.3.1 — error-boundary enums written as the integers the schema declares (errorAction 2 = Rollback
+#         on the global boundary; the item-boundary tasks 1.0.1: 3 = Ignore, 1 = Retry, backoffType
+#         0 = Fixed). The runtime parsed the camelCase strings to the same values — no behaviour change,
+#         but `npm run validate` rejected the strings.
+VERSION = "1.3.1"
 
 # Task components whose version has moved past 1.0.0. A published component version is immutable
 # (re-publishing answers 409 and the runtime keeps serving the OLD definition), so any config change
@@ -87,6 +91,9 @@ VERSION = "1.3.0"
 TASK_VERSIONS = {
     "fanout-case-batch-timeout-serial-task": "1.1.0",
     "fanout-case-parallel-baseline-task": "1.1.0",
+    # 1.0.1: errorBoundary action / backoffType as integers (see VERSION 1.3.1).
+    "fanout-case-item-boundary-ignore-task": "1.0.1",
+    "fanout-case-item-boundary-retry-task": "1.0.1",
 }
 
 SETTLED_STATE = "case-settled"
@@ -278,14 +285,14 @@ workflow = {
         # Wildcard rule (no errorCodes/errorTypes => IsWildcard), so it catches whatever the
         # fan-out task reports without the test having to know the code in advance.
         #
-        # Action is `rollback`, NOT `abort`: the validator rejects a transition on an abort rule
+        # Action is Rollback (2), NOT Abort (0): the validator rejects a transition on an abort rule
         # ("Transition must not be specified when Action is Abort.") because abort-without-transition
         # is the fault path. `rollback` is the transition-carrying action, and it maps to
         # BoundaryOutcomeHandler's "transition set => RequestNextTransition + SkipToFinalize".
         "errorBoundary": {
             "onError": [
                 {
-                    "action": "rollback",
+                    "action": 2,  # Rollback — the schema declares errorAction as an integer
                     "transition": FAIL_TRANSITION,
                     "priority": 999,
                 }

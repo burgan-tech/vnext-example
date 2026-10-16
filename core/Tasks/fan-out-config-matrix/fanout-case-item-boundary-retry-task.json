@@ -1,6 +1,6 @@
 {
   "key": "fanout-case-item-boundary-retry-task",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -37,7 +37,7 @@
       "errorBoundary": {
         "onError": [
           {
-            "action": "retry",
+            "action": 1,
             "errorCodes": [
               "*"
             ],
@@ -45,7 +45,7 @@
             "retryPolicy": {
               "maxRetries": 2,
               "initialDelay": "PT0.2S",
-              "backoffType": "fixed",
+              "backoffType": 0,
               "maxDelay": "PT1S",
               "useJitter": false
             }
