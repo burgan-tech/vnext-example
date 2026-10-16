@@ -1,0 +1,112 @@
+{
+  "key": "ffl-flow",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "forge-file-form-lab",
+    "files"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Forge file form lab"
+      }
+    ],
+    "schema": {
+      "key": "ffl-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "collecting",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "schema": {
+        "key": "ffl-upload",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      }
+    },
+    "states": [
+      {
+        "key": "collecting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Collecting documents"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "replace",
+            "target": "collecting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Replace documents"
+              }
+            ],
+            "schema": {
+              "key": "ffl-upload",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            }
+          },
+          {
+            "key": "submit",
+            "target": "done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Submit"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

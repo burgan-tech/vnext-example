@@ -1,0 +1,74 @@
+{
+  "key": "ffl-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "forge-file-form-lab",
+    "files"
+  ],
+  "attributes": {
+    "type": "master",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Forge file form lab master"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:ffl-master",
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": "string",
+          "x-order": 1
+        },
+        "document": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "mimeType": {
+              "type": "string"
+            },
+            "size": {
+              "type": "integer"
+            }
+          },
+          "x-storage": {
+            "binding": "vnext-blob-local"
+          },
+          "x-order": 2,
+          "x-labels": {
+            "en": "Document"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "x-order": 3,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "mimeType": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer"
+              }
+            },
+            "x-storage": {
+              "binding": "vnext-blob-local"
+            }
+          }
+        }
+      }
+    }
+  }
+}
