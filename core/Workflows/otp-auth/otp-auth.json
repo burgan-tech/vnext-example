@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "otp-auth",
     "otp",
@@ -28,7 +28,7 @@
     "schema": {
       "key": "otp-auth-master",
       "domain": "core",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "flow": "sys-schemas"
     },
     "scripts": {
@@ -96,7 +96,7 @@
       "schema": {
         "key": "otp-auth-start-payload",
         "domain": "core",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "flow": "sys-schemas"
       },
       "onExecutionTasks": [
@@ -929,7 +929,7 @@
             "schema": {
               "key": "otp-code-payload",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-schemas"
             },
             "rule": null,

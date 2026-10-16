@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "soap",
     "sms",
@@ -17,7 +17,7 @@
       "key": "soap-task-test-master",
       "domain": "core",
       "flow": "sys-schemas",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     "functions": [],
     "extensions": [],
@@ -91,7 +91,7 @@
               "key": "soap-sms-input",
               "domain": "core",
               "flow": "sys-schemas",
-              "version": "1.0.0"
+              "version": "1.0.1"
             },
             "onExecutionTasks": []
           }

@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "tags": [
     "integration-test",
     "fan-out-config-matrix",
@@ -30,7 +30,7 @@
     "errorBoundary": {
       "onError": [
         {
-          "action": "rollback",
+          "action": 2,
           "transition": "to-case-failed",
           "priority": 999
         }
@@ -713,7 +713,7 @@
             "task": {
               "key": "fanout-case-item-boundary-ignore-task",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-tasks"
             },
             "mapping": {
@@ -775,7 +775,7 @@
             "task": {
               "key": "fanout-case-item-boundary-retry-task",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-tasks"
             },
             "mapping": {

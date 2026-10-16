@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "description": "partner domain — cross-domain lab counterpart of core (see labs/cross-domain/README.md)",
   "domain": "partner",
-  "runtimeVersion": "0.0.61",
-  "schemaVersion": "0.0.53",
+  "runtimeVersion": "0.0.100",
+  "schemaVersion": "0.0.56",
   "paths": {
     "componentsRoot": "partner",
     "tasks": "Tasks",

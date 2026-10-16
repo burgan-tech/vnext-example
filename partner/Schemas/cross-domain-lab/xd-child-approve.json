@@ -1,12 +1,12 @@
 {
   "key": "xd-child-approve",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "partner",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
   "tags": ["cross-domain-lab", "transition-payload", "partner"],
   "attributes": {
-    "type": "schema",
+    "type": "transition",
     "labels": [
       { "label": "Child Onayı", "language": "tr-TR" },
       { "label": "Child Approval", "language": "en-US" }

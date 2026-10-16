@@ -18,7 +18,7 @@ public class LoginStartContractMapping : ScriptBase, IMapping
 
         sub.SetDomain("core");
         sub.SetFlow("contract-flow");
-        sub.SetVersion("1.1.0");
+        sub.SetVersion("1.1.1");
 
         sub.SetBody(new
         {

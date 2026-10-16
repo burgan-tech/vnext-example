@@ -1,6 +1,6 @@
 {
   "key": "fanout-case-item-boundary-ignore-task",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -37,7 +37,7 @@
       "errorBoundary": {
         "onError": [
           {
-            "action": "ignore",
+            "action": 3,
             "errorCodes": [
               "*"
             ],

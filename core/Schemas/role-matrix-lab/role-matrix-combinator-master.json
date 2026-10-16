@@ -1,6 +1,6 @@
 {
   "key": "role-matrix-combinator-master",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -12,7 +12,7 @@
     "combinators"
   ],
   "attributes": {
-    "type": "schema",
+    "type": "master",
     "labels": [
       {
         "label": "Rol Matrisi Laboratuvarı (Combinator Ana Şema)",

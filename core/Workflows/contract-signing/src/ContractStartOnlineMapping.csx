@@ -28,7 +28,7 @@ public class ContractStartOnlineMapping : ScriptBase, IMapping
 
         sub.SetDomain("core");
         sub.SetFlow("online-flow");
-        sub.SetVersion("1.1.0");
+        sub.SetVersion("1.1.1");
         // Deterministic idempotency key: a duplicate start attempt for the same document
         // (retry, race) coalesces onto the same child instead of spawning a second one.
         sub.SetKey(documentId != null

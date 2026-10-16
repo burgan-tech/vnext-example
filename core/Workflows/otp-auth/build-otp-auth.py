@@ -38,9 +38,12 @@ AUTHCODE_TASK = {"key": "issue-authorization-code", "domain": DOMAIN, "version":
 
 HELPERS = {"key": "otp-auth-helpers", "version": "1.0.0", "domain": DOMAIN, "flow": "sys-mappings"}
 
-SCHEMA_MASTER = {"key": "otp-auth-master", "domain": DOMAIN, "version": "1.0.0", "flow": "sys-schemas"}
-SCHEMA_START = {"key": "otp-auth-start-payload", "domain": DOMAIN, "version": "1.0.0", "flow": "sys-schemas"}
-SCHEMA_CODE = {"key": "otp-code-payload", "domain": DOMAIN, "version": "1.0.0", "flow": "sys-schemas"}
+# Schemas 1.0.1 / flows 1.0.1 (2026-10-16): the schemas carry a role (vnext-schema 0.0.56 refuses the
+# legacy attributes.type values): master -> "master", start/code payloads -> "transition".
+FLOW_VERSION = "1.0.1"
+SCHEMA_MASTER = {"key": "otp-auth-master", "domain": DOMAIN, "version": "1.0.1", "flow": "sys-schemas"}
+SCHEMA_START = {"key": "otp-auth-start-payload", "domain": DOMAIN, "version": "1.0.1", "flow": "sys-schemas"}
+SCHEMA_CODE = {"key": "otp-code-payload", "domain": DOMAIN, "version": "1.0.1", "flow": "sys-schemas"}
 
 VIEW_CODE_ENTRY = {"key": "otp-code-entry-view", "domain": DOMAIN, "version": "1.0.0", "flow": "sys-views"}
 VIEW_RESEND = {"key": "otp-resend-view", "domain": DOMAIN, "version": "1.0.0", "flow": "sys-views"}
@@ -1139,7 +1142,7 @@ def build_subflow():
         "flow": "sys-flows",
         "flowVersion": "1.0.0",
         "domain": DOMAIN,
-        "version": "1.0.0",
+        "version": FLOW_VERSION,
         "tags": ["otp-auth", "otp", "authentication", "subflow", "authorization-code"],
         "attributes": {
             "type": "S",
@@ -1184,7 +1187,7 @@ def build_harness():
         "flow": "sys-flows",
         "flowVersion": "1.0.0",
         "domain": DOMAIN,
-        "version": "1.0.0",
+        "version": FLOW_VERSION,
         "tags": ["otp-auth", "harness", "integration-test", "subflow"],
         "attributes": {
             "type": "F",
@@ -1219,7 +1222,7 @@ def build_harness():
                       subflow={
                           "type": "S",
                           "process": {"key": "otp-auth", "domain": DOMAIN,
-                                      "flow": "sys-flows", "version": "1.0.0"},
+                                      "flow": "sys-flows", "version": FLOW_VERSION},
                           "mapping": ref("HostToOtpAuthSubFlowMapping.csx"),
                       }),
                 final("harness-success", 1, "Harness Success", "Harness Basarili"),

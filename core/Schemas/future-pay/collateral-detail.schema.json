@@ -1,12 +1,12 @@
 {
   "key": "collateral-detail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
   "tags": ["collateral", "subflow", "master"],
   "attributes": {
-    "type": "workflow",
+    "type": "master",
     "labels": [
       { "label": "Teminat Detayı", "language": "tr-TR" },
       { "label": "Collateral Detail", "language": "en-US" }

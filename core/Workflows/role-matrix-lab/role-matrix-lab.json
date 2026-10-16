@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "tags": [
     "integration-test",
     "role-matrix-lab",
@@ -33,7 +33,7 @@
     "schema": {
       "key": "role-matrix-master",
       "domain": "core",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "flow": "sys-schemas"
     },
     "queryRoles": [
@@ -411,7 +411,7 @@
             "schema": {
               "key": "role-matrix-decision",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-schemas"
             }
           },
@@ -450,7 +450,7 @@
             "schema": {
               "key": "role-matrix-decision",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-schemas"
             }
           },

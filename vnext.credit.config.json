@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "description": "credit domain — third business domain of the cross-domain lab, so a chain can cross TWO boundaries (see labs/cross-domain/README.md)",
   "domain": "credit",
-  "runtimeVersion": "0.0.61",
-  "schemaVersion": "0.0.53",
+  "runtimeVersion": "0.0.100",
+  "schemaVersion": "0.0.56",
   "paths": {
     "componentsRoot": "credit",
     "tasks": "Tasks",

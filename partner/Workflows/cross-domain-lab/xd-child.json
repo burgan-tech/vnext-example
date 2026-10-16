@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "partner",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "cross-domain-lab",
     "subflow",
@@ -135,7 +135,7 @@
               "key": "xd-child-approve",
               "domain": "partner",
               "flow": "sys-schemas",
-              "version": "1.0.0"
+              "version": "1.0.1"
             },
             "onExecutionTasks": []
           }

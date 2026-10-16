@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "integration-test",
     "file-offload-lab",
@@ -23,7 +23,7 @@
     "schema": {
       "key": "fo-missing-master",
       "domain": "core",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "flow": "sys-schemas"
     },
     "startTransition": {

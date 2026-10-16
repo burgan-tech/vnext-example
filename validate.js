@@ -659,6 +659,14 @@ validate('JSON files schema validation using @burgan-tech/vnext-schema', () => {
   const ajv7 = new Ajv7({ strict: false, allErrors: true, verbose: true });
   addFormats(ajv7);
 
+  // vnext-schema >= 0.0.56: schema-definition.schema.json $refs the role vocabularies
+  // (record / input / component …) by $id. Register them before compiling, or the schema
+  // validator cannot compile and every schema component would go unvalidated. The vocabularies
+  // are draft-07, so they belong on the draft-07 instance.
+  if (typeof vnextSchema.addVocabularies === 'function') {
+    vnextSchema.addVocabularies(ajv7);
+  }
+
   const ajv2019 = new Ajv2019({ strict: false, allErrors: true, verbose: true });
   addFormats(ajv2019);
 

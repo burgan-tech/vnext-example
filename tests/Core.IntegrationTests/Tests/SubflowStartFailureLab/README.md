@@ -52,7 +52,7 @@ This test suite (vnext-example) does not itself edit the runtime repo.
 - `subflow-start-failure-lab-parent.json` — `parent-initial` auto-transitions into
   `parent-subflow-state` (`stateType: 4`, `subFlow.type: "S"` — a state-level `"P"` is rejected at
   publish, see `WorkflowValidator`), whose `subFlow.process` points at
-  `subflow-start-failure-lab-child@1.0.0`.
+  `subflow-start-failure-lab-child@1.0.1`.
 - `subflow-start-failure-lab-child.json` — a real, resolvable, separately published child
   (`attributes.type: "S"`) whose start transition carries a schema
   (`core/Schemas/subflow-start-failure-lab/subflow-start-failure-lab-child-start.json`) requiring

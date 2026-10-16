@@ -89,6 +89,6 @@ Python scripti yok; elle sürmek için `core/Workflows/contract-signing/contract
   sonraki bekleme adımında zaman aşımı olarak görünür — önce reddi arayın.
 - **Paylaşılan sayaç kullanmayın.** Eşzamanlı çocuk geri çağrıları aynı snapshot'tan okur;
   `count + 1` artışları kaybeder. Mapping'ler bu yüzden yalnız kendi anahtarının delta'sını döner.
-- Mapping'ler hedef sürümü sabitler (`contract-flow` / `online-flow` `1.1.0`); fixture değişikliği
+- Mapping'ler hedef sürümü sabitler (`contract-flow` / `online-flow` `1.1.1`); fixture değişikliği
   patch bump ister ve mapping'lerdeki `SetVersion` da güncellenmelidir.
 - `TEST-SCENARIOS.md` satırındaki gerekçe git geçmişinde kayıtlı değil (dipnot 1).

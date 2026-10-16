@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "cross-domain-lab",
     "parent",
@@ -132,7 +132,7 @@
           "process": {
             "key": "xd-child",
             "domain": "partner",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "flow": "sys-flows"
           },
           "mapping": {

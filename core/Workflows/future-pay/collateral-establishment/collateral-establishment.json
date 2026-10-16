@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "collateral",
     "subflow",
@@ -25,7 +25,7 @@
       "key": "collateral-detail",
       "domain": "core",
       "flow": "sys-schemas",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     "startTransition": {
       "key": "start-collateral",
@@ -75,7 +75,7 @@
               }
             ],
             "schema": {
-              "key": "collateral-detail",
+              "key": "collateral-detail-input",
               "domain": "core",
               "flow": "sys-schemas",
               "version": "1.0.0"
