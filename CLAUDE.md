@@ -67,7 +67,7 @@ Use this as the first lookup when a user asks to create or modify a component. F
 | Workflow | `paths.workflows` | `type` (F/S/P/C/...), `startTransition`, `states`, `transitions` | `/docs/components/workflow` |
 | View | `paths.views` | `display`, `renderer`, `content` | `/docs/components/view` + `/docs/how-to/view-consept/` |
 | Task | `paths.tasks` | `type` (numeric, see below), `config` | `/docs/components/tasks/{subtype}` |
-| Schema | `paths.schemas` | `type`, `schema` (JSON Schema draft 2020-12) | `/docs/components/schema` |
+| Schema | `paths.schemas` | `type` (role: `master` = a workflow's `attributes.schema`, `transition` = a transition body, `function` = a function `inputSchema`, `component` = an embedded view's `dataSchema`; legacy values such as `workflow` / `schema` are refused by vnext-schema 0.0.56 — split a schema that plays two roles), `schema` (JSON Schema draft 2020-12) | `/docs/components/schema` |
 | Function | `paths.functions` | `scope` (I/D), `onExecutionTasks[]`, `output` | `/docs/components/functions/{built-in\|custom}` |
 | Extension | `paths.extensions` | `type`, `scope`, `task` / `tasks` | `/docs/components/extension` |
 | Mapping (`.csx`) | workflow folder `src/` | C# class (PascalCase) | `/docs/components/mappings` |
