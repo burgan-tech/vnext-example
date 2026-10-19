@@ -1,6 +1,6 @@
 {
   "key": "spl-script",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",

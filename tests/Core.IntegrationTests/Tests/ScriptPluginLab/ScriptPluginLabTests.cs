@@ -15,13 +15,17 @@ namespace Core.IntegrationTests.Tests.ScriptPluginLab;
 /// sets preloaded plugins.</item>
 /// <item><c>spl-helper-query</c> — the mapping reaches the plugin through the <c>spl-db-helper</c>
 /// sys-mappings helper, the way a team's database helper is consumed.</item>
+/// <item><c>spl-sqlserver-query</c> — the mapping uses <c>Microsoft.Data.SqlClient</c> and Dapper
+/// <b>directly</b>: their own DLL chain is mounted (no wrapper assembly) and queried over plain ADO.NET,
+/// Dapper and a stored procedure call against SQL Server.</item>
 /// </list>
-/// See README.md for the host environment both need; without it every test skips.
+/// See README.md for the host environment they need; without it the tests skip.
 /// </summary>
 public sealed class ScriptPluginLabTests : IntegrationTestBase
 {
     private const string DirectFunction = "spl-direct-query";
     private const string HelperFunction = "spl-helper-query";
+    private const string SqlServerFunction = "spl-sqlserver-query";
 
     private readonly HttpClient _client;
 
@@ -71,6 +75,42 @@ public sealed class ScriptPluginLabTests : IntegrationTestBase
         Assert.True(result.GetProperty("tokenCanBeCanceled").GetBoolean());
     }
 
+    /// <summary>
+    /// Plain ADO.NET from a script: <c>SqlConnection</c> + <c>SqlCommand</c> + a typed parameter. Needs
+    /// the SqlClient chain to load from the plugin directory and, in the Alpine images, ICU with
+    /// <c>DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0</c> (SqlClient rejects invariant mode).
+    /// </summary>
+    [SkippableFact]
+    public async Task SqlServer_PlainAdoNet_RunsThroughTheMountedSqlClient()
+    {
+        var result = await CallSqlServerAsync();
+
+        Assert.Equal(42, result.GetProperty("adoNext").GetInt32());
+        Assert.False(string.IsNullOrWhiteSpace(result.GetProperty("serverVersion").GetString()));
+    }
+
+    /// <summary>Dapper over a SqlClient connection: parameterised query read back as a row.</summary>
+    [SkippableFact]
+    public async Task SqlServer_Dapper_RunsAParameterisedQuery()
+    {
+        var result = await CallSqlServerAsync();
+
+        Assert.Equal(42, result.GetProperty("dapperNext").GetInt32());
+        Assert.False(string.IsNullOrWhiteSpace(result.GetProperty("db").GetString()));
+    }
+
+    /// <summary>
+    /// A stored procedure call (<c>CommandType.StoredProcedure</c> on <c>sys.sp_executesql</c>) with typed
+    /// parameters — the shape of the core-banking SP calls that motivated the scenario.
+    /// </summary>
+    [SkippableFact]
+    public async Task SqlServer_StoredProcedure_ReturnsItsResultSet()
+    {
+        var result = await CallSqlServerAsync();
+
+        Assert.Equal(42, result.GetProperty("procedureResult").GetInt32());
+    }
+
     // ── plumbing ─────────────────────────────────────────────────────────────
 
     private static void AssertQueried(JsonElement result, string expectedPath)
@@ -82,6 +122,19 @@ public sealed class ScriptPluginLabTests : IntegrationTestBase
         Assert.False(string.IsNullOrWhiteSpace(result.GetProperty("db").GetString()));
         Assert.False(string.IsNullOrWhiteSpace(result.GetProperty("serverVersion").GetString()));
         Assert.False(string.IsNullOrWhiteSpace(result.GetProperty("loadId").GetString()));
+    }
+
+    /// <summary>The SQL Server function's payload, asserted to have run all three calls.</summary>
+    private async Task<JsonElement> CallSqlServerAsync()
+    {
+        var result = await CallAsync(SqlServerFunction);
+
+        Assert.Equal("sqlserver", result.GetProperty("path").GetString());
+        // "error" exists only on failure — read it lazily, or a green call throws KeyNotFoundException.
+        if (!result.GetProperty("ok").GetBoolean())
+            Assert.Fail($"SQL Server call failed at stage '{result.GetProperty("stage")}': " +
+                        (result.TryGetProperty("error", out var error) ? error.ToString() : "(no error text)"));
+        return result;
     }
 
     /// <summary>
@@ -103,7 +156,8 @@ public sealed class ScriptPluginLabTests : IntegrationTestBase
                       ?? throw new Xunit.Sdk.XunitException($"{functionKey}: no mapping payload in {Trim(body)}");
 
         Skip.If(!payload.GetProperty("configured").GetBoolean(),
-            "ScriptPluginLab__ConnectionString is not set on the runtime (see Tests/ScriptPluginLab/README.md).");
+            $"{functionKey}: its connection string (ScriptPluginLab__ConnectionString or " +
+            "ScriptPluginLab__SqlServerConnectionString) is not set on the runtime (see Tests/ScriptPluginLab/README.md).");
         return payload;
     }
 

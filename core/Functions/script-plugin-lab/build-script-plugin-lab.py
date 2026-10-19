@@ -8,6 +8,7 @@ Writes:
   core/Mappings/script-plugin-lab/spl-db-helper.json      sys-mappings helper wrapping the plugin
   core/Functions/script-plugin-lab/spl-direct-query.json  helper-less mapping → plugin
   core/Functions/script-plugin-lab/spl-helper-query.json  mapping → helper → plugin
+  core/Functions/script-plugin-lab/spl-sqlserver-query.json  mapping → Microsoft.Data.SqlClient + Dapper (no wrapper)
 
 Bump VERSION when anything changes: publish is version-immutable (409 Instance:100002).
 """
@@ -15,8 +16,12 @@ import base64
 import json
 import pathlib
 
-VERSION = "1.0.0"
+VERSION = "1.0.2"
 PLUGIN_ASSEMBLY = "ScriptPluginLab.Sql"
+# The packages' own assemblies, mounted from plugins/out, plus the framework assemblies the script's
+# compile needs: System.Data.Common (DbConnection, CommandType) and System.ComponentModel.Primitives —
+# DbConnection derives from Component, and without it the compile fails with CS0012 on every SqlConnection.
+SQLSERVER_ASSEMBLIES = ["Microsoft.Data.SqlClient", "Dapper", "System.Data.Common", "System.ComponentModel.Primitives"]
 
 core = pathlib.Path(__file__).resolve().parents[2]
 functions = core / "Functions" / "script-plugin-lab"
@@ -50,8 +55,8 @@ def write(path, component):
     print("wrote", path.relative_to(core.parent))
 
 
-def function(key, label, source, helpers):
-    scripts = {"allowedAssemblies": [PLUGIN_ASSEMBLY]}
+def function(key, label, source, helpers, assemblies=(PLUGIN_ASSEMBLY,)):
+    scripts = {"allowedAssemblies": list(assemblies)}
     if helpers:
         scripts = {"helpers": [ref("spl-db-helper", "sys-mappings")], **scripts}
     return envelope(key, "sys-functions", ["function", "script-plugin"], {
@@ -89,3 +94,6 @@ write(functions / "spl-direct-query.json",
       function("spl-direct-query", "Direct Query (helper-less)", "SplDirectQueryMapping.csx", helpers=False))
 write(functions / "spl-helper-query.json",
       function("spl-helper-query", "Helper Query", "SplHelperQueryMapping.csx", helpers=True))
+write(functions / "spl-sqlserver-query.json",
+      function("spl-sqlserver-query", "SQL Server Query (SqlClient + Dapper)", "SplSqlServerQueryMapping.csx",
+               helpers=False, assemblies=SQLSERVER_ASSEMBLIES))
