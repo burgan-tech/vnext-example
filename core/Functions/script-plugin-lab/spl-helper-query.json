@@ -1,6 +1,6 @@
 {
   "key": "spl-helper-query",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "domain": "core",
   "flow": "sys-functions",
   "flowVersion": "1.0.0",
@@ -28,7 +28,7 @@
       "task": {
         "key": "spl-script",
         "domain": "core",
-        "version": "1.0.0",
+        "version": "1.0.2",
         "flow": "sys-tasks"
       },
       "mapping": {
@@ -39,7 +39,7 @@
             {
               "key": "spl-db-helper",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.2",
               "flow": "sys-mappings"
             }
           ],
