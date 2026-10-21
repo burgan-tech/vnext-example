@@ -1,0 +1,49 @@
+{
+  "key": "version-registry",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "core",
+    "version-registry",
+    "registry",
+    "schema"
+  ],
+  "attributes": {
+    "type": "workflow",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/version-registry.json",
+      "title": "Version Registry Entry",
+      "description": "Data contract of a sys-version-registry instance. The instance key is the component key (for a Flow, the bare flow key). defaultVersion is the default-version pointer; null clears it.",
+      "type": "object",
+      "required": [
+        "type",
+        "defaultVersion"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Flow"
+          ],
+          "description": "Kind of component the entry governs. Informational; not read by version resolution."
+        },
+        "defaultVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^\\d+(\\.\\d+){0,2}(-pkg\\.\\d+\\.\\d+\\.\\d+)?$",
+          "description": "Default-version pointer: major (2), minor (2.1), artifact (2.1.0), full (2.1.0-pkg.1.0.0) or null to clear."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional free-text reason for the change."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "key": "sys-version-registry",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "core",
+    "version-registry",
+    "registry"
+  ],
+  "attributes": {
+    "timeout": null,
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Version Registry"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Versiyon Kayıt Defteri"
+      }
+    ],
+    "functions": [],
+    "sharedTransitions": [],
+    "extensions": [],
+    "features": [],
+    "startTransition": {
+      "key": "create",
+      "target": "active",
+      "triggerType": 0,
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Create Registry Entry"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Kayıt Oluştur"
+        }
+      ],
+      "versionStrategy": "Minor",
+      "schema": {
+        "key": "version-registry",
+        "domain": "core",
+        "flow": "sys-schemas",
+        "version": "1.0.0"
+      },
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "active",
+        "stateType": 1,
+        "subType": 0,
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Active State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Aktif Durumu"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "set-default",
+            "from": "active",
+            "target": "active",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Set Default Version"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Varsayılan Versiyonu Ayarla"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "schema": {
+              "key": "version-registry",
+              "domain": "core",
+              "flow": "sys-schemas",
+              "version": "1.0.0"
+            },
+            "onExecutionTasks": [],
+            "view": null
+          }
+        ],
+        "view": null,
+        "onEntries": [],
+        "onExits": [],
+        "versionStrategy": "Minor"
+      }
+    ]
+  }
+}
