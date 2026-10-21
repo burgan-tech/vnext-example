@@ -74,6 +74,7 @@ kırmızıdır ve README'deki "Dikkat noktaları" okunmadan regresyon sayılmaz.
 | [SubflowStartFailureLab](tests/Core.IntegrationTests/Tests/SubflowStartFailureLab/README.md) | Başlatılamayan SubFlow'da parent fault + retry ile kurtarma | Yalnız core | — |
 | [TaskInvocationLab](tests/Core.IntegrationTests/Tests/TaskInvocationLab/README.md) | Task invocation routing, result model paritesi, CacheAside, function cache | MockLab + `mocklab-dapr` sidecar (DaprService testi) | Skip |
 | [TimeoutLab](tests/Core.IntegrationTests/Tests/TimeoutLab/README.md) | Workflow `timeout` bloğu, override'ın fire yolunda onurlandırılması | Dapr scheduler | — |
+| [VersionPinLab](tests/Core.IntegrationTests/Tests/VersionPinLab/README.md) | Kısmi sürüm referansı (`"1.0"`) çözümlenen sürüme sabitlenir: start cevabında `flowVersion`, SubFlow state ve SubProcess task correlation'ında `subFlowVersion` | Yalnız core (1.0.3 child varyantını test kendisi `definitions/publish` ile yayınlar) | — |
 
 ### 3. Genel tuzaklar (her suite için geçerli)
 
