@@ -33,7 +33,7 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
 
 - **Registry kopyası** — `fixtures/version-registry.schema.json` ve `fixtures/sys-version-registry.workflow.json`,
   vnext-sys-flow reposundan (`core/Schemas/version-registry.json`, `core/Workflows/sys-version-registry.json`,
-  branch `flow-default-version`, commit `f7ff759`) **birebir** kopyalanmıştır. Core sistem paketi npm'den
+  branch `flow-default-version`, commit `ca4aed3`) **birebir** kopyalanmıştır. Core sistem paketi npm'den
   yayınlandığı için bu flow runtime'da henüz yok; test önce schema'yı, sonra workflow'u
   `api/v1/definitions/publish` ile bir kez yayınlar ("already" cevabı sorun değil). **`@burgan-tech/vnext-core`
   bu flow'u taşımaya başlayınca bu kopyayı ve `EnsureRegistryAsync`'i sil.** `core/` dışında durur ki SDK
