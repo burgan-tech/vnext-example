@@ -13,7 +13,7 @@ namespace Core.IntegrationTests.Tests.FlowDefaultVersion;
 /// <para>
 /// The registry flow is not on the runtime yet (the core system package comes from npm), so a
 /// verbatim copy lives under <c>fixtures/</c> and is published once from here, schema first.
-/// Every test owns its fixture flow key (<c>default-version-lab-a..g</c>) so tests never fight over
+/// Every test owns its fixture flow key (<c>default-version-lab-a..h</c>) so tests never fight over
 /// one registry entry. Versions 1.0.1 / 1.1.0 (and 1.0.2 in the line test) are built from the
 /// 1.0.0 file under <c>core/</c> and published through <c>api/v1/definitions/publish</c>;
 /// publish is version-immutable, "already published" is fine on a re-run.
@@ -29,6 +29,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     private const string LabE = "default-version-lab-e";
     private const string LabF = "default-version-lab-f";
     private const string LabG = "default-version-lab-g";
+    private const string LabH = "default-version-lab-h";
 
     /// <summary>The runtime propagates a pointer change within ~5 s per pod; wait twice that.</summary>
     private static readonly TimeSpan Propagation = TimeSpan.FromSeconds(10);
@@ -232,6 +233,39 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
     }
 
+    [Fact]
+    public async Task FullPackagePin_PinsTheBuild()
+    {
+        await EnsureVersionsAsync(LabH, "1.0.1", "1.1.0");
+        await EnsureRegistryAsync();
+        try
+        {
+            // The SDK-published 1.0.0 is stored as 1.0.0-pkg.1.0.0+core; the pointer is written without +metadata.
+            var (_, startBody) = await StartLabAsync(LabH, "1.0.0");
+            var stored = RawFlowVersionOf(startBody);
+            Assert.Contains("-pkg.", stored);
+            var full = stored.Split('+')[0];
+
+            await SetPointerAsync(LabH, full);
+            Assert.Equal("1.0.0", await WaitForVersionAsync(LabH, null, "1.0.0"));
+            Assert.Equal("1.0.0", await StartVersionAsync(LabH, null));
+            Assert.Equal("1.0.0", await StartVersionAsync(LabH, "1.0"));
+            Assert.Equal("1.1.0", await StartVersionAsync(LabH, "1.1.0"));
+
+            // Partial package forms are not supported: rejected at write.
+            var registryId = await RegistryIdAsync(LabH);
+            var (status, body) = await SendRawAsync(HttpMethod.Patch,
+                $"api/v1/core/workflows/{Registry}/instances/{registryId}/transitions/set-default?sync=true",
+                RegistryBody("1.0.0-pkg.1.0"), Headers());
+            Assert.Equal(HttpStatusCode.Conflict, status);
+            Assert.Contains("100052", body);
+        }
+        finally
+        {
+            await ClearPointerAsync(LabH);
+        }
+    }
+
     // ── starts ───────────────────────────────────────────────────────────────
 
     private Task<(HttpStatusCode Status, string Body)> StartLabAsync(string flow, string? version = null) =>
@@ -297,6 +331,17 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         if (version is null) return null;
         var cut = version.IndexOfAny(['-', '+']);
         return cut < 0 ? version : version[..cut];
+    }
+
+    /// <summary>The <c>flowVersion</c> exactly as stored (build metadata included).</summary>
+    private static string RawFlowVersionOf(string raw)
+    {
+        var body = JsonDocument.Parse(raw).RootElement;
+        if (body.TryGetProperty("flowVersion", out var top)) return top.GetString()!;
+        if (body.TryGetProperty("metadata", out var metadata) && metadata.TryGetProperty("flowVersion", out var inner))
+            return inner.GetString()!;
+        Assert.Fail($"response carried no flowVersion: {raw}");
+        return "";
     }
 
     private static string IdOf(string raw) =>

@@ -1,6 +1,6 @@
 # FlowDefaultVersion — integration test
 
-Bir sınıf, **yedi çalışan test**; fixture flow'lar `default-version-lab-a … g` (domain `core`) ve registry flow'u
+Bir sınıf, **sekiz çalışan test**; fixture flow'lar `default-version-lab-a … h` (domain `core`) ve registry flow'u
 `sys-version-registry`.
 
 | Class | Test | What it checks |
@@ -12,6 +12,7 @@ Bir sınıf, **yedi çalışan test**; fixture flow'lar `default-version-lab-a �
 | `FlowDefaultVersionTests` | `InvalidPointer_IsRejectedAtWrite` | `set-default "9.9"` → 409 `Instance:100052`; registry instance'ı `active`/`A` kalır, data `defaultVersion` değişmez |
 | `FlowDefaultVersionTests` | `Clearing_WithLatest_ReturnsToAutomatic` | Pointer `1.0.0` → versiyonsuz 1.0.0; `set-default "latest"` → ≤ 10 sn içinde versiyonsuz start 1.1.0 (Automatic); registry data `defaultVersion == "latest"` |
 | `FlowDefaultVersionTests` | `PointerFlip_UnderLoad_NeverStartsAnUnactivatedVersion` | Pointer 1.0.0 ↔ 1.0.1 çevrilirken 8 eşzamanlı versiyonsuz start döngüsü (~3 sn): hiçbir start 1.1.0'a düşmez (her `flowVersion` 1.0.0 veya 1.0.1); son flip'ten sonra ≤ 10 sn içinde start 1.0.0'a döner |
+| `FlowDefaultVersionTests` | `FullPackagePin_PinsTheBuild` | SDK'nın yayınladığı tam sürüm (`1.0.0-pkg.1.0.0`, `+core` olmadan) pointer olunca versiyonsuz → o build (1.0.0); `?version=1.0` → 1.0.0; `?version=1.1.0` → 1.1.0; `set-default "1.0.0-pkg.1.0"` (kısmi paket biçimi) → 409 `Instance:100052`; sonunda `"latest"` |
 
 ## Why this exists
 
@@ -38,7 +39,7 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
   `api/v1/definitions/publish` ile bir kez yayınlar ("already" cevabı sorun değil). **`@burgan-tech/vnext-core`
   bu flow'u taşımaya başlayınca bu kopyayı ve `EnsureRegistryAsync`'i sil.** `core/` dışında durur ki SDK
   yayıncısı kendiliğinden göndermesin (bkz. ImplicitStartLab, VersionPinLab).
-- `core/Workflows/flow-default-version-lab/default-version-lab-{a..f}.json` **1.0.0** — `lab-initial` →
+- `core/Workflows/flow-default-version-lab/default-version-lab-{a..h}.json` **1.0.0** — `lab-initial` →
   manual `finish` → `lab-finished` (Finish). Her test kendi flow anahtarını kullanır, böylece testler tek
   registry kaydı için yarışmaz. SDK 1.0.0'ı `core/` altından yayınlar.
 - **1.0.1 / 1.1.0 (ve `-c` için 1.0.2)** `core/` altında YOK; test 1.0.0 dosyasından kurar ve
@@ -71,6 +72,11 @@ start 1.1.0 verir; registry data `defaultVersion` `"latest"`.
 ### `InvalidPointer_IsRejectedAtWrite`
 1. Pointer `1.0.0`. 2. `set-default` `"9.9"` (`sync=true`) → 409 + `100052`. 3. Registry instance'ı
 `active` / `A`, data `defaultVersion` hâlâ `1.0.0`.
+
+### `FullPackagePin_PinsTheBuild`
+1. `?version=1.0.0` ile start, saklanan tam sürümü oku, `+metadata`'yı at. 2. Bu tam sürümü pointer yap;
+versiyonsuz start 1.0.0'a oturur (eşleşme build metadata'yı yok sayar). 3. `?version=1.0` → 1.0.0 (tavan);
+`?version=1.1.0` → 1.1.0. 4. `set-default "1.0.0-pkg.1.0"` → 409 + `100052`. 5. Cleanup `"latest"`.
 
 ## Pitfalls
 
