@@ -1,6 +1,6 @@
 # FlowDefaultVersion — integration test
 
-Bir sınıf, **altı çalışan test + bir Skip**; fixture flow'lar `default-version-lab-a … f` (domain `core`) ve registry flow'u
+Bir sınıf, **yedi çalışan test**; fixture flow'lar `default-version-lab-a … g` (domain `core`) ve registry flow'u
 `sys-version-registry`.
 
 | Class | Test | What it checks |
@@ -10,12 +10,13 @@ Bir sınıf, **altı çalışan test + bir Skip**; fixture flow'lar `default-ver
 | `FlowDefaultVersionTests` | `LinePin_FollowsHotfix` | Pointer `"1.0"`: versiyonsuz start hat içinde kalır (1.0.1, yeniden koşuda 1.0.2); `1.0.2` yayınlanınca ≤ 10 sn içinde 1.0.2; 1.1.0 hiç seçilmez |
 | `FlowDefaultVersionTests` | `Flip_And_Rollback_DoNotMoveRunningInstances` | 1.0.0'da doğan instance, pointer 1.1.0'a çevrilip geri alınınca (ve transition koşunca) `flowVersion == "1.0.0"` kalır; flip sırasında doğan 1.1.0 instance'ı rollback'ten sonra da 1.1.0 kalır |
 | `FlowDefaultVersionTests` | `InvalidPointer_IsRejectedAtWrite` | `set-default "9.9"` → 409 `Instance:100052`; registry instance'ı `active`/`A` kalır, data `defaultVersion` değişmez |
+| `FlowDefaultVersionTests` | `Clearing_WithLatest_ReturnsToAutomatic` | Pointer `1.0.0` → versiyonsuz 1.0.0; `set-default "latest"` → ≤ 10 sn içinde versiyonsuz start 1.1.0 (Automatic); registry data `defaultVersion == "latest"` |
 | `FlowDefaultVersionTests` | `PointerFlip_UnderLoad_NeverStartsAnUnactivatedVersion` | Pointer 1.0.0 ↔ 1.0.1 çevrilirken 8 eşzamanlı versiyonsuz start döngüsü (~3 sn): hiçbir start 1.1.0'a düşmez (her `flowVersion` 1.0.0 veya 1.0.1); son flip'ten sonra ≤ 10 sn içinde start 1.0.0'a döner |
 
 ## Why this exists
 
 Bir flow'un "varsayılan sürümü" artık `sys-version-registry` instance'ındaki pointer ile belirlenir
-(instance key = flow key; data `{ "type": "Flow", "defaultVersion": "1.0.0"|"1.0"|"1"|null, "reason"? }`).
+(instance key = flow key; data `{ "type": "Flow", "defaultVersion": "1.0.0"|"1.0"|"1"|"latest"|null, "reason"? }`).
 Kayıt yoksa davranış eskisi gibi (latest). Pointer varsa versiyonsuz start / `latest` etkin varsayılana
 çözülür; `?version=M` / `M.m` pointer'ı aşmayan en iyi eşleşmeye; yalnız pointer'ın üstünde kalan sürüm
 404 `Instance:100051`; açık artifact sürümü (`?version=1.1.0`) tavan tanımaz. Yayınlanmış hiçbir sürümle
@@ -32,7 +33,7 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
 
 - **Registry kopyası** — `fixtures/version-registry.schema.json` ve `fixtures/sys-version-registry.workflow.json`,
   vnext-sys-flow reposundan (`core/Schemas/version-registry.json`, `core/Workflows/sys-version-registry.json`,
-  branch `flow-default-version`, commit `fa08068`) **birebir** kopyalanmıştır. Core sistem paketi npm'den
+  branch `flow-default-version`, commit `f7ff759`) **birebir** kopyalanmıştır. Core sistem paketi npm'den
   yayınlandığı için bu flow runtime'da henüz yok; test önce schema'yı, sonra workflow'u
   `api/v1/definitions/publish` ile bir kez yayınlar ("already" cevabı sorun değil). **`@burgan-tech/vnext-core`
   bu flow'u taşımaya başlayınca bu kopyayı ve `EnsureRegistryAsync`'i sil.** `core/` dışında durur ki SDK
@@ -42,7 +43,7 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
   registry kaydı için yarışmaz. SDK 1.0.0'ı `core/` altından yayınlar.
 - **1.0.1 / 1.1.0 (ve `-c` için 1.0.2)** `core/` altında YOK; test 1.0.0 dosyasından kurar ve
   `definitions/publish` ile yayınlar. Yayın sürüm-immutable; tekrar koşuda "already" kabul edilir.
-- Registry instance'ları domain'de (`core`) yaşar; her test sonunda pointer `null`'a (Automatic) çekilir
+- Registry instance'ları domain'de (`core`) yaşar; her test sonunda pointer `"latest"`'a (Automatic) çekilir
   (`set-default`), böylece yeniden koşu temiz başlar. Kayıt zaten varsa ikinci `create` yerine mevcut
   instance'a `set-default` uygulanır.
 
@@ -63,6 +64,10 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
 1. Pointer 1.0.0, instance A başlat (1.0.0). 2. Pointer 1.1.0 → yeni start 1.1.0 (instance B). 3. A
 `finish` koşar; `flowVersion` hâlâ 1.0.0. 4. Pointer 1.0.0'a geri; A 1.0.0, B 1.1.0 kalır.
 
+### `Clearing_WithLatest_ReturnsToAutomatic`
+1. Pointer `1.0.0`; versiyonsuz start 1.0.0'a oturur. 2. `set-default` `"latest"`. 3. ≤ 10 sn içinde versiyonsuz
+start 1.1.0 verir; registry data `defaultVersion` `"latest"`.
+
 ### `InvalidPointer_IsRejectedAtWrite`
 1. Pointer `1.0.0`. 2. `set-default` `"9.9"` (`sync=true`) → 409 + `100052`. 3. Registry instance'ı
 `active` / `A`, data `defaultVersion` hâlâ `1.0.0`.
@@ -71,17 +76,15 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
 
 - **Sürüm biçimi:** SDK'nın yayınladığı 1.0.0 `1.0.0-pkg.1.0.0+core` olarak saklanır, test'in yayınladıkları düz `1.0.1`/`1.1.0`.
   Testler `flowVersion`'ı artifact kısmıyla (`-pkg.` ve `+` öncesi) karşılaştırır.
-- **Bilinen açık — null ile temizleme çalışmaz:** `set-default` `defaultVersion: null` ile 200 döner ama instance-data
-  merge'ü mevcut anahtarda null'u "değişiklik yok" sayar; satır yazılmaz, pointer kalır. Bu yüzden testler izolasyon için
-  temizlemeye güvenmez: her test kendi flow anahtarında pointer'ı başta açıkça set eder, `NoRegistry` hiç registry kaydı
-  almayan `-a`'yı kullanır. Boşluk `ClearingWithNull_IsAKnownGap` (Skip) ile işaretlidir. Registry kaydı artık tek Initial
-  state'te (`active`) durur, `register` hop'u yoktur.
+- **Temizleme `"latest"` ile yapılır, `null` ile değil:** instance-data merge'ü mevcut anahtarda null'u "değişiklik yok"
+  sayar (`set-default` `defaultVersion: null` 200 döner ama pointer kalır); `null` yalnız create'te (anahtar yeni) etkilidir.
+  Registry kaydı tek Initial state'te (`active`) durur, `register` hop'u yoktur.
 
 - Pointer değişimi cache generation'ını commit sonrası job ile artırır; hemen ardından yapılan start eski
   çözümü görebilir — sabit `Delay` değil `WaitForVersionAsync` (≤ 10 sn) kullan. Yoklama probe'ları gerçek
   instance başlatır; testler yalnız beklenen sürümde oturan probe'u sayar.
 - Registry kaydı kalıcıdır; bir test yarıda ölürse pointer kalabilir. Sonraki koşu `set-default` ile
-  üzerine yazar, cleanup `null`'a çeker.
+  üzerine yazar, cleanup `"latest"`'a çeker.
 - `LinePin_FollowsHotfix` 1.0.2'yi bir kez yayınlar; sonraki koşuda ilk adım zaten 1.0.2 görebilir (assert
   1.0.1 **veya** 1.0.2'yi kabul eder).
 - Registry'ye yazılan body `{ "attributes": { type, defaultVersion } }` zarfıdır; start'ta `key` = flow anahtarı.

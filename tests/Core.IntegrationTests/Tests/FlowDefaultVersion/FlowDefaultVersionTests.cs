@@ -13,7 +13,7 @@ namespace Core.IntegrationTests.Tests.FlowDefaultVersion;
 /// <para>
 /// The registry flow is not on the runtime yet (the core system package comes from npm), so a
 /// verbatim copy lives under <c>fixtures/</c> and is published once from here, schema first.
-/// Every test owns its fixture flow key (<c>default-version-lab-a..e</c>) so tests never fight over
+/// Every test owns its fixture flow key (<c>default-version-lab-a..g</c>) so tests never fight over
 /// one registry entry. Versions 1.0.1 / 1.1.0 (and 1.0.2 in the line test) are built from the
 /// 1.0.0 file under <c>core/</c> and published through <c>api/v1/definitions/publish</c>;
 /// publish is version-immutable, "already published" is fine on a re-run.
@@ -28,6 +28,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     private const string LabD = "default-version-lab-d";
     private const string LabE = "default-version-lab-e";
     private const string LabF = "default-version-lab-f";
+    private const string LabG = "default-version-lab-g";
 
     /// <summary>The runtime propagates a pointer change within ~5 s per pod; wait twice that.</summary>
     private static readonly TimeSpan Propagation = TimeSpan.FromSeconds(10);
@@ -209,14 +210,26 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
     }
 
-    [Fact(Skip = "Known gap: set-default with defaultVersion null answers 200 but the instance-data merge treats null on an existing key as no change, so the pointer is not cleared.")]
-    public async Task ClearingWithNull_IsAKnownGap()
+    [Fact]
+    public async Task Clearing_WithLatest_ReturnsToAutomatic()
     {
-        await EnsureVersionsAsync(LabF, "1.0.1", "1.1.0");
+        await EnsureVersionsAsync(LabG, "1.0.1", "1.1.0");
         await EnsureRegistryAsync();
-        await SetPointerAsync(LabF, "1.0.0");
-        await SetPointerAsync(LabF, null);
-        Assert.Equal("1.1.0", await WaitForVersionAsync(LabF, null, "1.1.0"));
+        try
+        {
+            await SetPointerAsync(LabG, "1.0.0");
+            Assert.Equal("1.0.0", await WaitForVersionAsync(LabG, null, "1.0.0"));
+
+            await SetPointerAsync(LabG, "latest");
+
+            Assert.Equal("1.1.0", await WaitForVersionAsync(LabG, null, "1.1.0"));
+            var data = await GetAttributesAsync(Registry, await RegistryIdAsync(LabG));
+            Assert.Equal("latest", data.GetProperty("defaultVersion").GetString());
+        }
+        finally
+        {
+            await ClearPointerAsync(LabG);
+        }
     }
 
     // ── starts ───────────────────────────────────────────────────────────────
@@ -317,13 +330,12 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     }
 
     /// <summary>
-    /// Best-effort only: the runtime's instance-data merge treats null on an existing key as "no change"
-    /// (see <see cref="ClearingWithNull_IsAKnownGap"/>), so this does NOT clear. Isolation comes from each
-    /// test setting its own pointer explicitly on its own flow key.
+    /// Returns the flow to Automatic with <c>"latest"</c>: the runtime's instance-data merge ignores null
+    /// on an existing key, so null could not clear.
     /// </summary>
     private async Task ClearPointerAsync(string flow)
     {
-        try { await SetPointerAsync(flow, null); } catch (Exception) { /* cleanup must not mask the test result */ }
+        try { await SetPointerAsync(flow, "latest"); } catch (Exception) { /* cleanup must not mask the test result */ }
     }
 
     // ── publishing ───────────────────────────────────────────────────────────
