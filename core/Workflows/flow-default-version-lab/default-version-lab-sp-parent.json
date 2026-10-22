@@ -1,0 +1,137 @@
+{
+  "key": "default-version-lab-sp-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "flow-default-version",
+    "parent",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Default Version Lab SubProcess Parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-default-version-lab-sp-parent",
+      "target": "sp-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "sp-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Parent Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "default-version-lab-sp-start",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/SpStartChildMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8gb25FbnRyeSBvZiBzcC1pbml0aWFsOiBzdGFydCBkZWZhdWx0LXZlcnNpb24tbGFiLXNwLWNoaWxkIHRocm91Z2ggYSBMT0NBTCBTdWJQcm9jZXNzIHRhc2sgKHR5cGUgMTQpLAovLyBhdXRob3JlZCB3aXRoIHRoZSBGTE9BVElORyB2ZXJzaW9uICIxIiDigJQgdGhlIHJlZ2lzdHJ5IHBvaW50ZXIgb24gdGhlIGNoaWxkIGRlY2lkZXMgd2hpY2ggdmVyc2lvbiBydW5zLAovLyBhbmQgdGhlIHBhcmVudCdzIGNvcnJlbGF0aW9uIG11c3QgcmVjb3JkIHRoZSB2ZXJzaW9uIHRoZSBjaGlsZCBhY3R1YWxseSBzdGFydGVkIG9uLgpwdWJsaWMgY2xhc3MgU3BTdGFydENoaWxkTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc3ViID0gdGFzayBhcyBTdWJQcm9jZXNzVGFzazsKICAgICAgICBpZiAoc3ViID09IG51bGwpIHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBTdWJQcm9jZXNzVGFzayIpOwoKICAgICAgICBzdWIuU2V0RG9tYWluKCJjb3JlIik7CiAgICAgICAgc3ViLlNldEZsb3coImRlZmF1bHQtdmVyc2lvbi1sYWItc3AtY2hpbGQiKTsKICAgICAgICBzdWIuU2V0VmVyc2lvbigiMSIpOwogICAgICAgIHN1Yi5TZXRCb2R5KG5ldyB7IH0pOwogICAgICAgIHN1Yi5TZXRLZXkoY29udGV4dC5JbnN0YW5jZS5JZC5Ub1N0cmluZygpKTsKICAgICAgICBzdWIuU2V0U3luYyhmYWxzZSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-waiting",
+            "target": "sp-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Waiting"
+              }
+            ],
+            "rule": {
+              "location": "./src/SpAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBTcEFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oIlNwQWx3YXlzVHJ1ZVJ1bGU6IHJldHVybmluZyB0cnVlIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKICAgIH0KfQo="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sp-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Parent Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete",
+            "target": "sp-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sp-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Parent Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "key": "fdv-xd-onboarding",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "flow-default-version-xd",
+    "parent",
+    "subflow",
+    "cross-domain"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Flow Default Version XD Onboarding (floating \"1\")"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-fdv-xd-onboarding",
+      "target": "onb-start",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "onb-start",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Onboarding Start"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-contract",
+            "target": "onb-contract",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Contract"
+              }
+            ],
+            "rule": {
+              "location": "./src/FdvXdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5BbHdheXMtdHJ1ZSBhdXRvIHJ1bGU6IHN0YXJ0IOKGkiBjb250cmFjdCwgYW5kIGNvbnRyYWN0IOKGkiBkb25lIG9uY2UgdGhlIHBhcnRuZXIgY2hpbGQgZmluaXNoZXMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmR2WGRBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "onb-contract",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow: partner/fdv-xd-contract"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "fdv-xd-contract",
+            "domain": "partner",
+            "version": "1",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/FdvXdContractSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBTdWJGbG93IG1hcHBpbmcgY29yZS9mZHYteGQtb25ib2FyZGluZyog4oaSIHBhcnRuZXIvZmR2LXhkLWNvbnRyYWN0LiBUaGUgY2hpbGQgbmVlZHMgb25seSB0byBiZQovLy8gc3RhcnRlZDsgV0hJQ0ggdmVyc2lvbiBzdGFydHMgaXMgZGVjaWRlZCBvbiB0aGUgcGFydG5lciBzaWRlIChpdHMgc3lzLXZlcnNpb24tcmVnaXN0cnkgZW50cnkpLgovLy8gU2lnbmF0dXJlIG5vdGU6IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0KSDigJQgYSB3cm9uZyBzaWduYXR1cmUgc2lsZW50bHkga2VlcHMgdGhlIGNoaWxkIGZyb20gc3RhcnRpbmcuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGZHZYZENvbnRyYWN0U3ViRmxvd01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBjaGlsZElucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBjaGlsZElucHV0LnBhcmVudEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZDsKICAgICAgICBjaGlsZElucHV0LnBhcmVudERvbWFpbiA9ICJjb3JlIjsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjaGlsZElucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KfQo="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-done",
+            "target": "onb-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Done"
+              }
+            ],
+            "rule": {
+              "location": "./src/FdvXdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5BbHdheXMtdHJ1ZSBhdXRvIHJ1bGU6IHN0YXJ0IOKGkiBjb250cmFjdCwgYW5kIGNvbnRyYWN0IOKGkiBkb25lIG9uY2UgdGhlIHBhcnRuZXIgY2hpbGQgZmluaXNoZXMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmR2WGRBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "onb-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Onboarding Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
