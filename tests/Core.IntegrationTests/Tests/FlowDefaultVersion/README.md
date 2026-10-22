@@ -1,6 +1,6 @@
 # FlowDefaultVersion — integration test
 
-Bir sınıf, **sekiz çalışan test**; fixture flow'lar `default-version-lab-a … h` (domain `core`) ve registry flow'u
+Bir sınıf, **dokuz çalışan test**; fixture flow'lar `default-version-lab-a … h` + `default-version-lab-sp-parent/-child` (domain `core`) ve registry flow'u
 `sys-version-registry`.
 
 | Class | Test | What it checks |
@@ -13,6 +13,7 @@ Bir sınıf, **sekiz çalışan test**; fixture flow'lar `default-version-lab-a 
 | `FlowDefaultVersionTests` | `Clearing_WithLatest_ReturnsToAutomatic` | Pointer `1.0.0` → versiyonsuz 1.0.0; `set-default "latest"` → ≤ 10 sn içinde versiyonsuz start 1.1.0 (Automatic); registry data `defaultVersion == "latest"` |
 | `FlowDefaultVersionTests` | `PointerFlip_UnderLoad_NeverStartsAnUnactivatedVersion` | Pointer 1.0.0 ↔ 1.0.1 çevrilirken 8 eşzamanlı versiyonsuz start döngüsü (~3 sn): hiçbir start 1.1.0'a düşmez (her `flowVersion` 1.0.0 veya 1.0.1); son flip'ten sonra ≤ 10 sn içinde start 1.0.0'a döner |
 | `FlowDefaultVersionTests` | `FullPackagePin_PinsTheBuild` | SDK'nın yayınladığı tam sürüm (`1.0.0-pkg.1.0.0`, `+core` olmadan) pointer olunca versiyonsuz → o build (1.0.0); `?version=1.0` → 1.0.0; `?version=1.1.0` → 1.1.0; `set-default "1.0.0-pkg.1.0"` (kısmi paket biçimi) → 409 `Instance:100052`; sonunda `"latest"` |
+| `FlowDefaultVersionTests` | `SubProcess_Local_FollowsDefault_RunningChildStays` | Tek domain'de (core) SubProcess task (floating `"1"`) çocuğun pointer'ını izler: pointer `1.0.0` → çocuk 1.0.0 ve parent korelasyonu `subFlowVersion` = çocuğun çözülmüş tam versiyonu; pointer `1.1` → ≤ 10 sn içinde yeni çocuk 1.1.0, önceki parent'ın korelasyonu hâlâ 1.0.0; sonunda `"latest"`. Cross-domain XV-05'in yerel yol garantisi |
 
 ## Why this exists
 
@@ -44,6 +45,9 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
   registry kaydı için yarışmaz. SDK 1.0.0'ı `core/` altından yayınlar.
 - **1.0.1 / 1.1.0 (ve `-c` için 1.0.2)** `core/` altında YOK; test 1.0.0 dosyasından kurar ve
   `definitions/publish` ile yayınlar. Yayın sürüm-immutable; tekrar koşuda "already" kabul edilir.
+- `core/Workflows/flow-default-version-lab/default-version-lab-sp-parent.json` + `-sp-child.json` (1.0.0) ve
+  `core/Tasks/flow-default-version-lab/default-version-lab-sp-start.json` — SubProcess testi (task 14, mapping `"1"`). Üretici:
+  `python3 core/Workflows/flow-default-version-lab/build-sp-lab.py` (`src/*.csx` → base64). Çocuk 1.1.0 çocuk 1.0.0 dosyasından kurulup yayınlanır.
 - Registry instance'ları domain'de (`core`) yaşar; her test sonunda pointer `"latest"`'a (Automatic) çekilir
   (`set-default`), böylece yeniden koşu temiz başlar. Kayıt zaten varsa ikinci `create` yerine mevcut
   instance'a `set-default` uygulanır.
@@ -98,3 +102,8 @@ versiyonsuz start 1.0.0'a oturur (eşleşme build metadata'yı yok sayar). 3. `?
   `CrossDomain_ExactRefIgnoresCalleeDefault`, subflow + subprocess correlation) bu suite'te yok;
   partner domain gerektirir — cross-domain lab'da ele alınır.
 - Çalıştırma: `dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~FlowDefaultVersion"`.
+
+### `SubProcess_Local_FollowsDefault_RunningChildStays`
+1. Çocuk 1.1.0'ı yayınla; pointer `1.0.0`. 2. Parent başlat → çocuk 1.0.0, korelasyon `subFlowVersion` = çocuğun saklı tam versiyonu (`1.0.0-pkg.…`).
+3. Pointer `1.1` → ≤ 10 sn içinde yeni çocuk 1.1.0, korelasyon = çocuk versiyonu. 4. Eski çocuk ve eski parent'ın korelasyonu 1.0.0'da kalır.
+5. Pointer `latest` → yeni çocuk 1.1.0.

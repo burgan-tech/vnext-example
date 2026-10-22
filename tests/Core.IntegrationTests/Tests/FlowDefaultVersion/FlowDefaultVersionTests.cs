@@ -30,6 +30,8 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     private const string LabF = "default-version-lab-f";
     private const string LabG = "default-version-lab-g";
     private const string LabH = "default-version-lab-h";
+    private const string SpParent = "default-version-lab-sp-parent";
+    private const string SpChild = "default-version-lab-sp-child";
 
     /// <summary>The runtime propagates a pointer change within ~5 s per pod; wait twice that.</summary>
     private static readonly TimeSpan Propagation = TimeSpan.FromSeconds(10);
@@ -264,6 +266,101 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         {
             await ClearPointerAsync(LabH);
         }
+    }
+
+    /// <summary>
+    /// The local SubProcess path of cross-domain XV-05: a task authored with the floating version "1"
+    /// starts whatever the CHILD's pointer says, the parent's correlation records the child's resolved
+    /// full version, and a child that is already running stays on its version when the pointer moves.
+    /// </summary>
+    [Fact]
+    public async Task SubProcess_Local_FollowsDefault_RunningChildStays()
+    {
+        await EnsureVersionsAsync(SpChild, "1.1.0");
+        await EnsureRegistryAsync();
+        try
+        {
+            await SetPointerAsync(SpChild, "1.0.0");
+            var old = await WaitForSpChildAsync("1.0.0");
+            Assert.StartsWith("1.0.0-pkg.", old.CorrelationVersion);
+            Assert.Equal(old.ChildVersion, old.CorrelationVersion);
+
+            await SetPointerAsync(SpChild, "1.1");
+            var fresh = await WaitForSpChildAsync("1.1.0");
+            Assert.Equal(fresh.ChildVersion, fresh.CorrelationVersion);
+            Assert.Equal("1.1.0", Artifact(fresh.CorrelationVersion));
+
+            // The earlier child did not move, and its parent's correlation still names 1.0.0.
+            Assert.Equal(old.ChildVersion, await InstanceRawVersionAsync(SpChild, old.ChildId));
+            var correlation = await WaitForSpCorrelationAsync(old.ParentId);
+            Assert.Equal(old.ChildId, correlation.GetProperty("subFlowInstanceId").GetString());
+            Assert.Equal(old.CorrelationVersion, correlation.GetProperty("subFlowVersion").GetString());
+
+            await SetPointerAsync(SpChild, "latest");
+            var latest = await WaitForSpChildAsync("1.1.0");
+            Assert.Equal(latest.ChildVersion, latest.CorrelationVersion);
+        }
+        finally
+        {
+            await ClearPointerAsync(SpChild);
+        }
+    }
+
+    // ── SubProcess parent / child ────────────────────────────────────────────
+
+    private sealed record SpChildRun(string ParentId, string ChildId, string ChildVersion, string CorrelationVersion);
+
+    /// <summary>Starts parents until one's child lands on <paramref name="expected"/> (artifact version).</summary>
+    private async Task<SpChildRun> WaitForSpChildAsync(string expected)
+    {
+        SpChildRun? last = null;
+        await WaitUntilAsync(async () =>
+        {
+            last = await StartSpParentAsync();
+            return Artifact(last.ChildVersion) == expected;
+        }, $"no new {SpChild} started on {expected} within {Propagation.TotalSeconds:0}s; last child {last?.ChildVersion}",
+            Propagation);
+        return last!;
+    }
+
+    private async Task<SpChildRun> StartSpParentAsync()
+    {
+        var (status, body) = await SendRawAsync(HttpMethod.Post,
+            $"api/v1/core/workflows/{SpParent}/instances/start?sync=true", new { }, Headers());
+        Assert.True((int)status < 400, $"start {SpParent} refused with {(int)status}: {body}");
+        var parentId = IdOf(body);
+
+        var correlation = await WaitForSpCorrelationAsync(parentId);
+        var childId = correlation.GetProperty("subFlowInstanceId").GetString()!;
+        return new SpChildRun(parentId, childId, await InstanceRawVersionAsync(SpChild, childId),
+            correlation.GetProperty("subFlowVersion").GetString()!);
+    }
+
+    /// <summary>The parent's active correlation to the child, from the state function.</summary>
+    private async Task<JsonElement> WaitForSpCorrelationAsync(string parentId)
+    {
+        JsonElement found = default;
+        await WaitUntilAsync(async () =>
+        {
+            var response = await Api.CallInstanceFunctionAsync(SpParent, parentId, "state", headers: Headers());
+            if (!response.Body.TryGetProperty("activeCorrelations", out var correlations)
+                || correlations.ValueKind != JsonValueKind.Array) return false;
+
+            foreach (var correlation in correlations.EnumerateArray())
+            {
+                if (!correlation.TryGetProperty("subFlowName", out var name) || name.GetString() != SpChild) continue;
+                found = correlation.Clone();
+                return true;
+            }
+            return false;
+        }, $"{SpParent}/{parentId} never showed an active correlation to {SpChild}", TimeSpan.FromSeconds(30));
+        return found;
+    }
+
+    private async Task<string> InstanceRawVersionAsync(string flow, string id)
+    {
+        var response = await Api.GetInstanceAsync(flow, id, Headers());
+        return RawFlowVersionOf(response.Body.GetRawText());
     }
 
     // ── starts ───────────────────────────────────────────────────────────────
