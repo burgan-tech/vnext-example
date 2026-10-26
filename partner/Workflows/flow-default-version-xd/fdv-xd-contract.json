@@ -1,0 +1,87 @@
+{
+  "key": "fdv-xd-contract",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "partner",
+  "version": "1.2.0",
+  "tags": [
+    "integration-test",
+    "flow-default-version-xd",
+    "child"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Flow Default Version XD Contract (1.2.0)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-fdv-xd-contract",
+      "target": "contract-waiting",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "contract-waiting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Contract Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "sign",
+            "target": "contract-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Sign"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "contract-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Contract Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

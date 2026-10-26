@@ -1,0 +1,139 @@
+{
+  "key": "version-pin-lab-subflow-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "version-pin-lab",
+    "parent",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Version Pin Lab SubFlow Parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-version-pin-lab-subflow-parent",
+      "target": "sf-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "sf-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow Parent Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-subflow",
+            "target": "sf-subflow",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sf-subflow",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow State"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "version-pin-lab-child",
+            "domain": "core",
+            "version": "1.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/ParentToChildSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+SW5wdXQgbWFwcGluZyBmb3IgdGhlIFN1YkZsb3cgc3RhdGU6IHRoZSBjaGlsZCBuZWVkcyBubyBkYXRhLCBvbmx5IHRvIGJlIHN0YXJ0ZWQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUGFyZW50VG9DaGlsZFN1YkZsb3dNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVN1YkZsb3dNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgY2hpbGRJbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY2hpbGRJbnB1dCB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9Cn0K"
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-completed",
+            "target": "sf-completed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Completed"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sf-completed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow Parent Completed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

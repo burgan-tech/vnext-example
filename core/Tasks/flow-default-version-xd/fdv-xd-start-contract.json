@@ -1,0 +1,21 @@
+{
+  "key": "fdv-xd-start-contract",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "flow-default-version-xd",
+    "subprocess",
+    "dapr"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "partner",
+      "flow": "fdv-xd-contract",
+      "version": "1",
+      "timeoutSeconds": 30
+    }
+  }
+}

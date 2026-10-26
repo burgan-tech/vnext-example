@@ -146,6 +146,50 @@ bayt), `InstancesData` `content`/`passport` taşımıyor; partner `fo_xd_child.I
 gövdesi yalnız handle (≤ 348 bayt). Core'un uzak okuması log'da
 `/v1.0/invoke/vnext-app-partner/method/api/v1/partner/workflows/fo-xd-child/instances/<id>/internal/file` → 200.
 
+## Flow default version cross-domain (`flow-default-version-xd`, vnext#1106)
+
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-flow-default-version-xd.md` (XV-01..XV-07).
+Çocuğun versiyonu **çağrılanın** (partner) `sys-version-registry` kaydından gelir; çağıranın referansı
+floating (`"1"`) ise default'u izler, tam (`"1.2.0"`) ise yok sayar.
+
+```
+core/fdv-xd-onboarding        (F 1.0.0)  onb-start ─auto→ onb-contract (4: S → partner/fdv-xd-contract "1")     ─auto→ onb-done
+core/fdv-xd-onboarding  1.1.0 (fixture)  aynısı, referans tam "1.3.0" (XV-03 pilotu)
+core/fdv-xd-onboarding-exact  (F 1.0.0)  aynısı, referans tam "1.2.0"
+core/fdv-xd-onboarding-sp     (F 1.0.0)  sp-initial [onEntry: task 14 fdv-xd-start-contract, SetVersion("1"), SetUseDapr(true)] ─auto→ sp-waiting ─complete→ sp-done
+partner/fdv-xd-contract       (S 1.2.0 paketten = 1.2.0-pkg.1.0.0+partner; 1.3.0 fixture'dan)  contract-waiting ─sign→ contract-done
+```
+
+Fixture (test kendisi `api/v1/definitions/publish` ile, bir kez): `version-registry` şeması + `sys-version-registry`
+akışı (FlowDefaultVersion `fixtures/` dosyaları) **core'a ve partner'a** (partner'a `domain` alanları yeniden
+yazılarak); partner `fdv-xd-contract 1.3.0`, core `fdv-xd-onboarding 1.1.0` — ikisi de `partner/` / `core/`
+altındaki dosyadan türetilir. 1.1.0 yayında olduğu için core'da pointer yokken versiyonsuz onboarding 1.1.0'a
+düşer; bu yüzden XV-03 dışındaki testler onboarding'i `?version=1.0.0` ile başlatır.
+
+| Test | AC | Ölçtüğü |
+|---|---|---|
+| `FloatingReference_FollowsCalleeDefault` | XV-01 | partner default `1.2.0` → çocuk `1.2.0`, korelasyon `subFlowVersion` `1.2.0-pkg.…`; çocuğa `sign` → parent `onb-done` |
+| `ExactReference_IgnoresCalleeDefault` | XV-02 | `"1.2.0"` referansı, partner default `1.3` öncesi ve sonrası çocuk `1.2.0` |
+| `PilotInBothDomains` | XV-03 | core default onboarding `1.0.0` → çocuk `1.2.0`; `?version=1.1.0` → onboarding `1.1.0`, çocuk `1.3.0` |
+| `CalleeDefaultChange_NewChildrenFollow_RunningChildStays` | XV-04 | partner `1.3` → ≤10 sn yeni çocuk `1.3.0`; eski çocuk ve korelasyonu `1.2.0-pkg.…` |
+| `SubProcess_FollowsCalleeDefault_RunningChildStays` | XV-05 | aynısı SubProcess (task 14, `useDapr`) yolundan |
+| `Latest_ReturnsCalleeToAutomatic` | XV-06 | partner `"latest"` → yeni çocuk `1.3.0` |
+
+XV-07 (`Cache.Get/sys-flows:partner:fdv-xd-contract:res:…` span'inde `vnext.flow.version.source` = `default` /
+`ceiling`) elle, OpenObserve `vnext` stream'inde doğrulanır. Her test kendi pointer'ını açık bir değerle kurar,
+`finally`'de `"latest"` ile temizler (`null` mevcut anahtarda etkisiz). Pointer değişimi pod başına ~5 sn'de
+yayılır; testler 10 sn yoklar (her yoklama gerçek bir parent + çocuk açar).
+
+### 2026-10-22 koşusu
+
+Lab imajları vnext `claude/flow-default-version-27620d`. 5/6 yeşil. **Bilinen kırmızı (runtime kusuru):**
+`SubProcess_FollowsCalleeDefault_RunningChildStays` — partner çocuğu doğru versiyonla başlıyor (default
+`1.2.0` → `1.2.0`, `latest` → `1.3.0`) ama core'daki SubProcess korelasyonu `subFlowVersion = "1"` (yazılan
+referans) tutuyor. Uzak SubProcess yolu (`SubProcessTaskExecutor.ExecuteRemoteAsync` →
+`SubProcessRemoteInvoker`) `SubFlowVersion` metadata'sını taşımıyor; `CreateCorrelationAsync`
+`task.TriggerVersion`'a düşüyor. Aynı versiyonun SubFlow korelasyonu ve tek-domain SubProcess
+(`VersionPinLab`) çözülmüş versiyonu tutuyor.
+
 ## Başarı kriteri / bilinen kısıtlar
 
 - 11 test yeşil (her biri kendi `testId`'siyle yeni parent açar).
