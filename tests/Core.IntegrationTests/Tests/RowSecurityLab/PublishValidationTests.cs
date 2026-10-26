@@ -65,14 +65,15 @@ public class PublishValidationTests : RowSecurityLabTestBase
         AssertRejectedAsync($"v03{variant}", Rules($$"""{ "roles": ["{{role}}"] }"""), "RS-E02");
 
     /// <summary>
-    /// A role-grant combinator object as a rule role. The doc and <c>RowSecurityErrorCodes.E03</c> name RS-E03; see
-    /// the report — the runtime rejects it (400, nothing published) but with a JSON-conversion message, no RS code.
+    /// [pin] A role-grant combinator object as a rule role. Controller ruling (V-4): the runtime rejects it at JSON
+    /// binding (<c>Roles</c> is a string list) — 400 <c>App:900006</c>, nothing published — with a JSON-conversion
+    /// message and no RS-E03; vnext-schema validate reports the mistake first. Pins exactly that.
     /// </summary>
     [Theory]
     [InlineData("allof", """{ "allOf": ["branch-staff", "hq-auditor"] }""")]
     [InlineData("anyof", """{ "anyOf": ["branch-staff", "hq-auditor"] }""")]
-    public Task V04_CombinatorAsRuleRole_IsRejected_RSE03(string variant, string combinator) =>
-        AssertRejectedAsync($"v04{variant}", Rules($$"""{ "roles": [{{combinator}}] }"""), "RS-E03");
+    public Task V4_Pinned_CombinatorAsRuleRole_IsRejectedAtJsonBinding_NoRsCode(string variant, string combinator) =>
+        AssertRejectedAsync($"v04{variant}", Rules($$"""{ "roles": [{{combinator}}] }"""), code: null);
 
     [Theory]
     [InlineData("static", """["branch-staff", "$InstanceStarter"]""", "RS-E04")]
@@ -256,7 +257,8 @@ public class PublishValidationTests : RowSecurityLabTestBase
         return (key, definition);
     }
 
-    private async Task AssertRejectedAsync(string row, string rowSecurity, string code, string keyPrefix = "")
+    /// <summary>400 + <c>App:900006</c> + nothing published; when <paramref name="code"/> is set, that RS code is among the errors.</summary>
+    private async Task AssertRejectedAsync(string row, string rowSecurity, string? code, string keyPrefix = "")
     {
         var (key, definition) = Definition(row, rowSecurity, keyPrefix);
         var (status, body) = await PublishAsync(definition);
@@ -274,8 +276,9 @@ public class PublishValidationTests : RowSecurityLabTestBase
                 foreach (var message in member.Value.EnumerateArray())
                     messages.Add(message.GetString() ?? string.Empty);
 
-        Assert.True(messages.Any(m => m.StartsWith(code + ":", StringComparison.Ordinal)),
-            $"{row}: no {code} among the validation errors: {body}");
+        if (code is not null)
+            Assert.True(messages.Any(m => m.StartsWith(code + ":", StringComparison.Ordinal)),
+                $"{row}: no {code} among the validation errors: {body}");
 
         await AssertNotPublishedAsync(row, key);
     }

@@ -161,6 +161,7 @@ istemci `role` header'ı IDM cevabının yerine geçer), P-30 (`nin` r7'yi dış
 K-1…K-4 (faz 1 bilinen açığı: `functions/state`/`data`, `GetInstanceData` filtrelenmez; SubFlow çocuğu
 kuralları miras almaz, RS-W7), X-6 (cross-domain eşleme `sub`/`act_sub`'ı değiştirirse uzak okuma o
 kimlikle yapılır).
+V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 400 `App:900006`, yayın yok, RS-E03 yok; vnext-schema validate önce yakalar).
 
 ## Dikkat noktaları
 
@@ -186,9 +187,6 @@ kimlikle yapılır).
   yalnız log'dadır, R-F8: 200, yanıtta `RS-` yok, akış `sys-flows`'ta ve listesi 200). Her W satırı anahtarını,
   kodunu ve UTC zamanını test çıktısına `W-ROW …` satırı olarak yazar (log sorgusu için). Her koşu yeni anahtarlar
   üretir; uyarı satırları runtime'da birikir (zararsız, hiçbir test bu akışları okumaz).
-- **V-4 (`allOf`/`anyOf` kural rolü):** runtime 400 döner ve hiçbir şey yayınlamaz, ama RS-E03 yerine genel JSON
-  dönüşüm hatası verir (`roles` `List<string>`; RS-E03'ü üreten kod yok). Test RS-E03'ü bekler ve kırmızıdır — ürün
-  bulgusu.
 - C-1…C-5 ve U-route yalnız listedir (tasarım gereği: çağıran filtresinin GET karşılığı yok).
 - `npm run validate` `attributes.rowSecurity`'yi tanıyan vnext-schema sürümünü ister (o sürüm yayımlanana
   kadar lokal bağlanmış vnext-schema ile koşuldu).
