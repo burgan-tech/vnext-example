@@ -78,8 +78,11 @@ public class ParameterTests : RowSecurityLabTestBase
     }
 
     /// <summary>
-    /// P-10: <c>branchCode in {$param: Q.br}</c> (no split) with <c>?br=BR-001&amp;br=BR-003</c> ⇒ element-wise
-    /// <c>{BR-001, BR-003}</c> on LATEST data ⇒ <c>{r1, r2, r5}</c> (r5 started BR-003 and is BR-001 now).
+    /// P-10: <c>branchCode in {$param: Q.br}</c> (no split) binds a repeated query key ELEMENT-WISE. Discriminating
+    /// cases (first-value binding would give a different set): <c>?br=BR-003&amp;br=BR-002</c> ⇒ <c>{r3, r4}</c>
+    /// (first value BR-003 matches nothing on latest data ⇒ first-value binding gives {}), and
+    /// <c>?br=BR-002&amp;br=BR-001</c> ⇒ <c>{r1…r5}</c> (first value alone gives {r3, r4}). Control, the brief's
+    /// case: <c>?br=BR-001&amp;br=BR-003</c> ⇒ <c>{r1, r2, r5}</c> on LATEST data (r5 started BR-003, is BR-001 now).
     /// </summary>
     [SkippableFact]
     public async Task P10_QueryRepeatedOnIn_IsElementWise_OnLatestData()
@@ -87,6 +90,9 @@ public class ParameterTests : RowSecurityLabTestBase
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
+        await AssertVisibleAsync(Flow, p, P("rs-p-query-br", query: "br=BR-003&br=BR-002"), p.R3, p.R4);
+        await AssertVisibleAsync(Flow, p, P("rs-p-query-br", query: "br=BR-002&br=BR-001"),
+            p.R1, p.R2, p.R3, p.R4, p.R5);
         await AssertVisibleAsync(Flow, p, P("rs-p-query-br", query: "br=BR-001&br=BR-003"), p.R1, p.R2, p.R5);
     }
 
@@ -220,40 +226,62 @@ public class ParameterTests : RowSecurityLabTestBase
     }
 
     /// <summary>
-    /// P-17: arity ≠ 2. <c>between</c> with <c>split</c> is a publish error (RS-E10), so the arity is reached as the
-    /// Task 5B ruling does: the element parameter <c>x-min</c> carries two raw values (two header LINES, 100 and 200)
-    /// plus <c>x-max: 500</c> ⇒ three values ⇒ none, list and GET. HttpClient folds repeated headers into one line,
-    /// so this row goes out over a raw HTTP/1.0 socket.
+    /// P-17: <c>between</c> drops for ARITY when an element parameter carries two values. <c>between</c> with
+    /// <c>split</c> is a publish error (RS-E10), so the arity is reached as the Task 5B ruling does: <c>x-min</c> sent
+    /// as two header LINES. HttpClient folds repeated headers into one line, so these requests go out over a raw
+    /// HTTP/1.0 socket.
+    /// <list type="number">
+    /// <item>Precondition — the two lines arrive as two values, not one combined "a, b": the runtime keeps every
+    /// header value separately (<c>HttpContextExtensions.GetRawRequestValues</c> copies <c>StringValues</c> into the
+    /// raw carrier <c>RawHeaders</c>, Task 3, which the row planner reads). Proven on <c>rs-p-in-param</c>
+    /// (<c>in {$param: H.x-branches}</c>, no split): lines BR-001 + BR-002 ⇒ <c>{r1…r5}</c>; a combined one-line
+    /// value would be one element matching nothing (P-11) ⇒ {}.</item>
+    /// <item>Two IDENTICAL lines <c>x-min: 100</c> + <c>x-min: 100</c> and <c>x-max: 500</c> ⇒ none, list and GET.
+    /// Each line is a valid number, and by the precondition they are not combined, so no coercion failure is
+    /// involved: three bounds ⇒ arity ≠ 2 ⇒ the rule contributes nothing.</item>
+    /// <item>Control over the same socket: one <c>x-min</c> line ⇒ the rule works (rows in [100, 500]).</item>
+    /// </list>
     /// </summary>
     [SkippableFact]
-    public async Task P17_Between_ThreeValues_SeesNothing()
+    public async Task P17_Between_ElementWithTwoHeaderLines_DropsForArity()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
-        (string, string)[] headers =
+        var filter = Uri.EscapeDataString(ComposeFilter(Flow, null)!);
+        var list = $"api/v1/{Domain}/workflows/{Flow}/instances?pageSize=100&filter={filter}";
+
+        // 1. precondition: repeated header lines stay separate values
+        (string, string)[] separate =
+        [
+            ("sub", "alice"), ("act_sub", "alice"), ("role", "rs-p-in-param"),
+            ("x-branches", "BR-001"), ("x-branches", "BR-002"),
+        ];
+        Assert.Equal(new[] { p.R1, p.R2, p.R3, p.R4, p.R5 }.ToHashSet(), await RawListIdsAsync(list, separate));
+
+        // 2. arity: two identical, individually valid lines + x-max
+        (string, string)[] arity =
         [
             ("sub", "alice"), ("act_sub", "alice"), ("role", "rs-p-between"),
-            ("x-min", "100"), ("x-min", "200"), ("x-max", "500"),
+            ("x-min", "100"), ("x-min", "100"), ("x-max", "500"),
         ];
-
-        var filter = Uri.EscapeDataString(ComposeFilter(Flow, null)!);
-        var (status, body) = await RawGetAsync($"api/v1/{Domain}/workflows/{Flow}/instances?pageSize=100&filter={filter}", headers);
-        Assert.True(status == 200, $"raw list answered {status}: {body}");
-        var items = JsonDocument.Parse(body).RootElement.GetProperty("items");
-        Assert.True(items.GetArrayLength() == 0, $"three between values must contribute nothing, got {items}");
-
+        Assert.Empty(await RawListIdsAsync(list, arity));
         foreach (var id in p.All)
         {
-            var (getStatus, getBody) = await RawGetAsync($"api/v1/{Domain}/workflows/{Flow}/instances/{id}", headers);
+            var (getStatus, getBody) = await RawGetAsync($"api/v1/{Domain}/workflows/{Flow}/instances/{id}", arity);
             Assert.True(getStatus == 404, $"raw GET {Names(p, [id])} answered {getStatus}: {getBody}");
         }
 
-        // Control over the same socket: one x-min line ⇒ the rule works (rows in [100, 500]).
-        (string, string)[] control = [.. headers.Where(h => h is not ("x-min", "200"))];
-        var (controlStatus, controlBody) = await RawGetAsync(
-            $"api/v1/{Domain}/workflows/{Flow}/instances?pageSize=100&filter={filter}", control);
-        Assert.True(controlStatus == 200, $"raw control list answered {controlStatus}: {controlBody}");
-        Assert.Equal(5, JsonDocument.Parse(controlBody).RootElement.GetProperty("items").GetArrayLength());
+        // 3. control: one x-min line ⇒ rows in [100, 500]
+        (string, string)[] control = [.. arity.Where(h => h.Item1 != "x-min"), ("x-min", "100")];
+        Assert.Equal(new[] { p.R1, p.R2, p.R3, p.R4, p.R5 }.ToHashSet(), await RawListIdsAsync(list, control));
+    }
+
+    private async Task<HashSet<Guid>> RawListIdsAsync(string relativeUrl, IEnumerable<(string Name, string Value)> headers)
+    {
+        var (status, body) = await RawGetAsync(relativeUrl, headers);
+        Assert.True(status == 200, $"raw list answered {status}: {body}");
+        return JsonDocument.Parse(body).RootElement.GetProperty("items").EnumerateArray()
+            .Select(i => Guid.Parse(i.GetProperty("id").GetString()!)).ToHashSet();
     }
 
     /// <summary>P-18: <c>amount ge H.x-min</c> with <c>"50"</c> ⇒ numeric comparison (coerced): everything but r6 (10).</summary>
@@ -367,10 +395,9 @@ public class ParameterTests : RowSecurityLabTestBase
 
     /// <summary>
     /// P-25b: the NUL payload (<c>\u0000</c>) ⇒ none and no 5xx. NUL cannot travel in a header, so it goes as
-    /// <c>?branch=%00</c> on <c>rs-p-query-branch</c>. RED on the feature runtime (finding, Task 11C report): the
-    /// value reaches PostgreSQL as a jsonb <c>\u0000</c> escape and the list answers 500 (22P05), the GET 500 —
-    /// the same 500 a caller's own filter with <c>\u0000</c> gets on <c>rs-plain</c> (pre-existing filter engine
-    /// defect), now reachable through a client-controlled rule parameter.
+    /// <c>?branch=%00</c> on <c>rs-p-query-branch</c>. Found red in Task 11C (the value reached PostgreSQL
+    /// and answered 500, 22P05); fixed in vnext 5d6ac9e5: the planner drops a rule whose parameter value contains
+    /// NUL (coercion). A caller's own filter with <c>\u0000</c> still answers 500 on any flow (filter engine).
     /// </summary>
     [SkippableFact]
     public async Task P25b_NulPayload_SeesNothing_No5xx()
@@ -466,8 +493,11 @@ public class ParameterTests : RowSecurityLabTestBase
         using var buffer = new MemoryStream();
         await stream.CopyToAsync(buffer);
         var response = Encoding.UTF8.GetString(buffer.ToArray());
+        var lineEnd = response.IndexOf("\r\n", StringComparison.Ordinal);
+        Assert.True(lineEnd > 0 && response.StartsWith("HTTP/", StringComparison.Ordinal),
+            $"raw GET {target.PathAndQuery}: no HTTP status line in the answer ({response.Length} bytes): '{response}'");
         var split = response.IndexOf("\r\n\r\n", StringComparison.Ordinal);
-        var statusLine = response[..response.IndexOf("\r\n", StringComparison.Ordinal)];
+        var statusLine = response[..lineEnd];
         return (int.Parse(statusLine.Split(' ')[1]), split < 0 ? string.Empty : response[(split + 4)..]);
     }
 }

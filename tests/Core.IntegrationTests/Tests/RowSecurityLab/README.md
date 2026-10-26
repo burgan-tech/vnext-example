@@ -174,9 +174,12 @@ kimlikle yapılır).
   C-1…C-6, U-route, G-1…G-4 (G-2'nin task yarısı `rs-reader` `read-list` ile, string-route yarısı ayrı `groupBy`
   sorgu parametresiyle); `SingleGetTests` E-1…E-6, E-7a/b/c, E-8. E-7 `rs-versioned` pointer'ını taşır, her satır
   `finally` içinde `ClearPointerAsync` çağırır.
-- **P-25b feature runtime'da KIRMIZI (bulgu):** `?branch=%00` (NUL) kural parametresi olarak PostgreSQL'e jsonb
-  `\u0000` kaçışıyla ulaşır; liste 500 (`22P05`), GET 500 döner. Aynı 500 çağıranın kendi filtresinde
-  `\u0000` ile `rs-plain`'de de oluşur (önceden var olan filtre motoru kusuru); istemci kontrollü bir kural
-  parametresiyle artık erişilebilir.
+- **P-25b (NUL):** `?branch=%00` kural parametresi olarak Task 11C'de PostgreSQL'e ulaşıp 500 (`22P05`)
+  dönüyordu; vnext 5d6ac9e5 ile planlayıcı NUL içeren değeri coercion olarak düşürür (kural katkısız ⇒ 200
+  boş / 404). Çağıranın kendi filtresinde `\u0000` hâlâ 500 döner (filtre motoru, satır güvenliği dışı).
+- **P-10 / P-17 ayırt edicidir:** P-10 `?br=BR-003&br=BR-002` ⇒ {r3,r4} (ilk-değer bağlama {} verirdi); P-17
+  önce iki `x-branches` satırının iki ayrı değer olarak geldiğini (`rs-p-in-param` ⇒ {r1…r5}) kanıtlar, sonra
+  iki özdeş geçerli `x-min: 100` satırıyla `between`'in arity nedeniyle düştüğünü gösterir.
+- C-1…C-5 ve U-route yalnız listedir (tasarım gereği: çağıran filtresinin GET karşılığı yok).
 - `npm run validate` `attributes.rowSecurity`'yi tanıyan vnext-schema sürümünü ister (o sürüm yayımlanana
   kadar lokal bağlanmış vnext-schema ile koşuldu).
