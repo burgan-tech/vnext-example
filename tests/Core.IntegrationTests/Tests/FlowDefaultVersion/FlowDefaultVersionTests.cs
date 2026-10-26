@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Core.IntegrationTests.Helpers;
 using Core.IntegrationTests.Infrastructure;
 
 namespace Core.IntegrationTests.Tests.FlowDefaultVersion;
@@ -21,7 +22,7 @@ namespace Core.IntegrationTests.Tests.FlowDefaultVersion;
 /// </summary>
 public class FlowDefaultVersionTests : WorkflowTestBase
 {
-    private const string Registry = "sys-version-registry";
+    private const string Registry = VersionRegistryClient.Workflow;
     private const string LabA = "default-version-lab-a";
     private const string LabB = "default-version-lab-b";
     private const string LabC = "default-version-lab-c";
@@ -38,9 +39,13 @@ public class FlowDefaultVersionTests : WorkflowTestBase
 
     private static readonly SemaphoreSlim PublishGate = new(1, 1);
     private static readonly HashSet<string> Published = new();
-    private static bool _registryPublished;
 
-    public FlowDefaultVersionTests(VNextTestEnvironment environment) : base(environment) { }
+    private readonly VersionRegistryClient _registry;
+
+    public FlowDefaultVersionTests(VNextTestEnvironment environment) : base(environment)
+    {
+        _registry = new VersionRegistryClient(environment.OrchestratorBaseUrl, () => Headers());
+    }
 
     [Fact]
     public async Task NoRegistry_StartsLatest()
@@ -57,10 +62,10 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task FullPin_StartsPinned_AndPendingNeedsExplicit()
     {
         await EnsureVersionsAsync(LabB, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(LabB, "1.0.0");
+            await _registry.SetPointerAsync(LabB, "1.0.0");
             await WaitForVersionAsync(LabB, null, "1.0.0");
 
             Assert.Equal("1.0.0", await StartVersionAsync(LabB, null));
@@ -76,7 +81,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
         finally
         {
-            await ClearPointerAsync(LabB);
+            await _registry.ClearPointerAsync(LabB);
         }
     }
 
@@ -84,10 +89,10 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task LinePin_FollowsHotfix()
     {
         await EnsureVersionsAsync(LabC, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(LabC, "1.0");
+            await _registry.SetPointerAsync(LabC, "1.0");
 
             // 1.0.1 on a first run, already 1.0.2 on a re-run: the line, never 1.1.0.
             var first = await WaitForVersionAsync(LabC, null, "1.0.1", "1.0.2");
@@ -102,7 +107,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
         finally
         {
-            await ClearPointerAsync(LabC);
+            await _registry.ClearPointerAsync(LabC);
         }
     }
 
@@ -110,16 +115,16 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task Flip_And_Rollback_DoNotMoveRunningInstances()
     {
         await EnsureVersionsAsync(LabD, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(LabD, "1.0.0");
+            await _registry.SetPointerAsync(LabD, "1.0.0");
             await WaitForVersionAsync(LabD, null, "1.0.0");
             var (_, oldBody) = await StartLabAsync(LabD);
             var oldId = IdOf(oldBody);
             Assert.Equal("1.0.0", FlowVersionOf(oldBody));
 
-            await SetPointerAsync(LabD, "1.1.0");
+            await _registry.SetPointerAsync(LabD, "1.1.0");
             await WaitForVersionAsync(LabD, null, "1.1.0");
             var (_, newBody) = await StartLabAsync(LabD);
             var newId = IdOf(newBody);
@@ -128,7 +133,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
             await RunAcceptedAsync(LabD, oldId, "finish");
             Assert.Equal("1.0.0", await InstanceVersionAsync(LabD, oldId));
 
-            await SetPointerAsync(LabD, "1.0.0");
+            await _registry.SetPointerAsync(LabD, "1.0.0");
             await WaitForVersionAsync(LabD, null, "1.0.0");
 
             Assert.Equal("1.0.0", await InstanceVersionAsync(LabD, oldId));
@@ -136,7 +141,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
         finally
         {
-            await ClearPointerAsync(LabD);
+            await _registry.ClearPointerAsync(LabD);
         }
     }
 
@@ -144,15 +149,15 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task InvalidPointer_IsRejectedAtWrite()
     {
         await EnsureVersionsAsync(LabE, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(LabE, "1.0.0");
-            var registryId = await RegistryIdAsync(LabE);
+            await _registry.SetPointerAsync(LabE, "1.0.0");
+            var registryId = await _registry.RegistryIdAsync(LabE);
 
             var (status, body) = await SendRawAsync(HttpMethod.Patch,
                 $"api/v1/core/workflows/{Registry}/instances/{registryId}/transitions/set-default?sync=true",
-                RegistryBody("9.9"), Headers());
+                VersionRegistryClient.Body("9.9"), Headers());
 
             Assert.Equal(HttpStatusCode.Conflict, status);
             Assert.Contains("100052", body);
@@ -165,7 +170,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
         finally
         {
-            await ClearPointerAsync(LabE);
+            await _registry.ClearPointerAsync(LabE);
         }
     }
 
@@ -173,10 +178,10 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task PointerFlip_UnderLoad_NeverStartsAnUnactivatedVersion()
     {
         await EnsureVersionsAsync(LabF, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(LabF, "1.0.0");
+            await _registry.SetPointerAsync(LabF, "1.0.0");
             await WaitForVersionAsync(LabF, null, "1.0.0");
 
             using var stop = new CancellationTokenSource();
@@ -192,9 +197,9 @@ public class FlowDefaultVersionTests : WorkflowTestBase
 
             for (var i = 0; i < 3; i++)
             {
-                await SetPointerAsync(LabF, "1.0.1");
+                await _registry.SetPointerAsync(LabF, "1.0.1");
                 await Task.Delay(500);
-                await SetPointerAsync(LabF, "1.0.0");
+                await _registry.SetPointerAsync(LabF, "1.0.0");
                 await Task.Delay(500);
             }
 
@@ -209,7 +214,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
         }
         finally
         {
-            await ClearPointerAsync(LabF);
+            await _registry.ClearPointerAsync(LabF);
         }
     }
 
@@ -217,21 +222,21 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task Clearing_WithLatest_ReturnsToAutomatic()
     {
         await EnsureVersionsAsync(LabG, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(LabG, "1.0.0");
+            await _registry.SetPointerAsync(LabG, "1.0.0");
             Assert.Equal("1.0.0", await WaitForVersionAsync(LabG, null, "1.0.0"));
 
-            await SetPointerAsync(LabG, "latest");
+            await _registry.SetPointerAsync(LabG, "latest");
 
             Assert.Equal("1.1.0", await WaitForVersionAsync(LabG, null, "1.1.0"));
-            var data = await GetAttributesAsync(Registry, await RegistryIdAsync(LabG));
+            var data = await GetAttributesAsync(Registry, await _registry.RegistryIdAsync(LabG));
             Assert.Equal("latest", data.GetProperty("defaultVersion").GetString());
         }
         finally
         {
-            await ClearPointerAsync(LabG);
+            await _registry.ClearPointerAsync(LabG);
         }
     }
 
@@ -239,7 +244,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task FullPackagePin_PinsTheBuild()
     {
         await EnsureVersionsAsync(LabH, "1.0.1", "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
             // The SDK-published 1.0.0 is stored as 1.0.0-pkg.1.0.0+core; the pointer is written without +metadata.
@@ -248,23 +253,23 @@ public class FlowDefaultVersionTests : WorkflowTestBase
             Assert.Contains("-pkg.", stored);
             var full = stored.Split('+')[0];
 
-            await SetPointerAsync(LabH, full);
+            await _registry.SetPointerAsync(LabH, full);
             Assert.Equal("1.0.0", await WaitForVersionAsync(LabH, null, "1.0.0"));
             Assert.Equal("1.0.0", await StartVersionAsync(LabH, null));
             Assert.Equal("1.0.0", await StartVersionAsync(LabH, "1.0"));
             Assert.Equal("1.1.0", await StartVersionAsync(LabH, "1.1.0"));
 
             // Partial package forms are not supported: rejected at write.
-            var registryId = await RegistryIdAsync(LabH);
+            var registryId = await _registry.RegistryIdAsync(LabH);
             var (status, body) = await SendRawAsync(HttpMethod.Patch,
                 $"api/v1/core/workflows/{Registry}/instances/{registryId}/transitions/set-default?sync=true",
-                RegistryBody("1.0.0-pkg.1.0"), Headers());
+                VersionRegistryClient.Body("1.0.0-pkg.1.0"), Headers());
             Assert.Equal(HttpStatusCode.Conflict, status);
             Assert.Contains("100052", body);
         }
         finally
         {
-            await ClearPointerAsync(LabH);
+            await _registry.ClearPointerAsync(LabH);
         }
     }
 
@@ -277,15 +282,15 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     public async Task SubProcess_Local_FollowsDefault_RunningChildStays()
     {
         await EnsureVersionsAsync(SpChild, "1.1.0");
-        await EnsureRegistryAsync();
+        await _registry.EnsureRegistryAsync();
         try
         {
-            await SetPointerAsync(SpChild, "1.0.0");
+            await _registry.SetPointerAsync(SpChild, "1.0.0");
             var old = await WaitForSpChildAsync("1.0.0");
             Assert.StartsWith("1.0.0-pkg.", old.CorrelationVersion);
             Assert.Equal(old.ChildVersion, old.CorrelationVersion);
 
-            await SetPointerAsync(SpChild, "1.1");
+            await _registry.SetPointerAsync(SpChild, "1.1");
             var fresh = await WaitForSpChildAsync("1.1.0");
             Assert.Equal(fresh.ChildVersion, fresh.CorrelationVersion);
             Assert.Equal("1.1.0", Artifact(fresh.CorrelationVersion));
@@ -296,13 +301,13 @@ public class FlowDefaultVersionTests : WorkflowTestBase
             Assert.Equal(old.ChildId, correlation.GetProperty("subFlowInstanceId").GetString());
             Assert.Equal(old.CorrelationVersion, correlation.GetProperty("subFlowVersion").GetString());
 
-            await SetPointerAsync(SpChild, "latest");
+            await _registry.SetPointerAsync(SpChild, "latest");
             var latest = await WaitForSpChildAsync("1.1.0");
             Assert.Equal(latest.ChildVersion, latest.CorrelationVersion);
         }
         finally
         {
-            await ClearPointerAsync(SpChild);
+            await _registry.ClearPointerAsync(SpChild);
         }
     }
 
@@ -444,61 +449,7 @@ public class FlowDefaultVersionTests : WorkflowTestBase
     private static string IdOf(string raw) =>
         JsonDocument.Parse(raw).RootElement.GetProperty("id").GetString()!;
 
-    // ── registry ─────────────────────────────────────────────────────────────
-
-    private static object RegistryBody(string? pointer) =>
-        new { attributes = new { type = "Flow", defaultVersion = pointer } };
-
-    /// <summary>Starts (or finds) the registry entry of a flow. Instance key = flow key.</summary>
-    private async Task<string> RegistryIdAsync(string flow)
-    {
-        var (status, body) = await SendRawAsync(HttpMethod.Post,
-            $"api/v1/core/workflows/{Registry}/instances/start?sync=true",
-            new { key = flow, attributes = new { type = "Flow", defaultVersion = (string?)null } }, Headers());
-        Assert.True((int)status < 400, $"registry start for {flow} refused with {(int)status}: {body}");
-        return IdOf(body);
-    }
-
-    /// <summary>Points the flow at <paramref name="pointer"/>; creates the entry on first use, set-default after.</summary>
-    private async Task SetPointerAsync(string flow, string? pointer)
-    {
-        var id = await RegistryIdAsync(flow);
-        await WaitForInstanceStateAsync(Registry, id, "active");
-
-        var (status, body) = await SendRawAsync(HttpMethod.Patch,
-            $"api/v1/core/workflows/{Registry}/instances/{id}/transitions/set-default?sync=true",
-            RegistryBody(pointer), Headers());
-        Assert.True((int)status < 400, $"set-default {flow} -> {pointer ?? "null"} refused with {(int)status}: {body}");
-    }
-
-    /// <summary>
-    /// Returns the flow to Automatic with <c>"latest"</c>: the runtime's instance-data merge ignores null
-    /// on an existing key, so null could not clear.
-    /// </summary>
-    private async Task ClearPointerAsync(string flow)
-    {
-        try { await SetPointerAsync(flow, "latest"); } catch (Exception) { /* cleanup must not mask the test result */ }
-    }
-
     // ── publishing ───────────────────────────────────────────────────────────
-
-    /// <summary>Publishes the registry schema, then its workflow, once per run.</summary>
-    private async Task EnsureRegistryAsync()
-    {
-        await PublishGate.WaitAsync();
-        try
-        {
-            if (_registryPublished) return;
-            var dir = Path.Combine(RepoRoot(), "tests", "Core.IntegrationTests", "Tests", "FlowDefaultVersion", "fixtures");
-            await PublishAsync(File.ReadAllText(Path.Combine(dir, "version-registry.schema.json")), "version-registry");
-            await PublishAsync(File.ReadAllText(Path.Combine(dir, "sys-version-registry.workflow.json")), Registry);
-            _registryPublished = true;
-        }
-        finally
-        {
-            PublishGate.Release();
-        }
-    }
 
     /// <summary>Publishes extra versions of a lab flow, built from its 1.0.0 file under core/.</summary>
     private async Task EnsureVersionsAsync(string flow, params string[] versions)

@@ -1,0 +1,92 @@
+{
+  "key": "rs-lab-schema",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "row-security-lab",
+    "master"
+  ],
+  "attributes": {
+    "type": "master",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Row Security Lab master (x-roles on protected)"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:rs-lab-schema",
+      "title": "Row Security Lab master (x-roles on protected)",
+      "type": "object",
+      "required": [
+        "testId"
+      ],
+      "properties": {
+        "testId": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq"
+          ]
+        },
+        "branchCode": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq",
+            "neq",
+            "in",
+            "nin",
+            "isNull"
+          ]
+        },
+        "amount": {
+          "type": "number",
+          "x-indexed": true,
+          "x-filterOperators": [
+            "eq",
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "between"
+          ]
+        },
+        "region": {
+          "type": "string",
+          "x-indexed": true,
+          "x-filterOperators": [
+            "eq",
+            "in"
+          ]
+        },
+        "owner": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq"
+          ]
+        },
+        "positionCode": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq"
+          ]
+        },
+        "touchedBy": {
+          "type": "string"
+        },
+        "protected": {
+          "type": "string",
+          "x-roles": [
+            {
+              "role": "rs-protected-reader",
+              "grant": "allow"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

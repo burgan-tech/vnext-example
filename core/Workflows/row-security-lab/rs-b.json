@@ -1,0 +1,129 @@
+{
+  "key": "rs-b",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "row-security-lab"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Row Security Lab B (Definition B)"
+      }
+    ],
+    "schema": {
+      "key": "rs-lab-schema-plain",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "rowSecurity": {
+      "rules": [
+        {
+          "roles": [
+            "branch-staff"
+          ],
+          "filter": {
+            "attributes": {
+              "branchCode": {
+                "eq": "$.context.Headers.x-branch-code"
+              }
+            }
+          }
+        },
+        {
+          "roles": [
+            "hq-auditor"
+          ]
+        },
+        {
+          "roles": [
+            "$InstanceStarter"
+          ]
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "active",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "updateData": {
+      "key": "rs-update",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update data"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "active",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Active"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "rs-close",
+            "target": "closed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Close"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "closed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Closed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
