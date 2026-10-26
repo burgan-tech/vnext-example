@@ -38,6 +38,7 @@ start → active ─rs-close→ closed          updateData: rs-update ($self, g�
 | `rs-versioned` | plain | 1.0.0: `hq-auditor` (filtresiz) + `branch-staff → branchCode eq x-branch-code`. 1.0.1 (dosyada değil): `hq-auditor` (filtresiz) + `branch-staff → region eq x-region`; tek kaynak `RowSecurityLabTestBase.PublishVersionedV101Async()` (1.0.0 dosyasından üretir, idempotent: 409 "same version" = tamam) |
 | `rs-reader` | — | **yok**; trigger task'larını gövdeden sürer (aşağıda) |
 | partner `rs-xd-target` | partner `rs-xd-schema` | Definition A |
+| `rs-pv-*` (koşuda üretilir) | `rs-pv-schema` | `PublishValidationTests` (Task 11D): `rs-a` dosyasından satır başına yeni anahtar `rs-pv-{satır}-{8 hex}`, yalnız `rowSecurity` değişir. `rs-pv-schema` korumalı yol sınıfı başına bir alan taşır: `protected` (`x-roles`), `secret.pin` (`x-encryption: encrypt`), `tckn` (`hash`), `iban` (`x-masking`); `kind` `required`, `branchCode` ne `required` ne `x-indexed`, `region` `x-indexed` |
 
 **`rs-versioned` sürüm tuzağı.** 1.0.1 bir kez yayınlandıktan sonra bu runtime'da `rs-versioned` için "latest" sonraki **her** koşuda 1.0.1'dir (publish geri alınamaz); kural seti `GetFlowAsync(…, null)` ile pointer ya da latest'ten okunduğu için 1.0.0'ın kuralı yalnız `sys-version-registry` pointer'ı 1.0.0'a sabitliyken geçerlidir. Bu akışı okuyan her test pointer'ı **açıkça** set eder (`Registry.SetPointerAsync("rs-versioned", …)`) ya da temizler (`Registry.ClearPointerAsync`, `finally` içinde) ve hangi kuralın geçerli olduğunu varsaymaz.
 
@@ -180,6 +181,14 @@ kimlikle yapılır).
 - **P-10 / P-17 ayırt edicidir:** P-10 `?br=BR-003&br=BR-002` ⇒ {r3,r4} (ilk-değer bağlama {} verirdi); P-17
   önce iki `x-branches` satırının iki ayrı değer olarak geldiğini (`rs-p-in-param` ⇒ {r1…r5}) kanıtlar, sonra
   iki özdeş geçerli `x-min: 100` satırıyla `between`'in arity nedeniyle düştüğünü gösterir.
+- **Satır → test (Task 11D):** `PublishValidationTests` V-1…V-11, V-13…V-20, P-26 (hata: 400 `App:900006`, RS-E kodu
+  doğrulama mesajında, `sys-flows/instances/{key}` 404 ⇒ yayınlanmadı) ve W-1, W-2a/b/c, W-4, W-5, W-6a/b (uyarı
+  yalnız log'dadır, R-F8: 200, yanıtta `RS-` yok, akış `sys-flows`'ta ve listesi 200). Her W satırı anahtarını,
+  kodunu ve UTC zamanını test çıktısına `W-ROW …` satırı olarak yazar (log sorgusu için). Her koşu yeni anahtarlar
+  üretir; uyarı satırları runtime'da birikir (zararsız, hiçbir test bu akışları okumaz).
+- **V-4 (`allOf`/`anyOf` kural rolü):** runtime 400 döner ve hiçbir şey yayınlamaz, ama RS-E03 yerine genel JSON
+  dönüşüm hatası verir (`roles` `List<string>`; RS-E03'ü üreten kod yok). Test RS-E03'ü bekler ve kırmızıdır — ürün
+  bulgusu.
 - C-1…C-5 ve U-route yalnız listedir (tasarım gereği: çağıran filtresinin GET karşılığı yok).
 - `npm run validate` `attributes.rowSecurity`'yi tanıyan vnext-schema sürümünü ister (o sürüm yayımlanana
   kadar lokal bağlanmış vnext-schema ile koşuldu).

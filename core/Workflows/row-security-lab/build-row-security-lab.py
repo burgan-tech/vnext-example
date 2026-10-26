@@ -7,6 +7,8 @@ row-security-lab fixture'larini uretir (vnext#1107, DECISION-2026-10-23-row-secu
 Uretilenler:
   core/Schemas/row-security-lab/rs-lab-schema.json        (master; `protected` alani x-roles tasir)
   core/Schemas/row-security-lab/rs-lab-schema-plain.json  (master; ayni alanlar, x-roles YOK)
+  core/Schemas/row-security-lab/rs-pv-schema.json         (master; publish-validation satirlari (Task 11D):
+                                                           x-roles + encrypt + hash + x-masking yollari)
   core/Workflows/row-security-lab/rs-*.json               (hedef akislar + rs-reader)
   core/Tasks/row-security-lab/rs-*.json                   (GetInstances / GetInstance / DirectTrigger)
   partner/Schemas/row-security-lab/rs-xd-schema.json
@@ -106,6 +108,52 @@ def schema(key, domain, with_x_roles, description):
                 "type": "object",
                 "required": ["testId"],
                 "properties": properties,
+            },
+        },
+    }
+
+
+def pv_schema():
+    """Publish-validation master (Task 11D, PublishValidationTests): one field per protected-path class so that
+    RS-E08 / E14 / E15 / E18 and RS-W1 / W2a / W5 / W6r / W6q are decided against a resolvable schema.
+    `kind` is required (W-5 control), `branchCode` is neither required nor x-indexed, `region` is x-indexed."""
+    key = "rs-pv-schema"
+    description = "Row Security Lab publish-validation master (protected paths)"
+    return {
+        "key": key,
+        "version": VERSION,
+        "domain": "core",
+        "flow": "sys-schemas",
+        "flowVersion": "1.0.0",
+        "tags": TAGS + ["master"],
+        "attributes": {
+            "type": "master",
+            "labels": label(description),
+            "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": f"urn:vnext:res:schema:core:{key}",
+                "title": description,
+                "type": "object",
+                "required": ["testId", "kind"],
+                "properties": {
+                    "testId": {"type": "string", "x-filterOperators": ["eq"]},
+                    "kind": {"type": "string", "x-filterOperators": ["eq", "neq"]},
+                    "branchCode": {"type": "string", "x-filterOperators": ["eq", "neq", "in", "nin"]},
+                    "region": {"type": "string", "x-indexed": True, "x-filterOperators": ["eq", "in"]},
+                    "protected": {"type": "string",
+                                  "x-roles": [{"role": "rs-protected-reader", "grant": "allow"}]},
+                    "secret": {
+                        "type": "object",
+                        "properties": {
+                            "pin": {"type": "string", "x-encryption": {"type": "encrypt"}},
+                            "label": {"type": "string"},
+                        },
+                    },
+                    "tckn": {"type": "string",
+                             "x-encryption": {"type": "hash", "params": {"algorithm": "sha256"}}},
+                    "iban": {"type": "string",
+                             "x-masking": {"operator": "mask", "params": {"keepLast": 4}}},
+                },
             },
         },
     }
@@ -287,6 +335,7 @@ def main():
           schema("rs-lab-schema", "core", True, "Row Security Lab master (x-roles on protected)"))
     write(os.path.join(CORE_SCHEMAS, "rs-lab-schema-plain.json"),
           schema("rs-lab-schema-plain", "core", False, "Row Security Lab master (no x-roles)"))
+    write(os.path.join(CORE_SCHEMAS, "rs-pv-schema.json"), pv_schema())
     write(os.path.join(PARTNER_SCHEMAS, "rs-xd-schema.json"),
           schema("rs-xd-schema", "partner", False, "Row Security Lab cross-domain master"))
 
