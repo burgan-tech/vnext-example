@@ -190,6 +190,46 @@ referans) tutuyor. Uzak SubProcess yolu (`SubProcessTaskExecutor.ExecuteRemoteAs
 `task.TriggerVersion`'a düşüyor. Aynı versiyonun SubFlow korelasyonu ve tek-domain SubProcess
 (`VersionPinLab`) çözülmüş versiyonu tutuyor.
 
+## Row security cross-domain (`rs-xd-target`, vnext#1107)
+
+Partner akışı `partner/Workflows/row-security-lab/rs-xd-target.json` (şema `rs-xd-schema`) Definition A taşır:
+`branch-staff → branchCode eq $.context.Headers.x-branch-code`, `hq-auditor` filtresiz; `default` yok (deny varsayılan).
+Okuyucu core'daki `rs-reader` (`Tests/RowSecurityLab/README.md` § rs-reader): transition gövdesinde
+`targetDomain: partner`, `useDapr: "true"` → GetInstances (15) / GetInstance (19) / DirectTrigger (12) partner'a Dapr
+üzerinden gider. Popülasyon RowSecurityLab'ınkiyle aynı yedi satır, partner'da `hq-auditor` ile seed'lenir; "own
+(BR-001)" en son veri üzerinden `{r1, r2, r5}` (R-F2). Trigger task'ı yalnız kimliği (`sub`, `act_sub`, `position`,
+`client_id`, `role`) taşır; kural başlığı (`x-branch-code`) partner'a yalnız task mapping'i koyarsa ulaşır.
+
+| Satır | Test (`RowSecurityCrossDomainTests`) | Çağıran / mapping | Beklenen |
+|---|---|---|---|
+| X-1 | `X1_RemoteRead_RuleHeaderMapped_SeesOwnBranch` | `branch-staff` + BR-001, mapping `x-branch-code: BR-001` | liste + her GET: `{r1,r2,r5}` |
+| X-2 | `X2_RemoteRead_RuleHeaderUnmapped_SeesNothing` | aynı çağıran, mapping yok | hiçbiri |
+| X-3 | `X3_RemoteRead_HqAuditorForwarded_SeesAll` | `hq-auditor`, mapping yok | yedisi |
+| X-4 | `X4_RemoteGetOfExcludedRow_EqualsMissing` | X-1 çağıranı, r3 (BR-002) | 404, durum/`isSuccess`/hata metni (id maskeli) olmayan id ile aynı; r1 kontrolü 200 |
+| X-5 | `X5_Roleless_BypassAttempts_SeeNothing` | rolsüz; task'ta mapping `x-system-read: true`; partner'a doğrudan `?systemRead=true` + aynı başlık | hiçbiri (bypass üyesi yok); `hq-auditor` kontrolü yedisi |
+| X-6 [pin] | `X6_Pinned_MappedIdentity_ReadsAsCarol` | çağıran alice, mapping `sub`=`act_sub`=carol + `role: hq-auditor`, `rs-update` trigger | partner transition kaydı `createdBy = carol` — hedef, çağıran runtime'ın sunduğu kimliğe güvenir (doc § Cross-domain tasks) |
+| X-7 | — (koşulmadı) | `run-docker.sh up core --with partner` (co-host, tek host seti) | lab topolojisinde koşulmadı; ayrı topoloji koşusu gerekir |
+| T-9x | `T9x_RolelessRemoteDirectTriggerByKey_ResolvedOnTarget_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır |
+
+T-9x notu: uzak yol çağıranın lokal id portunu kullanmaz; key URL'de gider, partner çözer. Partner key'i
+runtime-içi arama olarak çözer (doc § Surfaces: "direct-trigger key resolution … not caller reads and are not
+filtered") ve transition yüzeyi faz 1'de satır kapılı değil — brief'in "task failure" beklentisi doc'la çelişiyordu,
+test ölçülen davranışı pinler. Yan bulgu: başarılı trigger cevabı (`response`) hedefin tüm `attributes`'ını rolsüz
+çağırana döndürür (bilinen "unfiltered surfaces" açığının transition cevabındaki görünümü).
+
+```bash
+cd tests/Core.IntegrationTests
+VNEXT_BASE_URL=http://localhost:4201 VNEXT_PARTNER_BASE_URL=http://localhost:4211 \
+  dotnet test --filter "FullyQualifiedName~CrossDomainLab.RowSecurityCrossDomain"
+```
+
+### 2026-10-26 koşusu
+
+Lab imajları vnext `claude/role-based-flow-rules-847298` @ `2bed7fa1` (`lab.sh images`, `VNEXT_SRC_DIR`), provider
+`dapr`, Dapr 1.18.0, caller-role provider `default`. **7/7 yeşil** (X-1…X-6, T-9x). Partner log'unda
+`dapr-caller-app-id: vnext-execution-app-core` istekleri: `x-branch-code` yalnız mapping'li satırlarda (X-1/X-4) taşındı,
+X-6'da `act_sub: carol`. OpenObserve/postgres/elasticsearch MCP kapalıydı: trace'e karşı doğrulanmadı.
+
 ## Başarı kriteri / bilinen kısıtlar
 
 - 11 test yeşil (her biri kendi `testId`'siyle yeni parent açar).
