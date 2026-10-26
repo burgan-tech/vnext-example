@@ -35,9 +35,11 @@ start → active ─rs-close→ closed          updateData: rs-update ($self, g�
 | `rs-params` | plain | `hq-auditor` + parametre biçimi başına **ayrı rol** (aşağıdaki tablo) |
 | `rs-plain` | plain | **yok** — değişmeyen akış kontrolü: liste/GET bayt bayt eskisi gibi |
 | `rs-plain-xr` | `rs-lab-schema` | **yok** — x-roles'lu şemada ek rol çözümü olmadığının kontrolü |
-| `rs-versioned` | plain | 1.0.0: `hq-auditor` + `branch-staff → branchCode eq x-branch-code`. 1.0.1 (dosyada değil; testler `LoadWorkflow` + `PublishAsync` ile yayınlar): `branch-staff → region eq x-region` |
+| `rs-versioned` | plain | 1.0.0: `hq-auditor` (filtresiz) + `branch-staff → branchCode eq x-branch-code`. 1.0.1 (dosyada değil): `hq-auditor` (filtresiz) + `branch-staff → region eq x-region`; tek kaynak `RowSecurityLabTestBase.PublishVersionedV101Async()` (1.0.0 dosyasından üretir, idempotent: 409 "same version" = tamam) |
 | `rs-reader` | — | **yok**; trigger task'larını gövdeden sürer (aşağıda) |
 | partner `rs-xd-target` | partner `rs-xd-schema` | Definition A |
+
+**`rs-versioned` sürüm tuzağı.** 1.0.1 bir kez yayınlandıktan sonra bu runtime'da `rs-versioned` için "latest" sonraki **her** koşuda 1.0.1'dir (publish geri alınamaz); kural seti `GetFlowAsync(…, null)` ile pointer ya da latest'ten okunduğu için 1.0.0'ın kuralı yalnız `sys-version-registry` pointer'ı 1.0.0'a sabitliyken geçerlidir. Bu akışı okuyan her test pointer'ı **açıkça** set eder (`Registry.SetPointerAsync("rs-versioned", …)`) ya da temizler (`Registry.ClearPointerAsync`, `finally` içinde) ve hangi kuralın geçerli olduğunu varsaymaz.
 
 Her opt-in akışta filtresiz bir `hq-auditor` kuralı vardır: seed okuması `hq-auditor` ile yapılır ve
 `SeedAsync` yedi id'yi listeleyerek doğrular.

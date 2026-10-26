@@ -232,6 +232,40 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         return JsonNode.Parse(File.ReadAllText(path))!.AsObject();
     }
 
+    /// <summary>The <c>rs-versioned</c> version whose rule reads <c>region</c> instead of <c>branchCode</c>.</summary>
+    protected const string VersionedV101 = "1.0.1";
+
+    /// <summary>
+    /// Publishes <c>rs-versioned</c> 1.0.1, built from the committed 1.0.0 file with exactly two rules:
+    /// <c>hq-auditor</c> (no filter) and <c>branch-staff → region eq $.context.Headers.x-region</c>. The single source
+    /// of that definition, so every test publishes the same bytes. Idempotent: a 409 "same version already exists"
+    /// (<c>Instance:100002</c>) counts as published.
+    /// <para>
+    /// Once published, 1.0.1 is "latest" for <c>rs-versioned</c> on this runtime for every later run; 1.0.0's rule is
+    /// in force only while the <c>sys-version-registry</c> pointer pins 1.0.0. Tests set or clear the pointer explicitly.
+    /// </para>
+    /// </summary>
+    protected async Task PublishVersionedV101Async()
+    {
+        var definition = LoadWorkflow("rs-versioned");
+        definition["version"] = VersionedV101;
+        definition["attributes"]!["labels"] = JsonNode.Parse(
+            """[{"language":"en-US","label":"Row Security Lab versioned (1.0.1 region rule)"}]""");
+        definition["attributes"]!["rowSecurity"] = JsonNode.Parse("""
+            {
+              "rules": [
+                { "roles": ["hq-auditor"] },
+                { "roles": ["branch-staff"],
+                  "filter": { "attributes": { "region": { "eq": "$.context.Headers.x-region" } } } }
+              ]
+            }
+            """);
+
+        var (status, body) = await PublishAsync(definition);
+        var alreadyThere = status == HttpStatusCode.Conflict && body.Contains("100002", StringComparison.Ordinal);
+        Assert.True((int)status < 300 || alreadyThere, $"publishing rs-versioned {VersionedV101} answered {(int)status}: {body}");
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────────
 
     /// <summary>"r1,r3" for ids of the population, the raw id otherwise — failure messages name rows.</summary>

@@ -24,7 +24,8 @@ Hedef akislarin hepsi ayni sekildedir: start -> active ─rs-close→ closed, up
   rs-plain     rowSecurity YOK (C-6 / N-1 kontrolu)
   rs-plain-xr  rowSecurity YOK, x-roles'lu schema (N-3)
   rs-versioned 1.0.0: hq-auditor + branch-staff → branchCode eq x-branch-code
-               (1.0.1 = branch-staff → region eq x-region; dosyada degil, test tabani yayinlar)
+               (1.0.1 = hq-auditor (filtresiz) + branch-staff → region eq x-region; dosyada degil,
+               RowSecurityLabTestBase.PublishVersionedV101Async bu dosyadan uretip yayinlar)
   rs-reader    rowSecurity YOK; GetInstances / GetInstance / DirectTrigger task'larini govdeden surer
 
 Her opt-in akista bir `hq-auditor` kurali vardir: K1'de `default` yok, deny varsayilan; seed okumasi
