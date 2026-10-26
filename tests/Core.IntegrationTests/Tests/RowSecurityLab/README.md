@@ -2,10 +2,10 @@
 
 Satır güvenliği (`attributes.rowSecurity`, vnext#1107, `DECISION-2026-10-23-row-security`): bir akış rol
 başına bir filtre bildirir, runtime bunu **instance listesine** (GraphQL + `groupBy` string route'u,
-aggregation'lar dahil) ve **tekil instance GET**'ine AND'ler — yalnız bu iki **public HTTP endpoint**'inde
-(vnext 7c9caf4a, kullanıcı kararı 2026-10-27). Süreç içi her okuyucu muaftır ve filtresiz okur: aynı domain'e
-giden `GetInstances` / `GetInstance` / `GetInstanceData` task'ları, view içerik çözümü, DirectTrigger. Başka
-domain'e giden task partner'ın public endpoint'ine düşer ve orada filtrelenir (CrossDomainLab). Kural seti
+aggregation'lar dahil) ve **tekil instance GET**'ine AND'ler; `GetInstances` / `GetInstance` trigger task'ları
+da task'ın kendi kimliği ve başlıklarıyla filtrelenir — aynı domain'de de, başka domain'de de (vnext d7e9ba3e).
+Muaf kalanlar, filtresiz okur: `GetInstanceData` task'ı, view içerik çözümü, transition'lar / DirectTrigger
+(kullanıcı kararı 2026-10-27). `rowSecurity` bildirmeyen akış her yerde filtresizdir. Kural seti
 okunamazsa (bulunamadı dışında: `Instance:100052` / `100053`) liste/GET reddedilmez, filtresiz okunur (D5 değişti;
 span tag `vnext.rowsecurity.outcome=flow-load-failed`, uyarı 20509). Domain `core` (cross-domain satırları: `CrossDomainLab`, partner
 `rs-xd-target`). Sözleşme ve sonuç tabloları: vnext `docs/domain/row-security.md`.
@@ -172,7 +172,7 @@ yoksa sonuç "testler geçti, trace'e karşı doğrulanmadı" diye etiketlenir.
 H-1 (`role: hq-auditor` header'ı default provider'da genişletir — gateway ön koşulu), H-2 (morph-idm'de
 istemci `role` header'ı IDM cevabının yerine geçer), P-30 (`nin` r7'yi dışlar, `not eq` r7'yi içerir),
 K-1, K-2, K-4 (faz 1 bilinen açığı: `functions/state`/`data` filtrelenmez; SubFlow çocuğu kuralları miras
-almaz, RS-W7; K-3 artık pin değil, task muafiyetinin pozitif satırı), X-6 (cross-domain eşleme `sub`/`act_sub`'ı değiştirirse uzak okuma o
+almaz, RS-W7; K-3 artık pin değil, `GetInstanceData` muafiyetinin pozitif satırı), X-6 (cross-domain eşleme `sub`/`act_sub`'ı değiştirirse uzak okuma o
 kimlikle yapılır).
 M-7 (`M7_Pinned_*`: `rs-idm-slow` seed'lenemez — MockLab gecikmesi mock başınadır; bugün MockLab varsayılan cevabı anında döner ve satır boş okur; IDM timeout'u yalnız birim testte).
 V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 400 `App:900006`, yayın yok, RS-E03 yok; vnext-schema validate önce yakalar).
@@ -188,14 +188,17 @@ V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 4
 - **Satır → test (Task 11C):** `ParameterTests` P-1…P-25, P-27…P-30 (`P17` tekrarlanan header satırları için
   ham HTTP/1.0 soketiyle gider — HttpClient tekrarlanan header'ı tek satıra katlar); `CallerFilterAndGroupingTests`
   C-1…C-6, U-route, G-1…G-4 (G-2'nin task yarısı `rs-reader` `read-list` ile, string-route yarısı ayrı `groupBy`
-  sorgu parametresiyle; task yarısı **filtresiz** gruplar = `hq-auditor`'un doğrudan gruplaması); `SingleGetTests` E-1…E-6, E-7a/b/c, E-8. E-7 `rs-versioned` pointer'ını taşır, her satır
+  sorgu parametresiyle; task yarısı G-1 ile aynı gruplar); `SingleGetTests` E-1…E-6, E-7a/b/c, E-8. E-7 `rs-versioned` pointer'ını taşır, her satır
   `finally` içinde `ClearPointerAsync` çağırır.
-- **Satır → test (Task 11E):** `TriggerTaskTests` T-1…T-6, T-8; `KnownGapPinTests` K-1, K-2, K-4 (`*_Pinned_*`) ve K-3.
-  Aynı domain'e giden task süreç içidir, satır güvenliğinden **muaftır** (7c9caf4a): T-1…T-5 hangi rol/eşleme olursa
-  olsun task üzerinden yedisini görür (`read-list` id kümesi + her id için `read-one` 200); T-1/T-4 aynı çağıranın
-  doğrudan liste/GET'te filtrelendiğini kontrol olarak gösterir. T-6: doğrudan GET'te 404 olan r3'ü task 200 ile okur,
-  olmayan id 404 kalır. K-3: `GetInstanceData` task'ı gizli id'nin verisini döner (sözleşme). T-8: rolsüz çağıran
-  `rs-a`'ya anahtarla ve id ile DirectTrigger yapar ⇒ başarılı (transition'lar muaf, kullanıcı kararı 2026-10-27).
+- **Satır → test (Task 11E):** `TriggerTaskTests` T-1…T-6, T-8 (her T-1…T-5 satırı task üzerinden iki yarı:
+  `read-list` id kümesi + popülasyonun her id'si için `read-one` 200/404); `KnownGapPinTests` K-1, K-2, K-4
+  (`*_Pinned_*`) ve K-3. `GetInstances` / `GetInstance` task'ları satır güvenliğine **tabidir** (vnext d7e9ba3e).
+  Trigger task kural header'larını **kendiliğinden taşımaz** (konsey kararı 2 + kullanıcı kararı B): yalnız
+  `sub`/`act_sub`/`position`/`client_id`/`role` gider, `x-branch-code` eşlemeyle verilir (T-1 ⇒ {}, T-2 ⇒
+  {r1,r2,r5}); eşlenen boş olmayan `role` çağıranınkinin yerine geçer (T-5 ⇒ {r1,r2,r5}). T-6: dışlanan r3 ile var
+  olmayan id aynı 404'ü ve aynı hata metnini (id hariç) kaydeder. K-3: `GetInstanceData` task'ı gizli id'nin verisini
+  döner (sözleşme: muaf). T-8: rolsüz çağıran `rs-a`'ya anahtarla ve id ile DirectTrigger yapar ⇒ başarılı
+  (transition'lar muaf, kullanıcı kararı 2026-10-27).
 - **P-25b (NUL):** `?branch=%00` kural parametresi olarak Task 11C'de PostgreSQL'e ulaşıp 500 (`22P05`)
   dönüyordu; vnext 5d6ac9e5 ile planlayıcı NUL içeren değeri coercion olarak düşürür (kural katkısız ⇒ 200
   boş / 404). Çağıranın kendi filtresinde `\u0000` hâlâ 500 döner (filtre motoru, satır güvenliği dışı).
@@ -208,9 +211,9 @@ V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 4
   kodunu ve UTC zamanını test çıktısına `W-ROW …` satırı olarak yazar (log sorgusu için). Her koşu yeni anahtarlar
   üretir; uyarı satırları runtime'da birikir (zararsız, hiçbir test bu akışları okumaz).
 - **Satır → test (Task 11G, M koşusu):** `MorphIdmOutcomeTests` A-9/M-5, B-7 (= M-8), S-2, S-3, M-1…M-4, M-6,
-  M-7 (`*_Pinned_*`), M-9, M-10, M-11, H-2 (`*_Pinned_*`), H-3, T-7 (eşlenen kimlikle task yine yedisini görür — muafiyet;
-kontrol: eşlenen kimlik doğrudan okumada `{r1, r2, r5}`). Her çağıran `sub` = `act_sub` gönderir, `role`
-  göndermez (H-2/H-3 hariç). M-1 "own" = {r1, r2, r5} (R-F2). `idm-broken` satırları IDM istemcisinin ardışık
+  M-7 (`*_Pinned_*`), M-9, M-10, M-11, H-2 (`*_Pinned_*`), H-3, T-7 (task eşlenen kimliğin kendi IDM cevabıyla
+  okur). Her çağıran `sub` = `act_sub` gönderir, `role` göndermez (H-2/H-3 hariç). M-1 ve T-7 "own" = {r1, r2, r5}
+  (R-F2). `idm-broken` satırları IDM istemcisinin ardışık
   hata devre kesicisine (eşik 20; liste + 7 GET × 1 retry = 16) sayılır; tüm sınıflar tek `VNextIntegration`
   koleksiyonunda sıralı koştuğu için her hata satırı başta ve sonda başarılı bir IDM çağrısıyla sayacı sıfırlar.
 - C-1…C-5 ve U-route yalnız listedir (tasarım gereği: çağıran filtresinin GET karşılığı yok).

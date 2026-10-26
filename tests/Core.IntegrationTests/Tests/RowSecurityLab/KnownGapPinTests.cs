@@ -12,8 +12,8 @@ namespace Core.IntegrationTests.Tests.RowSecurityLab;
 /// <list type="bullet">
 /// <item>K-1: <c>functions/state</c> of an id the caller's GET hides answers 200.</item>
 /// <item>K-2: <c>functions/data</c> of the same id answers 200 (the existence oracle next to GET 404).</item>
-/// <item>K-3: the GetInstanceData task returns that id's data — by contract, not as a gap: every same-domain task
-/// reads unfiltered (vnext 7c9caf4a, user decision 2026-10-27).</item>
+/// <item>K-3: the GetInstanceData task returns that id's data — by contract, not as a gap: GetInstanceData is exempt
+/// from row security (vnext d7e9ba3e), unlike the GetInstances / GetInstance tasks, which are filtered.</item>
 /// <item>K-4: an opted-in parent's SubFlow child, in a flow without <c>rowSecurity</c>, is listed unfiltered (the
 /// child does not inherit the parent's rules; publish logs RS-W7 — log-only, R-F8 — not asserted here).</item>
 /// </list>
@@ -59,8 +59,8 @@ public class KnownGapPinTests : RowSecurityLabTestBase
     }
 
     /// <summary>
-    /// K-3: the GetInstanceData task (as the same role-less caller) returns the excluded id's data. A same-domain task
-    /// is exempt from row security, like GetInstances / GetInstance (TriggerTaskTests).
+    /// K-3: the GetInstanceData task (as the same role-less caller) returns the excluded id's data. The GetInstanceData
+    /// task is exempt from row security by contract; the GetInstances / GetInstance tasks are not (TriggerTaskTests).
     /// </summary>
     [SkippableFact]
     public async Task K3_GetInstanceDataTaskOnExcludedId_IsExemptAndReturnsData()
