@@ -1,7 +1,4 @@
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.Json;
 using Core.IntegrationTests.Infrastructure;
 
 namespace Core.IntegrationTests.Tests.RowSecurityLab;
@@ -276,14 +273,6 @@ public class ParameterTests : RowSecurityLabTestBase
         Assert.Equal(new[] { p.R1, p.R2, p.R3, p.R4, p.R5 }.ToHashSet(), await RawListIdsAsync(list, control));
     }
 
-    private async Task<HashSet<Guid>> RawListIdsAsync(string relativeUrl, IEnumerable<(string Name, string Value)> headers)
-    {
-        var (status, body) = await RawGetAsync(relativeUrl, headers);
-        Assert.True(status == 200, $"raw list answered {status}: {body}");
-        return JsonDocument.Parse(body).RootElement.GetProperty("items").EnumerateArray()
-            .Select(i => Guid.Parse(i.GetProperty("id").GetString()!)).ToHashSet();
-    }
-
     /// <summary>P-18: <c>amount ge H.x-min</c> with <c>"50"</c> ⇒ numeric comparison (coerced): everything but r6 (10).</summary>
     [SkippableFact]
     public async Task P18_GeNumber_ComparesNumerically()
@@ -465,39 +454,5 @@ public class ParameterTests : RowSecurityLabTestBase
             P("rs-p-nin-elements", H(("x-excl-1", "BR-001"), ("x-excl-2", "BR-002"))), p.R6);
         await AssertVisibleAsync(Flow, p, P("rs-p-not-eq", H(("x-branch-code", "BR-001"))),
             p.R3, p.R4, p.R6, p.R7);
-    }
-
-    // ── raw socket ───────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// One HTTP/1.0 GET over a plain socket, each header written as its own line (repeated names stay repeated).
-    /// HTTP/1.0 makes the server close the connection and answer without chunked encoding.
-    /// </summary>
-    private async Task<(int Status, string Body)> RawGetAsync(string relativeUrl, IEnumerable<(string Name, string Value)> headers)
-    {
-        var target = new Uri(OrchestratorUri, relativeUrl);
-        using var tcp = new TcpClient();
-        await tcp.ConnectAsync(target.Host, target.Port);
-        await using var stream = tcp.GetStream();
-
-        var request = new StringBuilder()
-            .Append($"GET {target.PathAndQuery} HTTP/1.0\r\n")
-            .Append($"Host: {target.Authority}\r\n")
-            .Append($"x-request-id: {Guid.NewGuid()}\r\n")
-            .Append("x-device-id: integration-test-device\r\n")
-            .Append("x-token-id: integration-test-token\r\n");
-        foreach (var (name, value) in headers) request.Append($"{name}: {value}\r\n");
-        request.Append("\r\n");
-        await stream.WriteAsync(Encoding.ASCII.GetBytes(request.ToString()));
-
-        using var buffer = new MemoryStream();
-        await stream.CopyToAsync(buffer);
-        var response = Encoding.UTF8.GetString(buffer.ToArray());
-        var lineEnd = response.IndexOf("\r\n", StringComparison.Ordinal);
-        Assert.True(lineEnd > 0 && response.StartsWith("HTTP/", StringComparison.Ordinal),
-            $"raw GET {target.PathAndQuery}: no HTTP status line in the answer ({response.Length} bytes): '{response}'");
-        var split = response.IndexOf("\r\n\r\n", StringComparison.Ordinal);
-        var statusLine = response[..lineEnd];
-        return (int.Parse(statusLine.Split(' ')[1]), split < 0 ? string.Empty : response[(split + 4)..]);
     }
 }

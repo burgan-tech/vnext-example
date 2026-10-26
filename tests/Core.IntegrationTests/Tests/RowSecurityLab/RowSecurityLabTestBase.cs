@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Core.IntegrationTests.Helpers;
@@ -407,6 +409,49 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         foreach (var (key, value) in response.Headers.Concat(response.Content.Headers))
             headers[key] = string.Join(", ", value);
         return (response.StatusCode, await response.Content.ReadAsStringAsync(), etag, headers);
+    }
+
+    // ── raw socket ───────────────────────────────────────────────────────────
+
+    /// <summary>A raw-socket list (<see cref="RawGetAsync"/>): asserts 200 and returns the listed ids.</summary>
+    protected async Task<HashSet<Guid>> RawListIdsAsync(string relativeUrl, IEnumerable<(string Name, string Value)> headers)
+    {
+        var (status, body) = await RawGetAsync(relativeUrl, headers);
+        Assert.True(status == 200, $"raw list answered {status}: {body}");
+        return JsonDocument.Parse(body).RootElement.GetProperty("items").EnumerateArray()
+            .Select(i => Guid.Parse(i.GetProperty("id").GetString()!)).ToHashSet();
+    }
+
+    /// <summary>
+    /// One HTTP/1.0 GET over a plain socket, each header written as its own line (repeated names stay repeated).
+    /// HTTP/1.0 makes the server close the connection and answer without chunked encoding.
+    /// </summary>
+    protected async Task<(int Status, string Body)> RawGetAsync(string relativeUrl, IEnumerable<(string Name, string Value)> headers)
+    {
+        var target = new Uri(OrchestratorUri, relativeUrl);
+        using var tcp = new TcpClient();
+        await tcp.ConnectAsync(target.Host, target.Port);
+        await using var stream = tcp.GetStream();
+
+        var request = new StringBuilder()
+            .Append($"GET {target.PathAndQuery} HTTP/1.0\r\n")
+            .Append($"Host: {target.Authority}\r\n")
+            .Append($"x-request-id: {Guid.NewGuid()}\r\n")
+            .Append("x-device-id: integration-test-device\r\n")
+            .Append("x-token-id: integration-test-token\r\n");
+        foreach (var (name, value) in headers) request.Append($"{name}: {value}\r\n");
+        request.Append("\r\n");
+        await stream.WriteAsync(Encoding.ASCII.GetBytes(request.ToString()));
+
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer);
+        var response = Encoding.UTF8.GetString(buffer.ToArray());
+        var lineEnd = response.IndexOf("\r\n", StringComparison.Ordinal);
+        Assert.True(lineEnd > 0 && response.StartsWith("HTTP/", StringComparison.Ordinal),
+            $"raw GET {target.PathAndQuery}: no HTTP status line in the answer ({response.Length} bytes): '{response}'");
+        var split = response.IndexOf("\r\n\r\n", StringComparison.Ordinal);
+        var statusLine = response[..lineEnd];
+        return (int.Parse(statusLine.Split(' ')[1]), split < 0 ? string.Empty : response[(split + 4)..]);
     }
 
     private static Dictionary<string, string> CallerHeaders(Caller caller)
