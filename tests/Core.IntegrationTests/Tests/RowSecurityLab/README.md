@@ -134,12 +134,17 @@ wf domain active && wf check && wf sync`.
 # D koşusu (default provider: rol = `role` header'ı)
 VNEXT_BASE_URL=http://localhost:4201 dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~RowSecurityLab"
 
-# M koşusu (morph-idm): runtime CallerRoleProvider__Provider=morph-idm ile yeniden başlatılır,
-# MockLab seed'i (etc/docker/config/seed/morph-idm-roles-collection.json, rs-idm-* kullanıcıları)
-# değiştiyse ÖNCE `run-docker.sh down -v` + yeniden up (seed değişimi volume sıfırlaması ister).
-CallerRoleProvider__Provider=morph-idm   # runtime tarafı
+# M koşusu (morph-idm): runtime morph-idm provider'ı MockLab'e yöneltilerek yeniden başlatılır
+# (vnext/etc/docker'dan; altyapıya dokunmaz). MockLab seed'i bind-mount'tur ve konteyner başlarken okunur:
+# rs-idm-* kurallarını önce doğrudan doğrula (`curl -H 'sub: rs-idm-branch' localhost:3001/api/1/morph-idm/functions/get-roles`
+# ⇒ ["branch-staff"]); yoksa yalnız mocklab konteynerini yeniden yarat (volume silmeden).
+CallerRoleProvider__Provider=morph-idm \
+CallerRoleProvider__MorphIdm__BaseUrl=http://localhost:3001 \
+CallerRoleProvider__MorphIdm__GetRolesPath=/api/1/morph-idm/functions/get-roles \
+  ./run-docker.sh up core --skip-migrate
 VNEXT_CALLER_ROLE_PROVIDER=morph-idm VNEXT_BASE_URL=http://localhost:4201 \
   dotnet test tests/Core.IntegrationTests --filter "FullyQualifiedName~RowSecurityLab"
+# Sonra hostları değişkensiz `./run-docker.sh up core --skip-migrate` ile default provider'a döndür.
 
 # Python smoke (yalnız fonksiyonel fixture, temsili değil)
 python3 api-tests/row-security/rs-smoke.py --base-url http://localhost:4201
@@ -165,6 +170,7 @@ istemci `role` header'ı IDM cevabının yerine geçer), P-30 (`nin` r7'yi dış
 K-1…K-4 (faz 1 bilinen açığı: `functions/state`/`data`, `GetInstanceData` filtrelenmez; SubFlow çocuğu
 kuralları miras almaz, RS-W7), X-6 (cross-domain eşleme `sub`/`act_sub`'ı değiştirirse uzak okuma o
 kimlikle yapılır).
+M-7 (`M7_Pinned_*`: `rs-idm-slow` seed'lenemez — MockLab gecikmesi mock başınadır; bugün MockLab varsayılan cevabı anında döner ve satır boş okur; IDM timeout'u yalnız birim testte).
 V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 400 `App:900006`, yayın yok, RS-E03 yok; vnext-schema validate önce yakalar).
 
 ## Dikkat noktaları
@@ -199,6 +205,11 @@ V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 4
   yalnız log'dadır, R-F8: 200, yanıtta `RS-` yok, akış `sys-flows`'ta ve listesi 200). Her W satırı anahtarını,
   kodunu ve UTC zamanını test çıktısına `W-ROW …` satırı olarak yazar (log sorgusu için). Her koşu yeni anahtarlar
   üretir; uyarı satırları runtime'da birikir (zararsız, hiçbir test bu akışları okumaz).
+- **Satır → test (Task 11G, M koşusu):** `MorphIdmOutcomeTests` A-9/M-5, B-7 (= M-8), S-2, S-3, M-1…M-4, M-6,
+  M-7 (`*_Pinned_*`), M-9, M-10, M-11, H-2 (`*_Pinned_*`), H-3, T-7. Her çağıran `sub` = `act_sub` gönderir, `role`
+  göndermez (H-2/H-3 hariç). M-1 ve T-7 "own" = {r1, r2, r5} (R-F2). `idm-broken` satırları IDM istemcisinin ardışık
+  hata devre kesicisine (eşik 20; liste + 7 GET × 1 retry = 16) sayılır; tüm sınıflar tek `VNextIntegration`
+  koleksiyonunda sıralı koştuğu için her hata satırı başta ve sonda başarılı bir IDM çağrısıyla sayacı sıfırlar.
 - C-1…C-5 ve U-route yalnız listedir (tasarım gereği: çağıran filtresinin GET karşılığı yok).
 - `npm run validate` `attributes.rowSecurity`'yi tanıyan vnext-schema sürümünü ister (o sürüm yayımlanana
   kadar lokal bağlanmış vnext-schema ile koşuldu).
