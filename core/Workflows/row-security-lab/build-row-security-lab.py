@@ -21,6 +21,7 @@ Hedef akislarin hepsi ayni sekildedir: start -> active ─rs-close→ closed, up
   rs-s         yalniz kimlik kurali ($InstanceStarter) + hq-auditor (seed okumasi icin)
   rs-behalf    $InstanceStarter (status eq A) + $InstanceBehalfOfStarter + hq-auditor
   rs-params    her parametre bicimi AYRI bir role baglidir (rs-p-*): bir cagiran tek kurala eslesir
+               (1.0.1: rs-p-query-br `in` oldu, rs-p-createdby-starter eklendi — Task 11C P-10 / P-22)
   rs-plain     rowSecurity YOK (C-6 / N-1 kontrolu)
   rs-plain-xr  rowSecurity YOK, x-roles'lu schema (N-3)
   rs-versioned 1.0.0: hq-auditor + branch-staff → branchCode eq x-branch-code
@@ -132,7 +133,8 @@ PARAMS = [
     HQ,
     param_rule("rs-p-header-eq", attr("branchCode", "eq", H + "x-branch-code")),
     param_rule("rs-p-query-branch", attr("branchCode", "eq", Q + "branch")),
-    param_rule("rs-p-query-br", attr("branchCode", "eq", Q + "br")),
+    # P-10: `in` over a multi-valued query key without split (element-wise), not `eq` (1.0.1).
+    param_rule("rs-p-query-br", attr("branchCode", "in", {"$param": Q + "br"})),
     param_rule("rs-p-in-elements", attr("branchCode", "in", [H + "x-b1", H + "x-b2"])),
     param_rule("rs-p-in-literal", attr("branchCode", "in", [H + "x-b1", "BR-999"])),
     param_rule("rs-p-in-split", attr("branchCode", "in", {"$param": H + "x-branches", "split": ","})),
@@ -151,14 +153,20 @@ PARAMS = [
     param_rule("rs-p-position", attr("positionCode", "eq", CU + "Position")),
     param_rule("rs-p-actor", attr("owner", "eq", CU + "ActorUserName")),
     param_rule("rs-p-username", attr("owner", "eq", CU + "UserName")),
+    # P-22 (1.0.1): the $InstanceStarter shorthand inside a STATIC-role rule (createdBy = ActorUserName).
+    param_rule("rs-p-createdby-starter", {"createdBy": {"eq": "$InstanceStarter"}}),
 ]
+
+# rs-params is published once per version (immutable); 1.0.1 fixed rs-p-query-br and added
+# rs-p-createdby-starter for Task 11C.
+PARAMS_VERSION = "1.0.1"
 
 VERSIONED_100 = [HQ, BRANCH]
 
 
 # ── workflows ────────────────────────────────────────────────────────────────
 
-def target_workflow(key, domain, schema_key, row_security, description):
+def target_workflow(key, domain, schema_key, row_security, description, version=VERSION):
     attributes = {
         "type": "F",
         "labels": label(description),
@@ -199,7 +207,7 @@ def target_workflow(key, domain, schema_key, row_security, description):
         "flow": "sys-flows",
         "flowVersion": "1.0.0",
         "domain": domain,
-        "version": VERSION,
+        "version": version,
         "tags": TAGS,
         "attributes": attributes,
     }
@@ -295,8 +303,10 @@ def main():
         "rs-plain-xr": (xr, None, "Row Security Lab plain with x-roles schema"),
         "rs-versioned": (plain, VERSIONED_100, "Row Security Lab versioned (1.0.0 branch rule)"),
     }
+    versions = {"rs-params": PARAMS_VERSION}
     for key, (schema_key, rules, description) in flows.items():
-        write(os.path.join(ROOT, f"{key}.json"), target_workflow(key, "core", schema_key, rules, description))
+        write(os.path.join(ROOT, f"{key}.json"),
+              target_workflow(key, "core", schema_key, rules, description, versions.get(key, VERSION)))
 
     write(os.path.join(ROOT, "rs-reader.json"), reader_workflow())
     write(os.path.join(PARTNER_WORKFLOWS, "rs-xd-target.json"),

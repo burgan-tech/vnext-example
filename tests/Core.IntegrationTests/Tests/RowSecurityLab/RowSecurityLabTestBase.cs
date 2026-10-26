@@ -37,6 +37,16 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
     /// <summary>Actor (act_sub) of the seed rows that are not tied to a lab identity.</summary>
     protected const string Seeder = "rs-seeder";
 
+    /// <summary>
+    /// Skip reason of the D-run rows (<c>Skip.IfNot(ProviderIs("default"), DefaultProviderOnly)</c>): under morph-idm
+    /// the role set comes from the IDM, not from the <c>role</c> header these rows send.
+    /// </summary>
+    protected const string DefaultProviderOnly =
+        "D run: the role header is the role set only under the default caller-role provider";
+
+    /// <summary>The Definition A/B rule header: <c>x-branch-code: {code}</c>.</summary>
+    protected static Dictionary<string, string> Branch(string code) => new() { ["x-branch-code"] = code };
+
     /// <summary>The seven rows of one test. <c>TestId</c> isolates them from every other run.</summary>
     protected sealed record Population(string TestId, Guid R1, Guid R2, Guid R3, Guid R4, Guid R5, Guid R6, Guid R7)
     {
@@ -60,6 +70,9 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
 
     private readonly HttpClient _http;
     private readonly Dictionary<string, Population> _populations = new(StringComparer.Ordinal);
+
+    /// <summary>The orchestrator base address every lab request goes to (for raw-socket requests).</summary>
+    protected Uri OrchestratorUri => _http.BaseAddress!;
 
     /// <summary>The <c>sys-version-registry</c> pointer client (E-7: <c>set-default</c> switches the rule set, K2).</summary>
     protected VersionRegistryClient Registry { get; }
@@ -124,6 +137,12 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
     /// <summary>An <c>hq-auditor</c> caller (identity <see cref="Seeder"/>).</summary>
     protected static Caller Hq() => new(Sub: Seeder, ActSub: Seeder, Role: HqAuditor);
 
+    /// <summary>
+    /// Makes <paramref name="population"/> the one <see cref="ListIdsAsync"/> scopes <paramref name="flow"/> to, for a
+    /// test that seeded the same flow twice (e.g. <c>rs-versioned</c> on 1.0.0 and on 1.0.1).
+    /// </summary>
+    protected void UsePopulation(string flow, Population population) => _populations[flow] = population;
+
     private async Task<Guid> StartRowAsync(
         string flow, string? version, string actSub, string? sub, string testId, string? branchCode,
         decimal amount, string region, string owner, string positionCode)
@@ -176,12 +195,33 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         return ids;
     }
 
-    /// <summary>The list call behind <see cref="ListIdsAsync"/>, status and body untouched (groupBy, errors).</summary>
+    /// <summary>
+    /// The list call behind <see cref="ListIdsAsync"/>, status and body untouched (groupBy, errors, paging).
+    /// <paramref name="callerFilter"/> is composed exactly as in <see cref="ListIdsAsync"/>.
+    /// </summary>
     protected async Task<(HttpStatusCode Status, string Body)> ListRawAsync(
-        string flow, Caller caller, string? callerFilter = null, string? extraQuery = null)
+        string flow, Caller caller, string? callerFilter = null, string? extraQuery = null, int pageSize = 100)
     {
-        var query = new List<string> { "pageSize=100" };
-        var filter = ComposeFilter(flow, callerFilter);
+        return await ListCoreAsync(flow, caller, ComposeFilter(flow, callerFilter), extraQuery, pageSize);
+    }
+
+    /// <summary>
+    /// Lists <paramref name="flow"/> through the request envelope (<c>{"filter": …, "groupBy": …}</c>, the GraphQL
+    /// list route): the filter is composed as in <see cref="ListIdsAsync"/>, <paramref name="groupByJson"/> is the
+    /// <c>groupBy</c> member verbatim (e.g. <c>{"fields":["attributes.branchCode"],"aggregations":{"count":true}}</c>).
+    /// </summary>
+    protected Task<(HttpStatusCode Status, string Body)> ListGroupedAsync(
+        string flow, Caller caller, string groupByJson, string? callerFilter = null) =>
+        ListCoreAsync(flow, caller, GroupEnvelope(flow, groupByJson, callerFilter), null, 100);
+
+    /// <summary>The envelope <see cref="ListGroupedAsync"/> sends (also handed to the GetInstances task).</summary>
+    protected string GroupEnvelope(string flow, string groupByJson, string? callerFilter = null) =>
+        $"{{\"filter\":{ComposeFilter(flow, callerFilter)},\"groupBy\":{groupByJson}}}";
+
+    private async Task<(HttpStatusCode Status, string Body)> ListCoreAsync(
+        string flow, Caller caller, string? filter, string? extraQuery, int pageSize)
+    {
+        var query = new List<string> { $"pageSize={pageSize}" };
         if (filter is not null) query.Add("filter=" + Uri.EscapeDataString(filter));
         if (!string.IsNullOrEmpty(extraQuery)) query.Add(extraQuery);
 
@@ -219,6 +259,53 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
             Assert.True(status == want,
                 $"GET {flow}/{Names(population, [id])} answered {(int)status}, expected {(int)want}: {body}");
         }
+    }
+
+    /// <summary>
+    /// Sends one request as <paramref name="caller"/> (only its headers, plus <paramref name="extraHeaders"/>) and
+    /// returns status, body and every response header (case-insensitive). <paramref name="url"/> is relative to the
+    /// orchestrator (<c>api/v1/…</c>).
+    /// </summary>
+    protected async Task<(HttpStatusCode Status, string Body, IReadOnlyDictionary<string, string> Headers)> SendAsCallerAsync(
+        HttpMethod method, string url, Caller caller, object? body = null, IDictionary<string, string>? extraHeaders = null)
+    {
+        var (status, response, _, headers) = await SendCoreAsync(
+            method, url, caller, body is null ? null : JsonContent.Create(body), extraHeaders);
+        return (status, response, headers);
+    }
+
+    /// <summary>
+    /// Runs one <c>rs-reader</c> transition (<c>read-list</c> / <c>read-one</c> / <c>trigger-one</c>) as
+    /// <paramref name="caller"/> on a fresh reader instance and returns the reader's result object
+    /// (<c>readerList</c> / <c>readerGet</c> / <c>readerTrigger</c>), read back as an <c>hq-auditor</c>
+    /// (<c>rs-reader</c> has no <c>rowSecurity</c>). <paramref name="body"/> is the transition body
+    /// (<c>targetFlow</c>, <c>filter</c> or <c>testId</c>, <c>headers</c>, …, see README § rs-reader).
+    /// </summary>
+    protected async Task<JsonElement> ReadThroughReaderAsync(Caller caller, string transition, object body)
+    {
+        const string reader = "rs-reader";
+        var (status, started, _) = await SendAsync(HttpMethod.Post,
+            $"api/v1/{Domain}/workflows/{reader}/instances/start?sync=true", caller,
+            JsonContent.Create(new { attributes = new { purpose = transition } }));
+        Assert.True((int)status < 400, $"{reader} start refused with {(int)status}: {started}");
+        var id = JsonDocument.Parse(started).RootElement.GetProperty("id").GetString()!;
+
+        var (ran, ranBody, _) = await SendAsync(HttpMethod.Patch,
+            $"api/v1/{Domain}/workflows/{reader}/instances/{id}/transitions/{transition}?sync=true", caller,
+            JsonContent.Create(body));
+        Assert.True((int)ran < 400, $"{reader} '{transition}' refused with {(int)ran}: {ranBody}");
+
+        var (read, data, _) = await GetAsync(reader, id, Hq());
+        Assert.True(read == HttpStatusCode.OK, $"{reader}/{id} read back {(int)read}: {data}");
+        var result = transition switch
+        {
+            "read-list" => "readerList",
+            "read-one" => "readerGet",
+            _ => "readerTrigger",
+        };
+        var attributes = JsonDocument.Parse(data).RootElement.GetProperty("attributes");
+        Assert.True(attributes.TryGetProperty(result, out var value), $"{reader}/{id} carries no {result}: {data}");
+        return value.Clone();
     }
 
     /// <summary>Publishes a definition verbatim (<c>api/v1/definitions/publish</c>), as HistoryNoneLabTests does.</summary>
@@ -279,7 +366,11 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         return string.Join(",", ids.Select(id => names.TryGetValue(id, out var name) ? name : id.ToString()));
     }
 
-    private string? ComposeFilter(string flow, string? callerFilter)
+    /// <summary>
+    /// The <c>filter</c> query value <see cref="ListIdsAsync"/> sends: the population's <c>testId eq</c>, ANDed with
+    /// <paramref name="callerFilter"/> when given; null for <see cref="RawNoTestId"/>.
+    /// </summary>
+    protected string? ComposeFilter(string flow, string? callerFilter)
     {
         if (callerFilter == RawNoTestId) return null;
         if (!_populations.TryGetValue(flow, out var population))
@@ -293,6 +384,13 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         HttpMethod method, string url, Caller caller, HttpContent? content = null,
         IDictionary<string, string>? extraHeaders = null)
     {
+        var (status, body, etag, _) = await SendCoreAsync(method, url, caller, content, extraHeaders);
+        return (status, body, etag);
+    }
+
+    private async Task<(HttpStatusCode Status, string Body, string? ETag, IReadOnlyDictionary<string, string> Headers)> SendCoreAsync(
+        HttpMethod method, string url, Caller caller, HttpContent? content, IDictionary<string, string>? extraHeaders)
+    {
         if (!string.IsNullOrEmpty(caller.Query))
             url += (url.Contains('?') ? "&" : "?") + caller.Query;
 
@@ -304,7 +402,10 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         using var response = await _http.SendAsync(request);
         var etag = response.Headers.ETag?.ToString()
                    ?? (response.Headers.TryGetValues("ETag", out var values) ? values.FirstOrDefault() : null);
-        return (response.StatusCode, await response.Content.ReadAsStringAsync(), etag);
+        var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (key, value) in response.Headers.Concat(response.Content.Headers))
+            headers[key] = string.Join(", ", value);
+        return (response.StatusCode, await response.Content.ReadAsStringAsync(), etag, headers);
     }
 
     private static Dictionary<string, string> CallerHeaders(Caller caller)

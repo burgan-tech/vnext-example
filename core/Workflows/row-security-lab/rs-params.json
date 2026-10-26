@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "row-security-lab"
@@ -63,7 +63,9 @@
           "filter": {
             "attributes": {
               "branchCode": {
-                "eq": "$.context.QueryParameters.br"
+                "in": {
+                  "$param": "$.context.QueryParameters.br"
+                }
               }
             }
           }
@@ -291,6 +293,16 @@
               "owner": {
                 "eq": "$.context.CurrentUser.UserName"
               }
+            }
+          }
+        },
+        {
+          "roles": [
+            "rs-p-createdby-starter"
+          ],
+          "filter": {
+            "createdBy": {
+              "eq": "$InstanceStarter"
             }
           }
         }

@@ -32,7 +32,7 @@ start → active ─rs-close→ closed          updateData: rs-update ($self, g�
 | `rs-b` | plain | Definition B: A + `{ roles: [$InstanceStarter] }` |
 | `rs-s` | plain | `hq-auditor` + yalnız `$InstanceStarter` |
 | `rs-behalf` | plain | `hq-auditor` + `$InstanceStarter` (`status eq A`) + `$InstanceBehalfOfStarter` |
-| `rs-params` | plain | `hq-auditor` + parametre biçimi başına **ayrı rol** (aşağıdaki tablo) |
+| `rs-params` (1.0.1) | plain | `hq-auditor` + parametre biçimi başına **ayrı rol** (aşağıdaki tablo) |
 | `rs-plain` | plain | **yok** — değişmeyen akış kontrolü: liste/GET bayt bayt eskisi gibi |
 | `rs-plain-xr` | `rs-lab-schema` | **yok** — x-roles'lu şemada ek rol çözümü olmadığının kontrolü |
 | `rs-versioned` | plain | 1.0.0: `hq-auditor` (filtresiz) + `branch-staff → branchCode eq x-branch-code`. 1.0.1 (dosyada değil): `hq-auditor` (filtresiz) + `branch-staff → region eq x-region`; tek kaynak `RowSecurityLabTestBase.PublishVersionedV101Async()` (1.0.0 dosyasından üretir, idempotent: 409 "same version" = tamam) |
@@ -58,7 +58,8 @@ genişletmediğini kanıtlar. `H.` = `$.context.Headers.`, `Q.` = `$.context.Que
 | Rol | Filtre |
 |---|---|
 | `rs-p-header-eq` | `branchCode eq H.x-branch-code` |
-| `rs-p-query-branch` / `rs-p-query-br` | `branchCode eq Q.branch` / `Q.br` |
+| `rs-p-query-branch` | `branchCode eq Q.branch` |
+| `rs-p-query-br` | `branchCode in { $param: Q.br }` (split yok: tekrarlanan anahtar eleman eleman; 1.0.1) |
 | `rs-p-in-elements` | `branchCode in [H.x-b1, H.x-b2]` (Form A) |
 | `rs-p-in-literal` | `branchCode in [H.x-b1, "BR-999"]` |
 | `rs-p-in-split` | `branchCode in { $param: H.x-branches, split: "," }` (Form C) |
@@ -72,6 +73,10 @@ genişletmediğini kanıtlar. `H.` = `$.context.Headers.`, `Q.` = `$.context.Que
 | `rs-p-region` | `region eq H.x-region` |
 | `rs-p-position` | `positionCode eq CU.Position` |
 | `rs-p-actor` / `rs-p-username` | `owner eq CU.ActorUserName` / `owner eq CU.UserName` |
+| `rs-p-createdby-starter` | `createdBy eq $InstanceStarter` (statik rol kuralında kısaltma; 1.0.1) |
+
+`rs-params` 1.0.1'dir (publish sürüm-değişmez): 1.0.0'da `rs-p-query-br` `eq` idi ve P-10'un çok değerli
+`in` biçimini taşımıyordu, P-22'nin `createdBy eq $InstanceStarter` kuralı yoktu. Kural seti latest'ten okunur.
 
 ### `rs-reader`
 
@@ -164,5 +169,14 @@ kimlikle yapılır).
 - `wf sync`, csx gömülü JSON dosyalarını yeniden yazar (son satır sonu düşer); bu dosyalardaki ilgisiz
   diff'leri commit'leme. `wf sync` fixture'ları düz sürümle (`1.0.0`) yayınlar, SDK `-pkg.` sürümüyle;
   önce hangisi yayınlarsa o kalır (`FlowDefaultVersion` SubProcess testi `-pkg.` bekler).
+- **Satır → test (Task 11C):** `ParameterTests` P-1…P-25, P-27…P-30 (`P17` tekrarlanan header satırları için
+  ham HTTP/1.0 soketiyle gider — HttpClient tekrarlanan header'ı tek satıra katlar); `CallerFilterAndGroupingTests`
+  C-1…C-6, U-route, G-1…G-4 (G-2'nin task yarısı `rs-reader` `read-list` ile, string-route yarısı ayrı `groupBy`
+  sorgu parametresiyle); `SingleGetTests` E-1…E-6, E-7a/b/c, E-8. E-7 `rs-versioned` pointer'ını taşır, her satır
+  `finally` içinde `ClearPointerAsync` çağırır.
+- **P-25b feature runtime'da KIRMIZI (bulgu):** `?branch=%00` (NUL) kural parametresi olarak PostgreSQL'e jsonb
+  `\u0000` kaçışıyla ulaşır; liste 500 (`22P05`), GET 500 döner. Aynı 500 çağıranın kendi filtresinde
+  `\u0000` ile `rs-plain`'de de oluşur (önceden var olan filtre motoru kusuru); istemci kontrollü bir kural
+  parametresiyle artık erişilebilir.
 - `npm run validate` `attributes.rowSecurity`'yi tanıyan vnext-schema sürümünü ister (o sürüm yayımlanana
   kadar lokal bağlanmış vnext-schema ile koşuldu).
