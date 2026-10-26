@@ -15,17 +15,14 @@ namespace Core.IntegrationTests.Tests.RowSecurityLab;
 public class DefinitionATests : RowSecurityLabTestBase
 {
     private const string Flow = "rs-a";
-    private const string SkipReason = "D run: the role header is the role set only under the default caller-role provider";
 
     public DefinitionATests(VNextTestEnvironment environment) : base(environment) { }
-
-    private static Dictionary<string, string> Branch(string code) => new() { ["x-branch-code"] = code };
 
     /// <summary>A-1: no credential (no sub, no act_sub, no role) ⇒ none.</summary>
     [SkippableFact]
     public async Task A1_NoCredential_SeesNothing()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p, new Caller());
@@ -35,7 +32,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A2_IdentityWithoutRoles_SeesNothing()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p, new Caller(Sub: "alice", ActSub: "alice"));
@@ -45,7 +42,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A3_UnrelatedRole_SeesNothing()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p, new Caller(Sub: "alice", ActSub: "alice", Role: "menu.view"));
@@ -55,7 +52,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A4_BranchStaffWithHeader_SeesOwnBranch()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p,
@@ -67,7 +64,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A5_BranchStaffWithoutHeader_SeesNothing()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p, new Caller(Sub: "alice", ActSub: "alice", Role: "branch-staff"));
@@ -77,7 +74,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A6_BranchStaffWithExtraRoles_SeesOwnBranchOnly()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p,
@@ -90,7 +87,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A7_BranchStaffAndHqAuditor_SeesAll()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p,
@@ -102,7 +99,7 @@ public class DefinitionATests : RowSecurityLabTestBase
     [SkippableFact]
     public async Task A8_HqAuditor_SeesAll()
     {
-        Skip.IfNot(ProviderIs("default"), SkipReason);
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         await AssertVisibleAsync(Flow, p, new Caller(Sub: "alice", ActSub: "alice", Role: HqAuditor), [.. p.All]);
