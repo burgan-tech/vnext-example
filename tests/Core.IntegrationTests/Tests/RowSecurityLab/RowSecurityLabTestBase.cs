@@ -470,7 +470,8 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         return headers;
     }
 
-    private static string RepoRoot()
+    /// <summary>The vnext-example repository root (the directory holding <c>vnext.config.json</c>).</summary>
+    protected static string RepoRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null)

@@ -1,0 +1,585 @@
+{
+  "list": {
+    "status": 200,
+    "body": {
+      "links": {
+        "self": "/api/v1/core/workflows/rs-plain/instances?page=1&pageSize=100&filter=%7B%22attributes%22%3A%7B%22testId%22%3A%7B%22eq%22%3A%22<testId>%22%7D%7D%7D",
+        "first": "/api/v1/core/workflows/rs-plain/instances?page=1&pageSize=100&filter=%7B%22attributes%22%3A%7B%22testId%22%3A%7B%22eq%22%3A%22<testId>%22%7D%7D%7D",
+        "next": "",
+        "prev": ""
+      },
+      "items": [
+        {
+          "id": "r7",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "active",
+            "effectiveState": "active",
+            "status": "A",
+            "effectiveStatus": "A",
+            "type": "R",
+            "effectiveStateType": "initial",
+            "effectiveStateSubType": "none",
+            "currentStateType": "initial",
+            "currentStateSubType": "none",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "rs-seeder",
+            "modifiedBy": "rs-seeder",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r7/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "frank",
+            "amount": 700,
+            "region": "north",
+            "testId": "<testId>",
+            "positionCode": "POS-A"
+          },
+          "extensions": {}
+        },
+        {
+          "id": "r6",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "active",
+            "effectiveState": "active",
+            "status": "A",
+            "effectiveStatus": "A",
+            "type": "R",
+            "effectiveStateType": "initial",
+            "effectiveStateSubType": "none",
+            "currentStateType": "initial",
+            "currentStateSubType": "none",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "rs-seeder",
+            "modifiedBy": "rs-seeder",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r6/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "erin",
+            "amount": 10,
+            "region": "west",
+            "testId": "<testId>",
+            "branchCode": "BR-999",
+            "positionCode": "POS-C"
+          },
+          "extensions": {}
+        },
+        {
+          "id": "r5",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "active",
+            "effectiveState": "active",
+            "status": "A",
+            "effectiveStatus": "A",
+            "type": "R",
+            "effectiveStateType": "initial",
+            "effectiveStateSubType": "none",
+            "currentStateType": "initial",
+            "currentStateSubType": "none",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "rs-seeder",
+            "modifiedBy": "rs-seeder",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r5/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "dave",
+            "amount": 500,
+            "region": "east",
+            "testId": "<testId>",
+            "branchCode": "BR-001",
+            "positionCode": "POS-C"
+          },
+          "extensions": {}
+        },
+        {
+          "id": "r4",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "closed",
+            "effectiveState": "closed",
+            "status": "C",
+            "effectiveStatus": "C",
+            "type": "R",
+            "effectiveStateType": "finish",
+            "effectiveStateSubType": "success",
+            "currentStateType": "finish",
+            "currentStateSubType": "success",
+            "completedAt": "<ts>",
+            "duration": "<duration>",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "carol",
+            "modifiedBy": "carol",
+            "modifiedByBehalfOf": "rs-seeder",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r4/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "carol",
+            "amount": 400,
+            "region": "south",
+            "testId": "<testId>",
+            "branchCode": "BR-002",
+            "positionCode": "POS-B"
+          },
+          "extensions": {}
+        },
+        {
+          "id": "r3",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "active",
+            "effectiveState": "active",
+            "status": "A",
+            "effectiveStatus": "A",
+            "type": "R",
+            "effectiveStateType": "initial",
+            "effectiveStateSubType": "none",
+            "currentStateType": "initial",
+            "currentStateSubType": "none",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "alice",
+            "createdByBehalfOf": "bob",
+            "modifiedBy": "alice",
+            "modifiedByBehalfOf": "bob",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r3/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "alice",
+            "amount": 300,
+            "region": "south",
+            "testId": "<testId>",
+            "branchCode": "BR-002",
+            "positionCode": "POS-A"
+          },
+          "extensions": {}
+        },
+        {
+          "id": "r2",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "active",
+            "effectiveState": "active",
+            "status": "A",
+            "effectiveStatus": "A",
+            "type": "R",
+            "effectiveStateType": "initial",
+            "effectiveStateSubType": "none",
+            "currentStateType": "initial",
+            "currentStateSubType": "none",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "carol",
+            "modifiedBy": "carol",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r2/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "carol",
+            "amount": 200,
+            "region": "north",
+            "testId": "<testId>",
+            "branchCode": "BR-001",
+            "positionCode": "POS-B"
+          },
+          "extensions": {}
+        },
+        {
+          "id": "r1",
+          "flow": "rs-plain",
+          "domain": "core",
+          "flowVersion": "1.0.0-pkg.1.0.0+core",
+          "entityEtag": "<etag>",
+          "tags": [],
+          "metadata": {
+            "currentState": "active",
+            "effectiveState": "active",
+            "status": "A",
+            "effectiveStatus": "A",
+            "type": "R",
+            "effectiveStateType": "initial",
+            "effectiveStateSubType": "none",
+            "currentStateType": "initial",
+            "currentStateSubType": "none",
+            "createdAt": "<ts>",
+            "modifiedAt": "<ts>",
+            "createdBy": "alice",
+            "modifiedBy": "alice",
+            "incident": {
+              "hasActiveIncident": false,
+              "history": {
+                "href": "/api/v1/core/workflows/rs-plain/instances/r1/incidents"
+              }
+            }
+          },
+          "attributes": {
+            "owner": "alice",
+            "amount": 100,
+            "region": "north",
+            "testId": "<testId>",
+            "branchCode": "BR-001",
+            "positionCode": "POS-A"
+          },
+          "extensions": {}
+        }
+      ]
+    }
+  },
+  "get": {
+    "r1": {
+      "status": 200,
+      "body": {
+        "id": "r1",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "active",
+          "effectiveState": "active",
+          "status": "A",
+          "effectiveStatus": "A",
+          "type": "R",
+          "effectiveStateType": "initial",
+          "effectiveStateSubType": "none",
+          "currentStateType": "initial",
+          "currentStateSubType": "none",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "alice",
+          "modifiedBy": "alice",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r1/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "alice",
+          "amount": 100,
+          "region": "north",
+          "testId": "<testId>",
+          "branchCode": "BR-001",
+          "positionCode": "POS-A"
+        },
+        "extensions": {}
+      }
+    },
+    "r2": {
+      "status": 200,
+      "body": {
+        "id": "r2",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "active",
+          "effectiveState": "active",
+          "status": "A",
+          "effectiveStatus": "A",
+          "type": "R",
+          "effectiveStateType": "initial",
+          "effectiveStateSubType": "none",
+          "currentStateType": "initial",
+          "currentStateSubType": "none",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "carol",
+          "modifiedBy": "carol",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r2/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "carol",
+          "amount": 200,
+          "region": "north",
+          "testId": "<testId>",
+          "branchCode": "BR-001",
+          "positionCode": "POS-B"
+        },
+        "extensions": {}
+      }
+    },
+    "r3": {
+      "status": 200,
+      "body": {
+        "id": "r3",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "active",
+          "effectiveState": "active",
+          "status": "A",
+          "effectiveStatus": "A",
+          "type": "R",
+          "effectiveStateType": "initial",
+          "effectiveStateSubType": "none",
+          "currentStateType": "initial",
+          "currentStateSubType": "none",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "alice",
+          "createdByBehalfOf": "bob",
+          "modifiedBy": "alice",
+          "modifiedByBehalfOf": "bob",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r3/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "alice",
+          "amount": 300,
+          "region": "south",
+          "testId": "<testId>",
+          "branchCode": "BR-002",
+          "positionCode": "POS-A"
+        },
+        "extensions": {}
+      }
+    },
+    "r4": {
+      "status": 200,
+      "body": {
+        "id": "r4",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "closed",
+          "effectiveState": "closed",
+          "status": "C",
+          "effectiveStatus": "C",
+          "type": "R",
+          "effectiveStateType": "finish",
+          "effectiveStateSubType": "success",
+          "currentStateType": "finish",
+          "currentStateSubType": "success",
+          "completedAt": "<ts>",
+          "duration": "<duration>",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "carol",
+          "modifiedBy": "carol",
+          "modifiedByBehalfOf": "rs-seeder",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r4/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "carol",
+          "amount": 400,
+          "region": "south",
+          "testId": "<testId>",
+          "branchCode": "BR-002",
+          "positionCode": "POS-B"
+        },
+        "extensions": {}
+      }
+    },
+    "r5": {
+      "status": 200,
+      "body": {
+        "id": "r5",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "active",
+          "effectiveState": "active",
+          "status": "A",
+          "effectiveStatus": "A",
+          "type": "R",
+          "effectiveStateType": "initial",
+          "effectiveStateSubType": "none",
+          "currentStateType": "initial",
+          "currentStateSubType": "none",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "rs-seeder",
+          "modifiedBy": "rs-seeder",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r5/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "dave",
+          "amount": 500,
+          "region": "east",
+          "testId": "<testId>",
+          "branchCode": "BR-001",
+          "positionCode": "POS-C"
+        },
+        "extensions": {}
+      }
+    },
+    "r6": {
+      "status": 200,
+      "body": {
+        "id": "r6",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "active",
+          "effectiveState": "active",
+          "status": "A",
+          "effectiveStatus": "A",
+          "type": "R",
+          "effectiveStateType": "initial",
+          "effectiveStateSubType": "none",
+          "currentStateType": "initial",
+          "currentStateSubType": "none",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "rs-seeder",
+          "modifiedBy": "rs-seeder",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r6/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "erin",
+          "amount": 10,
+          "region": "west",
+          "testId": "<testId>",
+          "branchCode": "BR-999",
+          "positionCode": "POS-C"
+        },
+        "extensions": {}
+      }
+    },
+    "r7": {
+      "status": 200,
+      "body": {
+        "id": "r7",
+        "flow": "rs-plain",
+        "domain": "core",
+        "flowVersion": "1.0.0-pkg.1.0.0+core",
+        "eTag": "<etag>",
+        "entityEtag": "<etag>",
+        "tags": [],
+        "metadata": {
+          "currentState": "active",
+          "effectiveState": "active",
+          "status": "A",
+          "effectiveStatus": "A",
+          "type": "R",
+          "effectiveStateType": "initial",
+          "effectiveStateSubType": "none",
+          "currentStateType": "initial",
+          "currentStateSubType": "none",
+          "createdAt": "<ts>",
+          "modifiedAt": "<ts>",
+          "createdBy": "rs-seeder",
+          "modifiedBy": "rs-seeder",
+          "incident": {
+            "hasActiveIncident": false,
+            "history": {
+              "href": "/api/v1/core/workflows/rs-plain/instances/r7/incidents"
+            }
+          }
+        },
+        "attributes": {
+          "owner": "frank",
+          "amount": 700,
+          "region": "north",
+          "testId": "<testId>",
+          "positionCode": "POS-A"
+        },
+        "extensions": {}
+      }
+    }
+  }
+}
