@@ -29,7 +29,11 @@ Hedef akislarin hepsi ayni sekildedir: start -> active ─rs-close→ closed, up
   rs-versioned 1.0.0: hq-auditor + branch-staff → branchCode eq x-branch-code
                (1.0.1 = hq-auditor (filtresiz) + branch-staff → region eq x-region; dosyada degil,
                RowSecurityLabTestBase.PublishVersionedV101Async bu dosyadan uretip yayinlar)
-  rs-reader    rowSecurity YOK; GetInstances / GetInstance / DirectTrigger task'larini govdeden surer
+  rs-reader    rowSecurity YOK; GetInstances / GetInstance / DirectTrigger / GetInstanceData task'larini
+               govdeden surer (1.0.1: `read-data` (GetInstanceData) eklendi — Task 11E K-3)
+  rs-k4-parent Definition A + SubFlow state → rs-k4-child (K-4: alt akis kurallari miras almaz;
+               publish RS-W7 uyarisini loglar)
+  rs-k4-child  rowSecurity YOK; rs-k4-parent'in SubFlow'u (testId parent'tan gelir)
 
 Her opt-in akista bir `hq-auditor` kurali vardir: K1'de `default` yok, deny varsayilan; seed okumasi
 (SeedAsync 7 id'yi listeleyerek dogrular) hq-auditor ile yapilir.
@@ -211,6 +215,9 @@ PARAMS_VERSION = "1.0.1"
 
 VERSIONED_100 = [HQ, BRANCH]
 
+# rs-reader 1.0.1 added `read-data` (GetInstanceData, Task 11E K-3); publish is version-immutable.
+READER_VERSION = "1.0.1"
+
 
 # ── workflows ────────────────────────────────────────────────────────────────
 
@@ -279,8 +286,8 @@ def reader_workflow():
         "flow": "sys-flows",
         "flowVersion": "1.0.0",
         "domain": "core",
-        "version": VERSION,
-        "tags": TAGS + ["get-instances", "get-instance", "direct-trigger"],
+        "version": READER_VERSION,
+        "tags": TAGS + ["get-instances", "get-instance", "direct-trigger", "get-instance-data"],
         "attributes": {
             "type": "F",
             "labels": label("Row Security Lab Reader"),
@@ -302,6 +309,8 @@ def reader_workflow():
                                           "GetInstance (body-driven, optional header mapping)"),
                         reader_transition("trigger-one", "rs-direct-trigger", "RsReaderTriggerMapping.csx",
                                           "DirectTrigger by id or key (body-driven, optional header mapping)"),
+                        reader_transition("read-data", "rs-get-instance-data", "RsReaderDataMapping.csx",
+                                          "GetInstanceData (body-driven, optional header mapping)"),
                         {
                             "key": "reader-close", "target": "reader-done", "triggerType": 0,
                             "versionStrategy": "Minor", "labels": label("Close"), "onExecutionTasks": [],
@@ -316,6 +325,44 @@ def reader_workflow():
             ],
         },
     }
+
+
+def k4_parent_workflow():
+    """K-4: Definition A parent whose `rs-k4-sub` state starts the non-opted child rs-k4-child."""
+    document = target_workflow("rs-k4-parent", "core", "rs-lab-schema-plain", DEF_A,
+                               "Row Security Lab K-4 parent (Definition A + SubFlow)")
+    attributes = document["attributes"]
+    attributes["startTransition"]["target"] = "rs-k4-prepare"
+    attributes["states"] = [
+        {
+            "key": "rs-k4-prepare", "stateType": 1, "subType": 0, "versionStrategy": "Major",
+            "labels": label("Prepare"), "view": None, "subFlow": None, "onEntries": [], "onExits": [],
+            "transitions": [{
+                "key": "rs-k4-auto-sub", "target": "rs-k4-sub", "triggerType": 1, "triggerKind": 10,
+                "versionStrategy": "Minor", "labels": label("Auto to SubFlow"),
+            }],
+        },
+        {
+            "key": "rs-k4-sub", "stateType": 4, "subType": 0, "versionStrategy": "Minor",
+            "labels": label("SubFlow rs-k4-child"), "view": None,
+            "subFlow": {
+                "type": "S",
+                "process": {"key": "rs-k4-child", "domain": "core", "flow": "sys-flows", "version": VERSION},
+                "mapping": csx("RsK4ParentToChildMapping.csx"),
+            },
+            "onEntries": [], "onExits": [],
+            "transitions": [{
+                "key": "rs-k4-auto-done", "target": "rs-k4-done", "triggerType": 1, "triggerKind": 10,
+                "versionStrategy": "Minor", "labels": label("Auto to done"),
+            }],
+        },
+        {
+            "key": "rs-k4-done", "stateType": 3, "subType": 1, "versionStrategy": "Minor",
+            "labels": label("Done"), "view": None, "subFlow": None, "onEntries": [], "onExits": [],
+            "transitions": [],
+        },
+    ]
+    return document
 
 
 def task(key, task_type, config, extra_tags):
@@ -358,6 +405,10 @@ def main():
               target_workflow(key, "core", schema_key, rules, description, versions.get(key, VERSION)))
 
     write(os.path.join(ROOT, "rs-reader.json"), reader_workflow())
+    write(os.path.join(ROOT, "rs-k4-child.json"),
+          target_workflow("rs-k4-child", "core", "rs-lab-schema-plain", None,
+                          "Row Security Lab K-4 child (no rowSecurity)"))
+    write(os.path.join(ROOT, "rs-k4-parent.json"), k4_parent_workflow())
     write(os.path.join(PARTNER_WORKFLOWS, "rs-xd-target.json"),
           target_workflow("rs-xd-target", "partner", "rs-xd-schema", DEF_A,
                           "Row Security Lab cross-domain target (Definition A)"))
@@ -369,6 +420,9 @@ def main():
     write(os.path.join(CORE_TASKS, "rs-get-instance.json"),
           task("rs-get-instance", "19", {"domain": "core", "flow": "rs-a", "timeoutSeconds": 30},
                ["get-instance"]))
+    write(os.path.join(CORE_TASKS, "rs-get-instance-data.json"),
+          task("rs-get-instance-data", "13", {"domain": "core", "flow": "rs-a", "timeoutSeconds": 30},
+               ["get-instance-data"]))
     write(os.path.join(CORE_TASKS, "rs-direct-trigger.json"),
           task("rs-direct-trigger", "12",
                {"domain": "core", "flow": "rs-a", "transitionName": "rs-update", "sync": True,

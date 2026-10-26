@@ -275,9 +275,9 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
     }
 
     /// <summary>
-    /// Runs one <c>rs-reader</c> transition (<c>read-list</c> / <c>read-one</c> / <c>trigger-one</c>) as
-    /// <paramref name="caller"/> on a fresh reader instance and returns the reader's result object
-    /// (<c>readerList</c> / <c>readerGet</c> / <c>readerTrigger</c>), read back as an <c>hq-auditor</c>
+    /// Runs one <c>rs-reader</c> transition (<c>read-list</c> / <c>read-one</c> / <c>trigger-one</c> /
+    /// <c>read-data</c>) as <paramref name="caller"/> on a fresh reader instance and returns the reader's result object
+    /// (<c>readerList</c> / <c>readerGet</c> / <c>readerTrigger</c> / <c>readerData</c>), read back as an <c>hq-auditor</c>
     /// (<c>rs-reader</c> has no <c>rowSecurity</c>). <paramref name="body"/> is the transition body
     /// (<c>targetFlow</c>, <c>filter</c> or <c>testId</c>, <c>headers</c>, …, see README § rs-reader).
     /// </summary>
@@ -301,6 +301,7 @@ public abstract class RowSecurityLabTestBase : WorkflowTestBase
         {
             "read-list" => "readerList",
             "read-one" => "readerGet",
+            "read-data" => "readerData",
             _ => "readerTrigger",
         };
         var attributes = JsonDocument.Parse(data).RootElement.GetProperty("attributes");

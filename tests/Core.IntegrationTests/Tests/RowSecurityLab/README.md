@@ -36,7 +36,9 @@ start → active ─rs-close→ closed          updateData: rs-update ($self, g�
 | `rs-plain` | plain | **yok** — değişmeyen akış kontrolü: liste/GET bayt bayt eskisi gibi |
 | `rs-plain-xr` | `rs-lab-schema` | **yok** — x-roles'lu şemada ek rol çözümü olmadığının kontrolü |
 | `rs-versioned` | plain | 1.0.0: `hq-auditor` (filtresiz) + `branch-staff → branchCode eq x-branch-code`. 1.0.1 (dosyada değil): `hq-auditor` (filtresiz) + `branch-staff → region eq x-region`; tek kaynak `RowSecurityLabTestBase.PublishVersionedV101Async()` (1.0.0 dosyasından üretir, idempotent: 409 "same version" = tamam) |
-| `rs-reader` | — | **yok**; trigger task'larını gövdeden sürer (aşağıda) |
+| `rs-reader` (1.0.1) | — | **yok**; trigger task'larını gövdeden sürer (aşağıda; 1.0.1 `read-data` ekledi) |
+| `rs-k4-parent` | plain | Definition A + SubFlow state (`rs-k4-sub`) → `rs-k4-child`; testId çocuğa geçer. Publish RS-W7 uyarısını **loglar** (yanıtta yok, R-F8) |
+| `rs-k4-child` | plain | **yok** — K-4: opt-in parent'ın çocuğu kendi (olmayan) kurallarıyla okunur |
 | partner `rs-xd-target` | partner `rs-xd-schema` | Definition A |
 | `rs-pv-*` (koşuda üretilir) | `rs-pv-schema` | `PublishValidationTests` (Task 11D): `rs-a` dosyasından satır başına yeni anahtar `rs-pv-{satır}-{8 hex}`, yalnız `rowSecurity` değişir. `rs-pv-schema` korumalı yol sınıfı başına bir alan taşır: `protected` (`x-roles`), `secret.pin` (`x-encryption: encrypt`), `tckn` (`hash`), `iban` (`x-masking`); `kind` `required`, `branchCode` ne `required` ne `x-indexed`, `region` `x-indexed` |
 
@@ -82,7 +84,8 @@ genişletmediğini kanıtlar. `H.` = `$.context.Headers.`, `Q.` = `$.context.Que
 ### `rs-reader`
 
 Transition'lar (`?sync=true`, hedef `reader-ready`): `read-list` (task `rs-get-instances`, tip 15),
-`read-one` (`rs-get-instance`, 19), `trigger-one` (`rs-direct-trigger`, 12), `reader-close`. Gövde:
+`read-one` (`rs-get-instance`, 19), `trigger-one` (`rs-direct-trigger`, 12), `read-data`
+(`rs-get-instance-data`, 13; 1.0.1 — K-3), `reader-close`. Gövde:
 
 | Alan | Anlam |
 |---|---|
@@ -92,7 +95,8 @@ Transition'lar (`?sync=true`, hedef `reader-ready`): `read-list` (task `rs-get-i
 | `headers` | `{ ad: değer }` task header'larına eklenir (`x-branch-code`, `role`, `sub`, `act_sub` …). Yoksa **eşleme yok**: task yalnız çağıranın kimlik header'larını taşır (`sub`, `act_sub`, `position`, `client_id`, `role`) |
 
 Sonuç veriye yazılır: `readerList { isSuccess, statusCode, count, ids, response }`,
-`readerGet { isSuccess, statusCode, id, response }`, `readerTrigger { isSuccess, statusCode, response }`.
+`readerGet { isSuccess, statusCode, id, response }`, `readerTrigger { isSuccess, statusCode, response }`,
+`readerData { isSuccess, statusCode, response }`.
 Görülemeyen satır bir task hatası olarak fırlatılmaz, `statusCode: 404` diye kaydedilir. Her çağrı için
 yeni bir `rs-reader` instance'ı kullan (merge, önceki dizileri taşıyabilir).
 
@@ -176,6 +180,14 @@ V-4 (`V4_Pinned_*`: `allOf`/`anyOf` kural rolü JSON bağlamada reddedilir — 4
   C-1…C-6, U-route, G-1…G-4 (G-2'nin task yarısı `rs-reader` `read-list` ile, string-route yarısı ayrı `groupBy`
   sorgu parametresiyle); `SingleGetTests` E-1…E-6, E-7a/b/c, E-8. E-7 `rs-versioned` pointer'ını taşır, her satır
   `finally` içinde `ClearPointerAsync` çağırır.
+- **Satır → test (Task 11E):** `TriggerTaskTests` T-1…T-6, T-8 (her T-1…T-5 satırı task üzerinden iki yarı:
+  `read-list` id kümesi + popülasyonun her id'si için `read-one` 200/404); `KnownGapPinTests` K-1…K-4
+  (`*_Pinned_*`). Trigger task kural header'larını **kendiliğinden taşımaz** (konsey kararı 2 + kullanıcı kararı B):
+  yalnız `sub`/`act_sub`/`position`/`client_id`/`role` gider, `x-branch-code` eşlemeyle verilir (T-1 ⇒ {}, T-2 ⇒
+  {r1,r2,r5}); eşlenen boş olmayan `role` çağıranınkinin yerine geçer (T-5 ⇒ {r1,r2,r5}). T-8: rolsüz çağıran
+  `rs-a`'ya **anahtarla** DirectTrigger yapar ⇒ başarılı (anahtar→id yerel id-only port'tan, satır güvenliği dışı;
+  geçişin kendisi satır kapısında değil), id ile de başarılı. T-6: dışlanan r3 ile var olmayan id aynı 404'ü ve aynı
+  hata metnini (id hariç) kaydeder.
 - **P-25b (NUL):** `?branch=%00` kural parametresi olarak Task 11C'de PostgreSQL'e ulaşıp 500 (`22P05`)
   dönüyordu; vnext 5d6ac9e5 ile planlayıcı NUL içeren değeri coercion olarak düşürür (kural katkısız ⇒ 200
   boş / 404). Çağıranın kendi filtresinde `\u0000` hâlâ 500 döner (filtre motoru, satır güvenliği dışı).
