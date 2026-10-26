@@ -9,14 +9,13 @@ namespace Core.IntegrationTests.Tests.RowSecurityLab;
 /// (<c>read-list</c>), GetInstance (<c>read-one</c>) and DirectTrigger (<c>trigger-one</c>). Rows T-1…T-6 and T-8
 /// (T-7 is a morph-idm row, 11G).
 /// <para>
-/// A trigger task does NOT forward rule headers on its own (council decision 2 + user decision B): only the
-/// credential (<c>sub</c>, <c>act_sub</c>, <c>position</c>, <c>client_id</c>, <c>role</c>) travels. A rule that reads
-/// <c>x-branch-code</c> sees it only when the task mapping sets it; a non-empty mapped value wins over the caller's.
-/// </para>
-/// <para>
-/// Each task row asserts both halves through the task: the GetInstances ids equal the expected set, and GetInstance
-/// answers 200 for every expected id and 404 for every other population id. "Own (BR-001)" is evaluated on latest
-/// data: <c>{r1, r2, r5}</c> (R-F2). Default-provider run only.
+/// Row security applies only on the public list and single-GET endpoints (vnext 7c9caf4a, user decision 2026-10-27).
+/// A trigger task against the SAME domain runs through the local gateway, in process, and reads UNFILTERED: neither
+/// the caller's role nor the mapped headers (<c>role</c>, <c>x-branch-code</c>) change what it sees. Each row asserts
+/// that through both halves of the task — GetInstances lists all seven population ids, GetInstance answers 200 for
+/// each — next to a direct-HTTP control showing the same caller IS filtered on the public endpoints. A task against
+/// another domain lands on the partner's public endpoint and is filtered there (CrossDomainLab X-1…X-6).
+/// Default-provider run only.
 /// </para>
 /// </summary>
 public class TriggerTaskTests : RowSecurityLabTestBase
@@ -29,94 +28,97 @@ public class TriggerTaskTests : RowSecurityLabTestBase
         new(Sub: "alice", ActSub: "alice", Role: "branch-staff", Headers: Branch(branch));
 
     /// <summary>
-    /// T-1: caller <c>branch-staff</c> + <c>x-branch-code: BR-001</c>, task without a header mapping ⇒ none. The
-    /// role travels, <c>x-branch-code</c> does not, so the branch rule has no parameter and contributes nothing.
+    /// T-1: caller <c>branch-staff</c> + <c>x-branch-code: BR-001</c> (directly: own branch), task without a header
+    /// mapping ⇒ all seven through the task.
     /// </summary>
     [SkippableFact]
-    public async Task T1_BranchStaff_NoHeaderMapping_SeesNothing()
+    public async Task T1_BranchStaff_NoHeaderMapping_TaskSeesAll()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
-        await AssertTaskVisibleAsync(p, BranchStaff("BR-001"), mapped: null);
+        await AssertVisibleAsync(Flow, p, BranchStaff("BR-001"), p.R1, p.R2, p.R5);
+        await AssertTaskSeesAllAsync(p, BranchStaff("BR-001"), mapped: null);
     }
 
-    /// <summary>T-2: same caller, the mapping sets <c>x-branch-code: BR-001</c> ⇒ own branch <c>{r1, r2, r5}</c>.</summary>
+    /// <summary>T-2: same caller, the mapping sets <c>x-branch-code: BR-001</c> ⇒ still all seven (the mapping filters nothing).</summary>
     [SkippableFact]
-    public async Task T2_BranchStaff_HeaderMapped_SeesOwnBranch()
+    public async Task T2_BranchStaff_HeaderMapped_TaskSeesAll()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
-        await AssertTaskVisibleAsync(p, BranchStaff("BR-001"), Branch("BR-001"), p.R1, p.R2, p.R5);
+        await AssertTaskSeesAllAsync(p, BranchStaff("BR-001"), Branch("BR-001"));
     }
 
-    /// <summary>T-3: caller <c>hq-auditor</c>, no mapping ⇒ all seven (the forwarded role opens the unfiltered rule).</summary>
+    /// <summary>T-3: caller <c>hq-auditor</c>, no mapping ⇒ all seven (same as its direct read).</summary>
     [SkippableFact]
-    public async Task T3_HqAuditor_NoMapping_SeesAll()
+    public async Task T3_HqAuditor_NoMapping_TaskSeesAll()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
-        await AssertTaskVisibleAsync(p, Hq(), mapped: null, [.. p.All]);
-    }
-
-    /// <summary>T-4: role-less caller (identity alice), no mapping ⇒ none (K1: deny by default).</summary>
-    [SkippableFact]
-    public async Task T4_Roleless_NoMapping_SeesNothing()
-    {
-        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
-        var p = await SeedAsync(Flow);
-
-        await AssertTaskVisibleAsync(p, new Caller(Sub: "alice", ActSub: "alice"), mapped: null);
+        await AssertTaskSeesAllAsync(p, Hq(), mapped: null);
     }
 
     /// <summary>
-    /// T-5: caller <c>hq-auditor</c>, the mapping sets <c>role: branch-staff</c> + <c>x-branch-code: BR-001</c> ⇒ own
-    /// branch <c>{r1, r2, r5}</c>: the non-empty mapped role replaces the caller's, it does not add to it.
+    /// T-4: role-less caller (identity alice; directly: deny by default, nothing) ⇒ all seven through the task.
     /// </summary>
     [SkippableFact]
-    public async Task T5_HqAuditor_MappingSetsBranchStaff_MappingWins()
+    public async Task T4_Roleless_NoMapping_TaskSeesAll()
+    {
+        Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
+        var p = await SeedAsync(Flow);
+        var roleless = new Caller(Sub: "alice", ActSub: "alice");
+
+        await AssertVisibleAsync(Flow, p, roleless);
+        await AssertTaskSeesAllAsync(p, roleless, mapped: null);
+    }
+
+    /// <summary>
+    /// T-5: caller <c>hq-auditor</c>, the mapping sets <c>role: branch-staff</c> + <c>x-branch-code: BR-001</c> ⇒ all
+    /// seven: a mapped narrower role does not narrow a same-domain read.
+    /// </summary>
+    [SkippableFact]
+    public async Task T5_HqAuditor_MappingSetsBranchStaff_TaskSeesAll()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
 
         var mapped = new Dictionary<string, string> { ["role"] = "branch-staff", ["x-branch-code"] = "BR-001" };
-        await AssertTaskVisibleAsync(p, Hq(), mapped, p.R1, p.R2, p.R5);
+        await AssertTaskSeesAllAsync(p, Hq(), mapped);
     }
 
     /// <summary>
-    /// T-6: <c>branch-staff</c> BR-001 (mapped) GetInstance on r3 (BR-002) ⇒ the task records 404, the same status
-    /// (and error text, id aside) a nonexistent id records — exclusion is not distinguishable from absence.
+    /// T-6: <c>branch-staff</c> BR-001 (mapped) GetInstance on r3 (BR-002, which the same caller's direct GET answers
+    /// 404) ⇒ the task records 200 with r3, while a nonexistent id still records 404: the task tells a real row from a
+    /// missing one because it reads unfiltered.
     /// </summary>
     [SkippableFact]
-    public async Task T6_GetInstanceOfExcludedRow_EqualsNonexistent()
+    public async Task T6_GetInstanceOfRowHiddenFromDirectGet_IsReadByTask()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         var p = await SeedAsync(Flow);
         var caller = BranchStaff("BR-001");
 
-        var excluded = await ReadThroughReaderAsync(caller, "read-one",
+        var (direct, directBody, _) = await GetAsync(Flow, p.R3.ToString(), caller);
+        Assert.True(direct == HttpStatusCode.NotFound, $"precondition: direct GET r3 answered {(int)direct}: {directBody}");
+
+        var hidden = await ReadThroughReaderAsync(caller, "read-one",
             new { targetFlow = Flow, targetId = p.R3.ToString(), headers = Branch("BR-001") });
         var missing = await ReadThroughReaderAsync(caller, "read-one",
             new { targetFlow = Flow, targetId = Guid.NewGuid().ToString(), headers = Branch("BR-001") });
 
-        Assert.Equal(404, StatusCode(excluded));
-        Assert.Equal(StatusCode(missing), StatusCode(excluded));
-        Assert.Equal(missing.GetProperty("isSuccess").ToString(), excluded.GetProperty("isSuccess").ToString());
-        Assert.Equal(ErrorShape(missing), ErrorShape(excluded));
-        Assert.NotNull(ErrorShape(excluded));
-
-        // Control: the same caller and mapping does see r1 through the same task.
-        var visible = await ReadThroughReaderAsync(caller, "read-one",
-            new { targetFlow = Flow, targetId = p.R1.ToString(), headers = Branch("BR-001") });
-        Assert.Equal(200, StatusCode(visible));
+        Assert.True(StatusCode(hidden) == 200 && hidden.GetProperty("isSuccess").ValueKind == JsonValueKind.True,
+            $"GetInstance task on r3 recorded {StatusCode(hidden)}: {hidden}");
+        Assert.Contains(p.R3.ToString(), hidden.GetProperty("response").GetRawText(), StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(404, StatusCode(missing));
     }
 
     /// <summary>
-    /// T-8 (decision 5): a role-less caller DirectTriggers <c>rs-update</c> into <c>rs-a</c> by KEY ⇒ the transition
-    /// succeeds and the target is not faulted (the key → id lookup goes through the local id-only port, which row
-    /// security does not gate; the transition itself is not row-gated). By id ⇒ succeeds as well.
+    /// T-8: a role-less caller DirectTriggers <c>rs-update</c> into <c>rs-a</c> by KEY ⇒ the transition succeeds and the
+    /// target is not faulted; by id ⇒ succeeds as well. Transitions are not row-gated (user decision 2026-10-27): the
+    /// key → id lookup and the transition are in-process and exempt.
     /// </summary>
     [SkippableFact]
     public async Task T8_RolelessDirectTrigger_ByKeyAndById_Succeeds()
@@ -125,7 +127,7 @@ public class TriggerTaskTests : RowSecurityLabTestBase
         var p = await SeedAsync(Flow);
         var roleless = new Caller(Sub: "alice", ActSub: "alice");
 
-        // Precondition: the role-less caller cannot see the targets through the list or GET.
+        // Precondition: the role-less caller cannot see the targets through the public list or GET.
         await AssertVisibleAsync(Flow, p, roleless);
 
         var key = $"rs-t8-{Guid.NewGuid():N}"[..24];
@@ -145,12 +147,11 @@ public class TriggerTaskTests : RowSecurityLabTestBase
     // ── helpers ──────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// One task row: GetInstances (scoped to the population's testId) lists exactly <paramref name="expected"/>, and
-    /// GetInstance answers 200 for each expected id and 404 for every other population id — both with the same
-    /// caller and the same <paramref name="mapped"/> headers (null = no mapping).
+    /// One task row: GetInstances (scoped to the population's testId) lists exactly the seven population ids, and
+    /// GetInstance answers 200 for each — both with the same caller and the same <paramref name="mapped"/> headers
+    /// (null = no mapping).
     /// </summary>
-    private async Task AssertTaskVisibleAsync(
-        Population p, Caller caller, IDictionary<string, string>? mapped, params Guid[] expected)
+    private async Task AssertTaskSeesAllAsync(Population p, Caller caller, IDictionary<string, string>? mapped)
     {
         object listBody = mapped is null
             ? new { targetFlow = Flow, testId = p.TestId }
@@ -158,8 +159,8 @@ public class TriggerTaskTests : RowSecurityLabTestBase
         var list = await ReadThroughReaderAsync(caller, "read-list", listBody);
         Assert.True(list.GetProperty("isSuccess").ValueKind == JsonValueKind.True, $"GetInstances task result: {list}");
         var ids = list.GetProperty("ids").EnumerateArray().Select(id => Guid.Parse(id.GetString()!)).ToList();
-        Assert.True(expected.ToHashSet().SetEquals(ids),
-            $"GetInstances {Flow}: expected [{Names(p, expected)}], got [{Names(p, ids)}]");
+        Assert.True(p.All.ToHashSet().SetEquals(ids),
+            $"GetInstances {Flow}: expected all [{Names(p, p.All)}], got [{Names(p, ids)}]");
 
         foreach (var id in p.All)
         {
@@ -167,9 +168,8 @@ public class TriggerTaskTests : RowSecurityLabTestBase
                 ? new { targetFlow = Flow, targetId = id.ToString() }
                 : new { targetFlow = Flow, targetId = id.ToString(), headers = mapped };
             var get = await ReadThroughReaderAsync(caller, "read-one", getBody);
-            var want = expected.Contains(id) ? 200 : 404;
-            Assert.True(StatusCode(get) == want,
-                $"GetInstance {Flow}/{Names(p, [id])} recorded {StatusCode(get)}, expected {want}: {get}");
+            Assert.True(StatusCode(get) == 200,
+                $"GetInstance {Flow}/{Names(p, [id])} recorded {StatusCode(get)}, expected 200: {get}");
         }
     }
 
@@ -177,20 +177,6 @@ public class TriggerTaskTests : RowSecurityLabTestBase
         result.TryGetProperty("statusCode", out var code) && code.ValueKind == JsonValueKind.Number
             ? code.GetInt32()
             : null;
-
-    /// <summary>
-    /// The task result's <c>response.errorMessage</c> with the target id replaced by <c>{id}</c> (the task records
-    /// <c>Instance "{id}" not found</c>), so an excluded and a nonexistent id compare equal only if the texts match.
-    /// </summary>
-    private static string? ErrorShape(JsonElement result)
-    {
-        if (!result.TryGetProperty("response", out var response) || response.ValueKind != JsonValueKind.Object
-            || !response.TryGetProperty("errorMessage", out var message) || message.ValueKind != JsonValueKind.String)
-            return null;
-        var target = response.TryGetProperty("targetId", out var id) ? id.GetString() : null;
-        var text = message.GetString()!;
-        return string.IsNullOrEmpty(target) ? text : text.Replace(target, "{id}", StringComparison.OrdinalIgnoreCase);
-    }
 
     private static void AssertTriggered(JsonElement result, string how)
     {

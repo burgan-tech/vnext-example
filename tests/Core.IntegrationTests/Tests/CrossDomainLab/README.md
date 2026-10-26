@@ -199,6 +199,9 @@ Okuyucu core'daki `rs-reader` (`Tests/RowSecurityLab/README.md` § rs-reader): t
 üzerinden gider. Popülasyon RowSecurityLab'ınkiyle aynı yedi satır, partner'da `hq-auditor` ile seed'lenir; "own
 (BR-001)" en son veri üzerinden `{r1, r2, r5}` (R-F2). Trigger task'ı yalnız kimliği (`sub`, `act_sub`, `position`,
 `client_id`, `role`) taşır; kural başlığı (`x-branch-code`) partner'a yalnız task mapping'i koyarsa ulaşır.
+Uzak çağrı partner'ın **public** liste/GET endpoint'ine düşer, satır güvenliği orada uygulanır; aynı domain'e (ve
+co-host edilen domain'e, yerel gateway) giden task ise süreç içidir ve filtrelenmez (vnext 7c9caf4a, kullanıcı kararı
+2026-10-27; tek-domain karşılığı `RowSecurityLab` T-1…T-6).
 
 | Satır | Test (`RowSecurityCrossDomainTests`) | Çağıran / mapping | Beklenen |
 |---|---|---|---|
@@ -208,14 +211,11 @@ Okuyucu core'daki `rs-reader` (`Tests/RowSecurityLab/README.md` § rs-reader): t
 | X-4 | `X4_RemoteGetOfExcludedRow_EqualsMissing` | X-1 çağıranı, r3 (BR-002) | 404, durum/`isSuccess`/hata metni (id maskeli) olmayan id ile aynı; r1 kontrolü 200 |
 | X-5 | `X5_Roleless_BypassAttempts_SeeNothing` | rolsüz; task'ta mapping `x-system-read: true`; partner'a doğrudan `?systemRead=true` + aynı başlık | hiçbiri (bypass üyesi yok); `hq-auditor` kontrolü yedisi |
 | X-6 [pin] | `X6_Pinned_MappedIdentity_ReadsAsCarol` | çağıran alice, mapping `sub`=`act_sub`=carol + `role: hq-auditor`, `rs-update` trigger | partner transition kaydı `createdBy = carol` — hedef, çağıran runtime'ın sunduğu kimliğe güvenir (doc § Cross-domain tasks) |
-| X-7 | — (koşulmadı) | `run-docker.sh up core --with partner` (co-host, tek host seti) | lab topolojisinde koşulmadı; ayrı topoloji koşusu gerekir |
-| T-9x [pin] | `T9x_Pinned_RolelessRemoteDirectTriggerByKey_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır. Tartışmalı sözleşme (kullanıcıya iletildi). Yan bulgu: başarılı trigger cevabı hedefin tüm `attributes`'ını rolsüz çağırana döndürür |
+| X-7 | — (koşulmadı) | `run-docker.sh up core --with partner` (co-host, tek host seti) | koşulmadı. Beklenen (7c9caf4a sonrası): co-host çağrı yerel gateway'den süreç içi gider ⇒ **filtresiz** (yedisi), X-1…X-6'dan farklı |
+| T-9x | `T9x_RolelessRemoteDirectTriggerByKey_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır. Doğru sözleşme (kullanıcı kararı 2026-10-27: transition'lar satır güvenliğinden muaf). Başarılı trigger cevabı hedefin `attributes`'ını rolsüz çağırana döndürür (aynı muafiyet) |
 
-T-9x notu: uzak yol çağıranın lokal id portunu kullanmaz; key URL'de gider, partner çözer. Partner key'i
-runtime-içi arama olarak çözer (doc § Surfaces: "direct-trigger key resolution … not caller reads and are not
-filtered") ve transition yüzeyi faz 1'de satır kapılı değil — brief'in "task failure" beklentisi doc'la çelişiyordu,
-test ölçülen davranışı pinler. Yan bulgu: başarılı trigger cevabı (`response`) hedefin tüm `attributes`'ını rolsüz
-çağırana döndürür (bilinen "unfiltered surfaces" açığının transition cevabındaki görünümü).
+T-9x notu: uzak yol çağıranın lokal id portunu kullanmaz; key URL'de gider, partner runtime-içi arama olarak çözer.
+Transition yüzeyi satır güvenliği dışındadır (kullanıcı kararı 2026-10-27) — pin değil, sözleşme.
 
 ```bash
 cd tests/Core.IntegrationTests

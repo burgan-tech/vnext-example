@@ -284,12 +284,13 @@ public class MorphIdmOutcomeTests : RowSecurityLabTestBase
 
     /// <summary>
     /// T-7: caller <c>rs-idm-hq</c> (IDM ⇒ <c>[hq-auditor]</c>) runs <c>rs-reader</c>; the task mapping sets
-    /// <c>sub</c> = <c>act_sub</c> = <c>rs-idm-branch</c> + <c>x-branch-code: BR-001</c> ⇒ the read is made as
-    /// <c>rs-idm-branch</c>: own branch <c>{r1, r2, r5}</c> through GetInstances and GetInstance. Seeing all seven
-    /// would mean the morph-idm memo served the caller's set for the mapped credential.
+    /// <c>sub</c> = <c>act_sub</c> = <c>rs-idm-branch</c> + <c>x-branch-code: BR-001</c> ⇒ the task still reads all seven
+    /// through GetInstances and GetInstance: a same-domain task is exempt from row security (vnext 7c9caf4a, user
+    /// decision 2026-10-27), so neither the mapped credential nor its IDM answer narrows it. Control: the mapped
+    /// identity itself reads only its own branch on the public endpoints.
     /// </summary>
     [SkippableFact]
-    public async Task T7_TaskMappedCredential_GetsItsOwnIdmAnswer()
+    public async Task T7_TaskWithMappedCredential_ReadsUnfiltered()
     {
         Skip.IfNot(ProviderIs("morph-idm"), MorphIdmOnly);
         var p = await SeedAsync(FlowA);
@@ -301,26 +302,25 @@ public class MorphIdmOutcomeTests : RowSecurityLabTestBase
             ["x-branch-code"] = "BR-001",
         };
 
-        // Control: the caller itself is an hq-auditor through the IDM.
+        // Controls on the public endpoints: the caller is an hq-auditor, the mapped identity a BR-001 branch-staff.
         await AssertVisibleAsync(FlowA, p, caller, [.. p.All]);
+        await AssertVisibleAsync(FlowA, p, Idm("rs-idm-branch", "BR-001"), p.R1, p.R2, p.R5);
 
-        var expected = new[] { p.R1, p.R2, p.R5 };
         var list = await ReadThroughReaderAsync(caller, "read-list",
             new { targetFlow = FlowA, testId = p.TestId, headers = mapped });
         Assert.True(list.GetProperty("isSuccess").ValueKind == JsonValueKind.True, $"GetInstances task result: {list}");
         var ids = list.GetProperty("ids").EnumerateArray().Select(id => Guid.Parse(id.GetString()!)).ToList();
-        Assert.True(expected.ToHashSet().SetEquals(ids),
-            $"GetInstances {FlowA}: expected [{Names(p, expected)}], got [{Names(p, ids)}]");
+        Assert.True(p.All.ToHashSet().SetEquals(ids),
+            $"GetInstances {FlowA}: expected all [{Names(p, p.All)}], got [{Names(p, ids)}]");
 
         foreach (var id in p.All)
         {
             var get = await ReadThroughReaderAsync(caller, "read-one",
                 new { targetFlow = FlowA, targetId = id.ToString(), headers = mapped });
-            var want = expected.Contains(id) ? 200 : 404;
             var got = get.TryGetProperty("statusCode", out var code) && code.ValueKind == JsonValueKind.Number
                 ? code.GetInt32()
                 : (int?)null;
-            Assert.True(got == want, $"GetInstance {FlowA}/{Names(p, [id])} recorded {got}, expected {want}: {get}");
+            Assert.True(got == 200, $"GetInstance {FlowA}/{Names(p, [id])} recorded {got}, expected 200: {get}");
         }
     }
 

@@ -190,15 +190,18 @@ public class CallerFilterAndGroupingTests : RowSecurityLabTestBase
 
     /// <summary>
     /// G-2 (task half): the same envelope through a GetInstances task (<c>rs-reader</c> <c>read-list</c>, caller
-    /// <c>branch-staff</c>, <c>x-branch-code</c> mapped) ⇒ the same groups as G-1.
+    /// <c>branch-staff</c>, <c>x-branch-code</c> mapped) ⇒ the UNFILTERED groups, equal to <c>hq-auditor</c>'s direct
+    /// grouping (7 rows), not to G-1's. Row security applies only on the public list/GET endpoints; a same-domain task
+    /// reads in process and is exempt (vnext 7c9caf4a, user decision 2026-10-27).
     /// </summary>
     [SkippableFact]
-    public async Task G2_GroupByThroughGetInstancesTask_EqualsG1()
+    public async Task G2_GroupByThroughGetInstancesTask_IsUnfiltered()
     {
         Skip.IfNot(ProviderIs("default"), DefaultProviderOnly);
         await SeedAsync(Flow);
         var caller = BranchStaff("BR-001");
-        var direct = await GroupsAsync(caller, GroupByBranch);
+        var unfiltered = await GroupsAsync(Hq(), GroupByBranch);
+        Assert.Equal([("BR-001", 3L)], (await GroupsAsync(caller, GroupByBranch)).Select(g => (g.Name, g.Count)));
 
         var reader = await ReadThroughReaderAsync(caller, "read-list", new
         {
@@ -209,8 +212,8 @@ public class CallerFilterAndGroupingTests : RowSecurityLabTestBase
         Assert.True(reader.GetProperty("isSuccess").ValueKind == JsonValueKind.True, $"task result: {reader}");
         var viaTask = ParseGroups(reader.GetProperty("response"));
 
-        Assert.Equal(direct.Select(g => (g.Name, g.Count)), viaTask.Select(g => (g.Name, g.Count)));
-        Assert.Equal([("BR-001", 3L)], viaTask.Select(g => (g.Name, g.Count)));
+        Assert.Equal(7L, viaTask.Sum(g => g.Count));
+        Assert.Equal(unfiltered.Select(g => (g.Name, g.Count)), viaTask.Select(g => (g.Name, g.Count)));
     }
 
     /// <summary>

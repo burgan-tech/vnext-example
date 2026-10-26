@@ -209,8 +209,10 @@ public class SingleGetTests : RowSecurityLabTestBase
     /// <summary>
     /// E-7c: <c>set-default "9.9"</c> (no such version) is refused AT WRITE with 409 <c>Instance:100052</c>
     /// (<c>VersionRegistryWriteGuard</c>), and list and GET keep answering with the previous pointer's (1.0.0) rule.
-    /// The read-time 409 of a stored invalid pointer is not reachable through the public API (every write is
-    /// guarded, versions are never unpublished); vnext unit tests pin it.
+    /// A stored invalid pointer at read time is not reachable through the public API (every write is guarded,
+    /// versions are never unpublished). Since vnext 7c9caf4a (D5 amended) such a lookup error no longer rejects the
+    /// read: list and GET answer 200 unfiltered, span tag <c>vnext.rowsecurity.outcome=flow-load-failed</c>, warning
+    /// 20509; vnext unit tests pin it.
     /// </summary>
     [SkippableFact]
     public async Task E7c_InvalidPointerRefusedAtWrite_PreviousRuleStaysInForce()
