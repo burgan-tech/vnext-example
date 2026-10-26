@@ -99,6 +99,7 @@ public class RowSecurityCrossDomainTests : RowSecurityLabTestBase, IClassFixture
         Assert.Equal(404, StatusCode(excluded));
         Assert.Equal(StatusCode(missing), StatusCode(excluded));
         Assert.Equal(missing.GetProperty("isSuccess").ToString(), excluded.GetProperty("isSuccess").ToString());
+        Assert.NotNull(ErrorShape(excluded));
         Assert.Equal(ErrorShape(missing), ErrorShape(excluded));
 
         // Control: the same caller and mapping does see r1 through the same task.
@@ -121,7 +122,8 @@ public class RowSecurityCrossDomainTests : RowSecurityLabTestBase, IClassFixture
         await AssertRemoteVisibleAsync(p, Roleless(), mapped: null);
         await AssertRemoteVisibleAsync(p, Roleless(), bypass);
 
-        // Directly on the partner: query flag + header, list and every GET.
+        // Directly on the partner: query flag + header, list and every GET. The query bypass is exercised here because a
+        // trigger task forwards only the credential headers — a task has no query-parameter counterpart.
         var direct = Roleless() with { Headers = bypass, Query = "systemRead=true" };
         var (status, body) = await PartnerListAsync(p, direct);
         Assert.True(status == HttpStatusCode.OK, $"partner list with bypass attempt answered {(int)status}: {body}");
@@ -161,15 +163,17 @@ public class RowSecurityCrossDomainTests : RowSecurityLabTestBase, IClassFixture
     }
 
     /// <summary>
-    /// T-9x: a role-less caller DirectTriggers <c>rs-update</c> into the partner by KEY. The remote path never uses the
+    /// T-9x [pin, contested contract routed to the user]: a role-less caller DirectTriggers <c>rs-update</c> into the partner by KEY. The remote path never uses the
     /// caller's local id-only port: the key travels in the URL and the PARTNER resolves it. Measured 2026-10-26 on the
     /// feature runtime: the partner resolves the key as a runtime-internal lookup (doc § Surfaces: "direct-trigger key
     /// resolution … not caller reads and are not filtered"), so the trigger SUCCEEDS and the target is updated, although
     /// the same role-less caller gets 404 for that key on the partner's list and GET. Pins that behaviour: the
     /// transition surface is not row-gated in phase 1 on either side of the boundary.
+    /// Side finding pinned with it: the successful trigger's response returns the target's full <c>attributes</c> to
+    /// that role-less caller.
     /// </summary>
     [SkippableFact]
-    public async Task T9x_RolelessRemoteDirectTriggerByKey_ResolvedOnTarget_Succeeds()
+    public async Task T9x_Pinned_RolelessRemoteDirectTriggerByKey_Succeeds()
     {
         RequireLab();
         var p = await SeedPartnerAsync();

@@ -209,7 +209,7 @@ Okuyucu core'daki `rs-reader` (`Tests/RowSecurityLab/README.md` § rs-reader): t
 | X-5 | `X5_Roleless_BypassAttempts_SeeNothing` | rolsüz; task'ta mapping `x-system-read: true`; partner'a doğrudan `?systemRead=true` + aynı başlık | hiçbiri (bypass üyesi yok); `hq-auditor` kontrolü yedisi |
 | X-6 [pin] | `X6_Pinned_MappedIdentity_ReadsAsCarol` | çağıran alice, mapping `sub`=`act_sub`=carol + `role: hq-auditor`, `rs-update` trigger | partner transition kaydı `createdBy = carol` — hedef, çağıran runtime'ın sunduğu kimliğe güvenir (doc § Cross-domain tasks) |
 | X-7 | — (koşulmadı) | `run-docker.sh up core --with partner` (co-host, tek host seti) | lab topolojisinde koşulmadı; ayrı topoloji koşusu gerekir |
-| T-9x | `T9x_RolelessRemoteDirectTriggerByKey_ResolvedOnTarget_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır |
+| T-9x [pin] | `T9x_Pinned_RolelessRemoteDirectTriggerByKey_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır. Tartışmalı sözleşme (kullanıcıya iletildi). Yan bulgu: başarılı trigger cevabı hedefin tüm `attributes`'ını rolsüz çağırana döndürür |
 
 T-9x notu: uzak yol çağıranın lokal id portunu kullanmaz; key URL'de gider, partner çözer. Partner key'i
 runtime-içi arama olarak çözer (doc § Surfaces: "direct-trigger key resolution … not caller reads and are not
