@@ -6,8 +6,9 @@ aggregation'lar dahil) ve **tekil instance GET**'ine AND'ler; `GetInstances` / `
 da task'ın kendi kimliği ve başlıklarıyla filtrelenir — aynı domain'de de, başka domain'de de (vnext d7e9ba3e).
 Muaf kalanlar, filtresiz okur: `GetInstanceData` task'ı, view içerik çözümü, transition'lar / DirectTrigger
 (kullanıcı kararı 2026-10-27). `rowSecurity` bildirmeyen akış her yerde filtresizdir. Kural seti
-okunamazsa (bulunamadı dışında: `Instance:100052` / `100053`) liste/GET reddedilmez, filtresiz okunur (D5 değişti;
-span tag `vnext.rowsecurity.outcome=flow-load-failed`, uyarı 20509). Domain `core` (cross-domain satırları: `CrossDomainLab`, partner
+okunamazsa (bulunamadı dışında: `Instance:100052` / `100053` / `100051`) liste, GET ve `GetInstance(s)` task'ları
+`rowSecurity` olsun olmasın o hatayla reddedilir (D5, kullanıcı kararı 2026-10-27; span tag
+`vnext.rowsecurity.outcome=denied-flow-load`, uyarı 20509) — akış yoksa instance'ına da erişim yoktur. Domain `core` (cross-domain satırları: `CrossDomainLab`, partner
 `rs-xd-target`). Sözleşme ve sonuç tabloları: vnext `docs/domain/row-security.md`.
 
 ## Neden var
