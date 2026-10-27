@@ -231,14 +231,33 @@ public class RowSecurityCrossDomainTests : RowSecurityLabTestBase, IClassFixture
             ? code.GetInt32()
             : null;
 
-    /// <summary>The task result's <c>response.errorMessage</c> with the target id replaced by <c>{id}</c>.</summary>
+    /// <summary>
+    /// The task result's error text with the target id replaced by <c>{id}</c>. Two shapes: a remote read returns the
+    /// partner's problem-details body (<c>code</c>, <c>detail</c>, <c>target</c>; read as <c>code | detail</c>, the
+    /// per-request <c>traceId</c> and <c>instance</c> left out); a co-hosted read through the local gateway returns
+    /// the task response (<c>errorMessage</c>, <c>targetId</c>).
+    /// </summary>
     private static string? ErrorShape(JsonElement result)
     {
-        if (!result.TryGetProperty("response", out var response) || response.ValueKind != JsonValueKind.Object
-            || !response.TryGetProperty("errorMessage", out var message) || message.ValueKind != JsonValueKind.String)
+        if (!result.TryGetProperty("response", out var response) || response.ValueKind != JsonValueKind.Object)
             return null;
-        var target = response.TryGetProperty("targetId", out var id) ? id.GetString() : null;
-        var text = message.GetString()!;
+        string? text, target;
+        if (response.TryGetProperty("detail", out var detail) && detail.ValueKind == JsonValueKind.String)
+        {
+            var code = response.TryGetProperty("code", out var c) ? c.GetString() : null;
+            text = $"{code} | {detail.GetString()}";
+            target = response.TryGetProperty("target", out var t) ? t.GetString() : null;
+        }
+        else if (response.TryGetProperty("errorMessage", out var message) && message.ValueKind == JsonValueKind.String)
+        {
+            text = message.GetString()!;
+            target = response.TryGetProperty("targetId", out var t) ? t.GetString() : null;
+        }
+        else
+        {
+            return null;
+        }
+
         return string.IsNullOrEmpty(target) ? text : text.Replace(target, "{id}", StringComparison.OrdinalIgnoreCase);
     }
 

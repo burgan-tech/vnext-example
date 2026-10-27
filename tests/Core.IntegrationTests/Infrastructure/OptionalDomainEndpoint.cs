@@ -53,7 +53,8 @@ public static class OptionalDomainEndpoint
 
             using var body = JsonDocument.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
             var domain = body.RootElement.TryGetProperty("domain", out var d) ? d.GetString() : null;
-            if (domain is not null && !string.Equals(domain, expectedDomain, StringComparison.OrdinalIgnoreCase))
+            if (domain is not null && !string.Equals(domain, expectedDomain, StringComparison.OrdinalIgnoreCase)
+                && !IsCoHosted(expectedDomain))
             {
                 Console.WriteLine($"[optional-domain] {variable}={url} is domain '{domain}', not '{expectedDomain}' — dependent tests skip");
                 return null;
@@ -67,4 +68,13 @@ public static class OptionalDomainEndpoint
             return null;
         }
     }
+
+    /// <summary>
+    /// A co-hosted domain (<c>run-docker.sh up core --with partner</c>) is served by a host whose <c>/health</c> names the
+    /// primary domain. <c>VNEXT_COHOSTED_DOMAINS</c> (comma-separated) lists the domains accepted on such a host.
+    /// </summary>
+    private static bool IsCoHosted(string domain) =>
+        (Environment.GetEnvironmentVariable("VNEXT_COHOSTED_DOMAINS") ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Contains(domain, StringComparer.OrdinalIgnoreCase);
 }
