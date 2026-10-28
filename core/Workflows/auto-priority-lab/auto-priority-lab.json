@@ -1,0 +1,189 @@
+{
+  "key": "auto-priority-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "auto-priority-lab",
+    "automatic-transition",
+    "priority"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Auto Priority Lab (automatic transition priority order)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-auto-priority-lab",
+      "target": "evaluate",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Auto Priority Lab"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "evaluate",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Evaluate (three automatic transitions)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-low",
+            "target": "low",
+            "triggerType": 1,
+            "priority": 30,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "To Low (priority 30, always true)"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIEFuIGF1dG9tYXRpYy10cmFuc2l0aW9uIGNvbmRpdGlvbiB0aGF0IGlzIGFsd2F5cyBzYXRpc2ZpZWQuIFVzZWQgYnkgPGM+dG8tbG93PC9jPiwgc28gdGhhdCB0aGUKLy8vIE9OTFkgdGhpbmcgc2VwYXJhdGluZyBpdCBmcm9tIDxjPnRvLWhpZ2g8L2M+IGlzIHRoZSA8Yz5wcmlvcml0eTwvYz4gdGhlIHJ1bnRpbWUgb3JkZXJzIHRoZW0gYnkuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-high",
+            "target": "high",
+            "triggerType": 1,
+            "priority": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "To High (priority 10, false when skipHigh)"
+              }
+            ],
+            "rule": {
+              "location": "./src/HighPriorityRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBDb25kaXRpb24gb2YgPGM+dG8taGlnaDwvYz4gKHByaW9yaXR5IDEwKTogc2F0aXNmaWVkIHVubGVzcyB0aGUgc3RhcnQgYm9keSBjYXJyaWVkCi8vLyA8Yz5za2lwSGlnaDogdHJ1ZTwvYz4uIFRoYXQgb25lIHN3aXRjaCBsZXRzIGEgdGVzdCBtYWtlIHRoZSBoaWdoZXItcHJpb3JpdHkgcnVsZSBhbnN3ZXIgZmFsc2UKLy8vIGFuZCB3YXRjaCB0aGUgbmV4dCBwcmlvcml0eSB0YWtlIG92ZXIuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBIaWdoUHJpb3JpdHlSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwoKICAgICAgICB2YXIgc2tpcCA9IGZhbHNlOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgic2tpcEhpZ2giLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBib29sLlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgc2tpcCk7CiAgICAgICAgfQoKICAgICAgICB2YXIgc2F0aXNmaWVkID0gIXNraXA7CiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJIaWdoUHJpb3JpdHlSdWxlOiBza2lwSGlnaD17c2tpcH0gc2F0aXNmaWVkPXtzYXRpc2ZpZWR9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChzYXRpc2ZpZWQpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-fallback",
+            "target": "fallback",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "To Fallback (default, always last)"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "high",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "High (priority 10 won)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "low",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Low (priority 30 won)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "fallback",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Fallback (default transition reached)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "apl-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ],
+    "cancel": {
+      "key": "cancel-auto-priority-lab",
+      "target": "apl-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel Auto Priority Lab"
+        }
+      ]
+    }
+  }
+}
