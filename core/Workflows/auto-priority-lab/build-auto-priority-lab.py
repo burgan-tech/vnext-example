@@ -23,6 +23,10 @@ def label(text):
     return [{"language": "en-US", "label": text}]
 
 
+def script_task():
+    return {"key": "sched-script-task", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"}
+
+
 def finish(key, text, sub_type=1):
     return {
         "key": key,
@@ -58,7 +62,7 @@ workflow = {
             "triggerType": 0,
             "versionStrategy": "Major",
             "labels": label("Start Auto Priority Lab"),
-            "onExecutionTasks": [],
+            "onExecutionTasks": [{"order": 1, "task": script_task(), "mapping": code("SeedMapping.csx")}],
         },
         "states": [
             {
