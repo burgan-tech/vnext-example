@@ -42,9 +42,18 @@
                 "tr": "Talep Numarası"
               },
               "x-roles": [
-                { "role": "morph-idm.maker", "grant": "allow" },
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.maker",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             }
           }
@@ -73,8 +82,11 @@
             "tr": "Şube Kodu"
           },
           "x-roles": [
-                { "role": "$PreviousUser", "grant": "allow" }
-              ]
+            {
+              "role": "$PreviousUser",
+              "grant": "allow"
+            }
+          ]
         },
         "branchDetail": {
           "type": "object",
@@ -84,7 +96,11 @@
             "source": "urn:vnext:fn:core:get-branch-detail",
             "resultField": "$.data",
             "filter": [
-              { "param": "code", "value": "$instance.branchCode", "required": true }
+              {
+                "param": "code",
+                "value": "$instance.branchCode",
+                "required": true
+              }
             ]
           }
         },
@@ -96,8 +112,11 @@
             "tr": "Hesap Adı"
           },
           "x-roles": [
-                { "role": "$PreviousUser", "grant": "deny" }
-              ]
+            {
+              "role": "$PreviousUser",
+              "grant": "deny"
+            }
+          ]
         },
         "accountType": {
           "type": "string",
@@ -115,29 +134,53 @@
             "userId": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "deviceId": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "ipAddress": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "userAgent": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             }
           }
@@ -289,14 +332,28 @@
               "type": "object",
               "additionalProperties": true,
               "properties": {
-                "maximumBalance": { "type": "number" },
-                "minimumBalance": { "type": "number" },
-                "dailyTransactionLimit": { "type": "number" },
-                "monthlyTransactionLimit": { "type": "number" }
+                "maximumBalance": {
+                  "type": "number"
+                },
+                "minimumBalance": {
+                  "type": "number"
+                },
+                "dailyTransactionLimit": {
+                  "type": "number"
+                },
+                "monthlyTransactionLimit": {
+                  "type": "number"
+                }
               },
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "status": {
@@ -306,7 +363,9 @@
                 "tr": "Durum"
               }
             },
-            "success": { "type": "boolean" },
+            "success": {
+              "type": "boolean"
+            },
             "currency": {
               "type": "string",
               "x-labels": {
@@ -314,20 +373,36 @@
                 "tr": "Para Birimi"
               }
             },
-            "isActive": { "type": "boolean" },
+            "isActive": {
+              "type": "boolean"
+            },
             "services": {
               "type": "array",
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
             "accountId": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.maker", "grant": "allow" },
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.maker",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
-            "createdAt": { "type": "string", "format": "date-time" },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
             "branchCode": {
               "type": "string",
               "x-labels": {
@@ -352,22 +427,44 @@
             "coreBankingId": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
-            "currentBalance": { "type": "number" },
-            "availableBalance": { "type": "number" },
+            "currentBalance": {
+              "type": "number"
+            },
+            "availableBalance": {
+              "type": "number"
+            },
             "creationReference": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
-            "debitCardRequested": { "type": "boolean" },
-            "mobileBankingEnabled": { "type": "boolean" },
-            "onlineBankingEnabled": { "type": "boolean" }
+            "debitCardRequested": {
+              "type": "boolean"
+            },
+            "mobileBankingEnabled": {
+              "type": "boolean"
+            },
+            "onlineBankingEnabled": {
+              "type": "boolean"
+            }
           }
         },
         "policyValidation": {
@@ -379,57 +476,108 @@
             "tr": "Politika Doğrulama"
           },
           "properties": {
-            "passed": { "type": "boolean" },
+            "passed": {
+              "type": "boolean"
+            },
             "approvedBy": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
-            "validatedAt": { "type": "string", "format": "date-time" },
+            "validatedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
             "validationId": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "accountLimits": {
               "type": "object",
               "additionalProperties": true,
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "approvalLevel": {
               "type": "string",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
-            "policyVersion": { "type": "string" },
+            "policyVersion": {
+              "type": "string"
+            },
             "validationScore": {
               "type": "number",
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "complianceChecks": {
               "type": "object",
               "additionalProperties": true,
               "properties": {
-                "amlCompliant": { "type": "boolean" },
-                "kycCompliant": { "type": "boolean" },
-                "riskAssessment": { "type": "string" },
-                "sanctionsCheck": { "type": "boolean" }
+                "amlCompliant": {
+                  "type": "boolean"
+                },
+                "kycCompliant": {
+                  "type": "boolean"
+                },
+                "riskAssessment": {
+                  "type": "string"
+                },
+                "sanctionsCheck": {
+                  "type": "boolean"
+                }
               },
               "x-roles": [
-                { "role": "morph-idm.approver", "grant": "allow" },
-                { "role": "morph-idm.manager", "grant": "allow" }
+                {
+                  "role": "morph-idm.approver",
+                  "grant": "allow"
+                },
+                {
+                  "role": "morph-idm.manager",
+                  "grant": "allow"
+                }
               ]
             },
             "additionalRequirements": {
