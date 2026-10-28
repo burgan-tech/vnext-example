@@ -38,7 +38,9 @@ bu pencerede gelen versiyonsuz start pointer'ı yok sayıp hiç aktive edilmemi�
   branch `flow-default-version`, commit `ca4aed3`) **birebir** kopyalanmıştır. Core sistem paketi npm'den
   yayınlandığı için bu flow runtime'da henüz yok; test önce schema'yı, sonra workflow'u
   `api/v1/definitions/publish` ile bir kez yayınlar ("already" cevabı sorun değil). **`@burgan-tech/vnext-core`
-  bu flow'u taşımaya başlayınca bu kopyayı ve `EnsureRegistryAsync`'i sil.** `core/` dışında durur ki SDK
+  bu flow'u taşımaya başlayınca bu kopyayı ve `EnsureRegistryAsync`'i sil.** Pointer yardımcıları
+  (`EnsureRegistryAsync`, `RegistryIdAsync`, `SetPointerAsync`, `ClearPointerAsync`) 2026-10-26'dan beri
+  `Helpers/VersionRegistryClient.cs`'tedir; RowSecurityLab de kullanır. `core/` dışında durur ki SDK
   yayıncısı kendiliğinden göndermesin (bkz. ImplicitStartLab, VersionPinLab).
 - `core/Workflows/flow-default-version-lab/default-version-lab-{a..h}.json` **1.0.0** — `lab-initial` →
   manual `finish` → `lab-finished` (Finish). Her test kendi flow anahtarını kullanır, böylece testler tek

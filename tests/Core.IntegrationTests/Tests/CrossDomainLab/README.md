@@ -190,6 +190,70 @@ referans) tutuyor. Uzak SubProcess yolu (`SubProcessTaskExecutor.ExecuteRemoteAs
 `task.TriggerVersion`'a düşüyor. Aynı versiyonun SubFlow korelasyonu ve tek-domain SubProcess
 (`VersionPinLab`) çözülmüş versiyonu tutuyor.
 
+## Row security cross-domain (`rs-xd-target`, vnext#1107)
+
+Partner akışı `partner/Workflows/row-security-lab/rs-xd-target.json` (şema `rs-xd-schema`) Definition A taşır:
+`branch-staff → branchCode eq $.context.Headers.x-branch-code`, `hq-auditor` filtresiz; `default` yok (deny varsayılan).
+Okuyucu core'daki `rs-reader` (`Tests/RowSecurityLab/README.md` § rs-reader): transition gövdesinde
+`targetDomain: partner`, `useDapr: "true"` → GetInstances (15) / GetInstance (19) / DirectTrigger (12) partner'a Dapr
+üzerinden gider. Popülasyon RowSecurityLab'ınkiyle aynı yedi satır, partner'da `hq-auditor` ile seed'lenir; "own
+(BR-001)" en son veri üzerinden `{r1, r2, r5}` (R-F2). Trigger task'ı yalnız kimliği (`sub`, `act_sub`, `position`,
+`client_id`, `role`) taşır; kural başlığı (`x-branch-code`) partner'a yalnız task mapping'i koyarsa ulaşır.
+`GetInstances` / `GetInstance` task'ları satır güvenliğine task'ın kendi kimliği ve başlıklarıyla tabidir — uzak
+çağrıda partner'da, aynı domain'de ve co-host edilen domain'de (yerel gateway) runtime'ın kendisinde (vnext d7e9ba3e;
+tek-domain karşılığı `RowSecurityLab` T-1…T-6). Muaf kalanlar: `GetInstanceData` task'ı, view içerik çözümü,
+transition'lar / DirectTrigger (T-9x).
+
+| Satır | Test (`RowSecurityCrossDomainTests`) | Çağıran / mapping | Beklenen |
+|---|---|---|---|
+| X-1 | `X1_RemoteRead_RuleHeaderMapped_SeesOwnBranch` | `branch-staff` + BR-001, mapping `x-branch-code: BR-001` | liste + her GET: `{r1,r2,r5}` |
+| X-2 | `X2_RemoteRead_RuleHeaderUnmapped_SeesNothing` | aynı çağıran, mapping yok | hiçbiri |
+| X-3 | `X3_RemoteRead_HqAuditorForwarded_SeesAll` | `hq-auditor`, mapping yok | yedisi |
+| X-4 | `X4_RemoteGetOfExcludedRow_EqualsMissing` | X-1 çağıranı, r3 (BR-002) | 404, durum/`isSuccess`/hata metni (id maskeli) olmayan id ile aynı; r1 kontrolü 200 |
+| X-5 | `X5_Roleless_BypassAttempts_SeeNothing` | rolsüz; task'ta mapping `x-system-read: true`; partner'a doğrudan `?systemRead=true` + aynı başlık | hiçbiri (bypass üyesi yok); `hq-auditor` kontrolü yedisi |
+| X-6 [pin] | `X6_Pinned_MappedIdentity_ReadsAsCarol` | çağıran alice, mapping `sub`=`act_sub`=carol + `role: hq-auditor`, `rs-update` trigger | partner transition kaydı `createdBy = carol` — hedef, çağıran runtime'ın sunduğu kimliğe güvenir (doc § Cross-domain tasks) |
+| X-7 | aynı yedi test, co-host'ta | `run-docker.sh up core --with partner`; partner URL'i = core host'u, `VNEXT_COHOSTED_DOMAINS=partner` | X-1…X-6 + T-9x aynı sonuçlar; çağrı yerel gateway'den gider (trace'te tek servis, HTTP/Dapr atlaması yok) ve **filtrelenir**. X-4'ün hata metni bu yolda task cevabının `errorMessage`'ı, uzak yolda partner'ın problem-details `code | detail`'i |
+| T-9x | `T9x_RolelessRemoteDirectTriggerByKey_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır. Doğru sözleşme (kullanıcı kararı 2026-10-27: transition'lar satır güvenliğinden muaf). Başarılı trigger cevabı hedefin `attributes`'ını rolsüz çağırana döndürür (aynı muafiyet) |
+
+T-9x notu: uzak yol çağıranın lokal id portunu kullanmaz; key URL'de gider, partner runtime-içi arama olarak çözer.
+Transition yüzeyi satır güvenliği dışındadır (kullanıcı kararı 2026-10-27) — pin değil, sözleşme.
+
+```bash
+cd tests/Core.IntegrationTests
+VNEXT_BASE_URL=http://localhost:4201 VNEXT_PARTNER_BASE_URL=http://localhost:4211 \
+  dotnet test --filter "FullyQualifiedName~CrossDomainLab.RowSecurityCrossDomain"
+```
+
+### 2026-10-26 koşusu
+
+Lab imajları vnext `claude/role-based-flow-rules-847298` @ `2bed7fa1` (`lab.sh images`, `VNEXT_SRC_DIR`), provider
+`dapr`, Dapr 1.18.0, caller-role provider `default`. **7/7 yeşil** (X-1…X-6, T-9x). Partner log'unda
+`dapr-caller-app-id: vnext-execution-app-core` istekleri: `x-branch-code` yalnız mapping'li satırlarda (X-1/X-4) taşındı,
+X-6'da `act_sub: carol`. OpenObserve/postgres/elasticsearch MCP kapalıydı: trace'e karşı doğrulanmadı.
+
+### 2026-10-27 koşusu
+
+vnext `claude/role-based-flow-rules-847298` @ `cce2f314` (bozuk pointer'da okuma hata verir, D5).
+
+- **Lab** (`lab.sh images` + `up`, provider `dapr`, Dapr 1.18.0): tüm `CrossDomainLab` **30 geçti / 0 kırmızı / 2 skip**
+  (warm-up testleri `dapr` provider'da beklenen skip). Lab şablonunun taze kopyasında `vnext-blob-local` bileşeni yoktu
+  (FileOffload 503); `labs/cross-domain/VNEXT-BUILD-PLAN-file-offload.md` §3'teki `bindings.localstorage` bileşeni
+  `.vnext-runtime/vnext/orchestration/dapr/components/` altına eklenip sidecar'lar yeniden başlatıldı.
+- **X-4 düzeltmesi:** uzak hata problem-details olarak gelir (`errorMessage` yok); eski yardımcı iki `null`'ı karşılaştırıp
+  geçiyordu. Yardımcı artık iki biçimi de okur ve `NotNull` gerçekten koşar.
+- **X-7** (co-host): 7/7 yeşil.
+
+```bash
+cd tests/Core.IntegrationTests
+dotnet test --filter "FullyQualifiedName~CrossDomainLab.RowSecurityCrossDomain" -- \
+  RunConfiguration.EnvironmentVariables.VNEXT_BASE_URL=http://localhost:4201 \
+  RunConfiguration.EnvironmentVariables.VNEXT_PARTNER_BASE_URL=http://localhost:4201 \
+  RunConfiguration.EnvironmentVariables.VNEXT_COHOSTED_DOMAINS=partner
+```
+
+`test.runsettings` partner'ı `:4211`'e sabitler, ortam değişkenini ezer; komut satırı argümanı gerekir. Co-host'ta partner'ın
+`sys-version-registry`'si yayınlı olmalı (yoksa partner'daki her start 503 `Instance:100053`; init paketi bu akışı taşımıyor).
+
 ## Başarı kriteri / bilinen kısıtlar
 
 - 11 test yeşil (her biri kendi `testId`'siyle yeni parent açar).

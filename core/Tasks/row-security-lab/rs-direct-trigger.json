@@ -1,0 +1,22 @@
+{
+  "key": "rs-direct-trigger",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "row-security-lab",
+    "direct-trigger"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "rs-a",
+      "transitionName": "rs-update",
+      "sync": true,
+      "timeoutSeconds": 30
+    }
+  }
+}
