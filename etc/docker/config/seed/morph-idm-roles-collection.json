@@ -1,7 +1,7 @@
 {
   "collection": {
     "name": "morph-idm-roles",
-    "description": "get-roles endpoint for the morph-idm caller-role provider. Used by the authorization-chain-lab's MorphIdmProviderTests and the human-task-chain's IdmBehalfOfGrantTests, only while the runtime runs with CallerRoleProvider:Provider=morph-idm.",
+    "description": "get-roles endpoint for the morph-idm caller-role provider. Used by the authorization-chain-lab's MorphIdmProviderTests and the human-task-chain's IdmBehalfOfGrantTests, and by the row-security-lab's morph-idm run, only while the runtime runs with CallerRoleProvider:Provider=morph-idm.",
     "color": "#0ea5e9"
   },
   "folders": [],
@@ -14,7 +14,7 @@
       "statusCode": 200,
       "responseBody": "{\"roles\":[\"chain.admin\",\"chain.mid-admin\",\"chain.leaf-admin\",\"chain.reader\"]}",
       "contentType": "application/json",
-      "description": "Operation set of the caller, keyed on the `sub` header the resolver sends. The runtime asks WITHOUT a role header on purpose: with one the real endpoint switches to a yes/no check for that single role, and the runtime needs the whole set. The unkeyed default hands the suite's ordinary caller a working set so the chain can be assembled; the four keyed users are the ones the assertions turn on.",
+      "description": "Operation set of the caller, keyed on the `sub` header the resolver sends. The runtime asks WITHOUT a role header on purpose: with one the real endpoint switches to a yes/no check for that single role, and the runtime needs the whole set. The unkeyed default hands the suite's ordinary caller a working set so the chain can be assembled; the four keyed users are the ones the assertions turn on. row-security-lab (vnext#1107) adds the rs-idm-* users: branch-staff, hq-auditor, both, menu.view, a blank 200 body, an empty roles array and a non-JSON 200 body.",
       "delayMs": null,
       "isActive": true,
       "isSequential": false,
@@ -98,6 +98,76 @@
           "responseBody": "{\"roles\":[\"idmOther\"]}",
           "contentType": "application/json",
           "priority": 7,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-branch",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"branch-staff\"]}",
+          "contentType": "application/json",
+          "priority": 8,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-hq",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"hq-auditor\"]}",
+          "contentType": "application/json",
+          "priority": 9,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-both",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"branch-staff\",\"hq-auditor\"]}",
+          "contentType": "application/json",
+          "priority": 10,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-menu",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"menu.view\"]}",
+          "contentType": "application/json",
+          "priority": 11,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-blank",
+          "statusCode": 200,
+          "responseBody": "",
+          "contentType": "application/json",
+          "priority": 12,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-emptyroles",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[]}",
+          "contentType": "application/json",
+          "priority": 13,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rs-idm-garbage",
+          "statusCode": 200,
+          "responseBody": "not-json",
+          "contentType": "application/json",
+          "priority": 14,
           "responseHeaders": []
         }
       ],

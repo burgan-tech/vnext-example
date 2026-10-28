@@ -146,6 +146,114 @@ bayt), `InstancesData` `content`/`passport` taşımıyor; partner `fo_xd_child.I
 gövdesi yalnız handle (≤ 348 bayt). Core'un uzak okuması log'da
 `/v1.0/invoke/vnext-app-partner/method/api/v1/partner/workflows/fo-xd-child/instances/<id>/internal/file` → 200.
 
+## Flow default version cross-domain (`flow-default-version-xd`, vnext#1106)
+
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-flow-default-version-xd.md` (XV-01..XV-07).
+Çocuğun versiyonu **çağrılanın** (partner) `sys-version-registry` kaydından gelir; çağıranın referansı
+floating (`"1"`) ise default'u izler, tam (`"1.2.0"`) ise yok sayar.
+
+```
+core/fdv-xd-onboarding        (F 1.0.0)  onb-start ─auto→ onb-contract (4: S → partner/fdv-xd-contract "1")     ─auto→ onb-done
+core/fdv-xd-onboarding  1.1.0 (fixture)  aynısı, referans tam "1.3.0" (XV-03 pilotu)
+core/fdv-xd-onboarding-exact  (F 1.0.0)  aynısı, referans tam "1.2.0"
+core/fdv-xd-onboarding-sp     (F 1.0.0)  sp-initial [onEntry: task 14 fdv-xd-start-contract, SetVersion("1"), SetUseDapr(true)] ─auto→ sp-waiting ─complete→ sp-done
+partner/fdv-xd-contract       (S 1.2.0 paketten = 1.2.0-pkg.1.0.0+partner; 1.3.0 fixture'dan)  contract-waiting ─sign→ contract-done
+```
+
+Fixture (test kendisi `api/v1/definitions/publish` ile, bir kez): `version-registry` şeması + `sys-version-registry`
+akışı (FlowDefaultVersion `fixtures/` dosyaları) **core'a ve partner'a** (partner'a `domain` alanları yeniden
+yazılarak); partner `fdv-xd-contract 1.3.0`, core `fdv-xd-onboarding 1.1.0` — ikisi de `partner/` / `core/`
+altındaki dosyadan türetilir. 1.1.0 yayında olduğu için core'da pointer yokken versiyonsuz onboarding 1.1.0'a
+düşer; bu yüzden XV-03 dışındaki testler onboarding'i `?version=1.0.0` ile başlatır.
+
+| Test | AC | Ölçtüğü |
+|---|---|---|
+| `FloatingReference_FollowsCalleeDefault` | XV-01 | partner default `1.2.0` → çocuk `1.2.0`, korelasyon `subFlowVersion` `1.2.0-pkg.…`; çocuğa `sign` → parent `onb-done` |
+| `ExactReference_IgnoresCalleeDefault` | XV-02 | `"1.2.0"` referansı, partner default `1.3` öncesi ve sonrası çocuk `1.2.0` |
+| `PilotInBothDomains` | XV-03 | core default onboarding `1.0.0` → çocuk `1.2.0`; `?version=1.1.0` → onboarding `1.1.0`, çocuk `1.3.0` |
+| `CalleeDefaultChange_NewChildrenFollow_RunningChildStays` | XV-04 | partner `1.3` → ≤10 sn yeni çocuk `1.3.0`; eski çocuk ve korelasyonu `1.2.0-pkg.…` |
+| `SubProcess_FollowsCalleeDefault_RunningChildStays` | XV-05 | aynısı SubProcess (task 14, `useDapr`) yolundan |
+| `Latest_ReturnsCalleeToAutomatic` | XV-06 | partner `"latest"` → yeni çocuk `1.3.0` |
+
+XV-07 (`Cache.Get/sys-flows:partner:fdv-xd-contract:res:…` span'inde `vnext.flow.version.source` = `default` /
+`ceiling`) elle, OpenObserve `vnext` stream'inde doğrulanır. Her test kendi pointer'ını açık bir değerle kurar,
+`finally`'de `"latest"` ile temizler (`null` mevcut anahtarda etkisiz). Pointer değişimi pod başına ~5 sn'de
+yayılır; testler 10 sn yoklar (her yoklama gerçek bir parent + çocuk açar).
+
+### 2026-10-22 koşusu
+
+Lab imajları vnext `claude/flow-default-version-27620d`. 5/6 yeşil. **Bilinen kırmızı (runtime kusuru):**
+`SubProcess_FollowsCalleeDefault_RunningChildStays` — partner çocuğu doğru versiyonla başlıyor (default
+`1.2.0` → `1.2.0`, `latest` → `1.3.0`) ama core'daki SubProcess korelasyonu `subFlowVersion = "1"` (yazılan
+referans) tutuyor. Uzak SubProcess yolu (`SubProcessTaskExecutor.ExecuteRemoteAsync` →
+`SubProcessRemoteInvoker`) `SubFlowVersion` metadata'sını taşımıyor; `CreateCorrelationAsync`
+`task.TriggerVersion`'a düşüyor. Aynı versiyonun SubFlow korelasyonu ve tek-domain SubProcess
+(`VersionPinLab`) çözülmüş versiyonu tutuyor.
+
+## Row security cross-domain (`rs-xd-target`, vnext#1107)
+
+Partner akışı `partner/Workflows/row-security-lab/rs-xd-target.json` (şema `rs-xd-schema`) Definition A taşır:
+`branch-staff → branchCode eq $.context.Headers.x-branch-code`, `hq-auditor` filtresiz; `default` yok (deny varsayılan).
+Okuyucu core'daki `rs-reader` (`Tests/RowSecurityLab/README.md` § rs-reader): transition gövdesinde
+`targetDomain: partner`, `useDapr: "true"` → GetInstances (15) / GetInstance (19) / DirectTrigger (12) partner'a Dapr
+üzerinden gider. Popülasyon RowSecurityLab'ınkiyle aynı yedi satır, partner'da `hq-auditor` ile seed'lenir; "own
+(BR-001)" en son veri üzerinden `{r1, r2, r5}` (R-F2). Trigger task'ı yalnız kimliği (`sub`, `act_sub`, `position`,
+`client_id`, `role`) taşır; kural başlığı (`x-branch-code`) partner'a yalnız task mapping'i koyarsa ulaşır.
+`GetInstances` / `GetInstance` task'ları satır güvenliğine task'ın kendi kimliği ve başlıklarıyla tabidir — uzak
+çağrıda partner'da, aynı domain'de ve co-host edilen domain'de (yerel gateway) runtime'ın kendisinde (vnext d7e9ba3e;
+tek-domain karşılığı `RowSecurityLab` T-1…T-6). Muaf kalanlar: `GetInstanceData` task'ı, view içerik çözümü,
+transition'lar / DirectTrigger (T-9x).
+
+| Satır | Test (`RowSecurityCrossDomainTests`) | Çağıran / mapping | Beklenen |
+|---|---|---|---|
+| X-1 | `X1_RemoteRead_RuleHeaderMapped_SeesOwnBranch` | `branch-staff` + BR-001, mapping `x-branch-code: BR-001` | liste + her GET: `{r1,r2,r5}` |
+| X-2 | `X2_RemoteRead_RuleHeaderUnmapped_SeesNothing` | aynı çağıran, mapping yok | hiçbiri |
+| X-3 | `X3_RemoteRead_HqAuditorForwarded_SeesAll` | `hq-auditor`, mapping yok | yedisi |
+| X-4 | `X4_RemoteGetOfExcludedRow_EqualsMissing` | X-1 çağıranı, r3 (BR-002) | 404, durum/`isSuccess`/hata metni (id maskeli) olmayan id ile aynı; r1 kontrolü 200 |
+| X-5 | `X5_Roleless_BypassAttempts_SeeNothing` | rolsüz; task'ta mapping `x-system-read: true`; partner'a doğrudan `?systemRead=true` + aynı başlık | hiçbiri (bypass üyesi yok); `hq-auditor` kontrolü yedisi |
+| X-6 [pin] | `X6_Pinned_MappedIdentity_ReadsAsCarol` | çağıran alice, mapping `sub`=`act_sub`=carol + `role: hq-auditor`, `rs-update` trigger | partner transition kaydı `createdBy = carol` — hedef, çağıran runtime'ın sunduğu kimliğe güvenir (doc § Cross-domain tasks) |
+| X-7 | aynı yedi test, co-host'ta | `run-docker.sh up core --with partner`; partner URL'i = core host'u, `VNEXT_COHOSTED_DOMAINS=partner` | X-1…X-6 + T-9x aynı sonuçlar; çağrı yerel gateway'den gider (trace'te tek servis, HTTP/Dapr atlaması yok) ve **filtrelenir**. X-4'ün hata metni bu yolda task cevabının `errorMessage`'ı, uzak yolda partner'ın problem-details `code | detail`'i |
+| T-9x | `T9x_RolelessRemoteDirectTriggerByKey_Succeeds` | rolsüz, `rs-update` partner'a KEY ile | **başarılı**, hedef güncellenir; aynı çağıran partner'da o key/id için GET 404 alır. Doğru sözleşme (kullanıcı kararı 2026-10-27: transition'lar satır güvenliğinden muaf). Başarılı trigger cevabı hedefin `attributes`'ını rolsüz çağırana döndürür (aynı muafiyet) |
+
+T-9x notu: uzak yol çağıranın lokal id portunu kullanmaz; key URL'de gider, partner runtime-içi arama olarak çözer.
+Transition yüzeyi satır güvenliği dışındadır (kullanıcı kararı 2026-10-27) — pin değil, sözleşme.
+
+```bash
+cd tests/Core.IntegrationTests
+VNEXT_BASE_URL=http://localhost:4201 VNEXT_PARTNER_BASE_URL=http://localhost:4211 \
+  dotnet test --filter "FullyQualifiedName~CrossDomainLab.RowSecurityCrossDomain"
+```
+
+### 2026-10-26 koşusu
+
+Lab imajları vnext `claude/role-based-flow-rules-847298` @ `2bed7fa1` (`lab.sh images`, `VNEXT_SRC_DIR`), provider
+`dapr`, Dapr 1.18.0, caller-role provider `default`. **7/7 yeşil** (X-1…X-6, T-9x). Partner log'unda
+`dapr-caller-app-id: vnext-execution-app-core` istekleri: `x-branch-code` yalnız mapping'li satırlarda (X-1/X-4) taşındı,
+X-6'da `act_sub: carol`. OpenObserve/postgres/elasticsearch MCP kapalıydı: trace'e karşı doğrulanmadı.
+
+### 2026-10-27 koşusu
+
+vnext `claude/role-based-flow-rules-847298` @ `cce2f314` (bozuk pointer'da okuma hata verir, D5).
+
+- **Lab** (`lab.sh images` + `up`, provider `dapr`, Dapr 1.18.0): tüm `CrossDomainLab` **30 geçti / 0 kırmızı / 2 skip**
+  (warm-up testleri `dapr` provider'da beklenen skip). Lab şablonunun taze kopyasında `vnext-blob-local` bileşeni yoktu
+  (FileOffload 503); `labs/cross-domain/VNEXT-BUILD-PLAN-file-offload.md` §3'teki `bindings.localstorage` bileşeni
+  `.vnext-runtime/vnext/orchestration/dapr/components/` altına eklenip sidecar'lar yeniden başlatıldı.
+- **X-4 düzeltmesi:** uzak hata problem-details olarak gelir (`errorMessage` yok); eski yardımcı iki `null`'ı karşılaştırıp
+  geçiyordu. Yardımcı artık iki biçimi de okur ve `NotNull` gerçekten koşar.
+- **X-7** (co-host): 7/7 yeşil.
+
+```bash
+cd tests/Core.IntegrationTests
+dotnet test --filter "FullyQualifiedName~CrossDomainLab.RowSecurityCrossDomain" -- \
+  RunConfiguration.EnvironmentVariables.VNEXT_BASE_URL=http://localhost:4201 \
+  RunConfiguration.EnvironmentVariables.VNEXT_PARTNER_BASE_URL=http://localhost:4201 \
+  RunConfiguration.EnvironmentVariables.VNEXT_COHOSTED_DOMAINS=partner
+```
+
+`test.runsettings` partner'ı `:4211`'e sabitler, ortam değişkenini ezer; komut satırı argümanı gerekir. Co-host'ta partner'ın
+`sys-version-registry`'si yayınlı olmalı (yoksa partner'daki her start 503 `Instance:100053`; init paketi bu akışı taşımıyor).
+
 ## Başarı kriteri / bilinen kısıtlar
 
 - 11 test yeşil (her biri kendi `testId`'siyle yeni parent açar).

@@ -1,0 +1,167 @@
+{
+  "key": "rs-k4-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "row-security-lab"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Row Security Lab K-4 parent (Definition A + SubFlow)"
+      }
+    ],
+    "schema": {
+      "key": "rs-lab-schema-plain",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "rowSecurity": {
+      "rules": [
+        {
+          "roles": [
+            "branch-staff"
+          ],
+          "filter": {
+            "attributes": {
+              "branchCode": {
+                "eq": "$.context.Headers.x-branch-code"
+              }
+            }
+          }
+        },
+        {
+          "roles": [
+            "hq-auditor"
+          ]
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "rs-k4-prepare",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "updateData": {
+      "key": "rs-update",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Update data"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "rs-k4-prepare",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Prepare"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "rs-k4-auto-sub",
+            "target": "rs-k4-sub",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "rs-k4-sub",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow rs-k4-child"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "rs-k4-child",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.0"
+          },
+          "mapping": {
+            "location": "./src/RsK4ParentToChildMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gcm93LXNlY3VyaXR5LWxhYiBLLTQ6IHRoZSBvcHRlZC1pbiBwYXJlbnQgcnMtazQtcGFyZW50IGhhbmRzIGl0cyB0ZXN0SWQgdG8gdGhlIGNoaWxkIHJzLWs0LWNoaWxkCi8vLyAobm8gcm93U2VjdXJpdHkpIHNvIHRoZSB0ZXN0IGNhbiBsaXN0IHRoZSBjaGlsZCBmbG93IHNjb3BlZCB0byBvbmUgcnVuLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgUnNLNFBhcmVudFRvQ2hpbGRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVN1YkZsb3dNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBkeW5hbWljIGlucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICAoKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilpbnB1dClbInRlc3RJZCJdID0KICAgICAgICAgICAgZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInRlc3RJZCIsIG91dCB2YXIgdGVzdElkKSA/IHRlc3RJZCA6IG51bGw7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gaW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG5ldyBFeHBhbmRvT2JqZWN0KCkgfSk7CiAgICB9Cn0K"
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "rs-k4-auto-done",
+            "target": "rs-k4-done",
+            "triggerType": 1,
+            "triggerKind": 10,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to done"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "rs-k4-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

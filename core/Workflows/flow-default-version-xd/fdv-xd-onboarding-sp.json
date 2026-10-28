@@ -1,0 +1,138 @@
+{
+  "key": "fdv-xd-onboarding-sp",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "flow-default-version-xd",
+    "parent",
+    "subprocess",
+    "cross-domain"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Flow Default Version XD Onboarding (SubProcess, floating \"1\")"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-fdv-xd-onboarding-sp",
+      "target": "sp-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "sp-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Onboarding Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "fdv-xd-start-contract",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/FdvXdStartContractMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBvbkVudHJ5IG9mIHNwLWluaXRpYWw6IHN0YXJ0IHBhcnRuZXIvZmR2LXhkLWNvbnRyYWN0IHRocm91Z2ggYSBTdWJQcm9jZXNzIHRhc2sgKHR5cGUgMTQpIG92ZXIgRGFwciwKLy8vIGF1dGhvcmVkIHdpdGggdGhlIEZMT0FUSU5HIHZlcnNpb24gIjEiIOKAlCB0aGUgcGFydG5lcidzIGRlZmF1bHQgcG9pbnRlciBkZWNpZGVzIHRoZSB2ZXJzaW9uLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmR2WGRTdGFydENvbnRyYWN0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgc3ViID0gdGFzayBhcyBTdWJQcm9jZXNzVGFzayA/PyB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiVGFzayBtdXN0IGJlIGEgU3ViUHJvY2Vzc1Rhc2siKTsKCiAgICAgICAgc3ViLlNldERvbWFpbigicGFydG5lciIpOwogICAgICAgIHN1Yi5TZXRGbG93KCJmZHYteGQtY29udHJhY3QiKTsKICAgICAgICBzdWIuU2V0VmVyc2lvbigiMSIpOwogICAgICAgIHN1Yi5TZXRVc2VEYXByKHRydWUpOwogICAgICAgIHN1Yi5TZXRLZXkoJCJmZHYteGQtc3Ate2NvbnRleHQuSW5zdGFuY2U/LklkfSIpOwogICAgICAgIHN1Yi5TZXRTeW5jKGZhbHNlKTsKICAgICAgICBzdWIuU2V0Qm9keShuZXcgeyBwYXJlbnRJbnN0YW5jZUlkID0gY29udGV4dC5JbnN0YW5jZT8uSWQsIHBhcmVudERvbWFpbiA9ICJjb3JlIiB9KTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gY29udGV4dC5JbnN0YW5jZT8uRGF0YSB9KTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-waiting",
+            "target": "sp-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Waiting"
+              }
+            ],
+            "rule": {
+              "location": "./src/FdvXdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5BbHdheXMtdHJ1ZSBhdXRvIHJ1bGU6IHN0YXJ0IOKGkiBjb250cmFjdCwgYW5kIGNvbnRyYWN0IOKGkiBkb25lIG9uY2UgdGhlIHBhcnRuZXIgY2hpbGQgZmluaXNoZXMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmR2WGRBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sp-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Onboarding Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete",
+            "target": "sp-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "sp-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Onboarding Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
