@@ -58,8 +58,15 @@ MockLab gerekmez; akış hiç task kullanmaz. Bileşenleri SDK `LocalDomainPubli
 
 ## Doğrulama durumu
 
-Yazıldı, derleniyor; henüz koşulmadı. Ayırt edici koşu: master runtime'da
-`BothRulesTrue_…` kırmızı (`low`), bu dalın runtime'ında 2/2 yeşil.
+2026-10-29, lokal `run-docker.sh up core` runtime'ı:
+
+- **Bu dal** (vnext `claude/auto-transition-priority-order-f8cc92` @ `371c4655`): 2/2 yeşil.
+  Komşular ScheduleAfterAuto + MoneyTransfer + SubflowOrchestration + ImplicitStartLab 36/36
+  (MoneyTransfer MockLab ayaktayken).
+- **Master tabanı** (`3d922fa8`): `BothRulesTrue_…` kırmızı, instance `low`'da `Completed`
+  (`priority` yok sayılıyor, dizi sırası kazanıyor); `HigherPriorityRuleFalse_…` yeşil.
+- Postgres `auto_priority_lab."InstanceTransitions"`: bu dalda auto hop `to-high` (iki kural doğru)
+  ve `to-low` (`skipHigh`); master'da iki instance da `to-low`. `to-fallback` hiçbir koşuda yok.
 
 ## Bilinen kısıtlar
 
