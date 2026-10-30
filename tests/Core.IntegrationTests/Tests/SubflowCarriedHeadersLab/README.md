@@ -9,8 +9,8 @@ yalnız script task'lar. Runtime: vnext `feature/subflow-terminal-carried-header
 | Test | Neyi denetliyor |
 |---|---|
 | `FinisherHeaders_ReachParentOutputMapping` | Child A `finish` PATCH'i `sub: <guid>`, `x-carried-custom: v1`, `authorization: Bearer canary-<guid>`, `x-subflow-depth: 9` ile gelir. Parent'ın A output mapping'i `context.Headers`'tan `carried.sub == <guid>`, `carried.custom == v1` görür; `authorization` (deny floor), `x-token-id` (deny floor, `token`) ve `x-subflow-depth` (framework hariç tutması) **yoktur**; canary parent verisinin hiçbir yerinde geçmez |
-| `ApplyToResume_Off_NextChildSeesNoHeaders` | Varsayılan runtime (`ApplyToResume=false`): parent'ın resume hop'unda B'nin input mapping'i `sub` görmez → `bSeenSub == null`; resume kuralı `resume-no-sub`'a gider (`resumeRoute == "no-sub"`). `VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=1` ise skip |
-| `ApplyToResume_On_NextChildSeesFinisherSub` | Yalnız `VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=1`: `bSeenSub == <guid>`, `resumeRoute == "saw-sub"`. Aksi hâlde skip |
+| `ApplyToResume_Off_NextChildSeesNoHeaders` | Yalnız opt-out runtime (`ApplyToResume=false` + `VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=0`): parent'ın resume hop'unda B'nin input mapping'i `sub` görmez → `bSeenSub == null`; resume kuralı `resume-no-sub`'a gider (`resumeRoute == "no-sub"`). Aksi hâlde skip |
+| `ApplyToResume_On_NextChildSeesFinisherSub` | Varsayılan runtime (`ApplyToResume=true`): `bSeenSub == <guid>`, `resumeRoute == "saw-sub"`. `VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=0` ise skip |
 | `TimerFinishedChild_CarriesNothing` | Child A zamanlanmış transition'la (2 sn) biter; timer hop'unda istek yok → `carried.count == 0`, `carried.sub == null` (output mapping yine koşar, set boş) |
 | `CanceledChild_CarriesHeaders` | Child A `cancel-sfch-child` ile iptal edilir. `instance.sub.canceled` parent tarafında (`SubflowCancellationService`) **output mapping koşturmaz** — bu yüzden `carried` hiç yazılmaz; parent resume olur, B'yi koşar ve tamamlanır. Set yalnız resume'a uygulanır: kapalı modda `resumeRoute == "no-sub"`, açık modda `saw-sub` + `bSeenSub == <guid>`. (İsim brief'ten; cancel'da taşınan set yalnız açık modda gözlenebilir) |
 | `FaultedChild_CarriesHeadersToOutputMapping` | Child A `explode` PATCH'i: transition task'ı fırlatır, task seviyesinde Abort boundary child'ı **istek hop'unda** fault'latır → `instance.sub.faulted`. `SubflowFaultService` parent'ı (boundary yok) fault'latır ama output mapping'i taşınan setle yine koşar: parent `F`, `carried.sub == <guid>`, `custom == v1`, `authorization`/`x-subflow-depth` yok |
@@ -40,20 +40,20 @@ output mapping'i parent'a `bSeenSub` olarak geri yazar.
 
 ## Nasıl koşulur
 
-Varsayılan mod (runtime `ApplyToResume` kapalı — varsayılan):
+Varsayılan mod (runtime `ApplyToResume` açık — varsayılan, 2026-10-30 RA-3):
 
 ```bash
 dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/test.runsettings \
   --filter "FullyQualifiedName~SubflowCarriedHeadersLab" -v minimal
-# beklenen: 5 geçti, 1 skip (ApplyToResume_On_*)
+# beklenen: 5 geçti, 1 skip (ApplyToResume_Off_*)
 ```
 
-Açık mod: runtime'ı `Workflow__SubFlow__CarriedHeaders__ApplyToResume=true` ile başlat, sonra
+Opt-out modu: runtime'ı `Workflow__SubFlow__CarriedHeaders__ApplyToResume=false` ile başlat, sonra
 
 ```bash
-VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=1 dotnet test tests/Core.IntegrationTests \
+VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=0 dotnet test tests/Core.IntegrationTests \
   --settings tests/Core.IntegrationTests/test.runsettings --filter "FullyQualifiedName~SubflowCarriedHeadersLab" -v minimal
-# beklenen: 5 geçti, 1 skip (ApplyToResume_Off_*)
+# beklenen: 5 geçti, 1 skip (ApplyToResume_On_*)
 ```
 
 Env değişkeni yalnız testin beklentisini seçer; runtime'ın ayarını okumaz. İkisi uyuşmazsa mod
@@ -94,8 +94,9 @@ Her test `parent=…`, `child=…`, `sub=…` ve `authorization=Bearer canary-<g
 
 | Mod | Sonuç |
 |---|---|
-| Varsayılan (`ApplyToResume` kapalı) | 5 geçti, 1 skip (`ApplyToResume_On_*`), art arda 2 koşu |
-| Açık (`Workflow__SubFlow__CarriedHeaders__ApplyToResume=true` + `VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=1`) | 5 geçti, 1 skip (`ApplyToResume_Off_*`) |
+| Kapalı (eski varsayılan; bugün opt-out `ApplyToResume=false` ile aynı) | 5 geçti, 1 skip (`ApplyToResume_On_*`), art arda 2 koşu |
+| Açık, env ile (`Workflow__SubFlow__CarriedHeaders__ApplyToResume=true`) | 5 geçti, 1 skip (`ApplyToResume_Off_*`) |
+| Açık, **varsayılan** (RA-3 sonrası, env yok, runtime yeniden derlendi) | 5 geçti, 1 skip (`ApplyToResume_Off_*`) |
 
 Kanıt (`psql` / `redis-cli` / OpenObserve REST — MCP sunucuları o oturumda bağlı değildi):
 

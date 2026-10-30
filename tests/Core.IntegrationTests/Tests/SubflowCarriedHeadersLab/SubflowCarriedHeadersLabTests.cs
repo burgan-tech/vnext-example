@@ -9,14 +9,14 @@ namespace Core.IntegrationTests.Tests.SubflowCarriedHeadersLab;
 /// subflow-carried-headers-lab: the headers of the request that settled a SubFlow child ride its
 /// terminal event to the parent. The parent's output mapping sees them as <c>context.Headers</c>
 /// (Workflow:SubFlow:CarriedHeaders:ExposeToOutputMapping, default on); the parent's resume context
-/// sees them only with ApplyToResume=true (default off). Each test uses its own <c>sub</c> and its own
-/// <c>authorization</c> canary, both printed to the test output.
+/// sees them while ApplyToResume=true (the default; a domain opts out with false). Each test uses its own
+/// <c>sub</c> and its own <c>authorization</c> canary, both printed to the test output.
 /// </summary>
 /// <remarks>
-/// Mode switch: the runtime's ApplyToResume cannot be read from outside, so the caller declares it
-/// with <c>VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=1</c> (runtime started with
-/// <c>Workflow__SubFlow__CarriedHeaders__ApplyToResume=true</c>). Unset ⇒ default-mode tests run and the
-/// on-mode test skips; "1" ⇒ the reverse.
+/// Mode switch: the runtime's ApplyToResume cannot be read from outside, so the caller declares an
+/// opted-out runtime with <c>VNEXT_IT_CARRIED_HEADERS_APPLY_TO_RESUME=0</c> (runtime started with
+/// <c>Workflow__SubFlow__CarriedHeaders__ApplyToResume=false</c>). Unset ⇒ default (on) tests run and the
+/// off-mode test skips; "0" ⇒ the reverse.
 /// </remarks>
 public class SubflowCarriedHeadersLabTests : WorkflowTestBase
 {
@@ -33,7 +33,7 @@ public class SubflowCarriedHeadersLabTests : WorkflowTestBase
         _output = output;
     }
 
-    private static bool ApplyToResumeOn => System.Environment.GetEnvironmentVariable(ModeVariable) == "1";
+    private static bool ApplyToResumeOn => System.Environment.GetEnvironmentVariable(ModeVariable) != "0";
 
     [Fact]
     public async Task FinisherHeaders_ReachParentOutputMapping()
