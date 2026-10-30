@@ -1,0 +1,278 @@
+{
+  "key": "sfch-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.2",
+  "tags": [
+    "integration-test",
+    "subflow-carried-headers-lab",
+    "parent"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Carried Headers Lab parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "sfch-begin",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "sfch-begin",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Begin"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-a",
+            "target": "sfch-a",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow A"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "sfch-a",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow A (sfch-child)"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "sfch-child",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.2"
+          },
+          "mapping": {
+            "location": "./src/SfchChildAMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzdWJmbG93LWNhcnJpZWQtaGVhZGVycy1sYWIsIFN1YkZsb3cgQTogc3RhcnRzIHNmY2gtY2hpbGQgaW4gdGhlIG1vZGUgdGhlIHRlc3QgYXNrZWQgZm9yCi8vLyAoPGM+YU1vZGU8L2M+OiBtYW51YWwgfCB0aW1lcikgYW5kLCBvbiBzZXR0bGVtZW50LCByZWNvcmRzIHdoYXQgdGhlIGNoaWxkIGNhcnJpZWQuCi8vLyA8cGFyYT4KLy8vIE91dHB1dEhhbmRsZXIgcnVucyBvbiB0aGUgcGFyZW50IHdoZW4gY2hpbGQgQSBjb21wbGV0ZXMgb3IgZmF1bHRzLiA8Yz5jb250ZXh0LkhlYWRlcnM8L2M+IGlzIHRoZQovLy8gY2FycmllZCBzZXQg4oCUIHRoZSBoZWFkZXJzIG9mIHRoZSByZXF1ZXN0IHRoYXQgc2V0dGxlZCB0aGUgY2hpbGQsIHJlLWZpbHRlcmVkIGJ5IHRoZSBwYXJlbnQncwovLy8gcG9saWN5IChXb3JrZmxvdzpTdWJGbG93OkNhcnJpZWRIZWFkZXJzOkV4cG9zZVRvT3V0cHV0TWFwcGluZywgZGVmYXVsdCBvbikuIFRoZSB0ZXN0IGFzc2VydHMgdGhlCi8vLyBmb3VyIHByb2JlcyBiZWxvdzogYSB2YWx1ZSB0aGF0IHNob3VsZCB0cmF2ZWwgKDxjPnN1YjwvYz4sIDxjPngtY2FycmllZC1jdXN0b208L2M+KSwgYSB2YWx1ZSB0aGUKLy8vIGRlbnkgZmxvb3IgbXVzdCBzdHJpcCAoPGM+YXV0aG9yaXphdGlvbjwvYz4pIGFuZCBvbmUgdGhlIGZyYW1ld29yayBleGNsdXNpb25zIG11c3Qgc3RyaXAKLy8vICg8Yz54LXN1YmZsb3ctZGVwdGg8L2M+KS4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNmY2hDaGlsZEFNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVN1YkZsb3dNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgbW9kZSA9IGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJhTW9kZSIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCA/IHJhdy5Ub1N0cmluZygpIDogIm1hbnVhbCI7CgogICAgICAgIGR5bmFtaWMgaW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlucHV0Lm1vZGUgPSBtb2RlOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IGlucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPiBoZWFkZXJzID0gUmVhZCgob2JqZWN0KWNvbnRleHQuSGVhZGVycyk7CgogICAgICAgIGR5bmFtaWMgY2FycmllZCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgY2FycmllZC5zdWIgPSBoZWFkZXJzLlRyeUdldFZhbHVlKCJzdWIiLCBvdXQgdmFyIHN1YikgPyBzdWIgOiBudWxsOwogICAgICAgIGNhcnJpZWQuY3VzdG9tID0gaGVhZGVycy5UcnlHZXRWYWx1ZSgieC1jYXJyaWVkLWN1c3RvbSIsIG91dCB2YXIgY3VzdG9tKSA/IGN1c3RvbSA6IG51bGw7CiAgICAgICAgY2FycmllZC5oYXNBdXRob3JpemF0aW9uID0gaGVhZGVycy5Db250YWluc0tleSgiYXV0aG9yaXphdGlvbiIpOwogICAgICAgIGNhcnJpZWQuaGFzRGVwdGggPSBoZWFkZXJzLkNvbnRhaW5zS2V5KCJ4LXN1YmZsb3ctZGVwdGgiKTsKICAgICAgICBjYXJyaWVkLmhhc1Rva2VuID0gaGVhZGVycy5Db250YWluc0tleSgieC10b2tlbi1pZCIpOwogICAgICAgIGNhcnJpZWQuY291bnQgPSBoZWFkZXJzLkNvdW50OwogICAgICAgIGNhcnJpZWQua2V5cyA9IHN0cmluZy5Kb2luKCIsIiwgaGVhZGVycy5LZXlzKTsKCiAgICAgICAgZHluYW1pYyBvdXRwdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIG91dHB1dC5jYXJyaWVkID0gY2FycmllZDsKICAgICAgICBvdXRwdXQuYVNldHRsZWQgPSB0cnVlOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG91dHB1dCB9KTsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPiBSZWFkKG9iamVjdCBoZWFkZXJzKQogICAgewogICAgICAgIHZhciByZXN1bHQgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIHN0cmluZz4oU3RyaW5nQ29tcGFyZXIuT3JkaW5hbElnbm9yZUNhc2UpOwogICAgICAgIGlmIChoZWFkZXJzIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPiB0eXBlZCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBwYWlyIGluIHR5cGVkKSByZXN1bHRbcGFpci5LZXldID0gcGFpci5WYWx1ZTsKICAgICAgICB9CiAgICAgICAgZWxzZSBpZiAoaGVhZGVycyBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gbG9vc2UpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIgcGFpciBpbiBsb29zZSkgcmVzdWx0W3BhaXIuS2V5XSA9IHBhaXIuVmFsdWU/LlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gcmVzdWx0OwogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "resume-saw-sub",
+            "target": "sfch-resume-saw-sub",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Resume context carried sub"
+              }
+            ],
+            "rule": {
+              "location": "./src/SfchResumeSawSubRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHN1YmZsb3ctY2FycmllZC1oZWFkZXJzLWxhYjogdGhlIHBhcmVudCdzIGF1dG9tYXRpYy10cmFuc2l0aW9uIGNvbmRpdGlvbiBvbiB0aGUgaG9wIHRoYXQgcmVzdW1lcwovLy8gaXQgYWZ0ZXIgY2hpbGQgQSBzZXR0bGVkLiBUcnVlIG9ubHkgd2hlbiB0aGUgcmVzdW1lIGNvbnRleHQgY2FycmllcyBhIG5vbi1lbXB0eSA8Yz5zdWI8L2M+IGhlYWRlciDigJQKLy8vIHdoaWNoIGhhcHBlbnMgb25seSB3aXRoIFdvcmtmbG93OlN1YkZsb3c6Q2FycmllZEhlYWRlcnM6QXBwbHlUb1Jlc3VtZT10cnVlLiBPdGhlcndpc2UgdGhlIGRlZmF1bHQKLy8vIGF1dG9tYXRpYyB0cmFuc2l0aW9uIChyZXN1bWUtbm8tc3ViKSB3aW5zLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2ZjaFJlc3VtZVNhd1N1YlJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBzdHJpbmcgc2VlbiA9IG51bGw7CiAgICAgICAgaWYgKGNvbnRleHQuSGVhZGVycyBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIHN0cmluZz4gdHlwZWQpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIgcGFpciBpbiB0eXBlZCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMocGFpci5LZXksICJzdWIiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSkgc2VlbiA9IHBhaXIuVmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgZWxzZSBpZiAoY29udGV4dC5IZWFkZXJzIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBsb29zZSkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBwYWlyIGluIGxvb3NlKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBpZiAoc3RyaW5nLkVxdWFscyhwYWlyLktleSwgInN1YiIsIFN0cmluZ0NvbXBhcmlzb24uT3JkaW5hbElnbm9yZUNhc2UpKSBzZWVuID0gcGFpci5WYWx1ZT8uVG9TdHJpbmcoKTsKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdCghc3RyaW5nLklzTnVsbE9yRW1wdHkoc2VlbikpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "key": "resume-no-sub",
+            "target": "sfch-resume-no-sub",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Resume context had no sub"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "sfch-resume-saw-sub",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Resume saw sub"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "sfch-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/SfchRouteMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzdWJmbG93LWNhcnJpZWQtaGVhZGVycy1sYWI6IG9uRW50cnkgb2YgdGhlIHR3byByb3V0ZSBzdGF0ZXMgdGhlIHBhcmVudCdzIHJlc3VtZSBjYW4gcmVhY2gKLy8vIChzZmNoLXJlc3VtZS1zYXctc3ViIC8gc2ZjaC1yZXN1bWUtbm8tc3ViKS4gUmVjb3JkcyB3aGljaCBvbmUgd2FzIGVudGVyZWQgYXMgPGM+cmVzdW1lUm91dGU8L2M+LAovLy8gdGFrZW4gZnJvbSB0aGUgY3VycmVudCBzdGF0ZSBrZXksIHNvIG9uZSBtYXBwaW5nIHNlcnZlcyBib3RoIHN0YXRlcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNmY2hSb3V0ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN0YXRlID0gY29udGV4dC5JbnN0YW5jZS5DdXJyZW50U3RhdGUgPz8gIiI7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5yZXN1bWVSb3V0ZSA9IHN0YXRlLkVuZHNXaXRoKCJzYXctc3ViIikgPyAic2F3LXN1YiIgOiBzdGF0ZS5FbmRzV2l0aCgibm8tc3ViIikgPyAibm8tc3ViIiA6ICJ1bmtub3duOiIgKyBzdGF0ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-b",
+            "target": "sfch-b",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow B"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "sfch-resume-no-sub",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Resume saw no sub"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "sfch-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/SfchRouteMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzdWJmbG93LWNhcnJpZWQtaGVhZGVycy1sYWI6IG9uRW50cnkgb2YgdGhlIHR3byByb3V0ZSBzdGF0ZXMgdGhlIHBhcmVudCdzIHJlc3VtZSBjYW4gcmVhY2gKLy8vIChzZmNoLXJlc3VtZS1zYXctc3ViIC8gc2ZjaC1yZXN1bWUtbm8tc3ViKS4gUmVjb3JkcyB3aGljaCBvbmUgd2FzIGVudGVyZWQgYXMgPGM+cmVzdW1lUm91dGU8L2M+LAovLy8gdGFrZW4gZnJvbSB0aGUgY3VycmVudCBzdGF0ZSBrZXksIHNvIG9uZSBtYXBwaW5nIHNlcnZlcyBib3RoIHN0YXRlcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNmY2hSb3V0ZU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN0YXRlID0gY29udGV4dC5JbnN0YW5jZS5DdXJyZW50U3RhdGUgPz8gIiI7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5yZXN1bWVSb3V0ZSA9IHN0YXRlLkVuZHNXaXRoKCJzYXctc3ViIikgPyAic2F3LXN1YiIgOiBzdGF0ZS5FbmRzV2l0aCgibm8tc3ViIikgPyAibm8tc3ViIiA6ICJ1bmtub3duOiIgKyBzdGF0ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-b",
+            "target": "sfch-b",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow B"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "sfch-b",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubFlow B (sfch-child, auto)"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "sfch-child",
+            "domain": "core",
+            "flow": "sys-flows",
+            "version": "1.0.2"
+          },
+          "mapping": {
+            "location": "./src/SfchChildBMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzdWJmbG93LWNhcnJpZWQtaGVhZGVycy1sYWIsIFN1YkZsb3cgQjogdGhlIHByb2JlIGZvciB0aGUgcGFyZW50J3MgUkVTVU1FIGNvbnRleHQuCi8vLyA8cGFyYT4KLy8vIElucHV0SGFuZGxlciBydW5zIG9uIHRoZSBwYXJlbnQncyByZXN1bWVkIGhvcCDigJQgdGhlIGhvcCB0aGF0IGNoaWxkIEEncyBzZXR0bGVtZW50IHN0YXJ0ZWQuIEl0cwovLy8gPGM+Y29udGV4dC5IZWFkZXJzPC9jPiBpcyB0aGUgcmVzdW1lIHJlcXVlc3QncyBoZWFkZXJzOiBlbXB0eSB1bmxlc3MKLy8vIFdvcmtmbG93OlN1YkZsb3c6Q2FycmllZEhlYWRlcnM6QXBwbHlUb1Jlc3VtZT10cnVlLCBpbiB3aGljaCBjYXNlIGl0IGlzIEEncyBjYXJyaWVkIHNldC4gVGhlIHZhbHVlCi8vLyBvZiA8Yz5zdWI8L2M+IGlzIGZvcndhcmRlZCBpbnRvIEIncyBzdGFydCBkYXRhIGFzIDxjPnNlZW5TdWI8L2M+OyBCIGZpbmlzaGVzIGF0IG9uY2UgKG1vZGUgYXV0bykKLy8vIGFuZCBPdXRwdXRIYW5kbGVyIGNvcGllcyBpdCBiYWNrIHRvIHRoZSBwYXJlbnQgYXMgPGM+YlNlZW5TdWI8L2M+LgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2ZjaENoaWxkQk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgc3RyaW5nIHNlZW4gPSBudWxsOwogICAgICAgIGlmIChjb250ZXh0LkhlYWRlcnMgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IHR5cGVkKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIHBhaXIgaW4gdHlwZWQpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGlmIChzdHJpbmcuRXF1YWxzKHBhaXIuS2V5LCAic3ViIiwgU3RyaW5nQ29tcGFyaXNvbi5PcmRpbmFsSWdub3JlQ2FzZSkpIHNlZW4gPSBwYWlyLlZhbHVlOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIGVsc2UgaWYgKGNvbnRleHQuSGVhZGVycyBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gbG9vc2UpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIgcGFpciBpbiBsb29zZSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMocGFpci5LZXksICJzdWIiLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSkgc2VlbiA9IHBhaXIuVmFsdWU/LlRvU3RyaW5nKCk7CiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgaW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlucHV0Lm1vZGUgPSAiYXV0byI7CiAgICAgICAgaW5wdXQuc2VlblN1YiA9IHNlZW47CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gaW5wdXQgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBkeW5hbWljIG91dHB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgb3V0cHV0LmJTZWVuU3ViID0gYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoInNlZW5TdWIiLCBvdXQgdmFyIHNlZW4pID8gc2VlbiA6IG51bGw7CiAgICAgICAgb3V0cHV0LmJTZXR0bGVkID0gdHJ1ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBvdXRwdXQgfSk7CiAgICB9Cn0K"
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-done",
+            "target": "sfch-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to done"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "sfch-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
