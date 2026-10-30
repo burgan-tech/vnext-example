@@ -1,0 +1,247 @@
+{
+  "key": "sfch-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.2",
+  "tags": [
+    "integration-test",
+    "subflow-carried-headers-lab",
+    "child"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Carried Headers Lab child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "sfch-child-route",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "cancel": {
+      "key": "cancel-sfch-child",
+      "target": "sfch-child-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel SubFlow Carried Headers child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "sfch-child-route",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Route by mode"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-timer",
+            "target": "sfch-child-timer",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "mode = timer"
+              }
+            ],
+            "rule": {
+              "location": "./src/SfchModeTimerRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+c3ViZmxvdy1jYXJyaWVkLWhlYWRlcnMtbGFiIGNoaWxkOiByb3V0ZSB0byB0aGUgdGltZXIgc3RhdGUgd2hlbiBzdGFydGVkIHdpdGggbW9kZSA9ICJ0aW1lciIuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgU2ZjaE1vZGVUaW1lclJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIG1vZGUgPSBkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgibW9kZSIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCA/IHJhdy5Ub1N0cmluZygpIDogIiI7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChtb2RlID09ICJ0aW1lciIpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "key": "to-auto",
+            "target": "sfch-child-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "mode = auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/SfchModeAutoRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+c3ViZmxvdy1jYXJyaWVkLWhlYWRlcnMtbGFiIGNoaWxkOiBmaW5pc2ggYXQgb25jZSB3aGVuIHN0YXJ0ZWQgd2l0aCBtb2RlID0gImF1dG8iIChjaGlsZCBCKS48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZmNoTW9kZUF1dG9SdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlLkRhdGEgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+OwogICAgICAgIHZhciBtb2RlID0gZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoIm1vZGUiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwgPyByYXcuVG9TdHJpbmcoKSA6ICIiOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobW9kZSA9PSAiYXV0byIpOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "key": "to-wait",
+            "target": "sfch-child-wait",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Otherwise wait"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "sfch-child-wait",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Wait for the caller"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "finish",
+            "target": "sfch-child-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ]
+          },
+          {
+            "key": "explode",
+            "target": "sfch-child-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Explode (task throws)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "sfch-script",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "location": "./src/SfchExplodeMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzdWJmbG93LWNhcnJpZWQtaGVhZGVycy1sYWI6IHRoZSBjaGlsZCdzIDxjPmV4cGxvZGU8L2M+IHRyYW5zaXRpb24gdGFzay4gQWx3YXlzIHRocm93cywgc28gdGhlCi8vLyBjaGlsZCBmYXVsdHMgb24gdGhlIGhvcCBvZiB0aGUgcmVxdWVzdCB0aGF0IGNhbGxlZCA8Yz5leHBsb2RlPC9jPiDigJQgdGhlIHJlcXVlc3QtaG9wIGZhdWx0IHBhdGgKLy8vIHRoYXQgY2FwdHVyZXMgdGhhdCByZXF1ZXN0J3MgaGVhZGVycyBvbnRvIDxjPmluc3RhbmNlLnN1Yi5mYXVsdGVkPC9jPi4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNmY2hFeHBsb2RlTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigic3ViZmxvdy1jYXJyaWVkLWhlYWRlcnMtbGFiOiBkZWxpYmVyYXRlIGNoaWxkIGZhdWx0Iik7Cn0K"
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 0,
+                      "priority": 999
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "sfch-child-timer",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Wait for the timer"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "timer-finish",
+            "target": "sfch-child-done",
+            "triggerType": 2,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Timer finish"
+              }
+            ],
+            "timer": {
+              "type": "L",
+              "location": "./src/SfchTimerFinishTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9ucy5UaW1lcjsKCi8vLyA8c3VtbWFyeT4KLy8vIHN1YmZsb3ctY2FycmllZC1oZWFkZXJzLWxhYiBjaGlsZDogdGhlIHRpbWVyIHRoYXQgZmluaXNoZXMgYSBjaGlsZCBzdGFydGVkIHdpdGggbW9kZSA9ICJ0aW1lciIuCi8vLyBTaG9ydCBzbyB0aGUgdGVzdCBpcyBxdWljazsgdGhlIHRpbWVyIGhvcCBoYXMgbm8gY2FsbGVyIHJlcXVlc3QsIHNvIHRoZSBjaGlsZCBjYXJyaWVzIG5vdGhpbmcuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBTZmNoVGltZXJGaW5pc2hUaW1lciA6IElUaW1lck1hcHBpbmcKewogICAgcHVibGljIFRhc2s8VGltZXJTY2hlZHVsZT4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KFRpbWVyU2NoZWR1bGUuRnJvbUR1cmF0aW9uKFRpbWVTcGFuLkZyb21TZWNvbmRzKDIpKSk7Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "sfch-child-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "sfch-child-cancelled",
+        "stateType": 3,
+        "subType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
