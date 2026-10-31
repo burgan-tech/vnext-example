@@ -3,7 +3,8 @@
 #   fsl-stub      a DUMB S3 that stores request bodies as received (the bank's behaviour in #145) — :9100
 #   fsl-stub-tls  TLS in front of fsl-stub (socat, lab CA in .certs/) — :9443; Dapr frames uploads ONLY over TLS
 #   fsl-dapr118   an app-less daprd 1.18.2 with the fsl-stub-dapr binding (base64-decoding copy) — :3599; the tests
-#                 upload through it to reproduce the framed object the bank's S3 holds
+#                 upload through it to reproduce the framed object the bank's S3 holds (the runtime's own sidecar is
+#                 1.16.x locally and uploads unframed)
 # All join bbt-development (the vnext infra network), so the orchestration sidecar reaches them by name.
 name: fsl
 services:

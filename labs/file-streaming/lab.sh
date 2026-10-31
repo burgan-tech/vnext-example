@@ -3,12 +3,12 @@
 #
 #   ./lab.sh up [<vnext-checkout>]     certs + stores + MinIO bucket; copies the Dapr components into the vNext
 #                                      checkout's orchestration sidecar (restart the runtime sidecar after)
-#   ./lab.sh env [<vnext-checkout>]    prints the env the orchestration host needs (FileStorage:Stores, daprbinding Local)
+#   ./lab.sh env [<vnext-checkout>]    prints the env the orchestration host needs (daprbinding Local)
 #   ./lab.sh down [<vnext-checkout>]   stops the stores and removes the copied components
 set -euo pipefail
 LAB="$(cd "$(dirname "$0")" && pwd)"
 VNEXT="${2:-$LAB/../../../vnext}"
-COMPONENTS=(fsl-minio.yaml fsl-stub-dapr.yaml)
+COMPONENTS=(fsl-minio.yaml fsl-stub.yaml fsl-stub-dapr.yaml)
 
 certs() {
   [[ -f "$LAB/.certs/server.pem" ]] && return
@@ -39,17 +39,6 @@ case "${1:-}" in
     ;;
   env)
     cat <<ENV
-FileStorage__Stores__fsl-minio__Provider=s3
-FileStorage__Stores__fsl-minio__ServiceUrl=http://localhost:9000
-FileStorage__Stores__fsl-minio__Bucket=fsl
-FileStorage__Stores__fsl-minio__AccessKey=fsladmin
-FileStorage__Stores__fsl-minio__SecretKey=fsladmin-secret
-FileStorage__Stores__fsl-stub__Provider=s3
-FileStorage__Stores__fsl-stub__ServiceUrl=https://localhost:9443
-FileStorage__Stores__fsl-stub__Bucket=fsl-stub
-FileStorage__Stores__fsl-stub__AccessKey=lab
-FileStorage__Stores__fsl-stub__SecretKey=lab-secret
-FileStorage__Stores__fsl-stub__CaCertificatePath=$LAB/.certs/ca.pem
 Workflow__TaskInvocation__Modes__daprbinding=Local
 ENV
     ;;

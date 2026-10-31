@@ -1,5 +1,5 @@
-# The Dapr binding over the MinIO bucket the runtime's s3 provider also writes (same component name, same bucket):
-# DaprBinding tasks list / get / delete the runtime's objects through it.
+# x-storage on MinIO through the runtime's orchestration sidecar; DaprBinding tasks list / get / delete the same
+# objects through the same component.
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:

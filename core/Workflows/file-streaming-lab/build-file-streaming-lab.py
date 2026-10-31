@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Regenerates the file-streaming-lab components (vnext-client-sdk-core#137 / #142 / #145).
 
-* fsl-master (schema) — x-storage fields on three kinds of store:
+* fsl-master (schema) — x-storage fields, every store a Dapr binding on the orchestration sidecar:
     inlineDoc   fsl-minio      transport inline (default)   base64 content in the body
     files[]     fsl-minio      transport any                inline content OR a streamed upload; rows carry documentType
     streamDoc   fsl-minio      transport stream             streamed uploads only
-    bankDoc     fsl-stub       transport any                s3 provider -> the DUMB store behind TLS (#145 fix)
+    bankDoc     fsl-stub       transport any                runtime sidecar bindings.aws.s3 -> the DUMB store behind TLS
     bankDapr    fsl-stub-dapr  transport any                Dapr bindings.aws.s3 -> the DUMB store behind TLS (#145 repro)
     converted   fsl-minio                                   written by a script (PutFileAsync)
 * fsl-flow — waiting --add-document--> waiting; --convert--> converted (script: read, stream-process, write back);

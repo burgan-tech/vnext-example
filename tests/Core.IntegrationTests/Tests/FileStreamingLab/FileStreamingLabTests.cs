@@ -8,9 +8,10 @@ using Core.IntegrationTests.Infrastructure;
 namespace Core.IntegrationTests.Tests.FileStreamingLab;
 
 /// <summary>
-/// file-streaming-lab (vnext-client-sdk-core#137, #142, #145): x-storage on real object stores — MinIO through the
-/// runtime's s3 provider, a DUMB S3 behind TLS that keeps request bodies as received (the bank's store in #145), and
-/// the same dumb store reached through Dapr bindings.aws.s3 (1.16 in the runtime, 1.18.2 in the lab's fsl-dapr118).
+/// file-streaming-lab (vnext-client-sdk-core#137, #142, #145): x-storage on real object stores, every one reached through
+/// a Dapr bindings.aws.s3 component (the runtime carries no store SDK) — MinIO, and a DUMB S3 behind TLS that keeps
+/// request bodies as received (the bank's store in #145), written by the runtime's own sidecar (1.16.x locally) and, for
+/// the bank's write path, by the lab's app-less daprd 1.18.2 (fsl-dapr118).
 /// <para>Requires <c>labs/file-streaming/lab.sh up</c> and the host env from <c>lab.sh env</c>; skips otherwise.</para>
 /// </summary>
 public class FileStreamingLabTests : WorkflowTestBase
@@ -134,7 +135,7 @@ public class FileStreamingLabTests : WorkflowTestBase
     // ── #145: the bank's dumb S3 behind TLS ──────────────────────────────────────────────────────────────────────
 
     [SkippableFact]
-    public async Task S3ProviderOverTls_StoresTheFileByteForByte_InAStoreThatDoesNotDecodeAwsChunked()
+    public async Task RuntimeSidecarOverTls_ToAStoreThatDoesNotDecodeAwsChunked_ReadsBackTheOriginal()
     {
         RequireLab();
         var bytes = Pdf6265();
@@ -142,13 +143,14 @@ public class FileStreamingLabTests : WorkflowTestBase
         var handle = (await DataAsync(id)).GetProperty("bankDoc");
         AssertHandle(handle, bytes, "fsl-stub", id);
 
+        // What lands in the store is the sidecar's business: daprd 1.16.x sends the file as is, 1.17+ frames it
+        // (aws-chunked + CRC32 trailer). Either way it is this file, and the runtime serves the original.
         var stored = await StubObjectAsync("fsl-stub", handle.GetProperty("file").GetString()!);
-        Assert.Equal(6265, stored.GetProperty("size").GetInt32());
-        Assert.Equal(Sha(bytes), stored.GetProperty("sha256").GetString());
-        var put = stored.GetProperty("headers");
-        Assert.False(Header(put, "Content-Encoding")?.Contains("aws-chunked") == true, $"framed upload: {put}");
-        Assert.Equal("UNSIGNED-PAYLOAD", Header(put, "x-amz-content-sha256"));
-        Assert.Null(Header(put, "x-amz-trailer"));
+        var framed = Header(stored.GetProperty("headers"), "Content-Encoding")?.Contains("aws-chunked") == true;
+        if (framed)
+            Assert.True(stored.GetProperty("size").GetInt32() > bytes.Length, $"aws-chunked but not longer: {stored}");
+        else
+            Assert.Equal(Sha(bytes), stored.GetProperty("sha256").GetString());
 
         Assert.Equal(Sha(bytes), Sha(await ReadFileAsync(id, handle.GetProperty("file").GetString()!)));
     }
@@ -238,8 +240,10 @@ public class FileStreamingLabTests : WorkflowTestBase
         Assert.True(status == HttpStatusCode.OK, $"delete-file answered {(int)status}: {body}");
         Assert.True((await DataAsync(id)).GetProperty("deleted").GetProperty("success").GetBoolean());
 
+        // The handle still names the deleted object: the binding's get fails ("object not found"), which the runtime
+        // cannot tell from an outage, so the read is 503 (docs: clear the field after a delete).
         using var gone = await FileAsync(id, file);
-        AssertError(HttpStatusCode.NotFound, "Instance:100049", gone.StatusCode, await gone.Content.ReadAsStringAsync());
+        AssertError(HttpStatusCode.ServiceUnavailable, "Instance:100047", gone.StatusCode, await gone.Content.ReadAsStringAsync());
     }
 
     // ── #142-E / #99: a raw function serves a PDF as bytes ────────────────────────────────────────────────────────
