@@ -1,0 +1,317 @@
+{
+  "key": "fsl-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-streaming-lab",
+    "master",
+    "schema"
+  ],
+  "attributes": {
+    "type": "master",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:fsl-master",
+      "title": "File Streaming Lab Master",
+      "description": "Persisted shape of fsl-flow: every x-storage node describes the stored HANDLE.",
+      "type": "object",
+      "properties": {
+        "inlineDoc": {
+          "type": "object",
+          "x-storage": {
+            "binding": "fsl-minio"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "x-storage": {
+              "binding": "fsl-minio",
+              "transport": "any"
+            },
+            "properties": {
+              "component": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "mimeType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "size": {
+                "type": "integer"
+              },
+              "eTag": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "flow": {
+                    "type": "string"
+                  },
+                  "instance": {
+                    "type": "string"
+                  }
+                }
+              },
+              "documentType": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "streamDoc": {
+          "type": "object",
+          "x-storage": {
+            "binding": "fsl-minio",
+            "transport": "stream"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "bankDoc": {
+          "type": "object",
+          "x-storage": {
+            "binding": "fsl-stub",
+            "transport": "any"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "bankDapr": {
+          "type": "object",
+          "x-storage": {
+            "binding": "fsl-stub-dapr",
+            "transport": "any"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "converted": {
+          "type": "object",
+          "x-storage": {
+            "binding": "fsl-minio"
+          },
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "size": {
+              "type": "integer"
+            },
+            "eTag": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "domain": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

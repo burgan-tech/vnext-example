@@ -1,0 +1,46 @@
+# file-streaming lab (vnext-client-sdk-core#137/#142/#145): object stores beside the local runtime.
+#   fsl-minio     MinIO (decodes aws-chunked, like every real S3 server) — :9000 API, :9001 console
+#   fsl-stub      a DUMB S3 that stores request bodies as received (the bank's behaviour in #145) — :9100
+#   fsl-stub-tls  TLS in front of fsl-stub (socat, lab CA in .certs/) — :9443; Dapr frames uploads ONLY over TLS
+#   fsl-dapr118   an app-less daprd 1.18.2 with the fsl-stub-dapr binding (base64-decoding copy) — :3599; the tests
+#                 upload through it to reproduce the framed object the bank's S3 holds
+# All join bbt-development (the vnext infra network), so the orchestration sidecar reaches them by name.
+name: fsl
+services:
+  fsl-minio:
+    image: quay.io/minio/minio:latest
+    container_name: fsl-minio
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: fsladmin
+      MINIO_ROOT_PASSWORD: fsladmin-secret
+    ports: ["9000:9000", "9001:9001"]
+    networks: [bbt-development]
+  fsl-stub:
+    image: python:3.12-alpine
+    container_name: fsl-stub
+    command: python -u /stub/stub.py
+    environment:
+      PORT: "9100"
+    volumes: ["./stub:/stub:ro"]
+    ports: ["9100:9100"]
+    networks: [bbt-development]
+  fsl-stub-tls:
+    image: alpine/socat:latest
+    container_name: fsl-stub-tls
+    command: OPENSSL-LISTEN:9443,reuseaddr,fork,cert=/certs/server.pem,verify=0 TCP:fsl-stub:9100
+    volumes: ["./.certs:/certs:ro"]
+    ports: ["9443:9443"]
+    depends_on: [fsl-stub]
+    networks: [bbt-development]
+  fsl-dapr118:
+    image: daprio/daprd:1.18.2
+    container_name: fsl-dapr118
+    command: ["./daprd", "--app-id", "fsl-repro", "--resources-path", "/components", "--dapr-http-port", "3500", "--log-level", "warn"]
+    volumes: ["./.repro:/components:ro"]
+    ports: ["3599:3500"]
+    depends_on: [fsl-stub-tls]
+    networks: [bbt-development]
+networks:
+  bbt-development:
+    external: true

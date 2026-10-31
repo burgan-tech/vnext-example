@@ -1,0 +1,327 @@
+{
+  "key": "fsl-flow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-streaming-lab",
+    "files"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "File Streaming Lab"
+      }
+    ],
+    "functions": [
+      {
+        "key": "fsl-download",
+        "domain": "core",
+        "flow": "sys-functions",
+        "version": "1.0.0"
+      }
+    ],
+    "features": [],
+    "extensions": [],
+    "schema": {
+      "key": "fsl-master",
+      "domain": "core",
+      "version": "1.0.0",
+      "flow": "sys-schemas"
+    },
+    "startTransition": {
+      "key": "start",
+      "target": "waiting",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "waiting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "add-document",
+            "target": "waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Add document"
+              }
+            ]
+          },
+          {
+            "key": "convert",
+            "target": "converted",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Convert files[0]"
+              }
+            ]
+          },
+          {
+            "key": "inspect",
+            "target": "inspected",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "List and get through the binding"
+              }
+            ]
+          },
+          {
+            "key": "delete-file",
+            "target": "deleted",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Delete files[0] through the binding"
+              }
+            ]
+          },
+          {
+            "key": "finish",
+            "target": "done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "converted",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Converted"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "fsl-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/FslConvertMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5JTzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nLkZ1bmN0aW9uczsKCi8vLyA8c3VtbWFyeT4KLy8vIGZpbGUtc3RyZWFtaW5nLWxhYjogImNvbnZlcnQiIG9uRW50cnkgKHZuZXh0LWNsaWVudC1zZGstY29yZSMxNDItQSkuIFJlYWRzIGZpbGVzWzBdIHRocm91Z2ggR2V0RmlsZUFzeW5jLCBwcm9jZXNzZXMKLy8vIGl0IHdpdGggU3lzdGVtLklPIHN0cmVhbXMgKE9wZW5SZWFkICsgQmluYXJ5UmVhZGVyIGluLCBNZW1vcnlTdHJlYW0gKyBCaW5hcnlXcml0ZXIgb3V0IOKAlCB3aGF0IGEgUERGL1RJRkYgbGlicmFyeQovLy8gd291bGQgYmUgaGFuZGVkKSwgYW5kIHN0b3JlcyB0aGUgcmVzdWx0IHdpdGggUHV0RmlsZUFzeW5jIGFzIHRoZSBpbnN0YW5jZSdzICJjb252ZXJ0ZWQiIHgtc3RvcmFnZSBmaWxlLgovLy8gVHJhbnNmb3JtOiB0aGUgQVNDSUkgaGVhZGVyICJGU0wtQ09OVkVSVEVEXG4iIGZvbGxvd2VkIGJ5IHRoZSBzb3VyY2UgYnl0ZXMgaW4gcmV2ZXJzZSBvcmRlciDigJQgZGV0ZXJtaW5pc3RpYywgc28gdGhlCi8vLyB0ZXN0IHJlY29tcHV0ZXMgaXQgYW5kIGNvbXBhcmVzIHRoZSBzZXJ2ZWQgYnl0ZXMuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGc2xDb252ZXJ0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIGZpbGVzID0gZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoImZpbGVzIiwgb3V0IHZhciByYXcpID8gcmF3IGFzIElMaXN0PG9iamVjdD4gOiBudWxsOwogICAgICAgIHZhciBmaXJzdCA9IGZpbGVzICE9IG51bGwgJiYgZmlsZXMuQ291bnQgPiAwID8gZmlsZXNbMF0gYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IDogbnVsbDsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaWYgKGZpcnN0ID09IG51bGwgfHwgIWZpcnN0LlRyeUdldFZhbHVlKCJmaWxlIiwgb3V0IHZhciBmaWxlSWQpIHx8IGZpbGVJZCA9PSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcmVzdWx0LmNvbnZlcnRFcnJvciA9ICJubyBmaWxlc1swXSI7CiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH07CiAgICAgICAgfQoKICAgICAgICB2YXIgZG9tYWluID0gY29udGV4dC5SdW50aW1lLkRvbWFpbjsKICAgICAgICB2YXIgaW5zdGFuY2UgPSBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCk7CiAgICAgICAgdmFyIHNvdXJjZSA9IGF3YWl0IEdldEZpbGVBc3luYyhkb21haW4sICJmc2wtZmxvdyIsIGluc3RhbmNlLCBmaWxlSWQuVG9TdHJpbmcoKSk7CgogICAgICAgIHZhciBvdXRwdXQgPSBuZXcgTWVtb3J5U3RyZWFtKCk7CiAgICAgICAgdXNpbmcgKHZhciByZWFkZXIgPSBuZXcgQmluYXJ5UmVhZGVyKHNvdXJjZS5PcGVuUmVhZCgpKSkKICAgICAgICB1c2luZyAodmFyIHdyaXRlciA9IG5ldyBCaW5hcnlXcml0ZXIob3V0cHV0LCBTeXN0ZW0uVGV4dC5FbmNvZGluZy5BU0NJSSwgbGVhdmVPcGVuOiB0cnVlKSkKICAgICAgICB7CiAgICAgICAgICAgIHdyaXRlci5Xcml0ZShTeXN0ZW0uVGV4dC5FbmNvZGluZy5BU0NJSS5HZXRCeXRlcygiRlNMLUNPTlZFUlRFRFxuIikpOwogICAgICAgICAgICB2YXIgYnl0ZXMgPSByZWFkZXIuUmVhZEJ5dGVzKChpbnQpc291cmNlLlNpemUpOwogICAgICAgICAgICBBcnJheS5SZXZlcnNlKGJ5dGVzKTsKICAgICAgICAgICAgd3JpdGVyLldyaXRlKGJ5dGVzKTsKICAgICAgICB9CiAgICAgICAgb3V0cHV0LlBvc2l0aW9uID0gMDsKCiAgICAgICAgdmFyIHN0b3JlZCA9IGF3YWl0IFB1dEZpbGVBc3luYyhkb21haW4sICJmc2wtZmxvdyIsIGluc3RhbmNlLCAiZnNsLW1pbmlvIiwgb3V0cHV0LCAiY29udmVydGVkLmJpbiIsICJhcHBsaWNhdGlvbi9vY3RldC1zdHJlYW0iKTsKICAgICAgICByZXN1bHQuY29udmVydGVkID0gc3RvcmVkOwogICAgICAgIHJlc3VsdC5jb252ZXJ0ZWRGcm9tID0gc291cmNlLkVUYWc7CiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "back",
+            "target": "waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Back"
+              }
+            ]
+          },
+          {
+            "key": "finish",
+            "target": "done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "inspected",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Inspected"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "fsl-binding-list",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/FslBindingListMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gZmlsZS1zdHJlYW1pbmctbGFiOiBEYXByQmluZGluZyAibGlzdCIgb24gZnNsLW1pbmlvICh2bmV4dC1jbGllbnQtc2RrLWNvcmUjMTQyLUIpLiBUaGUgdGFzaydzIGFuc3dlciByZWFjaGVzIHRoaXMKLy8vIG91dHB1dCBtYXBwaW5nOiB0aGUgcmF3IEpTT04gdGV4dCBhbmQgdGhlIGVuY29kaW5nIHRoZSBydW50aW1lIG5hbWVkLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRnNsQmluZGluZ0xpc3RNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5saXN0aW5nID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q/PgogICAgICAgIHsKICAgICAgICAgICAgWyJzdWNjZXNzIl0gPSBHZXQoYm9keSwgImlzU3VjY2VzcyIpLAogICAgICAgICAgICBbImVuY29kaW5nIl0gPSBHZXQoR2V0KGJvZHksICJtZXRhZGF0YSIpIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiwgIkRhdGFFbmNvZGluZyIpLAogICAgICAgICAgICBbInRleHQiXSA9IEdldChib2R5LCAiYm9keSIpLAogICAgICAgICAgICBbImVycm9yIl0gPSBHZXQoYm9keSwgImVycm9yTWVzc2FnZSIpLAogICAgICAgIH07CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gR2V0KElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0Pj8gZCwgc3RyaW5nIGtleSkgPT4gZCAhPSBudWxsICYmIGQuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHYpID8gdiA6IG51bGw7Cn0K"
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "fsl-binding-get",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/FslBindingGetMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZy5GdW5jdGlvbnM7CgovLy8gPHN1bW1hcnk+Ci8vLyBmaWxlLXN0cmVhbWluZy1sYWI6IERhcHJCaW5kaW5nICJnZXQiIG9mIGZpbGVzWzBdIG9uIGZzbC1taW5pbyAodm5leHQtY2xpZW50LXNkay1jb3JlIzE0Mi1CL0QpLiBUaGUgaW5wdXQgbWFwcGluZwovLy8gbmFtZXMgdGhlIG9iamVjdCBhdCBydW4gdGltZSAoU2V0TWV0YWRhdGEgKyBGaWxlT2JqZWN0S2V5KTsgdGhlIG91dHB1dCBtYXBwaW5nIHJlYWRzIHRoZSBiaW5hcnkgYW5zd2VyIChiYXNlNjQpLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRnNsQmluZGluZ0dldE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGJpbmRpbmcgPSAoRGFwckJpbmRpbmdUYXNrKXRhc2s7CiAgICAgICAgYmluZGluZy5TZXRPcGVyYXRpb24oImdldCIpOwogICAgICAgIGJpbmRpbmcuU2V0TWV0YWRhdGEobmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PiB7IFsia2V5Il0gPSBGaWxlT2JqZWN0S2V5KEZpcnN0RmlsZShjb250ZXh0KSkgfSk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgZGF0YSA9IEdldChib2R5LCAiZGF0YSIpIGFzIHN0cmluZzsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcmVzdWx0LmdvdCA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0Pz4KICAgICAgICB7CiAgICAgICAgICAgIFsiZW5jb2RpbmciXSA9IEdldChHZXQoYm9keSwgIm1ldGFkYXRhIikgYXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+LCAiRGF0YUVuY29kaW5nIiksCiAgICAgICAgICAgIFsibGVuZ3RoIl0gPSBkYXRhID09IG51bGwgPyAtMSA6IENvbnZlcnQuRnJvbUJhc2U2NFN0cmluZyhkYXRhKS5MZW5ndGgsCiAgICAgICAgICAgIFsiYmFzZTY0UHJlZml4Il0gPSBkYXRhID09IG51bGwgPyBudWxsIDogZGF0YS5TdWJzdHJpbmcoMCwgTWF0aC5NaW4oMTYsIGRhdGEuTGVuZ3RoKSksCiAgICAgICAgfTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9CgogICAgaW50ZXJuYWwgc3RhdGljIHN0cmluZyBGaXJzdEZpbGUoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgZmlsZXMgPSBkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgiZmlsZXMiLCBvdXQgdmFyIHJhdykgPyByYXcgYXMgSUxpc3Q8b2JqZWN0PiA6IG51bGw7CiAgICAgICAgdmFyIGZpcnN0ID0gZmlsZXMgIT0gbnVsbCAmJiBmaWxlcy5Db3VudCA+IDAgPyBmaWxlc1swXSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gOiBudWxsOwogICAgICAgIHJldHVybiBmaXJzdCAhPSBudWxsICYmIGZpcnN0LlRyeUdldFZhbHVlKCJmaWxlIiwgb3V0IHZhciBmKSA/IGY/LlRvU3RyaW5nKCkgPz8gIiIgOiAiIjsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBvYmplY3Q/IEdldChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGQsIHN0cmluZyBrZXkpID0+IGQgIT0gbnVsbCAmJiBkLlRyeUdldFZhbHVlKGtleSwgb3V0IHZhciB2KSA/IHYgOiBudWxsOwp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "back",
+            "target": "waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Back"
+              }
+            ]
+          },
+          {
+            "key": "finish",
+            "target": "done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "deleted",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Deleted"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "fsl-binding-delete",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/FslBindingDeleteMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gZmlsZS1zdHJlYW1pbmctbGFiOiBkZWxldGVzIGZpbGVzWzBdJ3Mgb2JqZWN0IHdpdGggYSBEYXByQmluZGluZyB0YXNrICh2bmV4dC1jbGllbnQtc2RrLWNvcmUjMTQyLUQg4oCUIHRoZSBydW50aW1lIGhhcwovLy8gbm8gZGVsZXRlIGVuZHBvaW50OyByZXRlbnRpb24gaXMgdGhlIGZsb3cncyBvd24gbG9naWMpLiBUaGUga2V5IGlzIG5hbWVkIGF0IHJ1biB0aW1lIHdpdGggRmlsZU9iamVjdEtleS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEZzbEJpbmRpbmdEZWxldGVNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgZmlsZXMgPSBkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgiZmlsZXMiLCBvdXQgdmFyIHJhdykgPyByYXcgYXMgSUxpc3Q8b2JqZWN0PiA6IG51bGw7CiAgICAgICAgdmFyIGZpcnN0ID0gZmlsZXMgIT0gbnVsbCAmJiBmaWxlcy5Db3VudCA+IDAgPyBmaWxlc1swXSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gOiBudWxsOwogICAgICAgIHZhciBmaWxlID0gZmlyc3QgIT0gbnVsbCAmJiBmaXJzdC5UcnlHZXRWYWx1ZSgiZmlsZSIsIG91dCB2YXIgZikgPyBmPy5Ub1N0cmluZygpID8/ICIiIDogIiI7CgogICAgICAgIHZhciBiaW5kaW5nID0gKERhcHJCaW5kaW5nVGFzayl0YXNrOwogICAgICAgIGJpbmRpbmcuU2V0TWV0YWRhdGEobmV3IERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc/PiB7IFsia2V5Il0gPSBGaWxlT2JqZWN0S2V5KGZpbGUpIH0pOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5kZWxldGVkID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q/PgogICAgICAgIHsKICAgICAgICAgICAgWyJzdWNjZXNzIl0gPSBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgiaXNTdWNjZXNzIiwgb3V0IHZhciBvaykgPyBvayA6IG51bGwsCiAgICAgICAgICAgIFsiZXJyb3IiXSA9IGJvZHkgIT0gbnVsbCAmJiBib2R5LlRyeUdldFZhbHVlKCJlcnJvck1lc3NhZ2UiLCBvdXQgdmFyIGUpID8gZSA6IG51bGwsCiAgICAgICAgfTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "back",
+            "target": "waiting",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Back"
+              }
+            ]
+          },
+          {
+            "key": "finish",
+            "target": "done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
