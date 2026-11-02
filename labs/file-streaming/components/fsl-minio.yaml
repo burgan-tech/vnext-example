@@ -1,0 +1,17 @@
+# x-storage on MinIO through the runtime's orchestration sidecar; DaprBinding tasks list / get / delete the same
+# objects through the same component.
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: fsl-minio
+spec:
+  type: bindings.aws.s3
+  version: v1
+  metadata:
+    - { name: bucket, value: fsl }
+    - { name: region, value: us-east-1 }
+    - { name: endpoint, value: "http://fsl-minio:9000" }
+    - { name: accessKey, value: fsladmin }
+    - { name: secretKey, value: fsladmin-secret }
+    - { name: forcePathStyle, value: "true" }
+    - { name: disableSSL, value: "true" }

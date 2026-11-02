@@ -1,0 +1,17 @@
+# x-storage through the RUNTIME's own sidecar to the DUMB store behind TLS (the bank's store in #145). Whether the
+# object lands framed depends on that sidecar's daprd version: 1.16.x uploads the file as is, 1.17+ adds aws-chunked.
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: fsl-stub
+spec:
+  type: bindings.aws.s3
+  version: v1
+  metadata:
+    - { name: bucket, value: fsl-stub }
+    - { name: region, value: us-east-1 }
+    - { name: endpoint, value: "https://fsl-stub-tls:9443" }
+    - { name: accessKey, value: lab }
+    - { name: secretKey, value: lab-secret }
+    - { name: forcePathStyle, value: "true" }
+    - { name: insecureSSL, value: "true" }

@@ -1,0 +1,33 @@
+{
+  "key": "fsl-download",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "file-streaming-lab",
+    "raw-binary"
+  ],
+  "attributes": {
+    "scope": "I",
+    "rawResponse": true,
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "fsl-script",
+        "domain": "core",
+        "flow": "sys-tasks",
+        "version": "1.0.0"
+      },
+      "mapping": {
+        "location": "./src/FslNoopMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PmZpbGUtc3RyZWFtaW5nLWxhYjogdGhlIGRvd25sb2FkIGZ1bmN0aW9uJ3Mgc2luZ2xlIHRhc2sgZG9lcyBub3RoaW5nOyB0aGUgb3V0cHV0IHNjcmlwdCByZWFkcyB0aGUgZmlsZS48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGc2xOb29wTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKfQo="
+      }
+    },
+    "output": {
+      "location": "./src/FslDownloadOutput.csx",
+      "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmcuRnVuY3Rpb25zOwoKLy8vIDxzdW1tYXJ5PgovLy8gZmlsZS1zdHJlYW1pbmctbGFiOiBhIHJhd1Jlc3BvbnNlIGZ1bmN0aW9uIHRoYXQgc2VydmVzIHRoZSBpbnN0YW5jZSdzIGlubGluZURvYyBhcyBpdHMgb3duIGJ5dGVzCi8vLyAodm5leHQtY2xpZW50LXNkay1jb3JlIzk5IC8gIzE0Mi1FKTogdGhlIG91dHB1dCByZXR1cm5zIHRoZSBTY3JpcHRGaWxlIGl0c2VsZiwgc28gdGhlIHJlc3BvbnNlIGlzIHRoZSBQREYgd2l0aAovLy8gdGhlIGZpbGUncyBtZWRpYSB0eXBlLCBub3QgYSBxdW90ZWQgYmFzZTY0IHN0cmluZy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEZzbERvd25sb2FkT3V0cHV0IDogU2NyaXB0QmFzZSwgSU91dHB1dEhhbmRsZXIKewogICAgcHVibGljIGFzeW5jIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICB2YXIgZG9jID0gZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoImlubGluZURvYyIsIG91dCB2YXIgcmF3KSA/IHJhdyBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gOiBudWxsOwogICAgICAgIHZhciBmaWxlID0gZG9jICE9IG51bGwgJiYgZG9jLlRyeUdldFZhbHVlKCJmaWxlIiwgb3V0IHZhciBmKSA/IGY/LlRvU3RyaW5nKCkgOiBudWxsOwogICAgICAgIGlmIChmaWxlID09IG51bGwpCiAgICAgICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gIm5vIGlubGluZURvYyIsIFN0YXR1c0NvZGUgPSA0MDQgfTsKICAgICAgICB2YXIgcmVhZCA9IGF3YWl0IEdldEZpbGVBc3luYyhjb250ZXh0LlJ1bnRpbWUuRG9tYWluLCAiZnNsLWZsb3ciLCBjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCksIGZpbGUpOwogICAgICAgIHJldHVybiBuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVhZCB9OwogICAgfQp9Cg=="
+    }
+  }
+}
