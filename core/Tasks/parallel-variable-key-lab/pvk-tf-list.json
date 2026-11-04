@@ -1,0 +1,23 @@
+{
+  "key": "pvk-tf-list",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "parallel-variable-key-lab",
+    "trigger-family",
+    "get-instances"
+  ],
+  "attributes": {
+    "type": "15",
+    "config": {
+      "domain": "core",
+      "flow": "pvk-tf-target",
+      "page": 1,
+      "pageSize": 50,
+      "timeoutSeconds": 30
+    }
+  }
+}

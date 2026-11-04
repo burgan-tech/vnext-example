@@ -38,6 +38,18 @@ pvk-reuse   --start--> spawning [Initial] --auto-spawned (triggerKind 10)--> spa
                 order 3  pvk-record-slots  (Script: reusedChildId = pvkSpawnChild, otherChildId = otherChild)
 
 pvk-child   --start--> waiting [Initial]   (bilinçli olarak bitmez)
+
+pvk-trigger-family --start--> fanning [Initial] --auto-checked (triggerKind 10)--> checked [Intermediate, Active'te bekler]
+              fanning.onEntries (hedef flow hep pvk-tf-target, hepsi aynı domain = local yol):
+                order 1  4× pvk-tf-list    (GetInstances 15)  list1..list4      ┐ paralel — sahadaki hatanın birebir şekli
+                order 2  2× pvk-tf-get     (GetInstance 19)   get1, get2        ┐
+                         2× pvk-tf-data    (GetInstanceData 13) data1, data2    │
+                         2× pvk-tf-start   (Start 11)         start1, start2    │ 12 task paralel
+                         2× pvk-spawn-child (SubProcess 14)   sub1, sub2        │ (pvk-child başlatır)
+                         2× pvk-tf-direct  (DirectTrigger 12, KEY ile) trig1, trig2 ┘
+                order 3  pvk-record-slots  (Script: 14 slot'un isSuccess/statusCode'unu `family`'ye yazar)
+
+pvk-tf-target --start--> idle [Initial] --touch (manual)--> touched [Intermediate]
 ```
 
 Akışlar `core/Workflows/parallel-variable-key-lab/build-parallel-variable-key-lab.py` ile üretilir;
@@ -78,9 +90,53 @@ göndermez ve 409 "already exists" reddin yerine geçemez.
 Runtime'ın beklenen hata metni (paralel birleştirme, düzeltmeden önce):
 `Parallel tasks produced conflicting output for key '<slot>'.`
 
+## Trigger ailesi: aynı-domain trigger task'ları aynı order'da (vnext#1161)
+
+**İddia:** Aynı-domain trigger task'larının altı tipi de — GetInstances, GetInstance, GetInstanceData,
+Start, SubProcess, DirectTrigger — aynı order'da, aynı hedef flow'a karşı paralel koşar ve hepsi başarılı
+olur.
+
+**Neden var:** Test ortamında morph-idm `transaction-limit-cascade` (runtime 0.0.102) state'inde aynı
+order'da dört `GetInstances` (aynı hedef flow, farklı `variableKey`) koşarken ilki
+`A second operation was started on this context instance before a previous operation completed` ile
+500 döndü, kardeşleri iptal edildi (503 "The operation was canceled") ve error boundary olmadığı için
+akış `not-found` dalından `success-end`'e tamamlandı. Kök neden: aynı-domain trigger task'ı in-process
+koşar; paralel dal kendi DI scope'unu açsa da `DbContext` DI scope'una değil ambient (AsyncLocal) unit of
+work'e bağlı ve şemaya göre anahtarlanıyor — aynı flow'u okuyan dallar tek context'i paylaşıyordu.
+Düzeltme: vnext `ExecuteReadWithWorkflowAsync` — local okuma gateway'leri (`LocalInstanceQueryGateway`,
+DirectTrigger'ın key→id çözümü `LocalInstanceIdResolver`, `LocalRelatedInstanceReader`,
+`LocalAuthorizeGateway`, `LocalInstanceFileGateway`, `LocalHumanTaskLeafGateway`) her okumada kendi
+`RequiresNew` non-transactional unit of work'ünü açar.
+
+**Akıştaki kasıtlı tercihler:**
+- Error boundary YOK — sahadaki akış gibi. Başarısız task instance'ı fault ETMEZ; hata yalnız order-3
+  kaydında (`family.failed`, `family.slots.<slot>`) görünür. Test bu yüzden state'e değil kayda bakar.
+- Order 1 tam sahadaki şekil (4× GetInstances). Order 2 altı tipi yan yana koyar: okumalar aynı
+  instance'ı aynı anda okur; DirectTrigger KEY ile adreslenir ki key→id çözümü de paralel grupta koşsun;
+  iki DirectTrigger ayrı seed'lere gider (bir instance aynı anda iki transition alamaz).
+- Start'ın başlattığı hedefler `testId` değil `startedBy` taşır — order-1 listeleri yalnız üç seed'i görür.
+- Yarış zamanlamaya bağlı: test sekiz parent'ı aynı anda başlatır, her birinin 14 slot'u da başarılı olmalı.
+
+Mapping'ler (`src/`): `PvkTfListMapping` (testId filtresi, `SetFilterSpec`), `PvkTfGetMapping` /
+`PvkTfDataMapping` (`readKey` ile key okuması), `PvkTfStartMapping` (yeni key, `startedBy`),
+`PvkTfTriggerAMapping` / `PvkTfTriggerBMapping` (`triggerKeyA` / `triggerKeyB` → `touch`), SubProcess için
+mevcut `PvkSpawnChildMapping`, kayıt için `PvkTfRecordMapping`. Output handler'lar veri yazmaz; kayıt
+slot'ları `context.TaskResponse`'tan okur.
+
+| Test | Kanıtladığı |
+|---|---|
+| `TriggerFamilyParallelTests.FourListsThenAllSixTypes_EveryTaskSucceeds` | `pvk-trigger-family`: 8 eşzamanlı parent'ın her biri `checked`'a ulaşır, `F` değil; recorder koştu ve 14 slot'un hepsi `isSuccess`; dört listenin her biri tam 3 seed görür; iki trigger seed'i `touched`, okunan seed `idle` |
+| `TriggerFamilyParallelTests.AllSixSameDomainTriggerTypesAtOneOrder_EveryTaskSucceeds` | `pvk-trigger-mix`: altı tipli grup tek başına order 1'de (family'de order-1 listeleri düşünce order 2 hiç koşmaz; her tipin kendi sonucu ancak böyle görünür); 10 slot'un hepsi `isSuccess`, hedefler aynı şekilde |
+
+Recorder koşmadıysa (bir paralel grup düşüp hook'u durdurduysa) test, `functions/tasks` journal'ını
+`taskKey@order=businessStatus` olarak hata mesajına yazar — instance o durumda bile `checked`'a ilerler.
+
+Runtime'ın düzeltme öncesi beklenen hata metni (host logu, EventId 10078 `TaskLocalExecutionFailed`):
+`A second operation was started on this context instance before a previous operation completed.`
+
 ## Nasıl koşulur
 
-Ön koşul: vnext `feature/task-variable-key`'den derlenmiş lokal runtime
+Ön koşul: lokal derlenmiş runtime (trigger ailesi testleri için vnext#1161 düzeltmesini içeren)
 (`etc/docker/run-docker.sh up core`, :4201). MockLab gerekmez.
 
 ```bash
@@ -121,6 +177,28 @@ p95/maks 655.6 ms (maks, `SameTaskTwice` testindeki paralel order-1 çifti); reb
 Tam suite (`CrossDomainLab` hariç): 357 geçti / 38 kaldı / 9 atlandı (404). Kırmızı 29 farklı testin
 tamamı master'da da kırmızı olan liste; yeni kırmızı yok, önceki koşudaki `SubStateRelayTests` flake'i bu
 koşuda yeşil.
+
+Trigger ailesi koşusu (2026-11-04, vnext `claude/parallel-task-context-error-73c39e`, base master
+`d7606a5b` + `ExecuteReadWithWorkflowAsync`; lokal `run-docker.sh up core`, :4201): senaryo **7/7 yeşil**, iki
+yeni test art arda üç koşuda yeşil (48 parent). Ayırt edici koşu (base `d7606a5b`, aynı fixture'lar): iki yeni
+test kırmızı, mevcut 5 yeşil —
+- `pvk-trigger-family` 8/8 parent'ta order-1 listelerinden 1–3'ü `failed`, recorder hiç koşmadı, instance yine
+  `checked`'a ilerledi (sahadaki sessiz sonuç).
+- `pvk-trigger-mix` 8/8 parent `F`: incident `pvk-tf-direct`, `Task:Unknown:pvk-tf-direct:InvalidOperationException`
+  — DirectTrigger'ın key→id çözümü aynı hatayı exception olarak fırlatıp instance'ı fault'luyor.
+- Orchestration logu: 226 "A second operation was started" satırı (`TaskLocalExecutionFailed` 10078:
+  GetInstances 24, GetInstance 5, GetInstanceData 4); Start ve SubProcess etkilenmedi (komut gateway'i ve
+  korelasyon yazımı zaten kendi unit of work'ünde). Fix'li runtime'da aynı satır sayısı 0.
+- Postgres (fix'li, fixture 1.0.1): `pvk_trigger_family` 24 instance × 15 = 360 `InstanceTasks` satırı, hepsi
+  `BusinessStatus=1`; `pvk_trigger_mix` 24 × 11 = 264, hepsi 1.
+- Tam suite (`CrossDomainLab` hariç, MockLab ısıtılmış): 621 geçti / 8 kaldı / 51 atlandı. 8 kırmızının tamamı
+  base'de de kırmızı: `ScriptPluginLab` 7 (plugin dizini bu host'a mount edilmemiş — derleme hatası) ve
+  `FlowDefaultVersionTests.SubProcess_Local_FollowsDefault_RunningChildStays` (korelasyon `subFlowVersion`
+  "1.0.0", test "1.0.0-pkg." bekliyor).
+- Trace'e karşı doğrulanmadı: OpenObserve / Elasticsearch MCP'leri bu oturumda bağlı değildi.
+
+Fixture notu: `pvk-tf-start` 1.0.1 sabit hedef sürümünü bıraktı — SDK bileşenleri `1.0.0-pkg.*` olarak yayınlar,
+tam "1.0.0" çözülmüyordu (404 "Workflow not found in runtime backend"); onu referanslayan iki flow da 1.0.1.
 
 Çocuklar bilinçli olarak bitmez; her koşu `core` şemasında üç `pvk-child` instance'ı `waiting`'te
 bırakır.

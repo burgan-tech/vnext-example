@@ -1,0 +1,21 @@
+{
+  "key": "pvk-tf-data",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "parallel-variable-key-lab",
+    "trigger-family",
+    "get-instance-data"
+  ],
+  "attributes": {
+    "type": "13",
+    "config": {
+      "domain": "core",
+      "flow": "pvk-tf-target",
+      "timeoutSeconds": 30
+    }
+  }
+}
