@@ -1,0 +1,329 @@
+{
+  "key": "python-task-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "python-task-lab",
+    "python-task"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Python Task Lab (PythonTask over the runtime contract)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-python-task-lab",
+      "target": "ready",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ready",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Ready (pick a case)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "case-sum",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Input from the transition body through the mapping"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-sum",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-static-input",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Authored config.input (body has no values)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-sum",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-context",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Handler reads the call context"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-context",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-dependency",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Handler imports a package installed at image build"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-dateutil",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-fail",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Handler raises -> 422 handler_error, no boundary"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-fail",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-unknown",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Handler not in the image -> 404 unknown_handler"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-unknown",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-timeout",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Handler exceeds timeoutSeconds -> 504 timeout"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-slow",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-invalid-output",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Handler returns NaN -> 422 invalid_output"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-nan",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-fail-abort",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "422 matched by a task-level Abort boundary -> instance faults"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "ptl-fail",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/PtlResultProjection.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFNoYXJlZCBtYXBwaW5nIGZvciBldmVyeSBweXRob24tdGFzay1sYWIgY2FzZSAodm5leHQgUHl0aG9uVGFzaywgdHlwZSAyMykuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4g4oCUIHRoZSBzdGFuZGFyZC1tYXBwaW5nIHBhdGg6IHdoZW4gdGhlIHRyYW5zaXRpb24gYm9keSBjYXJyaWVzIDxjPnZhbHVlczwvYz4sCi8vLyBpdCByZXBsYWNlcyB0aGUgdGFzaydzIGF1dGhvcmVkIDxjPmNvbmZpZy5pbnB1dDwvYz4gdGhyb3VnaCA8c2VlIGNyZWY9IlB5dGhvblRhc2suU2V0SW5wdXQiLz47Ci8vLyBvdGhlcndpc2UgdGhlIGF1dGhvcmVkIGlucHV0IGlzIHNlbnQgYXMgaXMuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IOKAlCB3cml0ZXMgb25lIGZpeGVkLXNoYXBlIHByb2plY3Rpb24gb2YgdGhlIHRhc2sgcmVzdWx0Ci8vLyAoPGM+Y29udGV4dC5Cb2R5PC9jPiBpcyB0aGUgPGM+U3RhbmRhcmRUYXNrUmVzcG9uc2U8L2M+KTogPGM+cHRsQ2FzZTwvYz4sIDxjPnB0bElzU3VjY2VzczwvYz4sCi8vLyA8Yz5wdGxTdGF0dXNDb2RlPC9jPiwgPGM+cHRsRXJyb3JNZXNzYWdlPC9jPiwgPGM+cHRsRGF0YTwvYz4gKHRoZSBoYW5kbGVyIG91dHB1dCBvbiBzdWNjZXNzKSwKLy8vIDxjPnB0bFRhc2tUeXBlPC9jPi4gSXQgcnVucyBmb3IgZmFpbGVkIGNhbGxzIHRvbywgc28gYSB0ZXN0IHJlYWRzIHRoZSBjb250cmFjdCBlcnJvcgovLy8gKDxjPiImbHQ7Y29kZSZndDs6ICZsdDttZXNzYWdlJmd0OyI8L2M+KSBmcm9tIGluc3RhbmNlIGRhdGEuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQdGxSZXN1bHRQcm9qZWN0aW9uIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAodGFzayBpcyBQeXRob25UYXNrIHB5dGhvbiAmJiBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgidmFsdWVzIiwgb3V0IHZhciB2YWx1ZXMpICYmIHZhbHVlcyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgcHl0aG9uLlNldElucHV0KG5ldyB7IHZhbHVlcyB9KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICB2YXIgdGFyZ2V0ID0gKElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PilyZXN1bHQ7CiAgICAgICAgdGFyZ2V0WyJwdGxDYXNlIl0gPSBjb250ZXh0LlRyYW5zaXRpb24/LktleSA/PyAidW5rbm93biI7CiAgICAgICAgdGFyZ2V0WyJwdGxJc1N1Y2Nlc3MiXSA9IFJlYWQoYm9keSwgImlzU3VjY2VzcyIpOwogICAgICAgIHRhcmdldFsicHRsU3RhdHVzQ29kZSJdID0gUmVhZChib2R5LCAic3RhdHVzQ29kZSIpOwogICAgICAgIHRhcmdldFsicHRsRXJyb3JNZXNzYWdlIl0gPSBSZWFkKGJvZHksICJlcnJvck1lc3NhZ2UiKTsKICAgICAgICB0YXJnZXRbInB0bERhdGEiXSA9IFJlYWQoYm9keSwgImRhdGEiKTsKICAgICAgICB0YXJnZXRbInB0bFRhc2tUeXBlIl0gPSBSZWFkKGJvZHksICJ0YXNrVHlwZSIpPy5Ub1N0cmluZygpID8/IHN0cmluZy5FbXB0eTsKCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdD8gUmVhZChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4/IGJvZHksIHN0cmluZyBrZXkpID0+CiAgICAgICAgYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoa2V5LCBvdXQgdmFyIHJhdykgPyByYXcgOiBudWxsOwp9Cg=="
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 0,
+                      "errorCodes": [
+                        "422"
+                      ],
+                      "priority": 100
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "landed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Landed (the case ran to completion)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

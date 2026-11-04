@@ -1,0 +1,22 @@
+{
+  "key": "ptl-dateutil",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "python-task-lab",
+    "python-task"
+  ],
+  "attributes": {
+    "type": "23",
+    "config": {
+      "handler": "ptl_dateutil",
+      "timeoutSeconds": 10,
+      "input": {
+        "date": "2026-11-03"
+      }
+    }
+  }
+}

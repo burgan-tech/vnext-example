@@ -1,0 +1,4 @@
+# Pinned like a real domain image would pin them; python-dateutil proves an install made at image
+# build time is importable by a handler.
+python-dateutil==2.9.0.post0
+six==1.17.0

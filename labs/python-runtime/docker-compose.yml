@@ -1,0 +1,46 @@
+# python-task-lab: the domain's Python runtime beside the local vNext runtime.
+#   ptl-python-runtime       this lab's domain image (Dockerfile here, FROM the locally built base image)
+#   ptl-python-runtime-dapr  its daprd sidecar, app-id vnext-python-runtime-app — the Orchestration host
+#                            calls it with Workflow__PythonRuntime__AppId=vnext-python-runtime-app
+# Both join bbt-development (the vnext infra network); name resolution is mDNS, like every local sidecar.
+# The runtime runs as it does in the Helm chart: read-only root, non-root, no capabilities.
+name: ptl
+services:
+  ptl-python-runtime:
+    build:
+      context: .
+      args:
+        VNEXT_PYTHON_RUNTIME: vnext-python-runtime:local
+    image: ptl-python-runtime:local
+    container_name: ptl-python-runtime
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=64m"]
+    environment:
+      VNEXT_PYTHON_MAX_WORKERS: "4"
+    ports: ["8089:8080"]
+    networks: [bbt-development]
+  ptl-python-runtime-dapr:
+    image: daprio/daprd
+    container_name: ptl-python-runtime-dapr
+    command: [
+      "./daprd",
+      "--app-id", "vnext-python-runtime-app",
+      "--app-port", "8080",
+      "--app-channel-address", "ptl-python-runtime",
+      "--config", "/dapr-config.yaml",
+      "--resources-path", "/components",
+      "--dapr-http-port", "3500",
+      "--dapr-internal-grpc-port", "50009",
+      "--log-level", "info"
+    ]
+    volumes:
+      - "./components:/components:ro"
+      - "${VNEXT_DIR:-../../../vnext}/etc/orchestration/dapr/config.yaml:/dapr-config.yaml:ro"
+    ports: ["3589:3500"]
+    depends_on: [ptl-python-runtime]
+    networks: [bbt-development]
+networks:
+  bbt-development:
+    external: true
