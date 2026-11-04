@@ -1,0 +1,23 @@
+{
+  "key": "pvk-tf-direct",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "parallel-variable-key-lab",
+    "trigger-family",
+    "direct-trigger"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "pvk-tf-target",
+      "transitionName": "touch",
+      "sync": true,
+      "timeoutSeconds": 30
+    }
+  }
+}
