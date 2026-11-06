@@ -1,0 +1,19 @@
+{
+  "key": "ssp-start-child",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "sync-subprocess-state-lab",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "core",
+      "flow": "ssp-child",
+      "version": "1.0.0"
+    }
+  }
+}

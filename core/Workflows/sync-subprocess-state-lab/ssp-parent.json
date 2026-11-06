@@ -1,0 +1,102 @@
+{
+  "key": "ssp-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "sync-subprocess-state-lab",
+    "parent",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Sync SubProcess State Lab parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "spawning",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "spawning",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Spawning (sync SubProcess start)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "ssp-start-child",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.0"
+            },
+            "mapping": {
+              "location": "./src/SspStartChildMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFN0YXJ0cyBzc3AtY2hpbGQgdGhyb3VnaCBhIFNZTkMgU3ViUHJvY2VzcyB0YXNrIGFuZCByZWNvcmRzIHdoYXQgdGhlIHN0YXJ0IHJlc3BvbnNlIHNheXMgYWJvdXQKLy8vIHRoZSBjaGlsZDogaXRzIGlkLCBpdHMgb3duIHN0YXRlIChjdXJyZW50U3RhdGUpIGFuZCBpdHMgZWZmZWN0aXZlIHN0YXRlLiBUaGUgY2hpbGQgYXV0by1jaGFpbnMKLy8vIG91dCBvZiBpdHMgaW5pdGlhbCBzdGF0ZSwgc28gdGhlIHJlY29yZGVkIHN0YXRlIHByb3ZlcyB0aGUgcmVzcG9uc2UgcmVwb3J0cyB0aGUgUkVTVCBwb2ludCwKLy8vIG5vdCB0aGUgc3RhdGUgdGhlIGNoaWxkIHdhcyBib3JuIGluICh2bmV4dCMxMTgyKS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNzcFN0YXJ0Q2hpbGRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzdWIgPSB0YXNrIGFzIFN1YlByb2Nlc3NUYXNrOwogICAgICAgIGlmIChzdWIgPT0gbnVsbCkgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIFN1YlByb2Nlc3NUYXNrIik7CgogICAgICAgIHN1Yi5TZXREb21haW4oImNvcmUiKTsKICAgICAgICBzdWIuU2V0Rmxvdygic3NwLWNoaWxkIik7CiAgICAgICAgc3ViLlNldFZlcnNpb24oIjEuMC4wIik7CiAgICAgICAgc3ViLlNldEJvZHkobmV3IHsgfSk7CiAgICAgICAgc3ViLlNldEtleShjb250ZXh0Lkluc3RhbmNlLklkLlRvU3RyaW5nKCkpOwogICAgICAgIHN1Yi5TZXRTeW5jKHRydWUpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIC8vIEEgc2FtZS1kb21haW4gU3ViUHJvY2VzcyBzdGFydCBuZXN0cyB0aGUgc3RhcnQgb3V0cHV0IHVuZGVyIGRhdGEudmFsdWU7IGEgY3Jvc3MtZG9tYWluIG9uZQogICAgLy8gcGFzc2VzIHRoZSByZW1vdGUgYm9keSB0aHJvdWdoIGZsYXQgKGRhdGEuKikuIFJlYWQgYm90aCwgc2FtZSBhcyB0aGUgaWQgcmVhZGVycyBlbHNld2hlcmUuCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICBvYmplY3QgaWQgPSBudWxsLCBjdXJyZW50ID0gbnVsbCwgZWZmZWN0aXZlID0gbnVsbDsKICAgICAgICB0cnkgeyBpZCA9IGNvbnRleHQuQm9keT8uZGF0YT8udmFsdWU/LmlkOyBjdXJyZW50ID0gY29udGV4dC5Cb2R5Py5kYXRhPy52YWx1ZT8uY3VycmVudFN0YXRlOyBlZmZlY3RpdmUgPSBjb250ZXh0LkJvZHk/LmRhdGE/LnZhbHVlPy5lZmZlY3RpdmVTdGF0ZTsgfSBjYXRjaCB7IH0KICAgICAgICBpZiAoaWQgPT0gbnVsbCkKICAgICAgICB7CiAgICAgICAgICAgIHRyeSB7IGlkID0gY29udGV4dC5Cb2R5Py5kYXRhPy5pZDsgY3VycmVudCA9IGNvbnRleHQuQm9keT8uZGF0YT8uY3VycmVudFN0YXRlOyBlZmZlY3RpdmUgPSBjb250ZXh0LkJvZHk/LmRhdGE/LmVmZmVjdGl2ZVN0YXRlOyB9IGNhdGNoIHsgfQogICAgICAgIH0KICAgICAgICB0YXJnZXRbImNoaWxkSWQiXSA9IGlkPy5Ub1N0cmluZygpOwogICAgICAgIHRhcmdldFsiY2hpbGRDdXJyZW50U3RhdGUiXSA9IGN1cnJlbnQ/LlRvU3RyaW5nKCk7CiAgICAgICAgdGFyZ2V0WyJjaGlsZEVmZmVjdGl2ZVN0YXRlIl0gPSBlZmZlY3RpdmU/LlRvU3RyaW5nKCk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-spawned",
+            "target": "spawned",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to spawned"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "spawned",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Spawned (waits Active)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
