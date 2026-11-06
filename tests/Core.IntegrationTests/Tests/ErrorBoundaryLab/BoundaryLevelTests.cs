@@ -90,6 +90,23 @@ public class BoundaryLevelTests : ErrorBoundaryLabTestBase
         Assert.Equal("Abort", Text(incident, "boundaryAction"));
     }
 
+    /// <summary>
+    /// A faulted instance was last modified when it faulted: <c>metadata.modifiedAt</c> equals
+    /// <c>completedAt</c>. Before vnext feature/modified-at-fix it kept the Busy flip that started the
+    /// failing transition.
+    /// </summary>
+    [Fact]
+    public async Task AFaultedInstance_WasLastModifiedWhenItFaulted()
+    {
+        var instanceId = await RunCaseAsync(Workflow, "case-precedence-task-over-state");
+        await WaitUntilFaultedAsync(Workflow, instanceId);
+
+        var times = await GetInstanceTimesAsync(Workflow, instanceId);
+        Assert.Equal("F", times.Status);
+        Assert.NotNull(times.CompletedAt);
+        Assert.Equal(times.CompletedAt, times.ModifiedAt);
+    }
+
     [Fact]
     public async Task AStateBoundary_WinsOverTheGlobalOne()
     {

@@ -223,6 +223,13 @@ public abstract class WorkflowTestBase : IntegrationTestBase
     }
 
     /// <summary>
+    /// <see cref="IntegrationTestBase.GetInstanceTimesAsync"/> with this base's caller headers.
+    /// </summary>
+    protected Task<(DateTimeOffset ModifiedAt, DateTimeOffset? CompletedAt, string State, string Status)>
+        GetInstanceTimesAsync(string workflow, string instanceId, string? roles = null)
+        => GetInstanceTimesAsync(workflow, instanceId, Headers(roles));
+
+    /// <summary>
     /// What a polling client sees. For a chain this is the DEEPEST active subflow, not the
     /// instance addressed.
     /// </summary>

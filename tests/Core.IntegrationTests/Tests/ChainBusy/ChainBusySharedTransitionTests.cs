@@ -57,6 +57,16 @@ public class ChainBusySharedTransitionTests : ChainBusyTestBase
 
         Assert.Equal(entriesBefore + 1, await GetCounterAsync(LeafWorkflow, chain.LeafId, "leafEntries"));
         Assert.Equal(exitsBefore + 1, await GetCounterAsync(LeafWorkflow, chain.LeafId, "leafExits"));
+
+        // The hop changed no state, so nothing at order 50 stamps it: the write that closes it does (vnext
+        // feature/modified-at-fix). That write comes after the hop finished — the admission's Busy flip,
+        // which also stamps, comes before it started and cannot satisfy this.
+        await WaitUntilSettledAsync(LeafWorkflow, chain.LeafId);
+        var finishedAt = await GetLastFinishedAtAsync(LeafWorkflow, chain.LeafId, "leaf-only-mark");
+        var leafTimes = await GetInstanceTimesAsync(LeafWorkflow, chain.LeafId);
+        Assert.True(leafTimes.ModifiedAt >= finishedAt,
+            $"the leaf's $self shared transition was not stamped by the write that closed it " +
+            $"(modifiedAt {leafTimes.ModifiedAt:O} < hop finished {finishedAt:O})");
     }
 
     /// <summary>
@@ -114,6 +124,7 @@ public class ChainBusySharedTransitionTests : ChainBusyTestBase
         var leafMarksBefore = await GetCounterAsync(LeafWorkflow, chain.LeafId, "leafOnlyMarks");
         var parentEntriesBefore = await GetCounterAsync(RootWorkflow, chain.RootId, "rootEntries");
         var parentExitsBefore = await GetCounterAsync(RootWorkflow, chain.RootId, "rootExits");
+        var parentTimesBefore = await GetInstanceTimesAsync(RootWorkflow, chain.RootId);
 
         await RunTransitionAsyncModeAsync(RootWorkflow, chain.RootId, "root-shared-mark");
         await WaitUntilAsync(
@@ -133,6 +144,15 @@ public class ChainBusySharedTransitionTests : ChainBusyTestBase
             $"the parent's $self shared transition did not re-run its OnEntry — {await DescribeAsync(RootWorkflow, chain.RootId)}");
 
         Assert.Equal(parentExitsBefore + 1, await GetCounterAsync(RootWorkflow, chain.RootId, "rootExits"));
+
+        // The hop changed no state and took no Busy flip (the parent is Busy for its SubFlow and does
+        // not own the status), and its task output is not an updateData row — so no write of the hop
+        // carries a stamp of its own: ChangeStateStep leaves it pending and the settlement applies it at
+        // the end of the hop (vnext feature/modified-at-fix).
+        var parentTimesAfter = await GetInstanceTimesAsync(RootWorkflow, chain.RootId);
+        Assert.True(parentTimesAfter.ModifiedAt > parentTimesBefore.ModifiedAt,
+            $"the parent's same-state shared transition did not move modifiedAt " +
+            $"({parentTimesBefore.ModifiedAt:O} → {parentTimesAfter.ModifiedAt:O})");
     }
 
     [Fact]

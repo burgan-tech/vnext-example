@@ -106,7 +106,7 @@ runtime eski gömülü script'i sunmaya devam eder.
 | Sınıf | Doğruladığı |
 | --- | --- |
 | `IncidentLifecycleTests` | Incident alanları (`errorCode`/`errorLayer`/`statusCode`/`task`/`traceId`), bloğun **link** taşıdığı ve ilan edilen `active.href`'in gerçekten cevap verdiği (test URL'i yeniden kurmaz, ilan edileni takip eder), state bloğu ile `metadata.incident`'in aynı olduğu, sayfalama (`hasNext`), retry'ın 400/200 davranışı, ETag 304→200. |
-| `BoundaryLevelTests` | Task/State/Global verdict'leri; Task'ın daha spesifik State kuralını yenmesi; State'in Global'i gölgelemesi; "boundary var ama eşleşmiyor" kontrolü. |
+| `BoundaryLevelTests` | Task/State/Global verdict'leri; Task'ın daha spesifik State kuralını yenmesi; State'in Global'i gölgelemesi; "boundary var ama eşleşmiyor" kontrolü; fault'lanan instance'ın `metadata.modifiedAt`'inin `completedAt` ile aynı an olması (vnext `feature/modified-at-fix` @ `4bb9cfca`, 2026-11-06: 7/7 yeşil; master `src`'ine karşı bu tek vaka kırmızı). |
 | `WithinLevelOrderingTests` | Spesifik kuralın default wildcard'ı yenmesi, düşük priority sayısının kazanması, boundary transition'ı biten incident'ın **resolve** edilmesi. |
 | `RetryPolicyTests` | `1 + maxRetries` çağrı (`httpAttempts` instance verisinden), tükenince fallback kuralın uygulanması, 3. denemede kurtarma (incident **yok**). MockLab gerekir. |
 | `ContinueActionsTests` | `ignore`/`log`/boundary-yok: pipeline devam eder, incident **yok**, ve hook'un kalan task'ları **koşmaz**. |

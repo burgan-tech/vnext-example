@@ -86,6 +86,25 @@ public abstract class ChainBusyTestBase : IntegrationTestBase
             : 0;
     }
 
+    /// <summary>
+    /// When the instance's last <paramref name="transitionKey"/> hop finished, from its transition history
+    /// (<c>GET …/instances/{id}/transitions</c>) — the runtime's clock, comparable with <c>modifiedAt</c>.
+    /// </summary>
+    protected async Task<DateTimeOffset> GetLastFinishedAtAsync(string workflow, string instanceId, string transitionKey)
+    {
+        using var response = await _raw.GetAsync($"api/v1/core/workflows/{workflow}/instances/{instanceId}/transitions");
+        var raw = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, $"history answered {(int)response.StatusCode}: {raw}");
+
+        var finished = JsonDocument.Parse(raw).RootElement.GetProperty("transitions").EnumerateArray()
+            .Where(t => t.GetProperty("transitionId").GetString() == transitionKey
+                        && t.TryGetProperty("finishedAt", out var at) && at.ValueKind == JsonValueKind.String)
+            .Select(t => t.GetProperty("finishedAt").GetDateTimeOffset())
+            .ToList();
+        Assert.True(finished.Count > 0, $"no finished '{transitionKey}' hop in {workflow}/{instanceId}'s history: {raw}");
+        return finished.Max();
+    }
+
     /// <summary>The instance's own state and status, straight from the instance resource.</summary>
     protected async Task<(string State, string Status)> GetInstanceStateAsync(string workflow, string instanceId)
     {

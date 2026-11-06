@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Core.IntegrationTests.Infrastructure;
 
 namespace Core.IntegrationTests.Tests.DataIntegrityLab;
@@ -71,6 +72,12 @@ public class DataIntegrityLabTests : WorkflowTestBase
         var (state, status) = await GetInstanceStateAsync(Workflow, id);
         Assert.Equal("lab-completed", state);
         Assert.Equal("C", status);
+
+        // A finished instance was last modified when it finished — not at the Busy flip that
+        // started its final transition, which is what modifiedAt showed before.
+        var times = await GetInstanceTimesAsync(Workflow, id);
+        Assert.NotNull(times.CompletedAt);
+        Assert.Equal(times.CompletedAt, times.ModifiedAt);
     }
 
     [Fact]
@@ -121,6 +128,8 @@ public class DataIntegrityLabTests : WorkflowTestBase
         // against the same stale head.
         var id = await StartLabAsync();
         await WaitForInstanceStateAsync(Workflow, id, "lab-sequential");
+        await WaitUntilSettledAsync(Workflow, id);
+        var beforeBurst = await GetInstanceTimesAsync(Workflow, id);
 
         const int target = 5;
         var accepted = 0;
@@ -145,6 +154,13 @@ public class DataIntegrityLabTests : WorkflowTestBase
             TimeSpan.FromSeconds(60));
 
         Assert.Equal(target, await GetCounterAsync(Workflow, id, "labUpdateCount"));
+
+        // The burst changed data and no state: modifiedAt still moved, and the instance never left
+        // lab-sequential.
+        var afterBurst = await GetInstanceTimesAsync(Workflow, id);
+        Assert.Equal("lab-sequential", afterBurst.State);
+        Assert.True(afterBurst.ModifiedAt > beforeBurst.ModifiedAt,
+            $"modifiedAt did not move over {target} updateData calls ({beforeBurst.ModifiedAt:O} → {afterBurst.ModifiedAt:O})");
     }
 
     [Fact]
@@ -158,5 +174,192 @@ public class DataIntegrityLabTests : WorkflowTestBase
 
         var (_, status) = await GetInstanceStateAsync(Workflow, id);
         Assert.True(TerminalStatuses.Contains(status), $"expected a terminal status, got {status}");
+
+        // Cancel completes the instance: last modified at that same instant.
+        var times = await GetInstanceTimesAsync(Workflow, id);
+        Assert.NotNull(times.CompletedAt);
+        Assert.Equal(times.CompletedAt, times.ModifiedAt);
+    }
+
+    // ── metadata.modifiedAt ──────────────────────────────────────────────────
+    //
+    // Before vnext feature/modified-at-fix only the Busy flips moved Instances.ModifiedAt: a finished
+    // instance kept the time its final transition STARTED, and an updateData did not move it at all.
+
+    /// <summary>
+    /// The baseline: a transition that rests Active (run-sequential, lab-sequential → lab-parallel)
+    /// moves modifiedAt to a time after the request.
+    /// </summary>
+    [Fact]
+    public async Task ModifiedAt_MovesOnATransition()
+    {
+        var id = await StartLabAsync();
+        await WaitForInstanceStateAsync(Workflow, id, "lab-sequential");
+        await WaitUntilSettledAsync(Workflow, id);
+        var before = await GetInstanceTimesAsync(Workflow, id);
+
+        await RunAcceptedAsync(Workflow, id, "run-sequential", settleTimeout: TimeSpan.FromSeconds(90));
+        await WaitForInstanceStateAsync(Workflow, id, "lab-parallel", timeout: TimeSpan.FromSeconds(90));
+
+        // Runtime clock against runtime clock only: the test host's clock may differ in external mode.
+        var after = await GetInstanceTimesAsync(Workflow, id);
+        Assert.True(after.ModifiedAt > before.ModifiedAt, $"{before.ModifiedAt:O} → {after.ModifiedAt:O}");
+    }
+
+    /// <summary>
+    /// updateData changes data and no state: modifiedAt moves anyway — on EVERY call, not only the first.
+    /// Both its request body and its onExecute task (<c>LabUpdateCounterMapping</c>, +1) write a data row.
+    /// The repeat is what caught a "stamp once" shortcut (2026-11-06): consecutive hops reuse a pooled
+    /// connection, and from the second call on modifiedAt stopped moving.
+    /// </summary>
+    [Fact]
+    public async Task ModifiedAt_MovesOnUpdateData_WithoutAStateChange()
+    {
+        var id = await StartLabAsync();
+        await WaitForInstanceStateAsync(Workflow, id, "lab-sequential");
+        await WaitUntilSettledAsync(Workflow, id);
+        var before = await GetInstanceTimesAsync(Workflow, id);
+
+        for (var call = 1; call <= 3; call++)
+        {
+            await SubmitAsync(Workflow, id, "update-lab-progress", new { updateNonce = Guid.NewGuid().ToString("N")[..8] });
+            var expected = call;
+            await WaitUntilAsync(async () => await GetCounterAsync(Workflow, id, "labUpdateCount") == expected,
+                $"updateData #{call}'s increment never landed");
+
+            var after = await GetInstanceTimesAsync(Workflow, id);
+            Assert.Equal("lab-sequential", after.State);
+            Assert.Equal("A", after.Status);
+            Assert.True(after.ModifiedAt > before.ModifiedAt,
+                $"updateData #{call} did not move modifiedAt ({before.ModifiedAt:O} → {after.ModifiedAt:O})");
+            before = after;
+        }
+    }
+
+    /// <summary>
+    /// An updateData whose only data change is its task's output — an empty body adds nothing, so no
+    /// body row is written. The task's row is the modification and must move modifiedAt; a stamp tied
+    /// to the request body alone leaves it where it was.
+    /// </summary>
+    [Fact]
+    public async Task ModifiedAt_MovesOnUpdateData_WhoseOnlyChangeIsItsTaskOutput()
+    {
+        var id = await StartLabAsync();
+        await WaitForInstanceStateAsync(Workflow, id, "lab-sequential");
+        await WaitUntilSettledAsync(Workflow, id);
+        var before = await GetInstanceTimesAsync(Workflow, id);
+
+        await SubmitAsync(Workflow, id, "update-lab-progress", new { });
+        await WaitUntilAsync(async () => await GetCounterAsync(Workflow, id, "labUpdateCount") == 1,
+            "the updateData increment never landed");
+
+        var after = await GetInstanceTimesAsync(Workflow, id);
+        Assert.Equal("lab-sequential", after.State);
+        Assert.True(after.ModifiedAt > before.ModifiedAt, $"{before.ModifiedAt:O} → {after.ModifiedAt:O}");
+    }
+
+    /// <summary>
+    /// The list filter on <c>modifiedAt</c> sees the new value: <c>gt</c> the settled stamp matches nothing
+    /// until the instance changes, and matches it once it has. The change is an updateData — data only, no
+    /// state change — which the old runtime did not stamp at all, so this is red there.
+    /// </summary>
+    [Fact]
+    public async Task ModifiedAtFilter_FindsTheInstanceOnlyAfterItChanged()
+    {
+        var testId = $"lab-{Guid.NewGuid():N}"[..16];
+        var id = await StartAsync(Workflow, new { testId, labThreshold = Threshold });
+        await WaitForInstanceStateAsync(Workflow, id, "lab-sequential");
+        await WaitUntilSettledAsync(Workflow, id);
+        var before = await GetInstanceTimesAsync(Workflow, id);
+
+        var filter = JsonSerializer.Serialize(new Dictionary<string, object>
+        {
+            ["attributes"] = new { testId = new { eq = testId } },
+            ["modifiedAt"] = new { gt = before.ModifiedAt.UtcDateTime.ToString("O") }
+        });
+
+        Assert.Empty(await ListIdsAsync(filter));
+
+        await SubmitAsync(Workflow, id, "update-lab-progress", new { updateNonce = Guid.NewGuid().ToString("N")[..8] });
+        await WaitUntilAsync(async () => await GetCounterAsync(Workflow, id, "labUpdateCount") == 1,
+            "the updateData increment never landed");
+
+        Assert.Equal([id], await ListIdsAsync(filter));
+    }
+
+    /// <summary>
+    /// A task-free updateData: the lab's own one always writes a task-output row (+1), which would carry the
+    /// stamp whatever the request changed. <c>rs-plain</c> is row-security-lab's unchanged-flow control
+    /// (no <c>rowSecurity</c>, master schema requires only <c>testId</c>).
+    /// </summary>
+    private const string EnvelopeOnlyFlow = "rs-plain";
+
+    /// <summary>
+    /// An updateData that changes only an envelope field — tags, then stage — writes no data row
+    /// (<c>entityEtag</c> stays), so no row carries the stamp: the instance's own UPDATE for the new value
+    /// does. Re-sending the same tags and stage changes nothing and moves nothing — an updateData never
+    /// flips Busy, so nothing else writes the instance row.
+    /// </summary>
+    [Fact]
+    public async Task ModifiedAt_MovesOnUpdateData_ThatChangesOnlyTagsOrStage_AndNotWhenNothingChanges()
+    {
+        var id = await StartAsync(EnvelopeOnlyFlow, new { attributes = new { testId = $"lab-{Guid.NewGuid():N}"[..16] } });
+        var started = await ReadEnvelopeAsync(id);
+
+        await UpdateEnvelopeAsync(id, new { tags = new[] { "modified-at-lab" } });
+        var tagged = await ReadEnvelopeAsync(id);
+        Assert.Contains("modified-at-lab", tagged.Tags);
+        Assert.Equal(started.EntityEtag, tagged.EntityEtag);
+        Assert.True(tagged.ModifiedAt > started.ModifiedAt, $"tags: {started.ModifiedAt:O} → {tagged.ModifiedAt:O}");
+
+        await UpdateEnvelopeAsync(id, new { stage = "under-review" });
+        var staged = await ReadEnvelopeAsync(id);
+        Assert.Equal("under-review", staged.Stage);
+        Assert.Equal(started.EntityEtag, staged.EntityEtag);
+        Assert.True(staged.ModifiedAt > tagged.ModifiedAt, $"stage: {tagged.ModifiedAt:O} → {staged.ModifiedAt:O}");
+
+        await UpdateEnvelopeAsync(id, new { tags = new[] { "modified-at-lab" }, stage = "under-review" });
+        var unchanged = await ReadEnvelopeAsync(id);
+        Assert.Equal(staged.ModifiedAt, unchanged.ModifiedAt);
+        Assert.Equal(started.EntityEtag, unchanged.EntityEtag);
+        Assert.Equal(("active", "A"), (unchanged.State, unchanged.Status));
+    }
+
+    /// <summary>Runs rs-plain's updateData with <c>sync=true</c>: it answers once the hop has rested.</summary>
+    private async Task UpdateEnvelopeAsync(string id, object envelope)
+    {
+        var (status, body) = await SendRawAsync(HttpMethod.Patch,
+            $"api/v1/core/workflows/{EnvelopeOnlyFlow}/instances/{id}/transitions/rs-update?sync=true",
+            envelope, Headers());
+        Assert.True((int)status < 400, $"rs-update was refused with {(int)status}: {body}");
+    }
+
+    private async Task<(DateTimeOffset ModifiedAt, string State, string Status, string? Stage, List<string> Tags, string EntityEtag)>
+        ReadEnvelopeAsync(string id)
+    {
+        var body = (await Api.GetInstanceAsync(EnvelopeOnlyFlow, id, Headers())).Body;
+        var metadata = body.GetProperty("metadata");
+        Assert.True(body.TryGetProperty("entityEtag", out var entityEtag) && entityEtag.ValueKind == JsonValueKind.String,
+            $"the instance read carried no entityEtag: {body}");
+
+        return (metadata.GetProperty("modifiedAt").GetDateTimeOffset(),
+                metadata.GetProperty("currentState").GetString() ?? "",
+                metadata.GetProperty("status").GetString() ?? "",
+                metadata.TryGetProperty("stage", out var stage) ? stage.GetString() : null,
+                body.TryGetProperty("tags", out var tags) ? tags.EnumerateArray().Select(t => t.GetString()!).ToList() : [],
+                entityEtag.GetString()!);
+    }
+
+    private async Task<List<string>> ListIdsAsync(string filter)
+    {
+        var (status, body) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/workflows/{Workflow}/instances?pageSize=100&filter={Uri.EscapeDataString(filter)}",
+            headers: Headers());
+        Assert.True((int)status < 400, $"list was refused with {(int)status}: {body}");
+
+        using var document = JsonDocument.Parse(body);
+        return document.RootElement.GetProperty("items").EnumerateArray()
+            .Select(item => item.GetProperty("id").GetString()!)
+            .ToList();
     }
 }

@@ -23,6 +23,26 @@ public abstract class IntegrationTestBase
             Domain = "core",
             ApiVersion = "1"
         });
+
+    /// <summary>
+    /// The instance's <c>metadata.modifiedAt</c> and <c>metadata.completedAt</c> (null until it
+    /// ends; the runtime omits null members), with its own state and status.
+    /// </summary>
+    protected async Task<(DateTimeOffset ModifiedAt, DateTimeOffset? CompletedAt, string State, string Status)>
+        GetInstanceTimesAsync(string workflow, string instanceId, Dictionary<string, string>? headers = null)
+    {
+        var response = await Api.GetInstanceAsync(workflow, instanceId, headers);
+        var metadata = response.Body.GetProperty("metadata");
+        DateTimeOffset? completedAt =
+            metadata.TryGetProperty("completedAt", out var completed) && completed.ValueKind == System.Text.Json.JsonValueKind.String
+                ? completed.GetDateTimeOffset()
+                : null;
+
+        return (metadata.GetProperty("modifiedAt").GetDateTimeOffset(),
+                completedAt,
+                metadata.GetProperty("currentState").GetString() ?? "",
+                metadata.GetProperty("status").GetString() ?? "");
+    }
 }
 
 /// <summary>
