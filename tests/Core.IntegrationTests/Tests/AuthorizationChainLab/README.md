@@ -110,7 +110,7 @@ diyen bir kâhine danışıyor olurdu.
 
 ## Geçme kriteri
 
-45 testin tamamı yeşil (2026-10-03'ten itibaren; önceden 44). En ayırt edici dördü:
+46 testin tamamı yeşil (2026-11-06'dan itibaren; 2026-10-03'ten beri 45, önceden 44). En ayırt edici beşi:
 
 - `ChainLeafDecisionTests.ARoleTheRootRefusesIsAllowedWhileTheLeafAdmitsIt` — kökün grant'ları hâlâ
   AND'leniyorsa **yeşil olamaz** (leaf-only kuralının "kök deny + leaf allow" vakası).
@@ -119,8 +119,55 @@ diyen bir kâhine danışıyor olurdu.
 - `ChainOverrideTests.AnAncestorsOverrideDoesNotReachTheGrandchild` — override aşağı taşınırsa kırmızı.
 - `ChainOverrideTests.ADirectlyAddressedLeafAnswersTheSameAsItsStateFunction` — damgalı harita
   yerine parent-taraflı okuyucu kullanılırsa kırmızı.
+- `LeafNotCreatedYetTests.WhileTheLeafIsBeingCreatedTheDeepestExistingInstanceDecides` — leaf'in "bulunamadı"sı
+  verdikt olarak yukarı taşınırsa (vnext#1181) kırmızı; yedek karar kökte ya da körlemesine verilirse de kırmızı.
+
+## Leaf henüz yaratılmamışken (vnext#1181, 2026-11-06)
+
+**Ne kontrol ediyor:** aktif SubFlow'un çocuk instance'ı henüz yaratılmamışken `authorize?queryRoles=true`
+reddetmez; kararı **var olan en derin instance** verir.
+
+**Neden var:** parent SubFlow korelasyonunu kendi transaction'ında commit eder (`HandleSubFlowStep`), çocuğun
+satırı ise post-commit `StartSubflowJob` tarafından — input mapping'den SONRA — yaratılır. Bu pencerede iniş
+yüklenemeyen bir çocuğa ulaşıyor, çocuğun "bulunamadı"sı **verdikt olarak** yukarı taşınıyordu: gateway
+istemcinin `functions/state` poll'üne 403 dönüyordu. Ortak test ortamında credit, onboarding ve morph-idm'de
+ölçüldü (issue: 2/2 koşu). Düzeltme (vnext `claude/issue-1181-evaluation-5d10fb`): çocuk
+`reason: "instance-not-found"` döner, parent kendi `queryRoles`'uyla karar verir.
+
+**Şekil:**
+
+```
+ROOT-SLOW (F, queryRoles: chain.admin)  waiting --subFlow--> MID-SLOW (S, queryRoles: chain.mid-only)
+   mid-initial --auto--> mid-waiting --subFlow (input mapping 6 sn bekler)--> LEAF-OPEN (S, queryRoles yok)
+```
+
+Kritik adım: MID-SLOW'un `mid-waiting` korelasyonu commit'lenmiş, LEAF-OPEN satırı henüz yokken
+(`ChainSlowSubFlowMapping` 6 sn bekliyor) kökte sorulan `authorize`. Test pencerede olduğunu doğrudan leaf'e
+sorarak kanıtlar (403 + `reason: instance-not-found`), probelardan sonra tekrar kontrol eder.
+
+| Pencerede, kökte sorulan rol | Beklenen | Neden |
+|---|---|---|
+| `chain.mid-only` | **izin** | var olan en derin instance mid; düzeltme öncesi bu 403'tü (issue) |
+| `chain.admin` | ret | yalnız kök kabul eder — izin, yedek kararın kökte ya da körlemesine verildiği anlamına gelir |
+| Leaf yaratıldıktan sonra `chain.admin` / rolsüz | izin | leaf-open boş grant kümesi |
+
+Test: `LeafNotCreatedYetTests.WhileTheLeafIsBeingCreatedTheDeepestExistingInstanceDecides`.
+Runtime doğrulaması: yedek karar `AuthorizeLeafMissingFallback` logu (EventId 50046) ve
+`Authorization.Decide` span'inde `vnext.auth.fallback = leaf-missing`.
 
 ## Koşu kaydı
+
+**2026-11-06 — vnext#1181 leaf henüz yokken: koşuldu, 46 geçti / 0 kırmızı / 9 skip** (55 test; runtime lokal build
+`claude/issue-1181-evaluation-5d10fb` — master `4be79ab4` + commit'lenmemiş düzeltme, yalnız core,
+`VNEXT_BASE_URL=http://localhost:4201`; skip'ler `MorphIdmProviderTests`). Yeni test 1/1 yeşil. Pencere DB'den
+ölçüldü: mid'in leaf korelasyonu `12:34:44.443`, leaf satırı `12:34:50.553` (≈6.1 sn, yavaş mapping). Orchestration
+logunda üç `AuthorizeLeafMissingFallback` (EventId 50046) satırı, testin üç iddiasıyla birebir: kök üzerinden
+`chain.mid-only` → True, `chain.admin` → False, mid'e doğrudan `chain.mid-only` → True; aynı pencerede leaf kendisi
+için `Allowed: False` logladı (düzeltme öncesi yukarı taşınan cevap). İlk deneme kırmızıydı ve runtime değil test
+kusuruydu: SDK'nın `?sync=true` start'ı zincir dinlenene kadar döner — leaf yaratılmış, pencere kapanmıştı; test
+`?sync=false` ile başlatacak şekilde düzeltildi. **Ayırt edici koşu (düzeltmesiz runtime) yapılmadı**; kırmızı
+olacağı loglardan çıkarım. Trace/span (`vnext.auth.fallback`) doğrulaması yapılmadı — elasticsearch/openobserve
+bu koşuda ayakta değildi.
 
 **2026-10-03 — leaf-only `queryRoles`: koşuldu, 45 geçti / 0 kırmızı / 9 skip** (54 test; runtime lokal build
 `feature/role-grant-combinators` @ `3bdd5f12`, yalnız core, `VNEXT_BASE_URL=http://localhost:4201`; skip'ler
