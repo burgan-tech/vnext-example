@@ -398,6 +398,36 @@ public class FanOutConfigMatrixTests : WorkflowTestBase
             "the semantics changed — see finding F3 and invert this test deliberately.");
     }
 
+    /// <summary>
+    /// vnext#1176: an item whose own <c>errorBoundary</c> Ignores the failure still reports what
+    /// the inner task answered — the normalized <c>Task:{type}:{taskKey}:{status}</c> code and the
+    /// inner message — instead of the generic <c>FanOut:ItemFailed</c> / <c>"FanOut item … failed."</c>
+    /// pair. Without that an <c>OutputHandler</c> cannot tell an expected refusal (409, 404) from any
+    /// other ignored failure. Same case and item mix as the characterization test above; MockLab
+    /// answers every <c>DOC-FAIL*</c> id with a deterministic 500.
+    /// </summary>
+    [Fact]
+    public async Task PerItemErrorBoundary_Ignore_KeepsTheInnerTasksErrorCodeAndMessage()
+    {
+        var instanceId = await RunCaseAsync("run-item-boundary-ignore", "DOC-1", "DOC-FAIL-A", "DOC-3");
+        await WaitForFailedAsync(instanceId,
+            "a wildcard per-item 'ignore' does not rescue the item, so join 'all' still fails");
+
+        var attributes = await GetAttributesAsync(Workflow, instanceId);
+        var failed = Row(attributes, "DOC-FAIL-A");
+        Assert.False(failed.GetProperty("isSuccess").GetBoolean());
+
+        var errorCode = failed.GetProperty("errorCode").GetString();
+        Assert.NotEqual("FanOut:ItemFailed", errorCode);
+        Assert.NotNull(errorCode);
+        Assert.StartsWith("Task:", errorCode);
+        Assert.EndsWith(":process-document-task:500", errorCode);
+
+        var errorMessage = failed.GetProperty("errorMessage").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(errorMessage));
+        Assert.DoesNotContain("FanOut item", errorMessage);
+    }
+
     [Fact]
     public async Task PerItemErrorBoundary_Retry_ContainsExhaustionToItsOwnItem()
     {
