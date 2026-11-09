@@ -76,8 +76,7 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 ## Bilinen açıklar
 
 - Parent **state** ETag'inin çocuğun `$self` geçişinde hareket edip etmediği runtime dokümanında yok; test
-  okur ve raporlar. Hareket etmiyorsa çocuk verisindeki bu tür değişiklikler long-poll eden istemciye hiç
-  ulaşmaz — bu runtime konusudur (474774'e not).
+  okur ve raporlar. 0.0.103.0'da **hareket ediyor** (koşu kaydı); dokümana yazılması istenir.
 - vnext#1084'ün sunucu düzeltmesi (parent data ETag'ine çocuk extension çıktısının katılması) yayına girince
   `ATouchChangesOnlyTheChildsData`'daki **304 → 200** olur; test o gün güncellenir, bu beklenen değişimdir.
 - `activeCorrelations[].href` runtime dokümanındaki alan tablosunda yazmıyor (`built-in.md`); kodda var
@@ -85,4 +84,14 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 ## Koşu kaydı
 
-Henüz koşulmadı (2026-11-09: lab yazıldı; runtime lokal build + koşu sırada).
+**2026-11-09 — 5/5** (`dotnet test … --filter SubflowDataSourceLab`, 3 s), runtime lokal build `master` @ `f120e1eb`
+(`/health` → `0.0.103.0`, `etc/docker/run-docker.sh up core`, `VNEXT_BASE_URL=http://localhost:4201`), .NET SDK 10.0.403.
+Aynı runtime'da `probe.py --publish --record`: 5 adımın tüm kontrolleri geçti; kayıtlar istemci SDK'sına
+`fixtures/subflow/` olarak girdi (vnext-client-workflow-manager PR #119).
+
+Ölçülen (assert edilmeyen) nokta: çocuğun `$self` geçişi (`touch`) **parent state ETag'ini de oynattı**
+(`3f70…` → `564e…`, HTTP 200). Yani long-poll eden istemci çocuktaki veri-tek değişikliği görür; "hareket
+etmiyorsa istemciye hiç ulaşmaz" riski bu runtime'da yok.
+
+Ortam notu: PostSharp .NET 10'da `NETStandard.Library.Ref 2.1.0` targeting pack'ini ister; `scripts/setup-netstandard-ref.sh`
+(vnext) ile NuGet cache'e kurulmadan `up core` build'i düşer.
