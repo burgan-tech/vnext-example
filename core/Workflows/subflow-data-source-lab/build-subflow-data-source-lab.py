@@ -273,8 +273,8 @@ def auto(key, target):
     }
 
 
-def manual(key, target, text, view=None, tasks=None):
-    transition = {
+def manual(key, target, text, tasks=None):
+    return {
         "key": key,
         "target": target,
         "triggerType": 0,
@@ -282,9 +282,6 @@ def manual(key, target, text, view=None, tasks=None):
         "labels": label(text),
         "onExecutionTasks": tasks or [],
     }
-    if view is not None:
-        transition["view"] = view_def(view)
-    return transition
 
 
 def state(key, state_type, sub_type, text, transitions, view=None, on_entries=None, sub_flow=None):
@@ -366,8 +363,9 @@ def build_parent():
                       "process": {"key": CHILD, "domain": "core", "version": FIXTURE_VERSION, "flow": "sys-flows"},
                       "mapping": csx("SdsParentToChildMapping", PARENT_TO_CHILD),
                   }),
-            # Distinct key from the child's `finish`: while the child is open a transition sent to the
-            # parent is forwarded to the child; the names must not read as the same step.
+            # Distinct key from the child's `finish` so a test or a log line names the step
+            # unambiguously; the runtime itself could not confuse them (the parent's `finish` would
+            # only exist on parent-after, which is unreachable while the child is open).
             state("parent-after", 2, 6, "Parent After (view)", [
                 manual("finish-parent", "parent-done", "Finish Parent"),
             ], view=PARENT_VIEW),
