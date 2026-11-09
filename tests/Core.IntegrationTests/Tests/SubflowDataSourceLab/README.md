@@ -24,7 +24,7 @@ eTag ile okur; runtime data function **her zaman parent'ın** verisini döner, s
 değişir, parent'ın verisi değişmediği için data function 304'te kalır ve çocuğun verisi view'a ulaşmaz.
 İstemci tarafı karşılığı WMP 482207: `vnext-client-workflow-manager` motoru state cevabından sonra aktif `S`
 korelasyon varsa veriyi **o kaydın `href`'inden** okuyacak. Bu lab, istemcinin dayanacağı runtime sözleşmesini
-test olarak yazar ve istemci SDK'sının fixture kaydını üretir (`api-tests/subflow-data-source-lab/probe.py --record`).
+test olarak yazar.
 
 ## Neden ayrı bir akış
 
@@ -60,9 +60,6 @@ View'lar pseudo-ui `Column` + `Text("$instance.<alan>")`: ekran hangi instance'�
 - `ANextMovesTheParentStateEtag`
 - `AfterFinishTheParentResumes_WithTheChildsOutputMerged`
 
-Aynı beş adım Python'da: `python3 api-tests/subflow-data-source-lab/probe.py [--publish] [--record <dir>]`
-(.NET SDK olmayan makinede koşar; `--record` her cevabı status + ETag + gövde olarak JSON yazar).
-
 ## Nasıl koşulur
 
 Ön koşul: infra + runtime lokal build ayakta (`etc/docker/run-docker.sh up core`), `VNEXT_BASE_URL`
@@ -86,7 +83,7 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 **2026-11-09 — 5/5** (`dotnet test … --filter SubflowDataSourceLab`, 3 s), runtime lokal build `master` @ `f120e1eb`
 (`/health` → `0.0.103.0`, `etc/docker/run-docker.sh up core`, `VNEXT_BASE_URL=http://localhost:4201`), .NET SDK 10.0.403.
-Aynı runtime'da `probe.py --publish --record`: 5 adımın tüm kontrolleri geçti; kayıtlar istemci SDK'sına
+Aynı akışın tel cevapları (state / data function'ları) aynı runtime'da kaydedilip istemci SDK'sına
 `fixtures/subflow/` olarak girdi (vnext-client-workflow-manager PR #119).
 
 Ölçülen (assert edilmeyen) nokta: çocuğun `$self` geçişi (`touch`) **parent state ETag'ini de oynattı**
