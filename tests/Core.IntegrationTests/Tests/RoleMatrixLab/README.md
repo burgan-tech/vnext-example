@@ -82,8 +82,8 @@ açılır — değer **saklanır**, yalnız okuma yüzeyleri budar. Data functio
 dört caller için iki alan da yok, gövdede değerlerin metni de geçmiyor: (a) başlatan, (b) `morph-idm.corporate-ops`,
 (c) rolsüz, (d) `role: $Everyone` gönderen (rol iddiası hiçbir şeyi değiştirmez). Pozitif kontrol: `x-roles`'suz
 `caseRef` / `customerId` dördüne de dönüyor. Ayırt edicilik (akıl yürütme, eski runtime'da koşulmadı): `$Everyone`'ı
-tanımayan runtime onu sıradan rol-bağlı yaprak sayar → deny-only set yalnız (d)'yi budar, (a)–(c) alanı görür ve
-test kırmızıya döner. **Koşuldu 2026-11-10:** yeni sınıf 2/2, paket **106/106** (104 + 2; vnext `claude/data-function-x-roles-deny-0d51f2` @ `3042f401` lokal build, yalnız core, provider `default`); koşudaki 101 `role_matrix_lab` + 8 combinator instance'ının hepsi `A`. Postgres'te iki test instance'ının son `InstancesData` satırı iki değeri de açık taşıyor (`FlowVersion 1.0.2-pkg.1.0.0+core`, `CreatedBy u-role-matrix-starter`). Trace doğrulaması yapılmadı (openobserve/elasticsearch MCP erişilemezdi). Saklama psql ile:
+tanımayan runtime onu sıradan rol-bağlı yaprak sayar → deny-only set (c)'yi ve (d)'yi budar (rolsüz çağıran için rol-bağlı deny Unknown'dır ve reddeder), (a) ile (b) alanı görür ve
+test yine (a) ve (b) üzerinden kırmızıya döner. **Koşuldu 2026-11-10:** yeni sınıf 2/2, paket **106/106** (104 + 2; vnext `claude/data-function-x-roles-deny-0d51f2` @ `3042f401` lokal build, yalnız core, provider `default`); koşudaki 101 `role_matrix_lab` + 8 combinator instance'ının hepsi `A`. Postgres'te iki test instance'ının son `InstancesData` satırı iki değeri de açık taşıyor (`FlowVersion 1.0.2-pkg.1.0.0+core`, `CreatedBy u-role-matrix-starter`). Trace doğrulaması yapılmadı (openobserve/elasticsearch MCP erişilemezdi). Saklama psql ile:
 `SELECT "Data"->>'hiddenFromAll', "Data"->>'hiddenByWorkaround' FROM role_matrix_lab_combinators."InstancesData" WHERE "IsLatest" AND "Data" ? 'hiddenFromAll';`
 
 ## 2026-10-05 — "bilinen 23 kırmızı" kapandı: 104/104 yeşil
