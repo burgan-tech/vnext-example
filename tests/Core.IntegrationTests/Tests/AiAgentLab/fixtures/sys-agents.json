@@ -1,0 +1,297 @@
+{
+  "key": "sys-agents",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "core",
+    "agents",
+    "lifecycle",
+    "repository"
+  ],
+  "attributes": {
+    "timeout": null,
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Agent Lifecycle Management"
+      },
+      {
+        "language": "tr-TR",
+        "label": "Agent Yaşam Döngüsü Yönetimi"
+      }
+    ],
+    "functions": [],
+    "sharedTransitions": [],
+    "extensions": [],
+    "features": [],
+    "startTransition": {
+      "key": "create",
+      "target": "draft",
+      "triggerType": 0,
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Create Mapping"
+        },
+        {
+          "language": "tr-TR",
+          "label": "Mapping Oluştur"
+        }
+      ],
+      "versionStrategy": "Minor",
+      "schema": null,
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "draft",
+        "stateType": 1,
+        "subType": 0,
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Draft State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Taslak Durumu"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "activate",
+            "from": "draft",
+            "target": "active",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Activate Mapping"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Mappingu Aktifleştir"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "invalidate-cache",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "location": "./src/InvalideCacheMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgpwdWJsaWMgY2xhc3MgSW52YWxpZGF0ZUNhY2hlTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGFwclRhc2sgPSB0YXNrIGFzIERhcHJQdWJTdWJUYXNrOwogICAgICAgIHZhciBwdWJzdWJOYW1lID0gRW52aXJvbm1lbnQuR2V0RW52aXJvbm1lbnRWYXJpYWJsZSgiREFQUl9QVUJTVUJfQlJPQURDQVNUX1NUT1JFX05BTUUiKTsKICAgICAgICB2YXIgZW52aXJvbm1lbnQgPSBFbnZpcm9ubWVudC5HZXRFbnZpcm9ubWVudFZhcmlhYmxlKCJBU1BORVRDT1JFX0VOVklST05NRU5UIik7CgogICAgICAgIGRhcHJUYXNrLlNldFB1YlN1Yk5hbWUocHVic3ViTmFtZSk7CiAgICAgICAgZGFwclRhc2suU2V0VG9waWMoZGFwclRhc2suVG9waWMuUmVwbGFjZSgie0VOVklST05NRU5UfSIsIGVudmlyb25tZW50KS5Ub0xvd2VySW52YXJpYW50KCkpOwogICAgICAgIAogICAgICAgIGRhcHJUYXNrLlNldERhdGEobmV3CiAgICAgICAgewogICAgICAgICAgICBrZXkgPSBjb250ZXh0Lkluc3RhbmNlLktleSwKICAgICAgICAgICAgZmxvdyA9IGNvbnRleHQuV29ya2Zsb3cuS2V5LAogICAgICAgICAgICBkb21haW4gPSBjb250ZXh0LlJ1bnRpbWUuRG9tYWluLAogICAgICAgICAgICB2ZXJzaW9uID0gY29udGV4dC5JbnN0YW5jZS5MYXRlc3REYXRhPy5WZXJzaW9uID8/ICIxLjAuMCIKICAgICAgICB9KTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9Cn0="
+                }
+              }
+            ],
+            "view": null
+          },
+          {
+            "key": "delete",
+            "from": "draft",
+            "target": "deleted",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Delete Draft"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Taslağı Sil"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [],
+            "view": null
+          }
+        ],
+        "view": null,
+        "onEntries": [],
+        "onExitss": [],
+        "versionStrategy": "Minor"
+      },
+      {
+        "key": "active",
+        "stateType": 2,
+        "subType": 1,
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Active State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Aktif Durumu"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "deactivate",
+            "from": "active",
+            "target": "passive",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Deactivate Mapping"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Mappingu Pasifleştir"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [],
+            "view": null
+          },
+          {
+            "key": "update",
+            "from": "active",
+            "target": "active",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Update Mapping"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Mappingu Güncelle"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "invalidate-cache",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.0"
+                },
+                "mapping": {
+                  "location": "./src/InvalideCacheMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgpwdWJsaWMgY2xhc3MgSW52YWxpZGF0ZUNhY2hlTWFwcGluZyA6IElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGFwclRhc2sgPSB0YXNrIGFzIERhcHJQdWJTdWJUYXNrOwogICAgICAgIHZhciBwdWJzdWJOYW1lID0gRW52aXJvbm1lbnQuR2V0RW52aXJvbm1lbnRWYXJpYWJsZSgiREFQUl9QVUJTVUJfQlJPQURDQVNUX1NUT1JFX05BTUUiKTsKICAgICAgICB2YXIgZW52aXJvbm1lbnQgPSBFbnZpcm9ubWVudC5HZXRFbnZpcm9ubWVudFZhcmlhYmxlKCJBU1BORVRDT1JFX0VOVklST05NRU5UIik7CgogICAgICAgIGRhcHJUYXNrLlNldFB1YlN1Yk5hbWUocHVic3ViTmFtZSk7CiAgICAgICAgZGFwclRhc2suU2V0VG9waWMoZGFwclRhc2suVG9waWMuUmVwbGFjZSgie0VOVklST05NRU5UfSIsIGVudmlyb25tZW50KS5Ub0xvd2VySW52YXJpYW50KCkpOwogICAgICAgIAogICAgICAgIGRhcHJUYXNrLlNldERhdGEobmV3CiAgICAgICAgewogICAgICAgICAgICBrZXkgPSBjb250ZXh0Lkluc3RhbmNlLktleSwKICAgICAgICAgICAgZmxvdyA9IGNvbnRleHQuV29ya2Zsb3cuS2V5LAogICAgICAgICAgICBkb21haW4gPSBjb250ZXh0LlJ1bnRpbWUuRG9tYWluLAogICAgICAgICAgICB2ZXJzaW9uID0gY29udGV4dC5JbnN0YW5jZS5MYXRlc3REYXRhPy5WZXJzaW9uID8/ICIxLjAuMCIKICAgICAgICB9KTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9Cn0="
+                }
+              }
+            ],
+            "view": null
+          }
+        ],
+        "view": null,
+        "onEntries": [],
+        "onExitss": [],
+        "versionStrategy": "Minor"
+      },
+      {
+        "key": "passive",
+        "stateType": 2,
+        "subType": 4,
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Passive State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Pasif Durumu"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "reactivate",
+            "from": "passive",
+            "target": "active",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Reactivate Mapping"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Mappingu Yeniden Aktifleştir"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [],
+            "view": null
+          },
+          {
+            "key": "archive",
+            "from": "passive",
+            "target": "deleted",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Archive Mapping"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Mappingu Arşivle"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [],
+            "view": null
+          }
+        ],
+        "view": null,
+        "onEntries": [],
+        "onExitss": [],
+        "versionStrategy": "Minor"
+      },
+      {
+        "key": "deleted",
+        "stateType": 2,
+        "subType": 3,
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Deleted State"
+          },
+          {
+            "language": "tr-TR",
+            "label": "Silinmiş Durum"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "recover",
+            "from": "deleted",
+            "target": "active",
+            "triggerType": 0,
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Recover"
+              },
+              {
+                "language": "tr-TR",
+                "label": "Geri Al"
+              }
+            ],
+            "versionStrategy": "Minor",
+            "onExecutionTasks": [],
+            "view": null
+          }
+        ],
+        "view": null,
+        "onEntries": [],
+        "onExitss": [],
+        "versionStrategy": "Minor"
+      }
+    ]
+  },
+  "data": []
+}

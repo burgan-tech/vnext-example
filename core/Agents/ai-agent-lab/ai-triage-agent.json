@@ -1,0 +1,106 @@
+{
+  "key": "ai-triage-agent",
+  "flow": "sys-agents",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "ai-agent-lab"
+  ],
+  "attributes": {
+    "provider": "local",
+    "instructions": {
+      "text": "You classify customer messages for the ai-agent-lab integration test."
+    },
+    "model": {
+      "temperature": 0,
+      "maxOutputTokens": 512
+    },
+    "tools": [
+      {
+        "kind": 2,
+        "name": "bump",
+        "description": "Adds one to count.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "default": 41
+            }
+          },
+          "required": [
+            "count"
+          ]
+        },
+        "binding": {
+          "code": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "args.count + 1"
+          }
+        }
+      },
+      {
+        "kind": 1,
+        "name": "lab_script",
+        "description": "Runs the lab script task.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "type": "string",
+              "default": "from-agent"
+            }
+          },
+          "required": [
+            "note"
+          ]
+        },
+        "binding": {
+          "task": {
+            "key": "sched-script-task",
+            "domain": "core",
+            "flow": "sys-tasks",
+            "version": "1.0.0"
+          }
+        }
+      }
+    ],
+    "memory": {
+      "mode": "none"
+    },
+    "output": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "question",
+              "fraud",
+              "other"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "default": "classified by the local provider"
+          }
+        },
+        "required": [
+          "category"
+        ]
+      }
+    },
+    "policy": {
+      "maxIterations": 4,
+      "maxToolCalls": 4,
+      "timeoutSeconds": 30
+    },
+    "audit": {
+      "transcript": "none",
+      "persistToolResults": true
+    }
+  }
+}

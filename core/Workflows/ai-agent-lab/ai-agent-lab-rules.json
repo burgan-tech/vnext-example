@@ -1,0 +1,180 @@
+{
+  "key": "ai-agent-lab-rules",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "ai-agent-lab",
+    "ai-agent"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "AI Agent Lab (rules decision)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-ai-agent-lab-rules",
+      "target": "classifying",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ai-agent-lab-rules"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "classifying",
+        "stateType": 6,
+        "subType": 5,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Classifying (AiAgent, rules decision)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-other",
+            "target": "other",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Not a question (never)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "rule": {
+              "location": "./src/NeverRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5BIHJ1bGUgdGhhdCBpcyBuZXZlciBzYXRpc2ZpZWQ6IHRoZSBydWxlcy1tb2RlIGNhbmRpZGF0ZSB0aGF0IG11c3Qgbm90IHdpbi48L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBOZXZlclJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KGZhbHNlKTsKfQo="
+            }
+          },
+          {
+            "key": "to-question",
+            "target": "answered",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Category is question"
+              }
+            ],
+            "onExecutionTasks": [],
+            "rule": {
+              "location": "./src/CategoryRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSdWxlIG9mIGFpLWFnZW50LWxhYi1ydWxlcyAoZGVjaXNpb24ubW9kZSA9IHJ1bGVzKTogdHJ1ZSB3aGVuIHRoZSBhZ2VudCdzIHN0cnVjdHVyZWQgb3V0cHV0LAovLy8gd3JpdHRlbiB0byA8Yz50cmlhZ2U8L2M+IGJlZm9yZSB0aGUgYXV0b21hdGljIHRyYW5zaXRpb25zIHJ1biwgaGFzIDxjPmNhdGVnb3J5ID09ICJxdWVzdGlvbiI8L2M+LgovLy8gVGhlIGxvY2FsIHByb3ZpZGVyIGFuc3dlcnMgdGhlIGZpcnN0IGVudW0gdmFsdWUgb2YgdGhlIG91dHB1dCBzY2hlbWEsIHdoaWNoIGlzICJxdWVzdGlvbiIuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBDYXRlZ29yeVJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgc3RyaW5nPyBjYXRlZ29yeSA9IG51bGw7CiAgICAgICAgaWYgKGRhdGEgIT0gbnVsbCAmJiBkYXRhLlRyeUdldFZhbHVlKCJ0cmlhZ2UiLCBvdXQgdmFyIHJhdykgJiYgcmF3IGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiB0cmlhZ2UKICAgICAgICAgICAgJiYgdHJpYWdlLlRyeUdldFZhbHVlKCJjYXRlZ29yeSIsIG91dCB2YXIgdmFsdWUpICYmIHZhbHVlICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBjYXRlZ29yeSA9IHZhbHVlLlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIkNhdGVnb3J5UnVsZTogY2F0ZWdvcnk9e2NhdGVnb3J5fSIpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoY2F0ZWdvcnkgPT0gInF1ZXN0aW9uIik7CiAgICB9Cn0K"
+            }
+          },
+          {
+            "key": "classify-failed",
+            "target": "failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "No rule matched"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ],
+        "agent": {
+          "agent": {
+            "key": "ai-triage-agent",
+            "domain": "core",
+            "flow": "sys-agents",
+            "version": "1.0.0"
+          },
+          "prompt": {
+            "template": "<message>{{ data.message }}</message>"
+          },
+          "output": {
+            "path": "$.triage"
+          },
+          "tools": {
+            "exclude": [
+              "lab_script",
+              "bump"
+            ]
+          },
+          "decision": {
+            "mode": "rules",
+            "fallback": "classify-failed"
+          }
+        }
+      },
+      {
+        "key": "answered",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Answered"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "other",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Other"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "failed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Failed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

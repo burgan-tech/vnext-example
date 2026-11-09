@@ -1,0 +1,175 @@
+{
+  "key": "ai-agent-lab-script",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "ai-agent-lab",
+    "ai-agent"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "AI Agent Lab (script decision)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-ai-agent-lab-script",
+      "target": "classifying",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ai-agent-lab-script"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "classifying",
+        "stateType": 6,
+        "subType": 5,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Classifying (AiAgent, script decision)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "is-question",
+            "target": "answered",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is a question"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "is-fraud",
+            "target": "escalated",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is fraud"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "classify-failed",
+            "target": "failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Classification failed"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ],
+        "agent": {
+          "agent": {
+            "key": "ai-triage-agent",
+            "domain": "core",
+            "flow": "sys-agents",
+            "version": "1.0.0"
+          },
+          "prompt": {
+            "template": "<message>{{ data.message }}</message>"
+          },
+          "output": {
+            "path": "$.triage"
+          },
+          "tools": {
+            "exclude": [
+              "lab_script"
+            ]
+          },
+          "decision": {
+            "mode": "script",
+            "fallback": "classify-failed",
+            "mapping": {
+              "location": "./src/ScriptDecision.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBEZWNpc2lvbiBzY3JpcHQgb2YgYWktYWdlbnQtbGFiLXNjcmlwdCAoZGVjaXNpb24ubW9kZSA9IHNjcmlwdCkuIFJldHVybnMgdGhlIGluc3RhbmNlJ3MKLy8vIDxjPnBpY2s8L2M+IGZpZWxkIHZlcmJhdGltLCBzbyBhIHRlc3QgY2hvb3NlcyB0aGUgb3V0Y29tZTogYSBjYW5kaWRhdGUga2V5IChpcy1mcmF1ZCwgaXMtcXVlc3Rpb24pCi8vLyBpcyB0YWtlbiBhcyB0aGUgZGVjaXNpb247IGFueXRoaW5nIGVsc2UgaXMgbm90IGEgY2FuZGlkYXRlIGFuZCBtdXN0IHNlbmQgdGhlIHN0YXRlIHRvIGl0cyBmYWxsYmFjay4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFNjcmlwdERlY2lzaW9uIDogU2NyaXB0QmFzZSwgSUFnZW50RGVjaXNpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPHN0cmluZz8+IEhhbmRsZXIoQWdlbnRSdW5PdXRjb21lIG91dGNvbWUsIElSZWFkT25seUxpc3Q8QWdlbnRDYW5kaWRhdGU+IGNhbmRpZGF0ZXMsIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgc3RyaW5nPyBwaWNrID0gbnVsbDsKICAgICAgICBpZiAoZGF0YSAhPSBudWxsICYmIGRhdGEuVHJ5R2V0VmFsdWUoInBpY2siLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBwaWNrID0gcmF3LlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlNjcmlwdERlY2lzaW9uOiBwaWNrPXtwaWNrfSBjYW5kaWRhdGVzPXtjYW5kaWRhdGVzLkNvdW50fSBtb2RlbERlY2lzaW9uPXtvdXRjb21lLk1vZGVsRGVjaXNpb259Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChwaWNrKTsKICAgIH0KfQo="
+            }
+          }
+        }
+      },
+      {
+        "key": "answered",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Answered"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "escalated",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Escalated"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "failed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Failed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
