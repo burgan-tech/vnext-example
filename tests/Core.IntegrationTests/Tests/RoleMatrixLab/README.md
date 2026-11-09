@@ -67,6 +67,25 @@ test `POST api/v1/definitions/publish`'i elle çağırmıyor). Desen `ImplicitSt
 ve `FanOut` (`FanOutConfigMatrixTests`) içinde var; eklenmesi gerekirse oradan taşınmalı. Kural runtime'da
 unit seviyesinde pinli (`SchemaComponentValidator`).
 
+**`$Everyone` predefined rolü (2026-11-10, vnext#1193, runtime branch `claude/data-function-x-roles-deny-0d51f2`) —
+`EveryoneGrantTests`.** `$Everyone` her caller için Evet olan bir **kimlik yaprağıdır** (rollü/rolsüz, başlatan ya da
+değil); caller'ın rol setine hiç bakmaz. Combinator master şeması `1.0.2`'ye, akış `role-matrix-lab-combinators`
+`1.0.2`'ye çekildi (generator `COMBINATOR_WORKFLOW_VERSION`; şema dosyası elle yazılır) ve iki alan eklendi:
+
+| Alan | `x-roles` | Beklenen |
+|---|---|---|
+| `hiddenFromAll` | `[{ grant: deny, role: $Everyone }]` | herkesten gizli |
+| `hiddenByWorkaround` | `[{ grant: deny, role: $InstanceStarter }, { grant: allow, role: $InstanceStarter }]` | herkesten gizli — eski geçici çözüm: deny başlatanı, tek allow'lu allowlist diğer herkesi dışarıda bırakır |
+
+Vaka başlatan tarafından (`act_sub=StarterActor`, rol `morph-idm.customer`) iki alan da start gövdesinde dolu olarak
+açılır — değer **saklanır**, yalnız okuma yüzeyleri budar. Data function (`X-VNext-Cache-Override`) ve instance GET'te
+dört caller için iki alan da yok, gövdede değerlerin metni de geçmiyor: (a) başlatan, (b) `morph-idm.corporate-ops`,
+(c) rolsüz, (d) `role: $Everyone` gönderen (rol iddiası hiçbir şeyi değiştirmez). Pozitif kontrol: `x-roles`'suz
+`caseRef` / `customerId` dördüne de dönüyor. Ayırt edicilik (akıl yürütme, eski runtime'da koşulmadı): `$Everyone`'ı
+tanımayan runtime onu sıradan rol-bağlı yaprak sayar → deny-only set yalnız (d)'yi budar, (a)–(c) alanı görür ve
+test kırmızıya döner. **Koşuldu 2026-11-10:** yeni sınıf 2/2, paket **106/106** (104 + 2; vnext `claude/data-function-x-roles-deny-0d51f2` @ `3042f401` lokal build, yalnız core, provider `default`); koşudaki 101 `role_matrix_lab` + 8 combinator instance'ının hepsi `A`. Postgres'te iki test instance'ının son `InstancesData` satırı iki değeri de açık taşıyor (`FlowVersion 1.0.2-pkg.1.0.0+core`, `CreatedBy u-role-matrix-starter`). Trace doğrulaması yapılmadı (openobserve/elasticsearch MCP erişilemezdi). Saklama psql ile:
+`SELECT "Data"->>'hiddenFromAll', "Data"->>'hiddenByWorkaround' FROM role_matrix_lab_combinators."InstancesData" WHERE "IsLatest" AND "Data" ? 'hiddenFromAll';`
+
 ## 2026-10-05 — "bilinen 23 kırmızı" kapandı: 104/104 yeşil
 
 vnext `master` @ `1104d8ae` (0.0.99 kapsamı), lokal build, yalnız core, provider `default`. Paket

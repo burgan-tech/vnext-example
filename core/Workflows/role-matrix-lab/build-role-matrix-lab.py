@@ -39,7 +39,8 @@ icin ona dokunulmadi. Bir grant `role` XOR `allOf` XOR `anyOf` tasir; cocuklar y
   * `draft.queryRoles`: allow allOf[customer, $InstanceStarter]
   * master sema `role-matrix-combinator-master`: iban anyOf[$InstanceStarter, $InstanceBehalfOfStarter]
     + allow corporate-ops (maskeli, corporate-ops muaf); riskNote allow corporate-ops +
-    deny allOf[corporate-ops, $InstanceBehalfOfStarter]
+    deny allOf[corporate-ops, $InstanceBehalfOfStarter]; hiddenFromAll deny $Everyone ve
+    hiddenByWorkaround [deny $InstanceStarter, allow $InstanceStarter] herkesten gizlenir (2026-11-10)
 Kurulu @burgan-tech/vnext-schema allOf/anyOf'u bilmiyor: `npm run validate` bu iki dosyada
 duser (README "Bilinen kisitlar"); SDK dogrudan publish eder.
 
@@ -88,8 +89,10 @@ CUSTOMER = "morph-idm.customer"
 CORPORATE_OPS = "morph-idm.corporate-ops"
 
 # 1.0.1 (2026-10-16): combinator master semasi "master" rolunu tasir (1.0.1).
-COMBINATOR_WORKFLOW_VERSION = "1.0.1"
-COMBINATOR_SCHEMA = {"key": "role-matrix-combinator-master", "domain": "core", "version": "1.0.1", "flow": "sys-schemas"}
+# 1.0.2 (2026-11-10): master sema 1.0.2 — `hiddenFromAll` (deny $Everyone, vnext#1193) ve
+#        `hiddenByWorkaround` (deny + allow $InstanceStarter); yalniz referans surumu degisti.
+COMBINATOR_WORKFLOW_VERSION = "1.0.2"
+COMBINATOR_SCHEMA = {"key": "role-matrix-combinator-master", "domain": "core", "version": "1.0.2", "flow": "sys-schemas"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # .csx sablonlari — sayaclar. Elle yazilan mapping'ler (SeedCaseMapping, DecisionMapping)
