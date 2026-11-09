@@ -125,6 +125,31 @@ public class ChainSubFlowMapping : ScriptBase, ISubFlowMapping
 }
 """
 
+# vnext#1181: the parent commits its SubFlow correlation in its own transaction and the child's row
+# is created afterwards by the post-commit StartSubflowJob — AFTER this input mapping runs. Holding
+# the mapping open keeps that window wide enough for a test to land authorize calls inside it.
+SLOW_SUBFLOW_MAPPING = """using System.Dynamic;
+using System.Threading.Tasks;
+using BBT.Workflow.Scripting;
+
+// Holds the child's start open: while this runs, the parent's correlation already points at the
+// child but the child's row does not exist yet (vnext#1181). Nothing else differs from the
+// pass-through mapping.
+public class ChainSlowSubFlowMapping : ScriptBase, ISubFlowMapping
+{
+    public async Task<ScriptResponse> InputHandler(ScriptContext context)
+    {
+        await Task.Delay(6000);
+        dynamic input = new ExpandoObject();
+        input.startedByChainLab = true;
+        return new ScriptResponse { Data = input };
+    }
+
+    public Task<ScriptResponse> OutputHandler(ScriptContext context)
+        => Task.FromResult(new ScriptResponse());
+}
+"""
+
 ALWAYS_TRUE = """using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 
@@ -504,6 +529,42 @@ def build_leaf_open():
     return envelope("authorization-chain-lab-leaf-open", attributes, ("leaf-open",))
 
 
+def build_mid_slow():
+    """
+    vnext#1181 — the issue's shape: an intermediate SubFlow whose first state auto-transitions into the
+    state that starts the leaf. Its own queryRoles admit chain.mid-only only, the root's admit
+    chain.admin only, and the leaf (`leaf-open`) declares none — so whichever level decided is named by
+    the verdict. The leaf's start is held open by a slow input mapping.
+    """
+    attributes = {
+        "type": "S",
+        "timeout": None,
+        "labels": label("Authorization Chain Lab Mid (slow leaf start)"),
+        "functions": [],
+        "features": [],
+        "extensions": [],
+        "sharedTransitions": [],
+        "startTransition": {
+            "key": "start-authorization-chain-lab-mid-slow",
+            "target": "mid-initial",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": label("Start Mid Slow"),
+        },
+        "states": [
+            initial_state("mid", "mid-waiting"),
+            subflow_state(
+                "mid-waiting",
+                "authorization-chain-lab-leaf-open",
+                csx("ChainSlowSubFlowMapping", SLOW_SUBFLOW_MAPPING),
+            ),
+            *finish_states("mid"),
+        ],
+        "queryRoles": grants(MID_ONLY),
+    }
+    return envelope("authorization-chain-lab-mid-slow", attributes, ("mid-slow",))
+
+
 def build_leaf(key: str, interaction: dict, tag: str):
     attributes = {
         "type": "S",
@@ -580,6 +641,17 @@ def main():
         query_roles=grants(ADMIN),
     ))
     write(build_leaf_open())
+    # vnext#1181: root (admits chain.admin) -> mid-slow (admits chain.mid-only) -> leaf-open (no
+    # queryRoles), the leaf's start held open by a slow mapping. While the leaf does not exist yet, the
+    # deepest EXISTING instance (the mid) decides.
+    write(build_two_level_root(
+        "authorization-chain-lab-root-slow",
+        None,
+        "root-slow",
+        child="authorization-chain-lab-mid-slow",
+        query_roles=grants(ADMIN),
+    ))
+    write(build_mid_slow())
     write(build_mid())
     write(build_leaf(
         "authorization-chain-lab-leaf",
