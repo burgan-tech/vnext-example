@@ -1,0 +1,253 @@
+{
+  "key": "sds-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-data-source-lab",
+    "child"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "SubFlow Data Source Lab Child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "cancel": {
+      "key": "cancel-child",
+      "target": "child-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel"
+        }
+      ]
+    },
+    "startTransition": {
+      "key": "start-sds-child",
+      "target": "child-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "sds-script-task",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/SdsChildStartMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIE1hcmtzIHRoZSBDSElMRCdzIGRhdGEuIEEgcmVhZGVyIHRoYXQgc2VlcyBgY2hpbGRNYXJrZXJgIGlzIHJlYWRpbmcgdGhlIGNoaWxkIGluc3RhbmNlLgpwdWJsaWMgY2xhc3MgU2RzQ2hpbGRTdGFydE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBkYXRhID0gY29udGV4dC5JbnN0YW5jZS5EYXRhOwogICAgICAgIGR5bmFtaWMgcmVzdWx0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICByZXN1bHQuY2hpbGRNYXJrZXIgPSAiY2hpbGQiOwogICAgICAgIHJlc3VsdC5jaGlsZENvdW50ZXIgPSAwOwogICAgICAgIGlmIChkYXRhICE9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBpZiAoSGFzUHJvcGVydHkoZGF0YSwgInBhcmVudE1hcmtlciIpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICByZXN1bHQucGFyZW50TWFya2VyID0gZGF0YS5wYXJlbnRNYXJrZXI7CiAgICAgICAgICAgIH0KICAgICAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJsYWJSZWYiKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgcmVzdWx0LmxhYlJlZiA9IGRhdGEubGFiUmVmOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIExvZ0luZm9ybWF0aW9uKCJTZHNDaGlsZFN0YXJ0TWFwcGluZzogY2hpbGRNYXJrZXIgc2V0Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-child-to-wait",
+            "target": "child-wait",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto"
+              }
+            ],
+            "rule": {
+              "location": "./src/SdsAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIEVhY2ggZmxvdyB3YWxrcyBpdHNlbGYgdG8gaXRzIHdhaXRpbmcgc3RhdGUgc28gYSB0ZXN0IG9ubHkgc3RhcnRzIHRoZSBwYXJlbnQuCnB1YmxpYyBjbGFzcyBTZHNBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-wait",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Wait (view, manual steps)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "sds-child-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "touch",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Touch (child data only)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "sds-script-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/SdsTouchMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vIGB0b3VjaGAgKCRzZWxmKTogY2hhbmdlcyB0aGUgQ0hJTEQncyBkYXRhIHdpdGhvdXQgY2hhbmdpbmcgdGhlIGNoaWxkJ3Mgc3RhdGUuIFRoZSBwYXJlbnQncyBvd24KLy8gZGF0YSBpcyB1bnRvdWNoZWQg4oCUIGV4YWN0bHkgdGhlIG1vbWVudCB0aGUgcGFyZW50J3MgZGF0YSBmdW5jdGlvbiBrZWVwcyBhbnN3ZXJpbmcgMzA0LgpwdWJsaWMgY2xhc3MgU2RzVG91Y2hNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIHJlc3VsdCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzdWx0OwogICAgICAgIHZhciBpbnN0ID0gY29udGV4dC5JbnN0YW5jZS5EYXRhIGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBpZiAoaW5zdCAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGluc3QpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHRhcmdldFtrdi5LZXldID0ga3YuVmFsdWU7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgdmFyIGN1cnJlbnQgPSAwOwogICAgICAgIGlmIChpbnN0ICE9IG51bGwgJiYgaW5zdC5UcnlHZXRWYWx1ZSgiY2hpbGRDb3VudGVyIiwgb3V0IHZhciByYXcpICYmIHJhdyAhPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgaW50LlRyeVBhcnNlKHJhdy5Ub1N0cmluZygpLCBvdXQgY3VycmVudCk7CiAgICAgICAgfQogICAgICAgIHRhcmdldFsiY2hpbGRDb3VudGVyIl0gPSBjdXJyZW50ICsgMTsKICAgICAgICB0YXJnZXRbImxhc3RUb3VjaEF0Il0gPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKICAgICAgICBMb2dJbmZvcm1hdGlvbigkIlNkc1RvdWNoTWFwcGluZzogY2hpbGRDb3VudGVyIHtjdXJyZW50fSAtPiB7Y3VycmVudCArIDF9Iik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQp9Cg=="
+                }
+              }
+            ]
+          },
+          {
+            "key": "next",
+            "target": "child-wait-2",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Next"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "finish",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-wait-2",
+        "stateType": 2,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Wait 2 (view)"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "sds-child-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "finish",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "child-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
