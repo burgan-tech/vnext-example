@@ -161,7 +161,100 @@ rules_flow = flow("ai-agent-lab-rules", "AI Agent Lab (rules decision)", [
     finish("failed", "Failed"),
 ])
 
+# ── phase 2 ─────────────────────────────────────────────────────────────────────────────────────────
+
+def simple_agent(key, text, schema_props, extra=None):
+    a = {
+        "key": key, "flow": "sys-agents", "flowVersion": "1.0.0", "domain": "core", "version": VERSION,
+        "tags": ["integration-test", "ai-agent-lab"],
+        "attributes": {
+            "provider": "local",
+            "instructions": {"text": text},
+            "tools": [],
+            "memory": {"mode": "none"},
+            "output": {"schema": {"type": "object", "properties": schema_props, "required": list(schema_props)}},
+            "policy": {"maxIterations": 4, "maxToolCalls": 4, "timeoutSeconds": 30},
+            "audit": {"transcript": "none", "persistToolResults": True},
+        },
+    }
+    if extra:
+        a["attributes"].update(extra)
+    return a
+
+
+approval_agent = simple_agent(
+    "ai-approval-agent", "You classify payment requests; moving money needs approval.",
+    {"category": {"type": "string", "enum": ["question", "fraud", "other"]}},
+    {"tools": [
+        {"kind": 2, "name": "pay", "description": "Moves money. Needs approval.", "requiresApproval": True,
+         "parameters": {"type": "object", "properties": {"amount": {"type": "integer", "default": 250}}, "required": ["amount"]},
+         "binding": {"code": {"location": "dynamicExpresso", "encoding": "NAT", "code": "args.amount * 2"}}},
+        {"kind": 2, "name": "lookup", "description": "Reads a balance.",
+         "parameters": {"type": "object", "properties": {"account": {"type": "string", "default": "acc-1"}}, "required": ["account"]},
+         "binding": {"code": {"location": "dynamicExpresso", "encoding": "NAT", "code": "\"balance-ok\""}}},
+    ],
+     "audit": {"transcript": "full", "persistToolResults": True}})
+
+cards_agent = simple_agent("ai-cards-agent", "You handle card issues.",
+                           {"note": {"type": "string", "default": "cards handled it"}})
+loans_agent = simple_agent("ai-loans-agent", "You handle loan questions.",
+                           {"note": {"type": "string", "default": "loans handled it"}})
+
+REF = lambda key: {"key": key, "domain": "core", "flow": "sys-agents", "version": VERSION}
+
+approval_flow = flow("ai-agent-lab-approval", "AI Agent Lab (tool approval)", [
+    state("assessing", 6, "Assessing (AiAgent, approval-required tool)", sub_type=5, agent={
+        "agent": REF("ai-approval-agent"),
+        "prompt": {"template": "<request>{{ data.message }}</request>",
+                   "messages": [{"role": "user", "content": "Example request: what is my limit?"},
+                                {"role": "assistant", "content": "{\"category\":\"question\"}"}],
+                   "context": {"customer": "data.customer"}},
+        "output": {"path": "$.assessment"},
+        "decision": {"mode": "model", "fallback": "assess-failed", "onApprovalRequest": "needs-approval"},
+    }, transitions=[
+        auto("is-question", "answered", "Is a question"),
+        auto("is-fraud", "escalated", "Is fraud"),
+        auto("needs-approval", "review", "A tool call waits for approval"),
+        auto("assess-failed", "failed", "Assessment failed"),
+    ]),
+    state("review", 2, "Review (any state; here a plain intermediate one)", transitions=[
+        manual("decide", "assessing", "Answer the approval"),
+    ]),
+    finish("answered", "Answered"),
+    finish("escalated", "Escalated"),
+    finish("failed", "Failed"),
+])
+
+
+def team_flow(key, mode, text):
+    return flow(key, text, [
+        state("classifying", 6, f"Classifying (AiAgent, {mode} team)", sub_type=5, agent={
+            "agent": AGENT_REF,
+            "mode": mode,
+            "agents": [{"name": "cards", "agent": REF("ai-cards-agent"), "description": "Card issues."},
+                       {"name": "loans", "agent": REF("ai-loans-agent"), "description": "Loan questions."}],
+            "prompt": {"template": "<message>{{ data.message }}</message>"},
+            "output": {"path": "$.triage"},
+            "tools": {"exclude": ["lab_script"]},
+            "decision": {"mode": "model", "fallback": "classify-failed"},
+        }, transitions=[
+            auto("is-question", "answered", "Is a question"),
+            auto("is-fraud", "escalated", "Is fraud"),
+            auto("classify-failed", "failed", "Classification failed"),
+        ]),
+        finish("answered", "Answered"),
+        finish("escalated", "Escalated"),
+        finish("failed", "Failed"),
+    ])
+
+
 base = pathlib.Path(__file__).resolve().parent
+write(base / "ai-agent-lab-approval.json", approval_flow)
+write(base / "ai-agent-lab-sequential.json", team_flow("ai-agent-lab-sequential", "sequential", "AI Agent Lab (sequential team)"))
+write(base / "ai-agent-lab-concurrent.json", team_flow("ai-agent-lab-concurrent", "concurrent", "AI Agent Lab (concurrent team)"))
+write(base / "ai-agent-lab-handoff.json", team_flow("ai-agent-lab-handoff", "handoff", "AI Agent Lab (handoff team)"))
+for a in (approval_agent, cards_agent, loans_agent):
+    write(ROOT / "core" / "Agents" / "ai-agent-lab" / f"{a['key']}.json", a)
 write(base / "ai-agent-lab.json", model_flow)
 write(base / "ai-agent-lab-script.json", script_flow)
 write(base / "ai-agent-lab-rules.json", rules_flow)
