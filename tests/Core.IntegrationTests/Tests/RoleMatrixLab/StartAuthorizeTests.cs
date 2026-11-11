@@ -5,7 +5,7 @@ using Core.IntegrationTests.Infrastructure;
 namespace Core.IntegrationTests.Tests.RoleMatrixLab;
 
 /// <summary>
-/// Workflow-scoped <c>authorize?start=true</c> (vnext#1203): may this caller START an instance of the
+/// Workflow-scoped <c>authorize?type=instance</c> (vnext#1203): may this caller START an instance of the
 /// flow? Answered before any instance exists, from the flow's own <c>startTransition.roles</c>, so a
 /// gateway can gate <c>POST .../instances/start</c> the way it gates transitions.
 /// </summary>
@@ -30,7 +30,7 @@ public sealed class StartAuthorizeTests : RoleMatrixLabTestBase
     private const string StarterOnly = "role-matrix-lab-start-starter-only";
 
     private Task<(HttpStatusCode Status, string Body)> AuthorizeStartAsync(
-        string flow, string? roles, string query = "start=true", string? actSub = null) =>
+        string flow, string? roles, string query = "type=instance", string? actSub = null) =>
         SendRawAsync(
             HttpMethod.Get,
             $"api/v1/{TestDomain.Name}/workflows/{flow}/functions/authorize" + (query.Length == 0 ? "" : "?" + query),
@@ -40,7 +40,7 @@ public sealed class StartAuthorizeTests : RoleMatrixLabTestBase
     {
         var (status, body) = await AuthorizeStartAsync(flow, roles, actSub: actSub);
         Assert.True(status is HttpStatusCode.OK or HttpStatusCode.Forbidden,
-            $"authorize?start=true answered {(int)status}: {body}");
+            $"authorize?type=instance answered {(int)status}: {body}");
 
         // The verdict is in the body on both statuses.
         var allowed = JsonDocument.Parse(body).RootElement.GetProperty("allowed").GetBoolean();
@@ -89,18 +89,28 @@ public sealed class StartAuthorizeTests : RoleMatrixLabTestBase
     [Fact]
     public async Task PinnedVersion_IsHonoured_AndAnUnknownOneIsNotFound()
     {
-        var (ok, _) = await AuthorizeStartAsync(Gated, Maker, "start=true&version=1.0.0");
+        var (ok, _) = await AuthorizeStartAsync(Gated, Maker, "type=instance&version=1.0.0");
         Assert.Equal(HttpStatusCode.OK, ok);
 
-        var (missing, _) = await AuthorizeStartAsync(Gated, Maker, "start=true&version=9.9.9");
+        var (missing, _) = await AuthorizeStartAsync(Gated, Maker, "type=instance&version=9.9.9");
         Assert.Equal(HttpStatusCode.NotFound, missing);
     }
 
-    [Fact]
-    public async Task WithoutStartTrue_TheRequestIsRejected()
+    /// <summary>
+    /// <c>type</c> is required and has no default; an unknown value (including another casing) is
+    /// refused the same way. Both answer <c>Authorization:110005</c> naming the supported values.
+    /// </summary>
+    [Theory]
+    [InlineData("")]
+    [InlineData("type=transition")]
+    [InlineData("type=Instance")]
+    [InlineData("start=true")]
+    public async Task MissingOrUnsupportedType_IsRejected(string query)
     {
-        var (status, _) = await AuthorizeStartAsync(Gated, Maker, query: "");
+        var (status, body) = await AuthorizeStartAsync(Gated, Maker, query);
         Assert.Equal(HttpStatusCode.BadRequest, status);
+        Assert.Contains("Authorization:110005", body);
+        Assert.Contains("Supported: instance", body);
     }
 
     [Fact]

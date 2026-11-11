@@ -86,11 +86,11 @@ tanımayan runtime onu sıradan rol-bağlı yaprak sayar → deny-only set (c)'y
 test yine (a) ve (b) üzerinden kırmızıya döner. **Koşuldu 2026-11-10:** yeni sınıf 2/2, paket **106/106** (104 + 2; vnext#1196 @ `3042f401` lokal build, yalnız core, provider `default`); koşudaki 101 `role_matrix_lab` + 8 combinator instance'ının hepsi `A`. Postgres'te iki test instance'ının son `InstancesData` satırı iki değeri de açık taşıyor (`FlowVersion 1.0.2-pkg.1.0.0+core`, `CreatedBy u-role-matrix-starter`). Trace doğrulaması yapılmadı (openobserve/elasticsearch MCP erişilemezdi). Saklama psql ile:
 `SELECT "Data"->>'hiddenFromAll', "Data"->>'hiddenByWorkaround' FROM role_matrix_lab_combinators."InstancesData" WHERE "IsLatest" AND "Data" ? 'hiddenFromAll';`
 
-## 2026-11-10 — start yetkisi: `authorize?start=true` (vnext#1203)
+## 2026-11-10 — start yetkisi: `authorize?type=instance` (vnext#1203)
 
-`GET /api/v1/{domain}/workflows/{flow}/functions/authorize?start=true` — instance henüz yokken "bu caller bu
+`GET /api/v1/{domain}/workflows/{flow}/functions/authorize?type=instance` — instance henüz yokken "bu caller bu
 akıştan instance başlatabilir mi?" sorusunu akışın kendi `startTransition.roles`'u ile cevaplar; gateway
-`POST .../instances/start`'ı bununla kapılar. `StartAuthorizeTests` (8 test) üç küçük kardeş akış kullanır
+`POST .../instances/start`'ı bununla kapılar. `StartAuthorizeTests` (11 test) üç küçük kardeş akış kullanır
 (start grant'leri akış başınadır):
 
 | Akış | `startTransition.roles` | Beklenen |
@@ -101,7 +101,7 @@ akıştan instance başlatabilir mi?" sorusunu akışın kendi `startTransition.
 
 Instance'a bağlı grant'ler start'ta **eşleşmez**: ne izin verir ne reddeder (`act_sub` taşıyan approver
 yine 403, `deny $PreviousUser`/`$user.` maker'ı reddetmez). Ek olarak: `version` sabitleme (1.0.0 → 200,
-9.9.9 → 404), `start=true`'suz istek 400, bilinmeyen akış 404 ve runtime'ın start rollerini **kendisinin
+9.9.9 → 404), eksik ya da desteklenmeyen `type` 400 (`Authorization:110005`; `type` yok, `type=transition`, `type=Instance`, eski `start=true`), bilinmeyen akış 404 ve runtime'ın start rollerini **kendisinin
 zorlamadığı** (gateway'in işi) pinlenir.
 
 URL'ler `TestDomain.Name`'den kurulur; sınıf başka bir checkout'un `core`'u ayaktayken yan domain'de
