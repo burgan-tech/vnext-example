@@ -1,0 +1,47 @@
+{
+  "key": "lp-start",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck",
+    "transition"
+  ],
+  "attributes": {
+    "type": "transition",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/lp-start.json",
+      "title": "Loan pre-check — submit",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 2000,
+          "x-labels": {
+            "tr": "Kredi talebi",
+            "en": "Loan request"
+          },
+          "description": "The customer's loan request in their own words — e.g. '50 bin TL, 24 ay vade, maaşım 40 bin'.",
+          "x-errorMessages": {
+            "required": {
+              "tr": "Talebinizi yazın",
+              "en": "Write your request"
+            },
+            "minLength": {
+              "tr": "En az 10 karakter yazın",
+              "en": "Write at least 10 characters"
+            }
+          }
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+  }
+}

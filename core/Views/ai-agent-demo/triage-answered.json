@@ -1,0 +1,154 @@
+{
+  "key": "triage-answered",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "triage"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Yanıtlandı"
+      },
+      {
+        "language": "en-US",
+        "label": "Answered"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:triage-message",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "check_circle"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Mesajınız sınıflandırıldı",
+                      "en": "Your message was classified"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Mesaj",
+                          "en": "Message"
+                        },
+                        "subtitle": "$instance.message"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Kategori",
+                          "en": "Category"
+                        },
+                        "subtitle": "$instance.triage.category",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "triage.category",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Özet",
+                          "en": "Summary"
+                        },
+                        "subtitle": "$instance.triage.summary",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "triage.summary",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Başka bir sorunuz varsa yazıp yeniden gönderin.",
+                  "en": "Have another question? Write it and send it again."
+                },
+                "variant": "bodySmall"
+              },
+              {
+                "type": "TextArea",
+                "bind": "message"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Kapat",
+                      "en": "Close"
+                    },
+                    "variant": "text",
+                    "action": {
+                      "action": "submit",
+                      "validate": false
+                    },
+                    "command": "urn:vnext:flow:transition:core:triage-flow:close"
+                  },
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Yeniden sor",
+                      "en": "Ask again"
+                    },
+                    "variant": "filled",
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:triage-flow:ask-again"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

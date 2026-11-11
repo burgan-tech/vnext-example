@@ -1,0 +1,107 @@
+{
+  "key": "refund-agent",
+  "flow": "sys-agents",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "approval"
+  ],
+  "attributes": {
+    "provider": "local",
+    "instructions": {
+      "text": "You assess refund requests. Look the order up first. Issuing a refund moves money and needs a manager's approval."
+    },
+    "model": {
+      "temperature": 0,
+      "maxOutputTokens": 512
+    },
+    "tools": [
+      {
+        "kind": 2,
+        "name": "lookup_order",
+        "description": "Reads an order by id.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "orderId": {
+              "type": "string",
+              "default": "ORD-1001"
+            }
+          },
+          "required": [
+            "orderId"
+          ]
+        },
+        "binding": {
+          "code": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "\"order \" + args.orderId + \" delivered\""
+          }
+        }
+      },
+      {
+        "kind": 2,
+        "name": "issue_refund",
+        "description": "Refunds an amount to the customer. Needs approval.",
+        "requiresApproval": true,
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "default": 120
+            }
+          },
+          "required": [
+            "amount"
+          ]
+        },
+        "binding": {
+          "code": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "args.amount"
+          }
+        }
+      }
+    ],
+    "memory": {
+      "mode": "none"
+    },
+    "output": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "default": "refund assessed"
+          },
+          "risk": {
+            "type": "string",
+            "enum": [
+              "low",
+              "high"
+            ]
+          }
+        },
+        "required": [
+          "note",
+          "risk"
+        ]
+      }
+    },
+    "policy": {
+      "maxIterations": 4,
+      "maxToolCalls": 4,
+      "timeoutSeconds": 30
+    },
+    "audit": {
+      "transcript": "full",
+      "persistToolResults": true
+    }
+  }
+}

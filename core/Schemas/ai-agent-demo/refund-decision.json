@@ -1,0 +1,50 @@
+{
+  "key": "refund-decision",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "refund",
+    "transition"
+  ],
+  "attributes": {
+    "type": "transition",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/refund-decision.json",
+      "title": "Refund — manager decision",
+      "type": "object",
+      "properties": {
+        "approval": {
+          "type": "object",
+          "required": [
+            "approved"
+          ],
+          "properties": {
+            "approved": {
+              "type": "boolean",
+              "x-labels": {
+                "tr": "İadeyi onayla",
+                "en": "Approve the refund"
+              }
+            },
+            "reason": {
+              "type": "string",
+              "maxLength": 500,
+              "x-labels": {
+                "tr": "Gerekçe",
+                "en": "Reason"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "approval"
+      ]
+    }
+  }
+}

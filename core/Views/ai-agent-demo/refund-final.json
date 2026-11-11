@@ -1,0 +1,167 @@
+{
+  "key": "refund-final",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "refund"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Sonuç"
+      },
+      {
+        "language": "en-US",
+        "label": "Result"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:refund-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "flag"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "İade talebi sonuçlandı",
+                      "en": "The refund request is closed"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Sipariş no",
+                          "en": "Order id"
+                        },
+                        "subtitle": "$instance.orderId"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "İade gerekçesi",
+                          "en": "Reason"
+                        },
+                        "subtitle": "$instance.reason"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Müşteri",
+                          "en": "Customer"
+                        },
+                        "subtitle": "$instance.customer.name",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "customer.name",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Agent değerlendirmesi",
+                          "en": "Agent assessment"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Not",
+                          "en": "Note"
+                        },
+                        "subtitle": "$instance.assessment.note",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "assessment.note",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Risk",
+                          "en": "Risk"
+                        },
+                        "subtitle": "$instance.assessment.risk",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "assessment.risk",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Yeni talep",
+                  "en": "New request"
+                },
+                "variant": "outlined",
+                "action": {
+                  "action": "submit",
+                  "validate": false
+                },
+                "command": "urn:vnext:flow:start:core:refund-flow"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

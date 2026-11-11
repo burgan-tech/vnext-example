@@ -1,0 +1,93 @@
+{
+  "key": "triage-start",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "triage"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Soru"
+      },
+      {
+        "language": "en-US",
+        "label": "Question"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:triage-message",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "support_agent"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Size nasıl yardımcı olabiliriz?",
+                      "en": "How can we help?"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Sorunuzu yazın; bir AI agent mesajınızı sınıflandırır: bilgi sorusu mu, dolandırıcılık bildirimi mi.",
+                  "en": "Write your question; an AI agent classifies it as an information question or a fraud report."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "TextArea",
+                "bind": "message"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Gönder",
+                      "en": "Send"
+                    },
+                    "variant": "filled",
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:triage-flow:submit"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

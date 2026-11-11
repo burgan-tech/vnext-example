@@ -1,0 +1,52 @@
+{
+  "key": "refund-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "refund",
+    "master"
+  ],
+  "attributes": {
+    "type": "master",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/refund-master.json",
+      "title": "Refund — full record",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Sipariş no",
+            "en": "Order id"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Gerekçe",
+            "en": "Reason"
+          }
+        },
+        "customer": {
+          "type": "object"
+        },
+        "assessment": {
+          "type": "object",
+          "x-labels": {
+            "tr": "Değerlendirme",
+            "en": "Assessment"
+          },
+          "description": "refund-agent output (note, risk) plus its $agent summary with pendingApprovals."
+        },
+        "approval": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "key": "refund-request",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "refund",
+    "transition"
+  ],
+  "attributes": {
+    "type": "transition",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/refund-request.json",
+      "title": "Refund — request",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 40,
+          "x-labels": {
+            "tr": "Sipariş no",
+            "en": "Order id"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 1000,
+          "x-labels": {
+            "tr": "İade gerekçesi",
+            "en": "Reason"
+          }
+        },
+        "customer": {
+          "type": "object",
+          "x-labels": {
+            "tr": "Müşteri",
+            "en": "Customer"
+          },
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 100,
+              "x-labels": {
+                "tr": "Ad",
+                "en": "Name"
+              }
+            },
+            "tier": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "gold"
+              ],
+              "x-labels": {
+                "tr": "Segment",
+                "en": "Tier"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "orderId",
+        "reason"
+      ]
+    }
+  }
+}

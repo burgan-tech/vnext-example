@@ -1,0 +1,92 @@
+{
+  "key": "lp-working",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Değerlendiriliyor"
+      },
+      {
+        "language": "en-US",
+        "label": "Working"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "hourglass_top"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Talebiniz değerlendiriliyor",
+                      "en": "Evaluating your request"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "LoadingIndicator"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Görüşme",
+                          "en": "Conversation"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "Text",
+                        "content": "$instance.conversation",
+                        "variant": "bodyMedium"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

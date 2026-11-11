@@ -1,0 +1,188 @@
+{
+  "key": "refund-review",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "refund"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Yönetici Onayı"
+      },
+      {
+        "language": "en-US",
+        "label": "Manager Review"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:refund-decision",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "gavel"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Yönetici onayı gerekiyor",
+                      "en": "Manager approval needed"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Agent para iadesi yapmak istiyor. Onaylarsanız iade aracı çalışır; reddederseniz agent gerekçenizle devam eder.",
+                  "en": "The agent wants to issue a refund. Approve to let the tool run; deny and the agent continues with your reason."
+                },
+                "variant": "bodyMedium",
+                "tone": "info"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Sipariş no",
+                          "en": "Order id"
+                        },
+                        "subtitle": "$instance.orderId"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "İade gerekçesi",
+                          "en": "Reason"
+                        },
+                        "subtitle": "$instance.reason"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Müşteri",
+                          "en": "Customer"
+                        },
+                        "subtitle": "$instance.customer.name",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "customer.name",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Agent değerlendirmesi",
+                          "en": "Agent assessment"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Not",
+                          "en": "Note"
+                        },
+                        "subtitle": "$instance.assessment.note",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "assessment.note",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Risk",
+                          "en": "Risk"
+                        },
+                        "subtitle": "$instance.assessment.risk",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "assessment.risk",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Switch",
+                "bind": "approval.approved"
+              },
+              {
+                "type": "TextArea",
+                "bind": "approval.reason"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Karar ver",
+                      "en": "Decide"
+                    },
+                    "variant": "filled",
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:refund-flow:decide"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

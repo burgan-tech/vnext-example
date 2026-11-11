@@ -1,0 +1,111 @@
+{
+  "key": "lp-failed",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Sonlandı"
+      },
+      {
+        "language": "en-US",
+        "label": "Ended"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "error"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Talep sonlandı",
+                      "en": "The request has ended"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Talep iptal edildi ya da bilgi çıkarma adımı sonuç üretmeden bitti. Ayrıntı: instance'ın agent-runs kaydı.",
+                  "en": "The request was cancelled, or the extraction step ended without a result. Details: the instance's agent-runs record."
+                },
+                "variant": "bodyMedium",
+                "tone": "error"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Görüşme",
+                          "en": "Conversation"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "Text",
+                        "content": "$instance.conversation",
+                        "variant": "bodyMedium"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Yeni başvuru",
+                  "en": "New application"
+                },
+                "variant": "outlined",
+                "action": {
+                  "action": "submit",
+                  "validate": false
+                },
+                "command": "urn:vnext:flow:start:core:loan-precheck-agent"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

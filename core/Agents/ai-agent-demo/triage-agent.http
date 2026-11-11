@@ -1,0 +1,57 @@
+### triage-agent — dry-run (AI Agent, experimental)
+### Runs the published sys-agents component once on sample data: no instance, no journal, no session,
+### and every tool answers a stub. Publish the agent first (wf sync).
+###
+### The runtime only allows callers whose role is listed in AiAgent:DryRun:Roles (orchestration host
+### configuration; empty disables the endpoint and answers 403). Set @role to one of those roles.
+### The same request from the CLI: wf agent dry-run triage-agent --data data.json --prompt "..." --role <role>
+###
+### "prompt" may use the state template placeholders over "data" (double braces around data.message, as
+### in Workflows/triage-flow.json); they are left out here because HTTP clients read double braces as
+### their own variables.
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@agent = triage-agent
+@role = agent-tester
+
+### Dry-run without candidates: the agent only produces its output
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/definitions/agents/{{agent}}/dry-run
+Content-Type: application/json
+role: {{role}}
+
+{
+  "prompt": "<message>Where is my card?</message>",
+  "data": {
+    "message": "Where is my card?"
+  }
+}
+
+### Dry-run with candidates: the output gains a required decision (one of the candidate keys) and a reason
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/definitions/agents/{{agent}}/dry-run
+Content-Type: application/json
+role: {{role}}
+
+{
+  "prompt": "<message>Someone used my card without my permission.</message>",
+  "data": {
+    "message": "Someone used my card without my permission."
+  },
+  "candidates": [
+    { "key": "is-question", "when": "The customer asks for information.", "whenSource": "description" },
+    { "key": "is-fraud", "when": "The customer reports fraud.", "whenSource": "description" }
+  ]
+}
+
+### Dry-run a specific agent version (latest when omitted)
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/definitions/agents/{{agent}}/dry-run?version=1.0.0
+Content-Type: application/json
+role: {{role}}
+
+{
+  "prompt": "<message>What are your opening hours?</message>",
+  "data": {
+    "message": "What are your opening hours?"
+  }
+}

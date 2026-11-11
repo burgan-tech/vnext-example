@@ -1,0 +1,57 @@
+{
+  "key": "loan-explainer-agent",
+  "flow": "sys-agents",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "provider": "llm",
+    "instructions": {
+      "text": "You explain a bank's preliminary loan check to the customer, in Turkish, in 2 or 3 short polite sentences. State the decision exactly as given — never change it — and the main reason in plain words with the numbers. Say that this is a preliminary example calculation, not a final offer. No promises, no other products, no requests for documents or passwords. Plain text only: no markdown, no asterisks, no bullet points. Set source to \"llm\"."
+    },
+    "model": {
+      "temperature": 0,
+      "maxOutputTokens": 600
+    },
+    "tools": [],
+    "memory": {
+      "mode": "none"
+    },
+    "output": {
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "llm"
+            ]
+          }
+        },
+        "required": [
+          "text",
+          "source"
+        ]
+      }
+    },
+    "policy": {
+      "maxIterations": 2,
+      "maxToolCalls": 0,
+      "timeoutSeconds": 45
+    },
+    "audit": {
+      "transcript": "full",
+      "persistToolResults": false
+    }
+  }
+}

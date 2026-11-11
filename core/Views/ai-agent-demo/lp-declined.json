@@ -1,0 +1,135 @@
+{
+  "key": "lp-declined",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Vazgeçildi"
+      },
+      {
+        "language": "en-US",
+        "label": "Declined"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "cancel"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Ön tekliften vazgeçtiniz",
+                      "en": "You declined the preliminary offer"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Tutar (TL)",
+                          "en": "Amount (TRY)"
+                        },
+                        "subtitle": "$instance.intake.amount"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Vade (ay)",
+                          "en": "Term (months)"
+                        },
+                        "subtitle": "$instance.intake.termMonths"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Aylık net gelir (TL)",
+                          "en": "Net monthly income (TRY)"
+                        },
+                        "subtitle": "$instance.intake.monthlyIncome"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Amaç",
+                          "en": "Purpose"
+                        },
+                        "subtitle": "$instance.intake.purpose",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "intake.purpose",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Örnek aylık taksit (TL)",
+                          "en": "Example monthly installment (TRY)"
+                        },
+                        "subtitle": "$instance.installment"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Yeni başvuru",
+                  "en": "New application"
+                },
+                "variant": "outlined",
+                "action": {
+                  "action": "submit",
+                  "validate": false
+                },
+                "command": "urn:vnext:flow:start:core:loan-precheck-agent"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

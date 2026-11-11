@@ -1,0 +1,81 @@
+{
+  "key": "triage-agent",
+  "flow": "sys-agents",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent"
+  ],
+  "attributes": {
+    "provider": "local",
+    "instructions": {
+      "text": "You classify customer messages as a question, a fraud report or something else, and summarize them in one sentence."
+    },
+    "model": {
+      "temperature": 0,
+      "maxOutputTokens": 512
+    },
+    "tools": [
+      {
+        "kind": 2,
+        "name": "next_count",
+        "description": "Adds one to count. A script tool: a dynamicExpresso expression over args, data and now.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "default": 41
+            }
+          },
+          "required": [
+            "count"
+          ]
+        },
+        "binding": {
+          "code": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "args.count + 1"
+          }
+        }
+      }
+    ],
+    "memory": {
+      "mode": "none"
+    },
+    "output": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "question",
+              "fraud",
+              "other"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "default": "classified by the local provider"
+          }
+        },
+        "required": [
+          "category"
+        ]
+      }
+    },
+    "policy": {
+      "maxIterations": 4,
+      "maxToolCalls": 4,
+      "timeoutSeconds": 30
+    },
+    "audit": {
+      "transcript": "none",
+      "persistToolResults": true
+    }
+  }
+}

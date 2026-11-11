@@ -1,0 +1,105 @@
+{
+  "key": "refund-start",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "refund"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "İade Talebi"
+      },
+      {
+        "language": "en-US",
+        "label": "Refund Request"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:refund-request",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "assignment_return"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "İade talebi",
+                      "en": "Refund request"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Bir AI agent siparişi inceler; para iadesi bir yöneticinin onayından geçer.",
+                  "en": "An AI agent looks the order up; issuing money waits for a manager's approval."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "TextField",
+                "bind": "orderId"
+              },
+              {
+                "type": "TextArea",
+                "bind": "reason"
+              },
+              {
+                "type": "TextField",
+                "bind": "customer.name"
+              },
+              {
+                "type": "Dropdown",
+                "bind": "customer.tier"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Gönder",
+                      "en": "Submit"
+                    },
+                    "variant": "filled",
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:refund-flow:submit"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

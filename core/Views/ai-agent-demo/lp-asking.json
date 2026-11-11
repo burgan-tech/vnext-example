@@ -1,0 +1,143 @@
+{
+  "key": "lp-asking",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Ek Bilgi"
+      },
+      {
+        "language": "en-US",
+        "label": "One More Detail"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-answer",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "help"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Bir bilgi eksik",
+                      "en": "One more detail"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": "$instance.intake.question",
+                "variant": "bodyLarge",
+                "tone": "info",
+                "x-conditional": {
+                  "showIf": {
+                    "field": "intake.question",
+                    "operator": "isNotEmpty"
+                  }
+                }
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Görüşme",
+                          "en": "Conversation"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "Text",
+                        "content": "$instance.conversation",
+                        "variant": "bodyMedium"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "TextArea",
+                "bind": "answer"
+              },
+              {
+                "type": "ListTile",
+                "title": {
+                  "tr": "Cevaplanan soru",
+                  "en": "Questions answered"
+                },
+                "subtitle": "$instance.askCount"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Vazgeç",
+                      "en": "Cancel"
+                    },
+                    "variant": "text",
+                    "action": {
+                      "action": "submit",
+                      "validate": false
+                    },
+                    "command": "urn:vnext:flow:transition:core:loan-precheck-agent:cancel"
+                  },
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Yanıtla",
+                      "en": "Answer"
+                    },
+                    "variant": "filled",
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:loan-precheck-agent:answer"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

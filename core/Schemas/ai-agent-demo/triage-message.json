@@ -1,0 +1,42 @@
+{
+  "key": "triage-message",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "triage",
+    "transition"
+  ],
+  "attributes": {
+    "type": "transition",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/triage-message.json",
+      "title": "Triage — message",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 2000,
+          "x-labels": {
+            "tr": "Mesajınız",
+            "en": "Your message"
+          },
+          "x-errorMessages": {
+            "required": {
+              "tr": "Mesajınızı yazın",
+              "en": "Write your message"
+            }
+          }
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+  }
+}
