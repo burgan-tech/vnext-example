@@ -109,7 +109,7 @@ koşabilir: vnext'te `./run-docker.sh up startauth --offset 30`, init'ten sistem
 (`curl -X POST localhost:3035/api/package/runtime/publish -d '{"appDomain":"startauth"}' -H 'content-type: application/json'`),
 `test.runsettings.local`'da `VNEXT_BASE_URL=http://localhost:4231` + `VNEXT_DOMAIN=startauth`.
 
-**Koşuldu 2026-11-10:** 8/8 yeşil (lokal build, yan domain `startauth`). Audit logu (`Target: start:<key>`)
+**Koşuldu 2026-11-11:** 11/11 yeşil — `type=instance` biçimi (vnext `caa52c89` lokal build, yan domain `startauth`); dört 400 vakası karar mantığına girmedi (20 çağrı = 14 karar + 2×404 + 4×400). Önceki koşu 2026-11-10: 8/8 (`start=true` biçimi). Audit logu (`Target: start:<key>`)
 her kararı doğruladı; OpenObserve'de `Auth.Decide` ort. 0,41 ms / maks 3,7 ms, iz ağacında instance
 yüklemesi yok. Script-plugin-lab'in 3 function'ı plugin DLL'i olmadığı için publish edilmedi (bu sınıfla ilgisiz).
 
