@@ -86,6 +86,33 @@ tanımayan runtime onu sıradan rol-bağlı yaprak sayar → deny-only set (c)'y
 test yine (a) ve (b) üzerinden kırmızıya döner. **Koşuldu 2026-11-10:** yeni sınıf 2/2, paket **106/106** (104 + 2; vnext#1196 @ `3042f401` lokal build, yalnız core, provider `default`); koşudaki 101 `role_matrix_lab` + 8 combinator instance'ının hepsi `A`. Postgres'te iki test instance'ının son `InstancesData` satırı iki değeri de açık taşıyor (`FlowVersion 1.0.2-pkg.1.0.0+core`, `CreatedBy u-role-matrix-starter`). Trace doğrulaması yapılmadı (openobserve/elasticsearch MCP erişilemezdi). Saklama psql ile:
 `SELECT "Data"->>'hiddenFromAll', "Data"->>'hiddenByWorkaround' FROM role_matrix_lab_combinators."InstancesData" WHERE "IsLatest" AND "Data" ? 'hiddenFromAll';`
 
+## 2026-11-10 — start yetkisi: `authorize?type=instance` (vnext#1203)
+
+`GET /api/v1/{domain}/workflows/{flow}/functions/authorize?type=instance` — instance henüz yokken "bu caller bu
+akıştan instance başlatabilir mi?" sorusunu akışın kendi `startTransition.roles`'u ile cevaplar; gateway
+`POST .../instances/start`'ı bununla kapılar. `StartAuthorizeTests` (11 test) üç küçük kardeş akış kullanır
+(start grant'leri akış başınadır):
+
+| Akış | `startTransition.roles` | Beklenen |
+|---|---|---|
+| `role-matrix-lab-start-open` | yok | herkes (rolsüz dahil) 200 |
+| `role-matrix-lab-start-gated` | `allow maker`, `deny viewer`, `allow $InstanceStarter`, `deny $PreviousUser`, `deny $user.$.context.Instance.Data.blockedUserId` | `maker` 200; `approver`, `viewer`, rolsüz, `maker,viewer` 403 |
+| `role-matrix-lab-start-starter-only` | yalnız `allow $InstanceStarter` | herkes 403 (`act_sub` gönderse bile) |
+
+Instance'a bağlı grant'ler start'ta **eşleşmez**: ne izin verir ne reddeder (`act_sub` taşıyan approver
+yine 403, `deny $PreviousUser`/`$user.` maker'ı reddetmez). Ek olarak: `version` sabitleme (1.0.0 → 200,
+9.9.9 → 404), eksik ya da desteklenmeyen `type` 400 (`Authorization:110005`; `type` yok, `type=transition`, `type=Instance`, eski `start=true`), bilinmeyen akış 404 ve runtime'ın start rollerini **kendisinin
+zorlamadığı** (gateway'in işi) pinlenir.
+
+URL'ler `TestDomain.Name`'den kurulur; sınıf başka bir checkout'un `core`'u ayaktayken yan domain'de
+koşabilir: vnext'te `./run-docker.sh up startauth --offset 30`, init'ten sistem paketi
+(`curl -X POST localhost:3035/api/package/runtime/publish -d '{"appDomain":"startauth"}' -H 'content-type: application/json'`),
+`test.runsettings.local`'da `VNEXT_BASE_URL=http://localhost:4231` + `VNEXT_DOMAIN=startauth`.
+
+**Koşuldu 2026-11-11:** 11/11 yeşil — `type=instance` biçimi (vnext `caa52c89` lokal build, yan domain `startauth`); dört 400 vakası karar mantığına girmedi (20 çağrı = 14 karar + 2×404 + 4×400). Önceki koşu 2026-11-10: 8/8 (`start=true` biçimi). Audit logu (`Target: start:<key>`)
+her kararı doğruladı; OpenObserve'de `Auth.Decide` ort. 0,41 ms / maks 3,7 ms, iz ağacında instance
+yüklemesi yok. Script-plugin-lab'in 3 function'ı plugin DLL'i olmadığı için publish edilmedi (bu sınıfla ilgisiz).
+
 ## 2026-10-05 — "bilinen 23 kırmızı" kapandı: 104/104 yeşil
 
 vnext `master` @ `1104d8ae` (0.0.99 kapsamı), lokal build, yalnız core, provider `default`. Paket

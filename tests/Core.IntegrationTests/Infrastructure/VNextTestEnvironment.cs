@@ -14,7 +14,7 @@ public class VNextTestEnvironment : VNext.Testing.Sdk.Infrastructure.VNextTestEn
     // -------------------------------------------------------------------------
 
     /// <summary>APP_DOMAIN value passed to vNext containers.</summary>
-    protected override string Domain => "core";
+    protected override string Domain => TestDomain.Name;
 
     /// <summary>
     /// Publish this domain's components from local files with the SDK's own publisher.

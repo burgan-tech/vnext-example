@@ -84,7 +84,7 @@ public abstract class WorkflowTestBase : IntegrationTestBase
     protected async Task<HttpStatusCode> RunAsync(
         string workflow, string instanceId, string transitionKey, object? body = null, string? roles = null)
     {
-        var url = $"api/v1/core/workflows/{workflow}/instances/{instanceId}" +
+        var url = $"api/v1/{TestDomain.Name}/workflows/{workflow}/instances/{instanceId}" +
                   $"/transitions/{transitionKey}?sync=false";
 
         for (var attempt = 1; ; attempt++)
@@ -198,7 +198,7 @@ public abstract class WorkflowTestBase : IntegrationTestBase
         string workflow, string instanceId, string transitionKey, object? body = null, string? roles = null,
         TimeSpan? settleTimeout = null)
     {
-        var url = $"api/v1/core/workflows/{workflow}/instances/{instanceId}" +
+        var url = $"api/v1/{TestDomain.Name}/workflows/{workflow}/instances/{instanceId}" +
                   $"/transitions/{transitionKey}?sync=false";
 
         var (status, responseBody) = await SendRawAsync(
@@ -247,7 +247,7 @@ public abstract class WorkflowTestBase : IntegrationTestBase
         string workflow, string instanceId, string? ifNoneMatch = null, string? roles = null)
     {
         using var request = new HttpRequestMessage(
-            HttpMethod.Get, $"api/v1/core/workflows/{workflow}/instances/{instanceId}/functions/state");
+            HttpMethod.Get, $"api/v1/{TestDomain.Name}/workflows/{workflow}/instances/{instanceId}/functions/state");
         foreach (var (key, value) in Headers(roles)) request.Headers.TryAddWithoutValidation(key, value);
         if (!string.IsNullOrEmpty(ifNoneMatch)) request.Headers.TryAddWithoutValidation("If-None-Match", ifNoneMatch);
 

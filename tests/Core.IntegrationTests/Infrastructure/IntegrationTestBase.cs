@@ -20,7 +20,7 @@ public abstract class IntegrationTestBase
         new(new VNextApiClientOptions
         {
             BaseUrl = baseUrl,
-            Domain = "core",
+            Domain = TestDomain.Name,
             ApiVersion = "1"
         });
 }
