@@ -1,0 +1,277 @@
+{
+  "key": "resource-lock-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "resource-lock-lab",
+    "resource-lock",
+    "error-boundary",
+    "locking"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Resource Lock Lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-resource-lock-lab",
+      "target": "rl-idle",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Resource Lock Lab"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "sharedTransitions": [
+      {
+        "key": "rl-lock-busy",
+        "target": "rl-waiting",
+        "triggerType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "rl-lock-busy"
+          }
+        ],
+        "onExecutionTasks": [],
+        "availableIn": [
+          "rl-idle"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "key": "rl-idle",
+        "stateType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Idle"
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "errorCodes": [
+                "Execution:200010"
+              ],
+              "action": 2,
+              "transition": "rl-lock-busy",
+              "priority": 10
+            }
+          ]
+        },
+        "transitions": [
+          {
+            "key": "rl-acquire",
+            "target": "rl-holding",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-acquire"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "./src/LockKeyMapping.csx",
+                "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlc29sdmVzIHRoZSByZXNvdXJjZS1sb2NrIGtleSBmb3IgcmVzb3VyY2UtbG9jay1sYWIgZnJvbSBpbnN0YW5jZSBkYXRhLgovLy8KLy8vIFRoZSBrZXkgaXMgd2hhdGV2ZXIgdGhlIHRlc3Qgc3RhcnRlZCB0aGUgaW5zdGFuY2Ugd2l0aCAoYGxvY2tLZXlgKSwgc28gdHdvIGluc3RhbmNlcyBjb250ZW5kIGJ5Ci8vLyBiZWluZyBzdGFydGVkIHdpdGggdGhlIFNBTUUgdmFsdWUgYW5kIHN0YXkgaW5kZXBlbmRlbnQgd2l0aCBkaWZmZXJlbnQgb25lcy4gS2VlcGluZyB0aGUga2V5IGluCi8vLyBpbnN0YW5jZSBkYXRhIOKAlCByYXRoZXIgdGhhbiBkZXJpdmluZyBpdCBmcm9tIHNvbWV0aGluZyB0aGUgcnVudGltZSBvd25zIOKAlCBpcyB3aGF0IGxldHMgb25lIHRlc3QKLy8vIGNsYXNzIGRyaXZlIGJvdGggdGhlIGNvbnRlbnRpb24gYW5kIHRoZSBuby1jb250ZW50aW9uIGNhc2VzLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTG9ja0tleU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhOwoKICAgICAgICBzdHJpbmcgbG9ja0tleSA9IG51bGw7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJsb2NrS2V5IikpCiAgICAgICAgICAgIGxvY2tLZXkgPSBkYXRhLmxvY2tLZXk/LlRvU3RyaW5nKCk7CgogICAgICAgIC8vIEFuIGVtcHR5IGtleSBpcyBhIGRlZmluaXRpb24vdGVzdCBlcnJvciwgbm90IGEgbG9jayBvdXRjb21lOiB0aGUgcnVudGltZSBhbnN3ZXJzCiAgICAgICAgLy8gRXhlY3V0aW9uOjIwMDAxMSAoUmVzb3VyY2VMb2NrS2V5RW1wdHkpIGFuZCB0aGUgdHJhbnNpdGlvbiBmYWlscy4gUmV0dXJuaW5nIGEgY29uc3RhbnQKICAgICAgICAvLyBoZXJlIGluc3RlYWQgd291bGQgaGlkZSB0aGF0IGNhc2UgYmVoaW5kIGEgbG9jayBldmVyeW9uZSBzaGFyZXMuCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdDxkeW5hbWljPihzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGxvY2tLZXkpID8gbnVsbCA6ICQicmwtbGFiOntsb2NrS2V5fSIpOwogICAgfQp9Cg=="
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
+          },
+          {
+            "key": "rl-acquire-short",
+            "target": "rl-holding-short",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-acquire-short"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "./src/LockKeyMapping.csx",
+                "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlc29sdmVzIHRoZSByZXNvdXJjZS1sb2NrIGtleSBmb3IgcmVzb3VyY2UtbG9jay1sYWIgZnJvbSBpbnN0YW5jZSBkYXRhLgovLy8KLy8vIFRoZSBrZXkgaXMgd2hhdGV2ZXIgdGhlIHRlc3Qgc3RhcnRlZCB0aGUgaW5zdGFuY2Ugd2l0aCAoYGxvY2tLZXlgKSwgc28gdHdvIGluc3RhbmNlcyBjb250ZW5kIGJ5Ci8vLyBiZWluZyBzdGFydGVkIHdpdGggdGhlIFNBTUUgdmFsdWUgYW5kIHN0YXkgaW5kZXBlbmRlbnQgd2l0aCBkaWZmZXJlbnQgb25lcy4gS2VlcGluZyB0aGUga2V5IGluCi8vLyBpbnN0YW5jZSBkYXRhIOKAlCByYXRoZXIgdGhhbiBkZXJpdmluZyBpdCBmcm9tIHNvbWV0aGluZyB0aGUgcnVudGltZSBvd25zIOKAlCBpcyB3aGF0IGxldHMgb25lIHRlc3QKLy8vIGNsYXNzIGRyaXZlIGJvdGggdGhlIGNvbnRlbnRpb24gYW5kIHRoZSBuby1jb250ZW50aW9uIGNhc2VzLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTG9ja0tleU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhOwoKICAgICAgICBzdHJpbmcgbG9ja0tleSA9IG51bGw7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJsb2NrS2V5IikpCiAgICAgICAgICAgIGxvY2tLZXkgPSBkYXRhLmxvY2tLZXk/LlRvU3RyaW5nKCk7CgogICAgICAgIC8vIEFuIGVtcHR5IGtleSBpcyBhIGRlZmluaXRpb24vdGVzdCBlcnJvciwgbm90IGEgbG9jayBvdXRjb21lOiB0aGUgcnVudGltZSBhbnN3ZXJzCiAgICAgICAgLy8gRXhlY3V0aW9uOjIwMDAxMSAoUmVzb3VyY2VMb2NrS2V5RW1wdHkpIGFuZCB0aGUgdHJhbnNpdGlvbiBmYWlscy4gUmV0dXJuaW5nIGEgY29uc3RhbnQKICAgICAgICAvLyBoZXJlIGluc3RlYWQgd291bGQgaGlkZSB0aGF0IGNhc2UgYmVoaW5kIGEgbG9jayBldmVyeW9uZSBzaGFyZXMuCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdDxkeW5hbWljPihzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGxvY2tLZXkpID8gbnVsbCA6ICQicmwtbGFiOntsb2NrS2V5fSIpOwogICAgfQp9Cg=="
+              },
+              "action": "Acquire",
+              "ttlSeconds": 5,
+              "onConflict": "Abort"
+            }
+          }
+        ]
+      },
+      {
+        "key": "rl-holding",
+        "stateType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Holding"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "rl-finish",
+            "target": "rl-done",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "rl-holding-short",
+        "stateType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Holding (short TTL)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "rl-extend",
+            "target": "rl-holding-extended",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-extend"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "./src/LockKeyMapping.csx",
+                "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJlc29sdmVzIHRoZSByZXNvdXJjZS1sb2NrIGtleSBmb3IgcmVzb3VyY2UtbG9jay1sYWIgZnJvbSBpbnN0YW5jZSBkYXRhLgovLy8KLy8vIFRoZSBrZXkgaXMgd2hhdGV2ZXIgdGhlIHRlc3Qgc3RhcnRlZCB0aGUgaW5zdGFuY2Ugd2l0aCAoYGxvY2tLZXlgKSwgc28gdHdvIGluc3RhbmNlcyBjb250ZW5kIGJ5Ci8vLyBiZWluZyBzdGFydGVkIHdpdGggdGhlIFNBTUUgdmFsdWUgYW5kIHN0YXkgaW5kZXBlbmRlbnQgd2l0aCBkaWZmZXJlbnQgb25lcy4gS2VlcGluZyB0aGUga2V5IGluCi8vLyBpbnN0YW5jZSBkYXRhIOKAlCByYXRoZXIgdGhhbiBkZXJpdmluZyBpdCBmcm9tIHNvbWV0aGluZyB0aGUgcnVudGltZSBvd25zIOKAlCBpcyB3aGF0IGxldHMgb25lIHRlc3QKLy8vIGNsYXNzIGRyaXZlIGJvdGggdGhlIGNvbnRlbnRpb24gYW5kIHRoZSBuby1jb250ZW50aW9uIGNhc2VzLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgTG9ja0tleU1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGRhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhOwoKICAgICAgICBzdHJpbmcgbG9ja0tleSA9IG51bGw7CiAgICAgICAgaWYgKEhhc1Byb3BlcnR5KGRhdGEsICJsb2NrS2V5IikpCiAgICAgICAgICAgIGxvY2tLZXkgPSBkYXRhLmxvY2tLZXk/LlRvU3RyaW5nKCk7CgogICAgICAgIC8vIEFuIGVtcHR5IGtleSBpcyBhIGRlZmluaXRpb24vdGVzdCBlcnJvciwgbm90IGEgbG9jayBvdXRjb21lOiB0aGUgcnVudGltZSBhbnN3ZXJzCiAgICAgICAgLy8gRXhlY3V0aW9uOjIwMDAxMSAoUmVzb3VyY2VMb2NrS2V5RW1wdHkpIGFuZCB0aGUgdHJhbnNpdGlvbiBmYWlscy4gUmV0dXJuaW5nIGEgY29uc3RhbnQKICAgICAgICAvLyBoZXJlIGluc3RlYWQgd291bGQgaGlkZSB0aGF0IGNhc2UgYmVoaW5kIGEgbG9jayBldmVyeW9uZSBzaGFyZXMuCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdDxkeW5hbWljPihzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGxvY2tLZXkpID8gbnVsbCA6ICQicmwtbGFiOntsb2NrS2V5fSIpOwogICAgfQp9Cg=="
+              },
+              "action": "Extend",
+              "ttlSeconds": 300
+            }
+          },
+          {
+            "key": "rl-finish-short",
+            "target": "rl-done",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-finish-short"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "rl-holding-extended",
+        "stateType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Holding (extended)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "rl-finish-extended",
+            "target": "rl-done",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-finish-extended"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "rl-waiting",
+        "stateType": 2,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Waiting for lock"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "rl-give-up",
+            "target": "rl-abandoned",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "rl-give-up"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "rl-done",
+        "stateType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "transitions": []
+      },
+      {
+        "key": "rl-abandoned",
+        "stateType": 3,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Abandoned"
+          }
+        ],
+        "transitions": []
+      }
+    ]
+  }
+}
