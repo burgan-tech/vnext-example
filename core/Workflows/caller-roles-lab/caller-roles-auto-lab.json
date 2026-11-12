@@ -1,0 +1,121 @@
+{
+  "key": "caller-roles-auto-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "caller-roles-lab",
+    "automatic-transition"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "caller-roles-auto-lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-caller-roles-auto-lab",
+      "target": "gate",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "start-caller-roles-auto-lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "gate",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "gate"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-approved",
+            "target": "approved",
+            "triggerType": 1,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "to-approved"
+              }
+            ],
+            "rule": {
+              "location": "./src/IsApproverRole.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHJ1bGUtc2NoZW1hLWxhYjogdHJ1ZSB3aGVuIHRoZSBjYWxsZXIgaG9sZHMgPGM+cnVsZS1zY2hlbWEuYXBwcm92ZXI8L2M+LCByZWFkIGZyb20gdGhlIHJ1bnRpbWUtcmVzb2x2ZWQKLy8vIHJvbGUgc2V0ICg8Yz5jb250ZXh0LkNhbGxlcjwvYz4pIOKAlCB0aGUgZ2F0ZXdheSByb2xlIGhlYWRlciB1bmRlciB0aGUgZGVmYXVsdCBwcm92aWRlciwgdGhlIGlkZW50aXR5Ci8vLyBzZXJ2aWNlIHVuZGVyIG1vcnBoLWlkbS4gQSBwcm92aWRlciBvdXRhZ2UgZmFpbHMgdGhlIHNlbGVjdGlvbiAoNTAzIEF1dGhvcml6YXRpb246MTEwMDA2KTsgaXQgbmV2ZXIKLy8vIGZhbGxzIHRocm91Z2ggdG8gdGhlIGZhbGxiYWNrIGVudHJ5LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSXNBcHByb3ZlclJvbGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICBhd2FpdCBjb250ZXh0LkNhbGxlci5IYXNSb2xlQXN5bmMoInJ1bGUtc2NoZW1hLmFwcHJvdmVyIik7Cn0K"
+            },
+            "priority": 10
+          },
+          {
+            "key": "to-standard",
+            "target": "standard",
+            "triggerType": 1,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "to-standard"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "approved",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "approved"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "standard",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "standard"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "key": "rule-schema-lab-open-a",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "rule-schema-lab",
+    "caller-roles"
+  ],
+  "attributes": {
+    "type": "transition",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Rule Schema Lab — open payload a"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:rule-schema-lab-open-a",
+      "type": "object"
+    }
+  }
+}

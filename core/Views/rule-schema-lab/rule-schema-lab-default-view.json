@@ -1,0 +1,33 @@
+{
+  "key": "rule-schema-lab-default-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "rule-schema-lab",
+    "caller-roles"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Rule Schema Lab — default view"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Text",
+        "content": {
+          "en": "default"
+        },
+        "variant": "headlineMedium"
+      }
+    }
+  }
+}
