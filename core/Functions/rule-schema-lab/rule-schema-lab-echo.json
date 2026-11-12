@@ -1,0 +1,50 @@
+{
+  "key": "rule-schema-lab-echo",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "rule-schema-lab",
+    "rule-based-schema",
+    "function"
+  ],
+  "attributes": {
+    "scope": "D",
+    "rawResponse": false,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Rule Schema Lab Echo"
+      }
+    ],
+    "inputSchema": [
+      {
+        "rule": {
+          "location": "./src/IsCorporateSegment.csx",
+          "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBydWxlLXNjaGVtYS1sYWI6IHRydWUgd2hlbiB0aGUgY2FsbGVyIHNlbmRzIDxjPngtc2VnbWVudDogY29ycG9yYXRlPC9jPi4gU2VsZWN0cyB0aGUgY29ycG9yYXRlIHBheWxvYWQKLy8vIHNjaGVtYSBpbiB0aGUgcnVsZS1iYXNlZCA8Yz5zY2hlbWFzPC9jPiBsaXN0ICh2bmV4dCBydWxlLWJhc2VkIHRyYW5zaXRpb24gc2NoZW1hcykuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJc0NvcnBvcmF0ZVNlZ21lbnQgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICAvLyBjb250ZXh0LkhlYWRlcnMgaXMgZHluYW1pYzogYmluZCBpdCB0byBhIHN0YXRpYyB0eXBlIGJlZm9yZSBUcnlHZXRWYWx1ZSAoQ1M4MTk3KS4KICAgICAgICBvYmplY3QgaGVhZGVycyA9IGNvbnRleHQuSGVhZGVyczsKICAgICAgICBzdHJpbmcgdmFsdWUgPSBudWxsOwogICAgICAgIGlmIChoZWFkZXJzIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPiB0eXBlZCAmJiB0eXBlZC5UcnlHZXRWYWx1ZSgieC1zZWdtZW50Iiwgb3V0IHZhciB0ZXh0KSkKICAgICAgICAgICAgdmFsdWUgPSB0ZXh0OwogICAgICAgIGVsc2UgaWYgKGhlYWRlcnMgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGxvb3NlICYmIGxvb3NlLlRyeUdldFZhbHVlKCJ4LXNlZ21lbnQiLCBvdXQgdmFyIHJhdykgJiYgcmF3ICE9IG51bGwpCiAgICAgICAgICAgIHZhbHVlID0gcmF3LlRvU3RyaW5nKCk7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQoc3RyaW5nLkVxdWFscyh2YWx1ZSwgImNvcnBvcmF0ZSIsIFN5c3RlbS5TdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSk7CiAgICB9Cn0K"
+        },
+        "schema": {
+          "key": "rule-schema-lab-corporate",
+          "domain": "core",
+          "version": "1.0.0",
+          "flow": "sys-schemas"
+        }
+      }
+    ],
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "sched-script-task",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/EchoMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+cnVsZS1zY2hlbWEtbGFiLWVjaG86IGFuc3dlcnMgPGM+eyAiYWNjZXB0ZWQiOiB0cnVlIH08L2M+IG9uY2UgaW5wdXQgdmFsaWRhdGlvbiBwYXNzZWQuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRWNob01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgcGF5bG9hZCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgcGF5bG9hZC5hY2NlcHRlZCA9IHRydWU7CiAgICAgICAgZHluYW1pYyByZXNwb25zZSA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgKChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pcmVzcG9uc2UpWyJkYXRhIl0gPSBwYXlsb2FkOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3BvbnNlIH0pOwogICAgfQp9Cg=="
+      }
+    }
+  }
+}
