@@ -47,5 +47,15 @@ IDM gecikmesi 2 sn iken `caller-roles-auto-lab` start'ları sırasında `pg_stat
 
 ## Doğrulama durumu
 
-⏳ **Henüz koşulmadı** (2026-11-12). Akışlar `npm run validate`'ten lokal bağlı vnext-schema#169 ile geçti; testler
-derleniyor. Koşum ve C-3 ölçümü vnext#1298 birleşmeden önce yapılacak.
+✅ **2026-11-12, vnext `550510a9` (`feature/script-caller-roles`), yan domain `rbs`:** `RuleSchemaLab` +
+`CallerRolesLab` default provider 14 geçti / 8 skip (morph-idm testleri + core'a özel SubFlow testleri),
+morph-idm 19 geçti / 3 skip (core'a özel SubFlow testleri).
+
+- Postgres: `caller-roles-auto-lab` approver start'ları `approved`/`C`, viewer'lar `standard`/`C`; IDM kesintisinde
+  instance `gate`/`F`, incident `Authorization:110006` — **DefaultAutoTransition alınmadı**.
+- **C-3 ölçümü:** IDM gecikmesi 2 sn iken 10 eşzamanlı `caller-roles-auto-lab` start'ı: hepsi 202, auto adımı
+  IDM'i beklerken `pg_stat_activity` `idle in transaction` = 0, aktif sorgu = 0; MockLab: 10 start → 10 IDM
+  çağrısı (start başına bir, kendi scope'unda).
+- **SubFlow testleri yalnız `core` domain'inde koşar:** SDK publisher bileşenin `domain`'ini yeniden yazar ama init
+  servisiyle aynı şekilde `process` alt ağacını yazmaz; yan domain'de parent child'ı `core`'da arar
+  (`Discovery:700002`). Bu koşuda SubFlow yüzeyi unit testlerle kanıtlı, uçtan uca koşulmadı (kullanıcı kararı).

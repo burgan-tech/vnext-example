@@ -20,6 +20,15 @@ public class CallerRolesLabTests : WorkflowTestBase
 
     public CallerRolesLabTests(VNextTestEnvironment environment) : base(environment) { }
 
+    /// <summary>
+    /// The SDK publisher rewrites a component's own <c>domain</c> but, like the init service, never the
+    /// <c>process</c> subtree, so the parent always starts its child in <c>core</c>: on a side domain
+    /// (<c>VNEXT_DOMAIN</c>) the start fails with <c>Discovery:700002</c>. The SubFlow tests run on core only.
+    /// </summary>
+    private static bool OnCore => string.Equals(TestDomain.Name, "core", StringComparison.Ordinal);
+
+    private const string CoreOnlyReason = "SubFlow process references stay 'core' (SDK keeps the process subtree); runs on the core domain only";
+
     private static bool ProviderIsMorphIdm =>
         string.Equals(System.Environment.GetEnvironmentVariable("VNEXT_CALLER_ROLE_PROVIDER"), "morph-idm",
             StringComparison.OrdinalIgnoreCase);
@@ -82,11 +91,12 @@ public class CallerRolesLabTests : WorkflowTestBase
 
     // ── SubFlow output mapping (child settler) ───────────────────────────────
 
-    [Theory]
+    [SkippableTheory]
     [InlineData(Approver, true)]
     [InlineData("rule-schema.viewer", false)]
     public async Task SubFlowOutputMapping_SeesTheChildSettlersRole(string settlerRole, bool expected)
     {
+        Skip.IfNot(OnCore, CoreOnlyReason);
         var id = await StartAsAsync(Parent, Headers());
         await WaitUntilAsync(async () => (await GetActiveSubflowsAsync(Parent, id)).Count > 0, "child started");
 
@@ -106,6 +116,7 @@ public class CallerRolesLabTests : WorkflowTestBase
     public async Task SubFlowOutputMapping_ProviderDown_ParentIsNotFaulted()
     {
         Skip.IfNot(ProviderIsMorphIdm, "runtime is not running the morph-idm provider");
+        Skip.IfNot(OnCore, CoreOnlyReason);
         var id = await StartAsAsync(Parent, Headers());
         await WaitUntilAsync(async () => (await GetActiveSubflowsAsync(Parent, id)).Count > 0, "child started");
 
