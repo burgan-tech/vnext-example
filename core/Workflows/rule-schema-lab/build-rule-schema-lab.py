@@ -33,6 +33,10 @@ CORPORATE = schema_ref("rule-schema-lab-corporate")
 RETAIL = schema_ref("rule-schema-lab-retail")
 
 
+def view_ref(key):
+    return {"key": key, "domain": "core", "version": "1.0.0", "flow": "sys-views"}
+
+
 def manual(key, target, text, **extra):
     return {
         "key": key,
@@ -49,8 +53,8 @@ workflow = {
     "flow": "sys-flows",
     "flowVersion": "1.0.0",
     "domain": "core",
-    "version": "1.0.0",
-    "tags": ["integration-test", "rule-schema-lab", "rule-based-schema"],
+    "version": "1.0.1",
+    "tags": ["integration-test", "rule-schema-lab", "rule-based-schema", "caller-roles"],
     "attributes": {
         "type": "F",
         "timeout": None,
@@ -67,7 +71,11 @@ workflow = {
                 "subType": 0,
                 "versionStrategy": "Major",
                 "labels": label("Review"),
-                "view": None,
+                # View selected by the caller's resolved roles (context.Caller), with a rule-less fallback.
+                "view": [
+                    {"rule": code(ROOT, "IsApproverRole.csx"), "view": view_ref("rule-schema-lab-approver-view")},
+                    {"view": view_ref("rule-schema-lab-default-view")},
+                ],
                 "subFlow": None,
                 "onEntries": [],
                 "onExits": [],
@@ -81,6 +89,12 @@ workflow = {
                     # Rule-less last entry: an unmatched caller falls back to the retail schema.
                     manual("submit-fallback", "done", "Submit (rule-based schemas with fallback)", schemas=[
                         {"rule": code(ROOT, "IsCorporateSegment.csx"), "schema": CORPORATE},
+                        {"schema": RETAIL},
+                    ]),
+                    # Selected by the caller's resolved roles: approvers get the corporate schema, everyone
+                    # else the retail fallback. A role-provider outage fails the selection (503), never the fallback.
+                    manual("submit-by-role", "done", "Submit (schema selected by caller role)", schemas=[
+                        {"rule": code(ROOT, "IsApproverRole.csx"), "schema": CORPORATE},
                         {"schema": RETAIL},
                     ]),
                     # No schema at all: accepts any payload.
@@ -125,6 +139,43 @@ function = {
     },
 }
 
-for path, doc in [(ROOT / "rule-schema-lab.json", workflow), (FUNCTION_DIR / "rule-schema-lab-echo.json", function)]:
+# Start-path cost probe (council condition C-3): the start transition's schema is chosen by the caller's
+# role, so the start validates (inside its unit of work) after one identity-provider call when morph-idm is on.
+start_probe = {
+    "key": "rule-schema-lab-start",
+    "flow": "sys-flows",
+    "flowVersion": "1.0.0",
+    "domain": "core",
+    "version": "1.0.0",
+    "tags": ["integration-test", "rule-schema-lab", "caller-roles"],
+    "attributes": {
+        "type": "F",
+        "timeout": None,
+        "labels": label("Rule Schema Lab (start schema selected by caller role)"),
+        "functions": [],
+        "features": [],
+        "extensions": [],
+        "startTransition": manual("start-rule-schema-lab-start", "open", "Start (schema by caller role)", schemas=[
+            {"rule": code(ROOT, "IsApproverRole.csx"), "schema": schema_ref("rule-schema-lab-open-a")},
+            {"schema": schema_ref("rule-schema-lab-open-b")},
+        ]),
+        "states": [
+            {
+                "key": "open",
+                "stateType": 1,
+                "subType": 0,
+                "versionStrategy": "Major",
+                "labels": label("Open"),
+                "view": None,
+                "subFlow": None,
+                "onEntries": [],
+                "onExits": [],
+                "transitions": [],
+            }
+        ],
+    },
+}
+
+for path, doc in [(ROOT / "rule-schema-lab.json", workflow), (ROOT / "rule-schema-lab-start.json", start_probe), (FUNCTION_DIR / "rule-schema-lab-echo.json", function)]:
     path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
     print(f"wrote {path.relative_to(REPO)}")
