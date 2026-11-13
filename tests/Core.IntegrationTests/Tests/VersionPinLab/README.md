@@ -1,12 +1,15 @@
 # VersionPinLab — integration test
 
-Bir sınıf, **üç test**; `version-pin-lab-child`, `version-pin-lab-subflow-parent`, `version-pin-lab-subprocess-parent` (domain `core`).
+İki sınıf, **on test**; `version-pin-lab-child`, `version-pin-lab-pkg-child`, `version-pin-lab-subflow-parent`, `version-pin-lab-subprocess-parent` (domain `core`).
 
 | Class | Test | What it checks |
 |---|---|---|
 | `VersionPinLabTests` | `Start_ReturnsResolvedFlowVersion` | `instances/start?version=1.0` (1.0.0 ve 1.0.3 yayında) cevabı çözümlenen sürümü taşır: `flowVersion == "1.0.3"` |
 | `VersionPinLabTests` | `SubFlowCorrelation_StoresChildResolvedVersion` | `subFlow.process.version: "1.0"` olan SubFlow state'inde parent'ın correlation'ı `subFlowVersion == "1.0.3"` tutar; child instance'ı 1.0.3'te koşar; child bitince parent fault'suz `sf-completed`'a gider |
 | `VersionPinLabTests` | `SubProcessCorrelation_StoresChildResolvedVersion` | Aynısı, child `SubProcessTask` (TaskType 14, trigger version `"1.0"`) ile başlatıldığında |
+| `PackageVersionResolutionTests` | `FloatingRequest_ResolvesTheHighestPackage` (4 vaka) | `1.0.0` ve `1.0` → `1.0.0-pkg.1.0.123+core` (1.0.9 / 1.0.99 / 1.0.123 arasından, sayısal); `1` ve `latest` → `1.1.0-pkg.1.0.1+core` |
+| `PackageVersionResolutionTests` | `FullVersion_ResolvesThatPackage_WithOrWithoutBuildMetadata` (2 vaka) | `1.0.0-pkg.1.0.99` ve `1.0.0-pkg.1.0.99+core` → saklı `1.0.0-pkg.1.0.99+core` |
+| `PackageVersionResolutionTests` | `FullVersionNotPublished_IsRefused` | `1.0.0-pkg.1.0.124` yayında değil → start reddedilir |
 
 ## Why this exists
 
@@ -17,6 +20,25 @@ yönlendirir. Bu yüzden correlation, child'ın gerçekten koştuğu çözümlen
 start cevabı da (`flowVersion`) aynı çözümlenmiş sürümü döndürmeli ki istemci neyin başladığını bilsin.
 Pinlenen: start cevabındaki `flowVersion`, SubFlow state'inin ve SubProcess task'ının correlation
 `subFlowVersion`'ı, child instance'ının kendi `flowVersion`'ı.
+
+### Package versions (`PackageVersionResolutionTests`)
+
+Paketlenmiş bir domain bileşenleri `ARTIFACT-pkg.PACKAGE+domain` sürümüyle yayınlar; tüketen akışlar
+çoğunlukla yalnız `version=1.0.0` yazar. Bu sınıf aynı artifact'ın birden çok paket sürümünü yayınlar —
+en yükseği (`1.0.123`) **son yayınlanan değil**, böylece "son yayın kazanır" varsayan bir önbellek ısıtması
+yanlış cevap verirdi — ve her istek biçiminin doğru satıra çözüldüğünü pinler. vnext'in floating sürüm
+düzeltmesinin regresyon bekçisidir: bu cevaplar eskiden tüm sürüm gövdelerini tutan bir listeden
+hesaplanıyordu; uzun yayın geçmişinde bellek bitiyor, en yeni satırlar düşüyor ve eski bir sürüm
+seçiliyordu. Artık sürüm adlarından karar verilip tek gövde yükleniyor; cevaplar değişmemeli.
+Sürümler ayrı bir anahtar (`version-pin-lab-pkg-child`) altında yayınlanır ki `VersionPinLabTests`'in
+çıplak `1.0.0`/`1.0.3` satırları karışmasın.
+
+**Koşum (2026-11-13, vnext `claude/runtime-version-loading-32c214` çalışma ağacı, lokal core,
+`VNEXT_BASE_URL=http://localhost:4201`):** 10/10 yeşil, iki kez. Postgres: başlatılan instance'lar
+`1.0.0-pkg.1.0.123+core` ×2, `1.0.0-pkg.1.0.99+core` ×2, `1.1.0-pkg.1.0.1+core` ×2; Redis anahtarları
+`s3` şekil segmentinde. Bu testler küçük gövdelerle koşar, yani eski runtime'da da yeşildir — ayırt
+edici kanıt bellek tekrarıdır (vnext PR gövdesi: aynı flow'un 190 × 1,35 MB sürümü, 1 GB yığın
+sınırında eski runtime 8/20 başlatmayı sessizce `1.0.0-pkg.1.0.98`'de başlattı, yeni runtime 50/50 `…1.0.190`).
 
 ## The fixture
 
