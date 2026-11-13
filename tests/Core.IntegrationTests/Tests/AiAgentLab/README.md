@@ -87,6 +87,22 @@ python3 core/Workflows/ai-agent-lab/build-ai-agent-lab.py
 | `Approval_Denied_ResumesWithoutRunningTheCall` | Retten sonra `answered`, `pay` koşmamış; tool çağrısı `denied` ve ret gerekçesiyle kayıtlı |
 | `Team_RunsParticipantsAndDecides` (×3) | sequential/concurrent: 3 run (2 katılımcı + nihai), karar `is-question`; handoff: `handoffTo = cards`, nihai run `ai-cards-agent`, `note = cards handled it` |
 
+## v0.0.107 yayınından önce yapılacak — atlanmamalı
+
+Bu lab, AI Agent'ın henüz yayınlanmamış parçalarını geçici yollarla kullanıyor (aşağıda
+"Dikkat noktaları"). Yayın tarihi öne çekilse bile şu adımlar **v0.0.107 yayınlanmadan önce**
+yapılmalı; yapılmazsa lab kendi kopyalarıyla yeşil kalır ve gerçek paketlerdeki bir eksik gizlenir.
+
+1. `VNext.Testing.Sdk`'yı (`Core.IntegrationTests.csproj`, şu an `0.0.6`) burgan-tech/vnext-integration-test#18'i
+   (Agents yayını + `local` AI Agent provider'ı) içeren sürüme yükselt.
+2. `@burgan-tech/vnext-core-runtime`'ı burgan-tech/vnext-sys-flow#52'yi (`sys-agents` flow'u) içeren
+   sürüme yükselt.
+3. `AiAgentLabTests.EnsurePublishedAsync`'teki elle yayınlamayı ve `fixtures/sys-agents.json`'u kaldır;
+   bileşenler SDK ve sistem paketiyle gelsin.
+4. `@burgan-tech/vnext-schema`'yı (`package.json`, şu an `^0.0.57`) burgan-tech/vnext-schema#168'i
+   içeren sürüme yükselt; `npm run validate` AiAgent akışlarını geçmeli.
+5. AiAgentLab'i yeniden koş ve sonucu `TEST-SCENARIOS.md`'deki `ai-agent-lab` satırına yaz.
+
 ## Dikkat noktaları
 
 - **SDK açığı:** `LocalDomainPublisher` yalnız yedi bileşen tipini (`schemas … mappings`) yayınlar;
