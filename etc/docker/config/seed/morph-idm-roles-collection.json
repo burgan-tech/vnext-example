@@ -14,7 +14,7 @@
       "statusCode": 200,
       "responseBody": "{\"roles\":[\"chain.admin\",\"chain.mid-admin\",\"chain.leaf-admin\",\"chain.reader\"]}",
       "contentType": "application/json",
-      "description": "Operation set of the caller, keyed on the `sub` header the resolver sends. The runtime asks WITHOUT a role header on purpose: with one the real endpoint switches to a yes/no check for that single role, and the runtime needs the whole set. The unkeyed default hands the suite's ordinary caller a working set so the chain can be assembled; the four keyed users are the ones the assertions turn on. row-security-lab (vnext#1107) adds the rs-idm-* users: branch-staff, hq-auditor, both, menu.view, a blank 200 body, an empty roles array and a non-JSON 200 body.",
+      "description": "Operation set of the caller, keyed on the `sub` header the resolver sends. The runtime asks WITHOUT a role header on purpose: with one the real endpoint switches to a yes/no check for that single role, and the runtime needs the whole set. The unkeyed default hands the suite's ordinary caller a working set so the chain can be assembled; the four keyed users are the ones the assertions turn on. row-security-lab (vnext#1107) adds the rs-idm-* users: branch-staff, hq-auditor, both, menu.view, a blank 200 body, an empty roles array and a non-JSON 200 body. rule-schema-lab (vnext script-caller-roles) adds rbs-idm-approver (rule-schema.approver) and rbs-idm-plain (rule-schema.viewer); its outage case reuses idm-broken.",
       "delayMs": null,
       "isActive": true,
       "isSequential": false,
@@ -168,6 +168,26 @@
           "responseBody": "not-json",
           "contentType": "application/json",
           "priority": 14,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rbs-idm-approver",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"rule-schema.approver\"]}",
+          "contentType": "application/json",
+          "priority": 15,
+          "responseHeaders": []
+        },
+        {
+          "conditionField": "header.sub",
+          "conditionOperator": "equals",
+          "conditionValue": "rbs-idm-plain",
+          "statusCode": 200,
+          "responseBody": "{\"roles\":[\"rule-schema.viewer\"]}",
+          "contentType": "application/json",
+          "priority": 16,
           "responseHeaders": []
         }
       ],

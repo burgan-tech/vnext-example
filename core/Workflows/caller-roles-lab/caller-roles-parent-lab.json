@@ -1,0 +1,102 @@
+{
+  "key": "caller-roles-parent-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "caller-roles-lab",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "caller-roles-parent-lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-caller-roles-parent-lab",
+      "target": "parent-wait",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "start-caller-roles-parent-lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "parent-wait",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "parent-wait"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "caller-roles-child-lab",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/CallerAwareSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBjYWxsZXItcm9sZXMtbGFiOiB0aGUgb3V0cHV0IG1hcHBpbmcgcmVjb3JkcyB3aGV0aGVyIHRoZSBDSElMRCBTRVRUTEVSIOKAlCB0aGUgY2FsbGVyIHdob3NlIHJlcXVlc3QgY29tcGxldGVkCi8vLyB0aGUgY2hpbGQsIGNhcnJpZWQgb24gdGhlIHRlcm1pbmFsIGV2ZW50IOKAlCBob2xkcyA8Yz5ydWxlLXNjaGVtYS5hcHByb3ZlcjwvYz4uIE51bGwgd2hlbiB0aGUgY2hpbGQgc2V0dGxlZAovLy8gd2l0aG91dCBhIGNhbGxlciAoYSB0aW1lcikuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBDYWxsZXJBd2FyZVN1YkZsb3dNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVN1YkZsb3dNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIGR5bmFtaWMgY2hpbGRJbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgY2hpbGRJbnB1dC5mcm9tUGFyZW50ID0gdHJ1ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjaGlsZElucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBhc3luYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIG91dHB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgb3V0cHV0LnNldHRsZWRCeUFwcHJvdmVyID0gY29udGV4dC5DYWxsZXIuSXNBdmFpbGFibGUKICAgICAgICAgICAgPyAob2JqZWN0KWF3YWl0IGNvbnRleHQuQ2FsbGVyLkhhc1JvbGVBc3luYygicnVsZS1zY2hlbWEuYXBwcm92ZXIiKQogICAgICAgICAgICA6IG51bGw7CiAgICAgICAgcmV0dXJuIG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBvdXRwdXQgfTsKICAgIH0KfQo="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-parent-done",
+            "target": "parent-done",
+            "triggerType": 1,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "to-parent-done"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5jYWxsZXItcm9sZXMtbGFiOiB1bmNvbmRpdGlvbmFsIGF1dG9tYXRpYyBydWxlICh0aGUgcGFyZW50J3MgaG9wIGFmdGVyIHRoZSBjaGlsZCBjb21wbGV0ZXMpLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEFsd2F5c1RydWVSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+IFRhc2suRnJvbVJlc3VsdCh0cnVlKTsKfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "parent-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "parent-done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

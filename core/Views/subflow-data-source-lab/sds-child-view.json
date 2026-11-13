@@ -1,0 +1,54 @@
+{
+  "key": "sds-child-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "subflow-data-source-lab",
+    "pseudo-ui"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Column",
+        "gap": "md",
+        "children": [
+          {
+            "type": "Text",
+            "content": {
+              "en": "sds child",
+              "tr": "sds child"
+            },
+            "variant": "headlineMedium"
+          },
+          {
+            "type": "Text",
+            "content": "$instance.childMarker",
+            "variant": "bodyLarge"
+          },
+          {
+            "type": "Text",
+            "content": "$instance.childCounter",
+            "variant": "bodyLarge"
+          },
+          {
+            "type": "Text",
+            "content": "$instance.parentMarker",
+            "variant": "bodyLarge"
+          },
+          {
+            "type": "Text",
+            "content": "$instance.lastTouchAt",
+            "variant": "bodyLarge"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "key": "caller-roles-child-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "caller-roles-lab",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "caller-roles-child-lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-caller-roles-child-lab",
+      "target": "child-review",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "start-caller-roles-child-lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-review",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child-review"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-complete",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "child-complete"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "child-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "child-done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
