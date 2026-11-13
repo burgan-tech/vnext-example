@@ -1,0 +1,90 @@
+{
+  "key": "caller-roles-timer-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "caller-roles-lab",
+    "timer"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "caller-roles-timer-lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-caller-roles-timer-lab",
+      "target": "wait",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "start-caller-roles-timer-lab"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "wait",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "wait"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "expire",
+            "target": "expired",
+            "triggerType": 2,
+            "versionStrategy": "Major",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "expire"
+              }
+            ],
+            "timer": {
+              "location": "./src/ApproverWindowTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9ucy5UaW1lcjsKCi8vLyA8c3VtbWFyeT4KLy8vIGNhbGxlci1yb2xlcy1sYWI6IGFybXMgdGhlIHJldmlldyB3aW5kb3cgYnkgdGhlIGNhbGxlcidzIHJlc29sdmVkIHJvbGUg4oCUIDQ4IGggZm9yCi8vLyA8Yz5ydWxlLXNjaGVtYS5hcHByb3ZlcjwvYz4sIDI0IGggb3RoZXJ3aXNlLiBUaW1lcnMgYXJlIGNvbXB1dGVkIHdoZW4gdGhlIHN0YXRlIGlzIEVOVEVSRUQ7IGEgc3RhdGUgZW50ZXJlZAovLy8gYnkgYSBzeXN0ZW0gaG9wIChhIGZpcmVkIHRpbWVyIHJlLWFybWluZywgYSBzdWJmbG93IHJlc3VtZSkgaGFzIG5vIGNhbGxlciwgc28gdGhlIHNjcmlwdCBndWFyZHMgSXNBdmFpbGFibGUuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBBcHByb3ZlcldpbmRvd1RpbWVyIDogSVRpbWVyTWFwcGluZwp7CiAgICBwdWJsaWMgYXN5bmMgVGFzazxUaW1lclNjaGVkdWxlPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYXBwcm92ZXIgPSBjb250ZXh0LkNhbGxlci5Jc0F2YWlsYWJsZSAmJiBhd2FpdCBjb250ZXh0LkNhbGxlci5IYXNSb2xlQXN5bmMoInJ1bGUtc2NoZW1hLmFwcHJvdmVyIik7CiAgICAgICAgcmV0dXJuIFRpbWVyU2NoZWR1bGUuRnJvbUR1cmF0aW9uKFRpbWVTcGFuLkZyb21Ib3VycyhhcHByb3ZlciA/IDQ4IDogMjQpKTsKICAgIH0KfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "expired",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "expired"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

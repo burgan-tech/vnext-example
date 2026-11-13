@@ -1,6 +1,6 @@
 {
   "key": "role-matrix-combinator-master",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
@@ -27,7 +27,7 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "urn:vnext:res:schema:core:role-matrix-combinator-master",
       "title": "Role Matrix Lab Combinator Master",
-      "description": "Instance data for the role-grant combinator cases of role-matrix-lab (vnext feature/role-grant-combinators). iban: anyOf[$InstanceStarter, $InstanceBehalfOfStarter] OR corporate-ops, masked except for corporate-ops. riskNote: corporate-ops allowed unless the same caller is also the behalf-of starter (deny allOf).",
+      "description": "Instance data for the role-grant combinator cases of role-matrix-lab (vnext feature/role-grant-combinators). iban: anyOf[$InstanceStarter, $InstanceBehalfOfStarter] OR corporate-ops, masked except for corporate-ops. riskNote: corporate-ops allowed unless the same caller is also the behalf-of starter (deny allOf). hiddenFromAll: deny $Everyone, hidden from every caller (vnext#1193). hiddenByWorkaround: the older [deny $InstanceStarter, allow $InstanceStarter] pair, also hidden from every caller.",
       "type": "object",
       "properties": {
         "caseRef": {
@@ -89,6 +89,30 @@
                   "role": "$InstanceBehalfOfStarter"
                 }
               ]
+            }
+          ]
+        },
+        "hiddenFromAll": {
+          "type": "string",
+          "description": "x-roles deny $Everyone: stored, but pruned for every caller on every read surface (vnext#1193).",
+          "x-roles": [
+            {
+              "grant": "deny",
+              "role": "$Everyone"
+            }
+          ]
+        },
+        "hiddenByWorkaround": {
+          "type": "string",
+          "description": "The pre-$Everyone workaround: deny $InstanceStarter hides it from the starter, the lone allow $InstanceStarter makes it an allowlist that admits nobody else.",
+          "x-roles": [
+            {
+              "grant": "deny",
+              "role": "$InstanceStarter"
+            },
+            {
+              "grant": "allow",
+              "role": "$InstanceStarter"
             }
           ]
         }
