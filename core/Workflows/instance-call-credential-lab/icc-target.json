@@ -1,0 +1,184 @@
+{
+  "key": "icc-target",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.1",
+  "tags": [
+    "integration-test",
+    "instance-call-credential-lab",
+    "target"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Instance Call Credential Lab target"
+      }
+    ],
+    "schema": {
+      "key": "icc-target-master",
+      "domain": "core",
+      "flow": "sys-schemas",
+      "version": "1.0.1"
+    },
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "icc-t-entry",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "icc-t-entry",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Record the start hop"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "icc-script",
+              "domain": "core",
+              "flow": "sys-tasks",
+              "version": "1.0.1"
+            },
+            "mapping": {
+              "location": "./src/IccRecordMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGluc3RhbmNlLWNhbGwtY3JlZGVudGlhbC1sYWI6IHRoZSBSRUNPUkRFUiBldmVyeSB0YXJnZXQgcnVucyBvbiB0aGUgaG9wIHVuZGVyIHRlc3QuIEl0IHdyaXRlcyB3aGljaAovLy8gY3JlZGVudGlhbCBoZWFkZXJzICg8Yz5zdWI8L2M+LCA8Yz5hY3Rfc3ViPC9jPiwgPGM+cG9zaXRpb248L2M+LCA8Yz5jbGllbnRfaWQ8L2M+LCA8Yz5yb2xlPC9jPikgd2VyZQovLy8gcHJlc2VudCBpbiA8Yz5jb250ZXh0LkhlYWRlcnM8L2M+IGFuZCB0aGVpciB2YWx1ZXMsIHBsdXMgdGhlIGluc3RhbmNlJ3Mgb3duIGlkLgovLy8gPHBhcmE+Ci8vLyBPbmUgbWFwcGluZyBzZXJ2ZXMgdHdvIGhvcHM6IHRoZSBzdGFydCBob3AgKG9uRW50cnkgb2YgdGhlIHN0YXJ0IHRhcmdldCkgd3JpdGVzIDxjPnNlZW48L2M+OyB0aGUKLy8vIDxjPnRvdWNoPC9jPiB0cmFuc2l0aW9uIG9mIGljYy10YXJnZXQgKGRyaXZlbiBieSB0aGUgcGFyZW50J3MgRGlyZWN0VHJpZ2dlciB0YXNrLCBpdHMgb25FeGVjdXRpb25UYXNrcwovLy8gcnVuIHdoaWxlIHRoZSBpbnN0YW5jZSBpcyBzdGlsbCBpbiA8Yz5pY2MtdC13YWl0PC9jPikgd3JpdGVzIDxjPnRvdWNoU2VlbjwvYz4uCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxjPmNvbnRleHQuSGVhZGVyczwvYz4gaXMgcmVhZCBhcyBhIGRpY3Rpb25hcnksIG5ldmVyIGFzIGEgZHluYW1pYyBtZW1iZXI6IHJlYWRpbmcgYSBoZWFkZXIgdGhhdCBpcwovLy8gbm90IHRoZXJlIG9mZiB0aGUgZHluYW1pYyBvYmplY3QgdGhyb3dzLiBLZXlzIGFyZSBsb3dlci1jYXNlZCBieSB0aGUgcnVudGltZTsgdGhlIGxvb2t1cCBpcwovLy8gY2FzZS1pbnNlbnNpdGl2ZSBhbnl3YXkuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJY2NSZWNvcmRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHJpdmF0ZSBzdGF0aWMgcmVhZG9ubHkgc3RyaW5nW10gQ3JlZGVudGlhbHMgPSB7ICJzdWIiLCAiYWN0X3N1YiIsICJwb3NpdGlvbiIsICJjbGllbnRfaWQiLCAicm9sZSIgfTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGhlYWRlcnMgPSBSZWFkKChvYmplY3QpY29udGV4dC5IZWFkZXJzKTsKCiAgICAgICAgdmFyIHNlZW4gPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4oKTsKICAgICAgICBmb3JlYWNoICh2YXIgbmFtZSBpbiBDcmVkZW50aWFscykKICAgICAgICB7CiAgICAgICAgICAgIHZhciBwcmVzZW50ID0gaGVhZGVycy5UcnlHZXRWYWx1ZShuYW1lLCBvdXQgdmFyIHZhbHVlKTsKICAgICAgICAgICAgc2VlbltuYW1lXSA9IHByZXNlbnQgPyB2YWx1ZSA6IG51bGw7CiAgICAgICAgICAgIHNlZW5bImhhc18iICsgbmFtZV0gPSBwcmVzZW50OwogICAgICAgIH0KCiAgICAgICAgdmFyIGtleXMgPSBuZXcgTGlzdDxzdHJpbmc+KGhlYWRlcnMuS2V5cyk7CiAgICAgICAga2V5cy5Tb3J0KFN0cmluZ0NvbXBhcmVyLk9yZGluYWwpOwogICAgICAgIHNlZW5bImtleXMiXSA9IHN0cmluZy5Kb2luKCIsIiwga2V5cyk7CgogICAgICAgIHZhciBmaWVsZCA9IChjb250ZXh0Lkluc3RhbmNlPy5DdXJyZW50U3RhdGUgPz8gIiIpID09ICJpY2MtdC13YWl0IiA/ICJ0b3VjaFNlZW4iIDogInNlZW4iOwogICAgICAgIHZhciByZXN1bHQgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICB7CiAgICAgICAgICAgIFtmaWVsZF0gPSBzZWVuLAogICAgICAgICAgICBbInNlbGZJZCJdID0gY29udGV4dC5JbnN0YW5jZT8uSWQuVG9TdHJpbmcoKQogICAgICAgIH07CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IFJlYWQob2JqZWN0IGhlYWRlcnMpCiAgICB7CiAgICAgICAgdmFyIHJlc3VsdCA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPihTdHJpbmdDb21wYXJlci5PcmRpbmFsSWdub3JlQ2FzZSk7CiAgICAgICAgaWYgKGhlYWRlcnMgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IHR5cGVkKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIHBhaXIgaW4gdHlwZWQpIHJlc3VsdFtwYWlyLktleV0gPSBwYWlyLlZhbHVlOwogICAgICAgIH0KICAgICAgICBlbHNlIGlmIChoZWFkZXJzIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBsb29zZSkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBwYWlyIGluIGxvb3NlKSByZXN1bHRbcGFpci5LZXldID0gcGFpci5WYWx1ZT8uVG9TdHJpbmcoKTsKICAgICAgICB9CgogICAgICAgIHJldHVybiByZXN1bHQ7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-wait",
+            "target": "icc-t-wait",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "mode = wait"
+              }
+            ],
+            "rule": {
+              "location": "./src/IccModeWaitRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwtbGFiIGljYy10YXJnZXQ6IHBhcmsgaW4gaWNjLXQtd2FpdCB3aGVuIHN0YXJ0ZWQgd2l0aCBtb2RlID0gIndhaXQiIChhIHRhcmdldAovLy8gdGhlIHRlc3Qgc3RhcnRzIGl0c2VsZiwgZm9yIHRoZSBEaXJlY3RUcmlnZ2VyIGFuZCByZWFkIGNhc2VzKS4gQW55IG90aGVyIHN0YXJ0IGZpbmlzaGVzIGF0IG9uY2UuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJY2NNb2RlV2FpdFJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgdmFyIG1vZGUgPSBkYXRhICE9IG51bGwgJiYgZGF0YS5UcnlHZXRWYWx1ZSgibW9kZSIsIG91dCB2YXIgcmF3KSAmJiByYXcgIT0gbnVsbCA/IHJhdy5Ub1N0cmluZygpIDogIiI7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChtb2RlID09ICJ3YWl0Iik7CiAgICB9Cn0K"
+            }
+          },
+          {
+            "key": "to-done",
+            "target": "icc-t-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Otherwise finish"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "icc-t-wait",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Wait for touch"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "touch",
+            "target": "icc-t-touched",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Touch (records the trigger hop)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "icc-script",
+                  "domain": "core",
+                  "flow": "sys-tasks",
+                  "version": "1.0.1"
+                },
+                "mapping": {
+                  "location": "./src/IccRecordMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGluc3RhbmNlLWNhbGwtY3JlZGVudGlhbC1sYWI6IHRoZSBSRUNPUkRFUiBldmVyeSB0YXJnZXQgcnVucyBvbiB0aGUgaG9wIHVuZGVyIHRlc3QuIEl0IHdyaXRlcyB3aGljaAovLy8gY3JlZGVudGlhbCBoZWFkZXJzICg8Yz5zdWI8L2M+LCA8Yz5hY3Rfc3ViPC9jPiwgPGM+cG9zaXRpb248L2M+LCA8Yz5jbGllbnRfaWQ8L2M+LCA8Yz5yb2xlPC9jPikgd2VyZQovLy8gcHJlc2VudCBpbiA8Yz5jb250ZXh0LkhlYWRlcnM8L2M+IGFuZCB0aGVpciB2YWx1ZXMsIHBsdXMgdGhlIGluc3RhbmNlJ3Mgb3duIGlkLgovLy8gPHBhcmE+Ci8vLyBPbmUgbWFwcGluZyBzZXJ2ZXMgdHdvIGhvcHM6IHRoZSBzdGFydCBob3AgKG9uRW50cnkgb2YgdGhlIHN0YXJ0IHRhcmdldCkgd3JpdGVzIDxjPnNlZW48L2M+OyB0aGUKLy8vIDxjPnRvdWNoPC9jPiB0cmFuc2l0aW9uIG9mIGljYy10YXJnZXQgKGRyaXZlbiBieSB0aGUgcGFyZW50J3MgRGlyZWN0VHJpZ2dlciB0YXNrLCBpdHMgb25FeGVjdXRpb25UYXNrcwovLy8gcnVuIHdoaWxlIHRoZSBpbnN0YW5jZSBpcyBzdGlsbCBpbiA8Yz5pY2MtdC13YWl0PC9jPikgd3JpdGVzIDxjPnRvdWNoU2VlbjwvYz4uCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxjPmNvbnRleHQuSGVhZGVyczwvYz4gaXMgcmVhZCBhcyBhIGRpY3Rpb25hcnksIG5ldmVyIGFzIGEgZHluYW1pYyBtZW1iZXI6IHJlYWRpbmcgYSBoZWFkZXIgdGhhdCBpcwovLy8gbm90IHRoZXJlIG9mZiB0aGUgZHluYW1pYyBvYmplY3QgdGhyb3dzLiBLZXlzIGFyZSBsb3dlci1jYXNlZCBieSB0aGUgcnVudGltZTsgdGhlIGxvb2t1cCBpcwovLy8gY2FzZS1pbnNlbnNpdGl2ZSBhbnl3YXkuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJY2NSZWNvcmRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHJpdmF0ZSBzdGF0aWMgcmVhZG9ubHkgc3RyaW5nW10gQ3JlZGVudGlhbHMgPSB7ICJzdWIiLCAiYWN0X3N1YiIsICJwb3NpdGlvbiIsICJjbGllbnRfaWQiLCAicm9sZSIgfTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGhlYWRlcnMgPSBSZWFkKChvYmplY3QpY29udGV4dC5IZWFkZXJzKTsKCiAgICAgICAgdmFyIHNlZW4gPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4oKTsKICAgICAgICBmb3JlYWNoICh2YXIgbmFtZSBpbiBDcmVkZW50aWFscykKICAgICAgICB7CiAgICAgICAgICAgIHZhciBwcmVzZW50ID0gaGVhZGVycy5UcnlHZXRWYWx1ZShuYW1lLCBvdXQgdmFyIHZhbHVlKTsKICAgICAgICAgICAgc2VlbltuYW1lXSA9IHByZXNlbnQgPyB2YWx1ZSA6IG51bGw7CiAgICAgICAgICAgIHNlZW5bImhhc18iICsgbmFtZV0gPSBwcmVzZW50OwogICAgICAgIH0KCiAgICAgICAgdmFyIGtleXMgPSBuZXcgTGlzdDxzdHJpbmc+KGhlYWRlcnMuS2V5cyk7CiAgICAgICAga2V5cy5Tb3J0KFN0cmluZ0NvbXBhcmVyLk9yZGluYWwpOwogICAgICAgIHNlZW5bImtleXMiXSA9IHN0cmluZy5Kb2luKCIsIiwga2V5cyk7CgogICAgICAgIHZhciBmaWVsZCA9IChjb250ZXh0Lkluc3RhbmNlPy5DdXJyZW50U3RhdGUgPz8gIiIpID09ICJpY2MtdC13YWl0IiA/ICJ0b3VjaFNlZW4iIDogInNlZW4iOwogICAgICAgIHZhciByZXN1bHQgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICB7CiAgICAgICAgICAgIFtmaWVsZF0gPSBzZWVuLAogICAgICAgICAgICBbInNlbGZJZCJdID0gY29udGV4dC5JbnN0YW5jZT8uSWQuVG9TdHJpbmcoKQogICAgICAgIH07CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gcmVzdWx0IH0pOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIERpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IFJlYWQob2JqZWN0IGhlYWRlcnMpCiAgICB7CiAgICAgICAgdmFyIHJlc3VsdCA9IG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPihTdHJpbmdDb21wYXJlci5PcmRpbmFsSWdub3JlQ2FzZSk7CiAgICAgICAgaWYgKGhlYWRlcnMgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IHR5cGVkKQogICAgICAgIHsKICAgICAgICAgICAgZm9yZWFjaCAodmFyIHBhaXIgaW4gdHlwZWQpIHJlc3VsdFtwYWlyLktleV0gPSBwYWlyLlZhbHVlOwogICAgICAgIH0KICAgICAgICBlbHNlIGlmIChoZWFkZXJzIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PiBsb29zZSkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBwYWlyIGluIGxvb3NlKSByZXN1bHRbcGFpci5LZXldID0gcGFpci5WYWx1ZT8uVG9TdHJpbmcoKTsKICAgICAgICB9CgogICAgICAgIHJldHVybiByZXN1bHQ7CiAgICB9Cn0K"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "icc-t-touched",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Touched"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "icc-t-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

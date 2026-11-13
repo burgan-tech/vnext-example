@@ -1,0 +1,50 @@
+{
+  "key": "icc-target-master",
+  "version": "1.0.1",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "instance-call-credential-lab",
+    "x-roles"
+  ],
+  "attributes": {
+    "type": "master",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Instance Call Credential Lab hedef verisi"
+      },
+      {
+        "language": "en-US",
+        "label": "Instance Call Credential Lab target data"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:icc-target-master",
+      "type": "object",
+      "properties": {
+        "testId": {
+          "type": "string",
+          "x-filterOperators": [
+            "eq"
+          ]
+        },
+        "mode": {
+          "type": "string"
+        },
+        "secretNote": {
+          "type": "string",
+          "x-roles": [
+            {
+              "role": "icc.reader",
+              "grant": "allow"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
