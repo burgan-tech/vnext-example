@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "integration-test",
     "instance-call-credential-lab",
@@ -21,7 +21,7 @@
       "key": "icc-target-master",
       "domain": "core",
       "flow": "sys-schemas",
-      "version": "1.0.1"
+      "version": "1.0.2"
     },
     "functions": [],
     "features": [],
@@ -59,7 +59,7 @@
               "key": "icc-script",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccRecordMapping.csx",
@@ -134,7 +134,7 @@
                   "key": "icc-script",
                   "domain": "core",
                   "flow": "sys-tasks",
-                  "version": "1.0.1"
+                  "version": "1.0.2"
                 },
                 "mapping": {
                   "location": "./src/IccRecordMapping.csx",

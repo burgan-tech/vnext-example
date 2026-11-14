@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "integration-test",
     "instance-call-credential-lab",
@@ -177,7 +177,7 @@
             "key": "icc-sub",
             "domain": "core",
             "flow": "sys-flows",
-            "version": "1.0.1"
+            "version": "1.0.2"
           },
           "mapping": {
             "location": "./src/IccSubFlowMapping.csx",
@@ -220,11 +220,11 @@
             "key": "icc-sub",
             "domain": "core",
             "flow": "sys-flows",
-            "version": "1.0.1"
+            "version": "1.0.2"
           },
           "mapping": {
             "location": "./src/IccSubFlowAnonMapping.csx",
-            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwtbGFiIGljYy1wYXJlbnQsIHN0YXRlIGljYy1wLXN1YmZsb3ctYW5vbjogc3RhcnRzIGljYy1zdWIgd2l0aAovLy8gPGM+SGVhZGVycyA9IG5ldyB7IHN1YiA9ICIiIH08L2M+IOKAlCBhbiBhbm9ueW1vdXMgb2JqZWN0LCBvbmUgb2YgdGhlIGRvY3VtZW50ZWQgcmVhZGFibGUgc2hhcGVzLiBObwovLy8gPGM+c3ViPC9jPiBtYXkgcmVhY2ggdGhlIGNoaWxkOyA8Yz5hY3Rfc3ViPC9jPiBjb21lcyBmcm9tIHRoZSBjYWxsZXIuIENoaWxkIGtleSA8Yz57cGFyZW50SWR9LWFub248L2M+LgovLy8gPHBhcmE+Ci8vLyBLZXB0IGluIGl0cyBvd24gZmlsZSBvbiBwdXJwb3NlLiBUaGUgcnVudGltZSBjb21waWxlcyBhIFN1YkZsb3cgT1VUUFVUIG1hcHBpbmcgd2l0aAovLy8gPGM+Q29tcGlsZVRvSW5zdGFuY2VBc3luYyZsdDtvYmplY3QmZ3Q7PC9jPiBhbmQgdGFrZXMgdGhlIGZpcnN0IHR5cGUgb2YgdGhlIHNjcmlwdCBhc3NlbWJseSBhc3NpZ25hYmxlIHRvCi8vLyA8Yz5vYmplY3Q8L2M+IOKAlCB0aGUgY29tcGlsZXItZ2VuZXJhdGVkIGFub255bW91cyB0eXBlLCBub3QgdGhpcyBjbGFzcyDigJQgc28gdGhlIG91dHB1dCBoYW5kbGVyIGZhaWxzCi8vLyAoPGM+SW5zdGFuY2U6MTAwMDMwPC9jPiwgImlzIGEgZ2VuZXJpYyB0eXBlIGRlZmluaXRpb24iKSBhbmQgdGhlIHBhcmVudCBmYXVsdHMuIFNoYXJpbmcgdGhpcyBmaWxlIHdpdGggdGhlCi8vLyBvdGhlciB2YXJpYW50cyB3b3VsZCBmYXVsdCB0aG9zZSB0b28uIFNlZSB0aGUgc2NlbmFyaW8gUkVBRE1FLCAiUnVudGltZSBmaW5kaW5ncyIuCi8vLyA8L3BhcmE+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBJY2NTdWJGbG93QW5vbk1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJU3ViRmxvd01hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgZHluYW1pYyBpbnB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgaW5wdXQubW9kZSA9ICJyZWNvcmQiOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBLZXkgPSBjb250ZXh0Lkluc3RhbmNlLklkICsgIi1hbm9uIiwKICAgICAgICAgICAgRGF0YSA9IGlucHV0LAogICAgICAgICAgICBIZWFkZXJzID0gbmV3IHsgc3ViID0gIiIgfQogICAgICAgIH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CiAgICAgICAgZHluYW1pYyBvdXRwdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIG91dHB1dC5jaGlsZFNlZW4gPSBib2R5ICE9IG51bGwgJiYgYm9keS5UcnlHZXRWYWx1ZSgic2VlbiIsIG91dCB2YXIgc2VlbikgPyBzZWVuIDogbnVsbDsKICAgICAgICBvdXRwdXQuY2hpbGRJZCA9IGJvZHkgIT0gbnVsbCAmJiBib2R5LlRyeUdldFZhbHVlKCJzZWxmSWQiLCBvdXQgdmFyIGlkKSA/IGlkIDogbnVsbDsKICAgICAgICBvdXRwdXQuY2hpbGRTZXR0bGVkID0gdHJ1ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBvdXRwdXQgfSk7CiAgICB9Cn0K"
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwtbGFiIGljYy1wYXJlbnQsIHN0YXRlIGljYy1wLXN1YmZsb3ctYW5vbjogdHJpZXMgdG8gc3RhcnQgaWNjLXN1YiB3aXRoCi8vLyA8Yz5IZWFkZXJzID0gbmV3IHsgc3ViID0gIiIgfTwvYz4g4oCUIGFuIGFub255bW91cyBvYmplY3QuIFRoZSBydW50aW1lIGFjY2VwdHMgYSBTdWJGbG93IG1hcHBpbmcncwovLy8gPGM+SGVhZGVyczwvYz4gb25seSBhcyBhIHN0cmluZyBkaWN0aW9uYXJ5LCBhbiBvYmplY3QgZGljdGlvbmFyeSAvIEV4cGFuZG9PYmplY3Qgb3IgYSBKU09OIG9iamVjdCwgc28gdGhpcwovLy8gc3RhcnQgbXVzdCBGQUlMIGJlZm9yZSBhbnkgY2hpbGQgZXhpc3RzICg8Yz5TdWJGbG93SW5wdXRNYXBwaW5nRmFpbGVkPC9jPiksIGV4YWN0bHkgbGlrZSBhIHN0cmluZy4KLy8vIDxwYXJhPgovLy8gS2VwdCBpbiBpdHMgb3duIGZpbGUgYW5kIHN0YXRlIG9uIHB1cnBvc2U6IGFuIGFub255bW91cyB0eXBlIGFueXdoZXJlIGluIGEgU3ViRmxvdyBtYXBwaW5nIHNjcmlwdCBhbHNvCi8vLyBicmVha3MgdGhhdCBzY3JpcHQncyBPVVRQVVQgaGFuZGxlciAoaXQgaXMgY29tcGlsZWQgYXMgPGM+Q29tcGlsZVRvSW5zdGFuY2VBc3luYyZsdDtvYmplY3QmZ3Q7PC9jPiwgd2hpY2gKLy8vIHBpY2tzIHRoZSBjb21waWxlci1nZW5lcmF0ZWQgYW5vbnltb3VzIHR5cGUpIOKAlCBzaGFyaW5nIHRoZSBmaWxlIHdvdWxkIGZhdWx0IHRoZSBvdGhlciB2YXJpYW50cycgcGFyZW50cy4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEljY1N1YkZsb3dBbm9uTWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGlucHV0ID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBpbnB1dC5tb2RlID0gInJlY29yZCI7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIEtleSA9IGNvbnRleHQuSW5zdGFuY2UuSWQgKyAiLWFub24iLAogICAgICAgICAgICBEYXRhID0gaW5wdXQsCiAgICAgICAgICAgIEhlYWRlcnMgPSBuZXcgeyBzdWIgPSAiIiB9CiAgICAgICAgfSk7CiAgICB9CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5IGFzIElEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0PjsKICAgICAgICBkeW5hbWljIG91dHB1dCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgb3V0cHV0LmNoaWxkU2VlbiA9IGJvZHkgIT0gbnVsbCAmJiBib2R5LlRyeUdldFZhbHVlKCJzZWVuIiwgb3V0IHZhciBzZWVuKSA/IHNlZW4gOiBudWxsOwogICAgICAgIG91dHB1dC5jaGlsZElkID0gYm9keSAhPSBudWxsICYmIGJvZHkuVHJ5R2V0VmFsdWUoInNlbGZJZCIsIG91dCB2YXIgaWQpID8gaWQgOiBudWxsOwogICAgICAgIG91dHB1dC5jaGlsZFNldHRsZWQgPSB0cnVlOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IG91dHB1dCB9KTsKICAgIH0KfQo="
           }
         },
         "onEntries": [],
@@ -263,7 +263,7 @@
             "key": "icc-sub-nest",
             "domain": "core",
             "flow": "sys-flows",
-            "version": "1.0.1"
+            "version": "1.0.2"
           },
           "mapping": {
             "location": "./src/IccNestSubFlowMapping.csx",
@@ -308,7 +308,7 @@
               "key": "icc-subprocess",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccCallMapping.csx",
@@ -353,7 +353,7 @@
               "key": "icc-start",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccCallMapping.csx",
@@ -398,7 +398,7 @@
               "key": "icc-trigger",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccCallMapping.csx",
@@ -443,7 +443,7 @@
               "key": "icc-get",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccCallMapping.csx",
@@ -488,7 +488,7 @@
               "key": "icc-list",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccCallMapping.csx",
@@ -533,7 +533,7 @@
               "key": "icc-data",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.1"
+              "version": "1.0.2"
             },
             "mapping": {
               "location": "./src/IccCallMapping.csx",

@@ -5,15 +5,14 @@ using System.Threading.Tasks;
 using BBT.Workflow.Scripting;
 
 /// <summary>
-/// instance-call-credential-lab icc-parent, state icc-p-subflow-anon: starts icc-sub with
-/// <c>Headers = new { sub = "" }</c> — an anonymous object, one of the documented readable shapes. No
-/// <c>sub</c> may reach the child; <c>act_sub</c> comes from the caller. Child key <c>{parentId}-anon</c>.
+/// instance-call-credential-lab icc-parent, state icc-p-subflow-anon: tries to start icc-sub with
+/// <c>Headers = new { sub = "" }</c> — an anonymous object. The runtime accepts a SubFlow mapping's
+/// <c>Headers</c> only as a string dictionary, an object dictionary / ExpandoObject or a JSON object, so this
+/// start must FAIL before any child exists (<c>SubFlowInputMappingFailed</c>), exactly like a string.
 /// <para>
-/// Kept in its own file on purpose. The runtime compiles a SubFlow OUTPUT mapping with
-/// <c>CompileToInstanceAsync&lt;object&gt;</c> and takes the first type of the script assembly assignable to
-/// <c>object</c> — the compiler-generated anonymous type, not this class — so the output handler fails
-/// (<c>Instance:100030</c>, "is a generic type definition") and the parent faults. Sharing this file with the
-/// other variants would fault those too. See the scenario README, "Runtime findings".
+/// Kept in its own file and state on purpose: an anonymous type anywhere in a SubFlow mapping script also
+/// breaks that script's OUTPUT handler (it is compiled as <c>CompileToInstanceAsync&lt;object&gt;</c>, which
+/// picks the compiler-generated anonymous type) — sharing the file would fault the other variants' parents.
 /// </para>
 /// </summary>
 public class IccSubFlowAnonMapping : ScriptBase, ISubFlowMapping

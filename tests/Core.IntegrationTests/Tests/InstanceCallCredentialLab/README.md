@@ -12,7 +12,8 @@ Runtime başka bir instance'ı çağırdığında — SubFlow start, `SubProcess
 
 Aynı domain'de çağrı ayrıca çözülen header setinin kullanıcısı OLARAK koşar: başlatılan child'ın satırı
 `createdBy` = `act_sub`, `createdByBehalfOf` = `sub` ile damgalanır. SubFlow input mapping'inin `Headers`'ı
-okunamayan bir şekilse (string, tuple, liste…) SubFlow start'ı child oluşmadan başarısız olur.
+yalnız string sözlük, object sözlük / `ExpandoObject` ya da JSON nesnesi olabilir; başka her şekil (string,
+anonim nesne, script-tanımlı sınıf, tuple, liste…) SubFlow start'ını child oluşmadan düşürür.
 Sözleşme: vnext `docs/domain/role-grant-authorization.md` § "Caller credential on instance calls"
 (`HttpTaskInvocation.ResolveInstanceCallCredential`). Domain `core`, yalnız script task'lar (MockLab yok),
 yalnız aynı-domain yarısı; HTTP / SOAP / Dapr task'ları kapsam dışı.
@@ -21,9 +22,9 @@ yalnız aynı-domain yarısı; HTTP / SOAP / Dapr task'ları kapsam dışı.
 |---|---|
 | `SubFlow_NoMappingHeaders_ChildSeesCallerCredential_AndRunsAsCaller` | Mapping `Headers` vermez → S child `sub` = çağıranın GUID'i, `act_sub` = çağıranınki görür; child satırı `createdByBehalfOf` = çağıran `sub`, `createdBy` = çağıran `act_sub` |
 | `SubFlow_DictionaryBlankSub_ChildSeesNoSub_KeepsActSub` | `Headers = Dictionary { sub = "" }` → child `sub` görmez, `act_sub` = çağıranınki; `createdByBehalfOf` boş, `createdBy` = çağıran `act_sub` |
-| `SubFlow_AnonymousObjectBlankSub_ChildSeesNoSub_KeepsActSub` | `Headers = new { sub = "" }` → child tarafı bir öncekiyle aynı. Son assert parent'ın tamamlanması — **KIRMIZI**, bkz. "Runtime bulguları" |
+| `SubFlow_AnonymousObjectHeaders_FailsTheStart_NoChildExists` | `Headers = new { sub = "" }` (anonim nesne) kabul edilen bir şekil değil → string vakasıyla aynı son: parent `icc-p-subflow-anon`/`F`, incident `Instance:100023` (mesaj "Headers of type '<>f__AnonymousType0`1' … cannot be read as headers"), `{parentId}-anon`'da child **404**. Tarihçe: "Runtime bulguları" |
 | `SubFlow_MappingSetsAnotherSub_ChildSeesMappingValue` | `Headers = { sub = <başka GUID> }` → child o GUID'i görür, `createdByBehalfOf` = o GUID; `act_sub` çağırandan |
-| `SubFlow_StringHeaders_FailsTheStart_NoChildExists` | `Headers = "sub="` → start child oluşmadan düşer: parent `icc-p-subflow`/`F`, aktif incident (`Instance:100023`, mesaj "Headers of type 'String' … cannot be read as headers"), `{parentId}-sub` anahtarında ve korelasyondaki id'de child **404** — SubflowStartFailureLab'ın yerleşik beklentisi (post-commit start hatası parent'ı fault'lar, incident açar) |
+| `SubFlow_StringHeaders_FailsTheStart_NoChildExists` | `Headers = "sub="` → start child oluşmadan düşer: parent `icc-p-subflow`/`F`, aktif incident (`errorCode` `Instance:100023` assert edilir, mesaj "Headers of type 'String' … cannot be read as headers"), `{parentId}-sub` anahtarında ve korelasyondaki id'de child **404** — SubflowStartFailureLab'ın yerleşik beklentisi (post-commit start hatası parent'ı fault'lar, incident açar) |
 | `SubProcess_NoMappingHeaders_…` / `SubProcess_BlankSub_…` | SubProcessTask (14) P child: başlık yok → çağıranın `sub`/`act_sub`'ı + satır damgası; task header `sub = ""` → `sub` yok, `act_sub` var, `createdByBehalfOf` boş |
 | `Start_NoMappingHeaders_…` / `Start_BlankSub_…` | StartTask (11) ile yeni `F` instance: aynı iki satır |
 | `DirectTrigger_NoMappingHeaders_…` / `DirectTrigger_BlankSub_…` | DirectTriggerTask (12) testin başlattığı, `icc-t-wait`'te bekleyen hedefte `touch`'ı tetikler; `touch`'ın onExecutionTasks kaydı (`touchSeen`) çağıranın `sub`/`act_sub`'ını görür / `sub` görmez, `act_sub` görür |
@@ -37,7 +38,7 @@ rolsüz görmez — yani alan gerçekten rol-korumalı ve provider `role` header
 ## Akış şekli
 
 `core/Workflows/instance-call-credential-lab/`, `build-instance-call-credential-lab.py` ile üretilir
-(sürüm **1.0.1**; publish sürüm-değişmezdir, değişiklikte `VERSION`'ı patch artır — üretici task'ları da
+(sürüm **1.0.2**; publish sürüm-değişmezdir, değişiklikte `VERSION`'ı patch artır — üretici task'ları da
 `core/Tasks/instance-call-credential-lab/` altına yazar). Şema:
 `core/Schemas/instance-call-credential-lab/icc-target-master.json` (elle; sürümü `VERSION` ile aynı tutulur).
 
@@ -45,7 +46,7 @@ rolsüz görmez — yani alan gerçekten rol-korumalı ve provider `role` header
 icc-parent (F): start → icc-p-ready [Initial, Active] — test TEK bir manual transition'ı kendi
                 sub/act_sub(/role) header'larıyla sürer; varyantı start verisi (variant) seçer
   do-subflow       → icc-p-subflow       (S: icc-sub,      IccSubFlowMapping: none|dict-blank|other|string, key {parentId}-sub)
-  do-subflow-anon  → icc-p-subflow-anon  (S: icc-sub,      IccSubFlowAnonMapping: new { sub = "" }, key {parentId}-anon)
+  do-subflow-anon  → icc-p-subflow-anon  (S: icc-sub,      IccSubFlowAnonMapping: new { sub = "" } → start düşer, key {parentId}-anon)
   do-nest          → icc-p-nest          (S: icc-sub-nest, sub = "", key {parentId}-nest)
   do-subprocess    → icc-p-subprocess    onEntry SubProcessTask → icc-target, key {parentId}-proc, sync
   do-start         → icc-p-start         onEntry StartTask      → icc-target, key {parentId}-start, sync
@@ -76,7 +77,7 @@ hedef state'inde (onEntry / SubFlow) yapılır. Parent'ın kendisi standart `Hea
 ```bash
 dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/test.runsettings \
   --filter "FullyQualifiedName~InstanceCallCredentialLab" -v minimal
-# beklenen (bugünkü runtime): 17 geçti, 1 kırmızı (SubFlow_AnonymousObjectBlankSub_*, runtime bulgusu)
+# beklenen: 18 geçti
 ```
 
 Bağımlılık: yalnız lokal derlenmiş runtime (`core`), varsayılan caller-role provider (`role` header'ı).
@@ -87,7 +88,7 @@ Bağımlılık: yalnız lokal derlenmiş runtime (`core`), varsayılan caller-ro
 - **`sub` GUID olmalı.** Runtime onu varchar(36) kimlik kolonuna yazar; daha uzun değer isteği 500'e düşürür.
   `act_sub` da kısa tutulur (`icc-<8 hex>`).
 - **Anonim tip SubFlow mapping script'ini bozar.** Bir SubFlow mapping dosyasında herhangi bir anonim tip
-  (`new { … }`) varsa o mapping'in OUTPUT handler'ı çalışmaz (aşağıda). İlk koşuda dört SubFlow varyantı
+  (`new { … }`) varsa o mapping'in OUTPUT handler'ı çalışmaz (aşağıda; runtime'da hâlâ açık). İlk koşuda dört SubFlow varyantı
   tek dosyadaydı ve dördü de parent'ı `F`'e düşürdü; anonim varyant bu yüzden kendi dosyasında
   (`IccSubFlowAnonMapping.csx`) ve kendi state'inde. Trigger-task mapping'leri (`IMapping`) etkilenmez:
   onlar `CompileToInstanceAsync<IMapping>` ile derlenir.
@@ -107,26 +108,30 @@ loglarından okundu.
 
 ## Runtime bulguları
 
-**SubFlow output mapping script'teki anonim tipi örnekliyor** (`SubFlow_AnonymousObjectBlankSub_*` kırmızı,
-bilerek bırakıldı). `SubflowOutputMappingService.PrepareAsync` mapping'i `CompileToInstanceAsync<object>` ile
-derler; `CSharpEvaluator` derlenen assembly'de `typeof(T).IsAssignableFrom(t)` olan İLK tipi seçer —
-derleyicinin ürettiği `<>f__AnonymousType0`1` mapping sınıfından önce gelir. Sonuç: input mapping çalışır
-(child doğru header'larla başlar ve biter), child bittiğinde output mapping
-`ArgumentException: Type <>f__AnonymousType0`1[<sub>j__TPar] is a generic type definition` ile düşer, parent
-`icc-p-subflow-anon`/`F`, incident `Instance:100030` (`errorLayer: SubFlow`). Kuralın kendisi (child'ın gördüğü)
-doğru; ama belgelenen `new { sub = "" }` şekli, aynı dosyadaki output handler'ı kırdığı için bugün kullanılamaz.
-Master'da da aynı satır var — kimlik kuralı değişikliğinden önce de vardı; anonim `Headers` şekli onu
-görünür kılıyor.
+**56f78a52'de (tarihçe):** `new { sub = "" }` okunuyordu — child `sub` görmeden, `act_sub` çağıranınki ve
+`createdByBehalfOf` boş başlıyordu (kural doğru) — ama parent child bittikten sonra `icc-p-subflow-anon`/`F`'e
+düşüyordu, incident `Instance:100030` (`errorLayer: SubFlow`): "Type <>f__AnonymousType0`1[<sub>j__TPar] is a
+generic type definition". Sebep: `SubflowOutputMappingService.PrepareAsync` mapping'i
+`CompileToInstanceAsync<object>` ile derler; `CSharpEvaluator` assembly'de `typeof(T).IsAssignableFrom(t)` olan
+İLK tipi seçer — derleyicinin anonim tipi mapping sınıfından önce gelir. Yani anonim tip içeren bir SubFlow
+mapping script'i uçtan uca çalışamıyordu.
 
-## Son koşu (2026-11-14, vnext `claude/subflow-subprocess-credentials-704267` @ 56f78a52, lokal core)
+**be83eb7f ile:** SubFlow mapping `Headers`'ı artık yalnız string sözlük, object sözlük / `ExpandoObject` ya da
+JSON nesnesi olarak kabul edilir; anonim nesne ve script-tanımlı sınıf da string gibi start'ı child oluşmadan
+düşürür (`Instance:100023`). Test bu davranışı pinler. Output mapping'in tip seçimi kusuru **düzeltilmedi**,
+ayrıca raporlanıyor — anonim tipi (ör. `Data = new { … }`) bir SubFlow mapping script'ine koymayın.
 
-17/18 yeşil, 1 kırmızı (yukarıdaki runtime bulgusu). Gözlenen değerler (her satır kendi koşusundan):
+## Son koşu (2026-11-14, vnext `claude/subflow-subprocess-credentials-704267` @ be83eb7f, lokal core)
+
+**18/18 yeşil** (be83eb7f). Önceki koşu (56f78a52): 17/18, anonim varyant yukarıdaki kusurla kırmızı.
+Gözlenen değerler (her satır kendi koşusundan; anonim satırı be83eb7f, diğerleri 56f78a52'de ölçüldü ve
+be83eb7f'de aynı testlerle yeniden geçti):
 
 | Çağrı / varyant | Hedefin gördüğü | Satır damgası |
 |---|---|---|
 | SubFlow, header yok | `sub` = çağıran GUID, `act_sub` = çağıran | `createdBy` = çağıran `act_sub`, `createdByBehalfOf` = çağıran `sub` |
 | SubFlow, dict `sub = ""` | `has_sub = false`, `act_sub` = çağıran | `createdBy` = `act_sub`, `createdByBehalfOf` boş |
-| SubFlow, `new { sub = "" }` | `has_sub = false`, `act_sub` = çağıran | `createdBy` = `act_sub`, `createdByBehalfOf` boş — parent `F` (`Instance:100030`) |
+| SubFlow, `new { sub = "" }` | child yok (404) | parent `icc-p-subflow-anon`/`F`, `Instance:100023` (`errorLayer: PostCommit`) |
 | SubFlow, `sub` = başka GUID | `sub` = o GUID, `act_sub` = çağıran | `createdByBehalfOf` = o GUID |
 | SubFlow, `"sub="` | child yok (404) | parent `icc-p-subflow`/`F`, `Instance:100023` (`errorLayer: PostCommit`) |
 | SubProcess, yok / `sub = ""` | çağıranın `sub`+`act_sub` / yalnız `act_sub` | çağıran / `createdByBehalfOf` boş |
@@ -139,7 +144,7 @@ görünür kılıyor.
 `position` / `client_id` / `role` (SubFlow ve yazma çağrılarında) çağıran göndermediği için hiçbir hedefte
 yoktu.
 
-Komşu suite'ler aynı runtime'da (tek tek filtreyle): SubflowCarriedHeadersLab 5+1 skip, SubflowOrchestration 22,
+Komşu suite'ler 56f78a52'de (tek tek filtreyle): SubflowCarriedHeadersLab 5+1 skip, SubflowOrchestration 22,
 SubflowOverrideLab 12, SubflowStartFailureLab 2, SyncSubProcessStateLab 3, HistoryNoneSubflowLab 3,
 ParallelVariableKeyLab 7, RowSecurityLab 156+16 skip, RoleMatrixLab 117, SchemaRolesLab 16, CallerRolesLab 6+3 skip,
 HumanTaskChain 12+15 skip, DataIntegrityLab 5 — hepsi yeşil (skip'ler morph-idm / partner domain / mod anahtarı,
@@ -147,11 +152,14 @@ beklenen). AuthorizationChainLab 44 + 9 skip + **2 kırmızı**: `AuthorizeAckAg
 (`null`, `chain.leaf-admin`) — `longpoll/ack` uç noktası rolleri artık hiç denetlemiyor (vnext #1027, master'da), ön-kontrol
 reddediyor; bu kuralla ilgisi yok, üç koşuda da aynı.
 
+be83eb7f'de (SubFlow starter değiştiği için) yeniden koşulanlar: SubflowCarriedHeadersLab 5+1 skip,
+SubflowOrchestration 22, SubflowOverrideLab 12, SubflowStartFailureLab 2 — hepsi yeşil.
+
 ## Kapsanmayanlar
 
 - Cross-domain yarısı (aynı kural, `CurrentUserForwardHeadersHelper` / `DropBlankCredentialHeaders` çıkışı) — ayrı iş.
 - `position` / `client_id` için ayrı varyant yok: aynı resolver beş anahtarı aynı döngüde işler; `sub` / `act_sub` /
   `role` üç farklı tüketiciyi (kimlik damgası, `has_*`, `x-roles`) kapsar.
-- SubFlow mapping'inde ExpandoObject, `JsonElement` ve script-tanımlı sınıf şekilleri; tuple / liste ile başarısızlık
-  (string ile kanıtlandı).
+- SubFlow mapping'inde ExpandoObject ve `JsonElement` şekilleri; script-tanımlı sınıf, tuple / liste ile başarısızlık
+  (string ve anonim nesne ile kanıtlandı).
 - HTTP / SOAP / Dapr task'ları (eski kural, `AppendCallerCredential`).

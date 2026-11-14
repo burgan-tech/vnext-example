@@ -9,7 +9,7 @@ absent key is filled from the caller (the request that drove the parent's hop). 
 * icc-parent (F) — start → icc-p-ready (rests Active). The test drives ONE manual transition with its own
   `sub` / `act_sub` (and `role`) headers; the start data's `variant` picks the mapping headers:
     do-subflow    → icc-p-subflow   (SubFlow S → icc-sub,      IccSubFlowMapping: none|dict-blank|other|string)
-    do-subflow-anon → icc-p-subflow-anon (SubFlow S → icc-sub, IccSubFlowAnonMapping: Headers = new { sub = "" })
+    do-subflow-anon → icc-p-subflow-anon (SubFlow S → icc-sub, IccSubFlowAnonMapping: Headers = new { sub = "" } — must fail the start)
     do-nest       → icc-p-nest      (SubFlow S → icc-sub-nest, sub = "")
     do-subprocess → icc-p-subprocess (onEntry SubProcessTask → icc-target, key {parentId}-proc)
     do-start      → icc-p-start      (onEntry StartTask      → icc-target, key {parentId}-start)
@@ -35,7 +35,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 TASKS = ROOT.parent.parent / "Tasks" / "instance-call-credential-lab"
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 TAG = "instance-call-credential-lab"
 
 

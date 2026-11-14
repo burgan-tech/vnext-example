@@ -73,28 +73,19 @@ public class InstanceCallCredentialLabTests : WorkflowTestBase
     }
 
     /// <summary>
-    /// <c>Headers = new { sub = "" }</c> (anonymous object) — a documented readable shape. The child is
-    /// asserted first (the credential rule), the parent's completion last: the runtime compiles the SubFlow
-    /// OUTPUT mapping as <c>CompileToInstanceAsync&lt;object&gt;</c> and instantiates the script's anonymous
-    /// type instead of the mapping class, so the parent faults (<c>Instance:100030</c>). That last assert is red
-    /// until the runtime picks the mapping class — see the README, "Runtime findings".
+    /// <c>Headers = new { sub = "" }</c> (anonymous object) is not an accepted shape — only a string dictionary,
+    /// an object dictionary / ExpandoObject or a JSON object is. The start fails before a child exists, exactly
+    /// like the string case. History: on vnext 56f78a52 the anonymous object was READ (the child started without
+    /// <c>sub</c>), but an anonymous type in a SubFlow mapping script also breaks its output handler, so the
+    /// parent faulted after the child finished (<c>Instance:100030</c>); vnext be83eb7f made the shape fail the start.
     /// </summary>
     [Fact]
-    public async Task SubFlow_AnonymousObjectBlankSub_ChildSeesNoSub_KeepsActSub()
+    public async Task SubFlow_AnonymousObjectHeaders_FailsTheStart_NoChildExists()
     {
         var caller = Caller.New();
         var parent = await DriveAsync(new { }, "do-subflow-anon", caller);
 
-        await WaitUntilAsync(async () => TerminalStatuses.Contains((await GetInstanceStateAsync(Parent, parent)).Status),
-            $"{Parent} never settled — {await DescribeAsync(Parent, parent)}", Budget);
-        var child = await GetInstanceAsync(SubChild, $"{parent}-anon");
-        AssertDidNotSee(Seen(child), "sub");
-        AssertSaw(Seen(child), "act_sub", caller.ActSub);
-        AssertCreated(child, by: caller.ActSub, behalfOf: null);
-
-        var (state, status) = await GetInstanceStateAsync(Parent, parent);
-        Assert.True(status == "C",
-            $"child is right, but the parent settled {state}/{status} — {await DescribeAsync(Parent, parent)}");
+        await AssertSubFlowStartFailedAsync(parent, "icc-p-subflow-anon", $"{parent}-anon");
     }
 
     [Fact]
@@ -123,22 +114,33 @@ public class InstanceCallCredentialLabTests : WorkflowTestBase
         var caller = Caller.New();
         var parent = await DriveAsync(new { variant = "string" }, "do-subflow", caller);
 
+        await AssertSubFlowStartFailedAsync(parent, "icc-p-subflow", $"{parent}-sub");
+    }
+
+    /// <summary>
+    /// A SubFlow start that failed on its input mapping's headers: the parent faults in <paramref name="state"/>
+    /// with an active <c>Instance:100023</c> incident naming <c>Headers</c>, and no child exists — neither under
+    /// the mapping's key nor under any correlated id.
+    /// </summary>
+    private async Task AssertSubFlowStartFailedAsync(string parent, string state, string childKey)
+    {
         await WaitUntilAsync(async () => TerminalStatuses.Contains((await GetInstanceStateAsync(Parent, parent)).Status),
             $"{Parent} never settled — {await DescribeAsync(Parent, parent)}", Budget);
-        var (state, status) = await GetInstanceStateAsync(Parent, parent);
-        _output.WriteLine($"parent={parent} {state}/{status} — {await DescribeAsync(Parent, parent)}");
+        var (currentState, status) = await GetInstanceStateAsync(Parent, parent);
+        _output.WriteLine($"parent={parent} {currentState}/{status} — {await DescribeAsync(Parent, parent)}");
         Assert.Equal("F", status);
-        Assert.Equal("icc-p-subflow", state);
+        Assert.Equal(state, currentState);
 
         var (incidentStatus, incidentBody) = await SendRawAsync(HttpMethod.Get,
             $"api/v1/{TestDomain.Name}/workflows/{Parent}/instances/{parent}/incidents/active", headers: Headers());
         _output.WriteLine($"incident {(int)incidentStatus}: {incidentBody}");
         Assert.Equal(HttpStatusCode.OK, incidentStatus);
+        Assert.Contains("\"errorCode\":\"Instance:100023\"", incidentBody, StringComparison.Ordinal);
         Assert.Contains("Headers", incidentBody, StringComparison.Ordinal);
 
         var (childStatus, childBody) = await SendRawAsync(HttpMethod.Get,
-            $"api/v1/{TestDomain.Name}/workflows/{SubChild}/instances/{parent}-sub", headers: Headers());
-        Assert.True(childStatus == HttpStatusCode.NotFound, $"a child exists under {parent}-sub ({(int)childStatus}): {childBody}");
+            $"api/v1/{TestDomain.Name}/workflows/{SubChild}/instances/{childKey}", headers: Headers());
+        Assert.True(childStatus == HttpStatusCode.NotFound, $"a child exists under {childKey} ({(int)childStatus}): {childBody}");
         foreach (var (_, childId) in await GetActiveSubflowsAsync(Parent, parent))
         {
             var (byIdStatus, byIdBody) = await SendRawAsync(HttpMethod.Get,

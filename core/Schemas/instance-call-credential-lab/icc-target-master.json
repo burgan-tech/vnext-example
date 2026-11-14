@@ -1,6 +1,6 @@
 {
   "key": "icc-target-master",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "domain": "core",
   "flow": "sys-schemas",
   "flowVersion": "1.0.0",
