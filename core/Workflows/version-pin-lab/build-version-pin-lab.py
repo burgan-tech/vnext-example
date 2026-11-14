@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parent
 TASKS = ROOT.parent.parent / "Tasks" / "version-pin-lab"
 
 CHILD = "version-pin-lab-child"
+PINNED = "1.0.0"  # the Start task's config version; 1.0.3 is also published, so latest would differ
 
 
 def code(name):
@@ -128,6 +129,33 @@ subprocess_parent = workflow("version-pin-lab-subprocess-parent", "F", "Version 
     state("sp-completed", 3, 1, "SubProcess Parent Completed"),
 ])
 
+# Start task (type 11) whose version comes from its CONFIG only: the mapping sets the key and nothing
+# else. "1.0.0" is a full version, so the child must start at 1.0.0 although 1.0.3 is published.
+start_task_parent = workflow("version-pin-lab-start-parent", "F", "Version Pin Lab Start Parent",
+                             ["parent", "start"], "st-initial", [
+    state("st-initial", 1, 0, "Start Parent Initial",
+          on_entries=[{"order": 1,
+                       "task": ref("version-pin-lab-start-task", "sys-tasks"),
+                       "mapping": code("StartChildStartTaskMapping.csx")}],
+          transitions=[auto("auto-to-waiting", "st-waiting", "Auto to Waiting")]),
+    state("st-waiting", 2, 0, "Start Parent Waiting",
+          transitions=[manual("complete", "st-completed", "Complete")]),
+    state("st-completed", 3, 1, "Start Parent Completed"),
+])
+
+start_task = {
+    "key": "version-pin-lab-start-task",
+    "version": "1.0.0",
+    "domain": "core",
+    "flow": "sys-tasks",
+    "flowVersion": "1.0.0",
+    "tags": ["version-pin-lab", "start"],
+    "attributes": {
+        "type": "11",
+        "config": {"domain": "core", "flow": CHILD, "version": PINNED, "sync": True},
+    },
+}
+
 task = {
     "key": "version-pin-lab-start-subprocess",
     "version": "1.0.0",
@@ -150,6 +178,8 @@ def write(path, doc):
 write(ROOT / f"{CHILD}.json", child)
 write(ROOT / "version-pin-lab-subflow-parent.json", subflow_parent)
 write(ROOT / "version-pin-lab-subprocess-parent.json", subprocess_parent)
+write(ROOT / "version-pin-lab-start-parent.json", start_task_parent)
 TASKS.mkdir(parents=True, exist_ok=True)
 write(TASKS / "version-pin-lab-start-subprocess.json", task)
-print("version-pin-lab: wrote 3 workflows + 1 task")
+write(TASKS / "version-pin-lab-start-task.json", start_task)
+print("version-pin-lab: wrote 4 workflows + 2 tasks")

@@ -1,12 +1,13 @@
 # VersionPinLab — integration test
 
-İki sınıf, **on test**; `version-pin-lab-child`, `version-pin-lab-pkg-child`, `version-pin-lab-subflow-parent`, `version-pin-lab-subprocess-parent` (domain `core`).
+İki sınıf, **on bir test**; `version-pin-lab-child`, `version-pin-lab-pkg-child`, `version-pin-lab-subflow-parent`, `version-pin-lab-subprocess-parent`, `version-pin-lab-start-parent` (domain `core`).
 
 | Class | Test | What it checks |
 |---|---|---|
 | `VersionPinLabTests` | `Start_ReturnsResolvedFlowVersion` | `instances/start?version=1.0` (1.0.0 ve 1.0.3 yayında) cevabı çözümlenen sürümü taşır: `flowVersion == "1.0.3"` |
 | `VersionPinLabTests` | `SubFlowCorrelation_StoresChildResolvedVersion` | `subFlow.process.version: "1.0"` olan SubFlow state'inde parent'ın correlation'ı `subFlowVersion == "1.0.3"` tutar; child instance'ı 1.0.3'te koşar; child bitince parent fault'suz `sf-completed`'a gider |
 | `VersionPinLabTests` | `SubProcessCorrelation_StoresChildResolvedVersion` | Aynısı, child `SubProcessTask` (TaskType 14, trigger version `"1.0"`) ile başlatıldığında |
+| `VersionPinLabTests` | `StartTask_StartsTheVersionItsConfigNames` | Config'i `"version": "1.0.0"` olan Start task'ı (TaskType 11; mapping `SetVersion` çağırmaz) child'ı 1.0.3 yayındayken de **1.0.0**'da başlatır |
 | `PackageVersionResolutionTests` | `FloatingRequest_ResolvesTheHighestPackage` (4 vaka) | `1.0.0` ve `1.0` → `1.0.0-pkg.1.0.123+core` (1.0.9 / 1.0.99 / 1.0.123 arasından, sayısal); `1` ve `latest` → `1.1.0-pkg.1.0.1+core` |
 | `PackageVersionResolutionTests` | `FullVersion_ResolvesThatPackage_WithOrWithoutBuildMetadata` (2 vaka) | `1.0.0-pkg.1.0.99` ve `1.0.0-pkg.1.0.99+core` → saklı `1.0.0-pkg.1.0.99+core` |
 | `PackageVersionResolutionTests` | `FullVersionNotPublished_IsRefused` | `1.0.0-pkg.1.0.124` yayında değil → start reddedilir |
@@ -40,6 +41,18 @@ Sürümler ayrı bir anahtar (`version-pin-lab-pkg-child`) altında yayınlanır
 edici kanıt bellek tekrarıdır (vnext PR gövdesi: aynı flow'un 190 × 1,35 MB sürümü, 1 GB yığın
 sınırında eski runtime 8/20 başlatmayı sessizce `1.0.0-pkg.1.0.98`'de başlattı, yeni runtime 50/50 `…1.0.190`).
 
+### Start task config version (`StartTask_StartsTheVersionItsConfigNames`)
+
+Start task'ının (TaskType 11) sürümü mapping'den değil yalnız config'inden geldiğinde de hedefe iletilmeli:
+`"version": "1.0.0"` yazan bir Start task'ı child'ı 1.0.0'da başlatır, yayındaki daha yeni 1.0.3'te değil.
+vnext'te config okuyucusu `version` alanı yerine `flow` alanını okuyordu (vnext `fa762e9b` ile düzeltildi,
+burgan-tech/vnext#1310); o kodda istek sürüm olarak akış adını taşır,
+start `404 Cache:300001` (`core/version-pin-lab-child@version-pin-lab-child`) alır ve test kırmızıdır.
+
+**Koşum (2026-11-14, vnext `claude/subflow-subprocess-credentials-704267` @ `fa762e9b`, lokal core,
+`VNEXT_BASE_URL=http://localhost:4201`):** VersionPinLab 11/11 yeşil. Postgres: child
+`<parentId>-start` `FlowVersion = 1.0.0-pkg.1.0.0+core`; tanımın satırları `1.0.0-pkg.1.0.0+core` ve `1.0.3` (latest).
+
 ## The fixture
 
 `core/Workflows/version-pin-lab/`, `build-version-pin-lab.py` ile `./src/*.csx`'ten üretilir
@@ -57,6 +70,11 @@ sınırında eski runtime 8/20 başlatmayı sessizce `1.0.0-pkg.1.0.98`'de başl
   `core/Tasks/version-pin-lab/version-pin-lab-start-subprocess.json` (TaskType 14) task'ını çalıştırır;
   mapping `SetVersion("1.0")` der. `sp-waiting`'de manual `complete` bekler (child bittikten sonra
   parent'ın fault'suz devam ettiğini göstermek için).
+- `version-pin-lab-start-parent.json` — `st-initial`'in onEntry'si
+  `core/Tasks/version-pin-lab/version-pin-lab-start-task.json` (TaskType 11, config
+  `{"flow": "version-pin-lab-child", "version": "1.0.0", "sync": true}`) task'ını çalıştırır; mapping
+  (`StartChildStartTaskMapping.csx`) yalnız `SetKey(<parentId>-start)` ve boş gövde verir, sürüme
+  dokunmaz. `st-waiting`'de manual `complete` bekler.
 
 ## What each test asserts, in order
 
@@ -72,6 +90,11 @@ girdisini bekle. 2. `subFlowVersion == "1.0.3"`. 3. Child instance'ı okunur: `f
 ### `SubProcessCorrelation_StoresChildResolvedVersion`
 Aynı üç adım, parent `sp-waiting`'e ulaştıktan sonra; child bitince parent fault'suz kalır, `complete`
 ile `sp-completed`'a geçer.
+
+### `StartTask_StartsTheVersionItsConfigNames`
+1. 1.0.3'ü yayınla (bir kez). 2. Parent'ı başlat; `st-waiting`'e ulaşır ve fault'lu değildir.
+3. Child `<parentId>-start` anahtarıyla okunur: `flowVersion`'ın artifact kısmı `1.0.0` (SDK 1.0.0 dosyasını
+`1.0.0-pkg.<paket>+core` olarak yayınlar; latest `1.0.3`'tür). 4. Parent `complete` ile `st-completed`'a geçer.
 
 ## Pitfalls
 

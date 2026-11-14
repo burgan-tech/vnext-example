@@ -22,13 +22,19 @@ namespace Core.IntegrationTests.Tests.VersionPinLab;
 /// <c>api/v1/definitions/publish</c>. It stays outside <c>core/</c> so the SDK publisher never posts
 /// it itself; an "already published" answer on a re-run is fine (publish is version-immutable).
 /// </para>
+/// <para>
+/// The opposite direction is pinned too: a Start task whose config names the full version 1.0.0
+/// starts the child at 1.0.0, not at the newer 1.0.3.
+/// </para>
 /// </summary>
 public class VersionPinLabTests : WorkflowTestBase
 {
     private const string Child = "version-pin-lab-child";
     private const string SubFlowParent = "version-pin-lab-subflow-parent";
     private const string SubProcessParent = "version-pin-lab-subprocess-parent";
+    private const string StartTaskParent = "version-pin-lab-start-parent";
     private const string Resolved = "1.0.3";
+    private const string StartTaskPinned = "1.0.0";
 
     private static readonly SemaphoreSlim PublishGate = new(1, 1);
     private static bool _published;
@@ -81,6 +87,33 @@ public class VersionPinLabTests : WorkflowTestBase
         await AssertNotFaultedAsync(SubProcessParent, parentId);
         await RunAcceptedAsync(SubProcessParent, parentId, "complete");
         await WaitForInstanceStateAsync(SubProcessParent, parentId, "sp-completed");
+    }
+
+    /// <summary>
+    /// A Start task (type 11) whose CONFIG names <c>"version": "1.0.0"</c> — and whose mapping never
+    /// calls <c>SetVersion</c> — starts the child at 1.0.0 although 1.0.3 is published. Pins the
+    /// runtime reading the config <c>version</c> field (it used to read the <c>flow</c> field there).
+    /// </summary>
+    [Fact]
+    public async Task StartTask_StartsTheVersionItsConfigNames()
+    {
+        await EnsureChild103PublishedAsync();
+
+        var parentId = await StartAsync(StartTaskParent, new { });
+        await WaitForInstanceStateAsync(StartTaskParent, parentId, "st-waiting");
+        await AssertNotFaultedAsync(StartTaskParent, parentId);
+
+        var childKey = parentId + "-start";
+        var (status, body) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/workflows/{Child}/instances/{childKey}", headers: Headers());
+        Assert.True(status == HttpStatusCode.OK, $"no child under {childKey} ({(int)status}): {body}");
+        // The SDK publishes the 1.0.0 file as a package version (1.0.0-pkg.<package>+core), so compare
+        // the artifact part: 1.0.0, not the latest 1.0.3.
+        var started = FlowVersionOf(JsonDocument.Parse(body).RootElement, body)!;
+        Assert.Equal(StartTaskPinned, started.Split('-', '+')[0]);
+
+        await RunAcceptedAsync(StartTaskParent, parentId, "complete");
+        await WaitForInstanceStateAsync(StartTaskParent, parentId, "st-completed");
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
