@@ -149,7 +149,7 @@ gövdesi yalnız handle (≤ 348 bayt). Core'un uzak okuması log'da
 
 ## Flow default version cross-domain (`flow-default-version-xd`, vnext#1106)
 
-Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-flow-default-version-xd.md` (XV-01..XV-07).
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-flow-default-version-xd.md` (XV-01..XV-08).
 Çocuğun versiyonu **çağrılanın** (partner) `sys-version-registry` kaydından gelir; çağıranın referansı
 floating (`"1"`) ise default'u izler, tam (`"1.2.0"`) ise yok sayar.
 
@@ -158,6 +158,7 @@ core/fdv-xd-onboarding        (F 1.0.0)  onb-start ─auto→ onb-contract (4: S
 core/fdv-xd-onboarding  1.1.0 (fixture)  aynısı, referans tam "1.3.0" (XV-03 pilotu)
 core/fdv-xd-onboarding-exact  (F 1.0.0)  aynısı, referans tam "1.2.0"
 core/fdv-xd-onboarding-sp     (F 1.0.0)  sp-initial [onEntry: task 14 fdv-xd-start-contract, SetVersion("1"), SetUseDapr(true)] ─auto→ sp-waiting ─complete→ sp-done
+core/fdv-xd-onboarding-st     (F 1.0.0)  st-initial [onEntry: task 11 fdv-xd-start-contract-cfg, config version "1.2.0" + useDapr; mapping yalnız SetKey] ─auto→ st-waiting ─complete→ st-done
 partner/fdv-xd-contract       (S 1.2.0 paketten = 1.2.0-pkg.1.0.0+partner; 1.3.0 fixture'dan)  contract-waiting ─sign→ contract-done
 ```
 
@@ -175,11 +176,14 @@ düşer; bu yüzden XV-03 dışındaki testler onboarding'i `?version=1.0.0` ile
 | `CalleeDefaultChange_NewChildrenFollow_RunningChildStays` | XV-04 | partner `1.3` → ≤10 sn yeni çocuk `1.3.0`; eski çocuk ve korelasyonu `1.2.0-pkg.…` |
 | `SubProcess_FollowsCalleeDefault_RunningChildStays` | XV-05 | aynısı SubProcess (task 14, `useDapr`) yolundan |
 | `Latest_ReturnsCalleeToAutomatic` | XV-06 | partner `"latest"` → yeni çocuk `1.3.0` |
+| `StartTask_ConfigVersion_ReachesTheCallee` | XV-08 | Start task (type 11) config'i `"version": "1.2.0"` (mapping `SetVersion` çağırmaz), partner default `1.3` iken partner instance'ı (mapping'in key'iyle okunur) `1.2.0-pkg.…`'da başlar |
 
 XV-07 (`Cache.Get/sys-flows:partner:fdv-xd-contract:res:…` span'inde `vnext.flow.version.source` = `default` /
 `ceiling`) elle, OpenObserve `vnext` stream'inde doğrulanır. Her test kendi pointer'ını açık bir değerle kurar,
 `finally`'de `"latest"` ile temizler (`null` mevcut anahtarda etkisiz). Pointer değişimi pod başına ~5 sn'de
 yayılır; testler 10 sn yoklar (her yoklama gerçek bir parent + çocuk açar).
+
+**XV-08 koşusu (2026-11-14, lab imajları vnext `claude/subflow-subprocess-credentials-704267` @ `fa762e9b`, etiket `cred-rule`, provider `dapr`):** `FlowDefaultVersionCrossDomain` 7/7; CrossDomainLab + VersionPinLab 55 geçti / 4 kırmızı / 2 skip (kırmızılar `FileOffloadCrossDomainTests` — partner sidecar'ında `vnext-blob-local` binding'i yok, bilinen lab açığı; skip'ler `dapr` provider'da warm-up). Partner Postgres: `fdv-xd-st-<parentId>` `FlowVersion = 1.2.0-pkg.1.0.0+partner`; ondan 44 ms önce pointer yoklaması `1.3.0`'da başladı; tanımın satırları `1.2.0-pkg.1.0.0+partner` ve `1.3.0` (latest). Eski kodda config okuyucusu `version` yerine `flow`'u okuduğundan uzak binding sürüm olarak akış adını taşırdı.
 
 ### 2026-10-22 koşusu
 

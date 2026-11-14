@@ -36,6 +36,11 @@ registry'de `fdv-xd-contract` default'u `1.2.0`.
 - **XV-05 SubProcess aynı kurala uyar** — core `fdv-xd-onboarding-sp` (SubProcess task, versiyon `"1"`)
   XV-01 ve XV-04'teki sonuçları SubProcess yolundan da verir.
 - **XV-06 Otomatik moda dönüş** — partner `set-default "latest"` → yeni çocuk `1.3.0` (en son yayınlanan).
+- **XV-08 Start task config versiyonu domain sınırını geçer** (ek, 2026-11-14, burgan-tech/vnext#1310) — core
+  `fdv-xd-onboarding-st`'nin onEntry'si Start task'ı (type 11) `fdv-xd-start-contract-cfg`'yi çalıştırır; config
+  `{"domain":"partner","flow":"fdv-xd-contract","version":"1.2.0","useDapr":true,"sync":true}`, mapping yalnız
+  key verir (`SetVersion` YOK). Partner default `1.3` iken partner instance'ı `1.2.0`'da başlar.
+  Sonuç: yeşil — `FlowDefaultVersionCrossDomain` 7/7; CrossDomainLab + VersionPinLab 55 geçti / 4 kırmızı / 2 skip (kırmızılar `FileOffloadCrossDomainTests` — partner sidecar'ında `vnext-blob-local` binding'i yok, bilinen lab açığı; skip'ler `dapr` provider'da warm-up). Partner Postgres: `fdv-xd-st-<parentId>` `FlowVersion = 1.2.0-pkg.1.0.0+partner`; ondan 44 ms önce pointer yoklaması `1.3.0`'da başladı; tanımın satırları `1.2.0-pkg.1.0.0+partner` ve `1.3.0` (latest). Eski kodda config okuyucusu `version` yerine `flow`'u okuduğundan uzak binding sürüm olarak akış adını taşırdı.
 - **XV-07 Gözlem** — partner orchestration'ında `Cache.Get/sys-flows:partner:fdv-xd-contract:res:…`
   span'leri `vnext.flow.version.source` = `default` / `ceiling` taşır (OpenObserve, `vnext` stream'i).
 

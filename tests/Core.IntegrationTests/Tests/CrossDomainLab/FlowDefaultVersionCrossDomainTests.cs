@@ -34,6 +34,7 @@ public class FlowDefaultVersionCrossDomainTests : CrossDomainLabTestBase, IClass
     private const string Onboarding = "fdv-xd-onboarding";
     private const string OnboardingExact = "fdv-xd-onboarding-exact";
     private const string OnboardingSp = "fdv-xd-onboarding-sp";
+    private const string OnboardingSt = "fdv-xd-onboarding-st";
 
     /// <summary>A pointer change reaches each pod within ~5 s; wait twice that.</summary>
     private static readonly TimeSpan Propagation = TimeSpan.FromSeconds(10);
@@ -193,6 +194,42 @@ public class FlowDefaultVersionCrossDomainTests : CrossDomainLabTestBase, IClass
             await SetPointerAsync(Partner, Contract, "latest");
             var fresh = await WaitForChildVersionAsync(() => StartSubFlowParentAsync(Onboarding, "1.0.0"), "1.3.0");
             Assert.Equal("1.3.0", fresh.CorrelationVersion);
+        }
+        finally
+        {
+            await ClearPointerAsync(Partner, Contract);
+        }
+    }
+
+    /// <summary>
+    /// XV-08: a Start task (type 11) whose CONFIG names the exact version <c>"1.2.0"</c> — the mapping only
+    /// sets the key, never <c>SetVersion</c> — starts partner's contract on 1.2.0 while partner's default
+    /// points at 1.3. Pins the remote Start binding carrying the config <c>version</c> across the domain
+    /// boundary (the runtime used to read it from the <c>flow</c> field).
+    /// </summary>
+    [SkippableFact]
+    public async Task StartTask_ConfigVersion_ReachesTheCallee()
+    {
+        RequirePartner();
+        await EnsurePublishedAsync();
+        try
+        {
+            await PinPartnerContractAsync("1.3", "1.3.0");
+
+            var (status, body) = await SendRawAsync(HttpMethod.Post,
+                $"api/v1/core/workflows/{OnboardingSt}/instances/start?sync=true", new { }, Headers());
+            Assert.True((int)status < 400, $"start {OnboardingSt} refused with {(int)status}: {body}");
+            var parentId = JsonDocument.Parse(body).RootElement.GetProperty("id").GetString()!;
+
+            await WaitForInstanceStateAsync(OnboardingSt, parentId, "st-waiting", timeout: TimeSpan.FromSeconds(30));
+            await AssertNotFaultedAsync(OnboardingSt, parentId);
+
+            var childKey = $"fdv-xd-st-{parentId}";
+            var child = await PartnerApi.GetInstanceAsync(Contract, childKey, Headers());
+            Assert.True(child.StatusCode == HttpStatusCode.OK, $"no partner {Contract} under {childKey} ({(int)child.StatusCode})");
+            var childVersion = RawFlowVersionOf(child.Body, child.Body.GetRawText());
+            Assert.Equal("1.2.0", Artifact(childVersion));
+            Assert.StartsWith("1.2.0-pkg.", childVersion);
         }
         finally
         {
