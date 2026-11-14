@@ -85,7 +85,7 @@ uzak çağrı span'leri. Komşu koşu: `CrossDomainLab` suite'inin tamamı (mevc
 
 ## Sonuç (2026-11-14)
 
-Runtime: lab imajları vnext `claude/subflow-subprocess-credentials-704267` @ `be83eb7f` (etiket `cred-rule`), provider
+Runtime: lab imajları vnext `claude/subflow-subprocess-credentials-704267` @ `be83eb7f`, sonra `bc127eda` (etiket `cred-rule`), provider
 `dapr`, caller-role `default`. Testler: `Tests/CrossDomainLab/InstanceCallCredentialCrossDomainTests.cs`.
 
 | Koşu | Sonuç |
@@ -100,7 +100,11 @@ Plandan sapmalar:
   `icc-xd-core-target-master`, `starterNote` x-roles allow `$InstanceBehalfOfStarter`): okumanın `sub` taşıyıp
   taşımadığını görünür kılan bir alan gerekti ve aynı domain lab'ı değişmesin istendi.
 - XC-06'ya bir kontrol testi eklendi (mapping'siz aynı yol `sub`'ı core'a taşır).
-- Cross-domain Start hedefi anahtarla değil cevaptaki id ile okunur: `TaskBindingMapper.MapStartTask` uzak binding'e
-  `Key` koymuyor (master'da da) — ayrı bir runtime bulgusu, bu kuralla ilgisiz.
-- Bileşenler 1.0.2 (yayınlanmış 1.0.0/1.0.1 düzeltmeleri; publish sürüm-değişmez).
+- Bileşenler 1.0.3 (yayınlanmış 1.0.0–1.0.2 düzeltmeleri; publish sürüm-değişmez).
+
+Koşum sırasında bulunan ve düzeltilen runtime kusuru: cross-domain Start mapping'in `key`'ini düşürüyordu
+(`TaskBindingMapper.MapStartTask` uzak binding'e `Key` koymuyordu; SubProcess koyuyordu — bu kuralla ilgisiz, master'da da
+vardı). vnext `bc127eda` ile düzeltildi; XC-03 artık Start hedefini de anahtarla okur ve anahtarın partner'a ulaştığını
+assert eder. `bc127eda` imajlarıyla yeniden koşu: `InstanceCallCredentialCrossDomain` 17/17, tüm `CrossDomainLab` 43/4/2
+(aynı FileOffload kırmızıları ve warm-up skip'leri), `InstanceCallCredentialLab` 18/18.
 

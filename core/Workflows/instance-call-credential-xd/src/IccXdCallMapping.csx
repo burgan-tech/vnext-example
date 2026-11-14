@@ -35,14 +35,14 @@ public class IccXdCallMapping : ScriptBase, IMapping
                 // Explicit callee version, as cross-domain-lab's mappings do: with only the task config's `version`, the
                 // Start call answered 404 from partner on the first lab run (the published config does not name a
                 // version partner resolves).
-                sub.SetVersion("1.0.2"); // = the generator's VERSION; keep in step
+                sub.SetVersion("1.0.3"); // = the generator's VERSION; keep in step
                 sub.SetKey(id + "-proc");
                 sub.SetBody(new { mode = "record", callerId = id });
                 sub.SetSync(true);
                 if (headers != null) sub.SetHeaders(headers);
                 break;
             case StartTask start:
-                start.SetVersion("1.0.2"); // = the generator's VERSION; keep in step
+                start.SetVersion("1.0.3"); // = the generator's VERSION; keep in step
                 start.SetKey(id + "-start");
                 start.SetBody(new { mode = "record", callerId = id });
                 start.SetSync(true);
@@ -89,9 +89,7 @@ public class IccXdCallMapping : ScriptBase, IMapping
             ["hasSecret"] = secret != null,
             ["secretNote"] = secret?.ToString(),
             ["state"] = context.Instance?.CurrentState,
-            // The started instance's id from the call's answer. The test reads the cross-domain Start's target by
-            // this id: the remote Start binding does not carry the mapping's key (TaskBindingMapper.MapStartTask
-            // sets no Key), so the partner instance has none.
+            // The id in the call's answer — diagnostic only; the test reads the started instance by its key.
             ["targetInstanceId"] = Find(Get(body, "data") ?? body, "id")?.ToString()
         };
 

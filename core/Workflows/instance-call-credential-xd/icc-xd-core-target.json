@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "tags": [
     "integration-test",
     "cross-domain-lab",
@@ -22,7 +22,7 @@
       "key": "icc-xd-core-target-master",
       "domain": "core",
       "flow": "sys-schemas",
-      "version": "1.0.2"
+      "version": "1.0.3"
     },
     "functions": [],
     "features": [],
@@ -60,7 +60,7 @@
               "key": "icc-xd-core-script",
               "domain": "core",
               "flow": "sys-tasks",
-              "version": "1.0.2"
+              "version": "1.0.3"
             },
             "mapping": {
               "location": "./src/IccXdRecordMapping.csx",
@@ -135,7 +135,7 @@
                   "key": "icc-xd-core-script",
                   "domain": "core",
                   "flow": "sys-tasks",
-                  "version": "1.0.2"
+                  "version": "1.0.3"
                 },
                 "mapping": {
                   "location": "./src/IccXdRecordMapping.csx",

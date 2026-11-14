@@ -1,6 +1,6 @@
 {
   "key": "icc-xd-start",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "domain": "core",
   "flow": "sys-tasks",
   "flowVersion": "1.0.0",
@@ -16,7 +16,7 @@
       "domain": "partner",
       "flow": "icc-xd-target",
       "useDapr": true,
-      "version": "1.0.2",
+      "version": "1.0.3",
       "sync": true,
       "timeoutSeconds": 30
     }

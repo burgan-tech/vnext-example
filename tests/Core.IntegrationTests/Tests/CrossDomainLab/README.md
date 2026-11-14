@@ -283,7 +283,7 @@ core/icc-xd-core-target (F, şema icc-xd-core-target-master: starterNote x-roles
 ```
 
 Üretici `core/Workflows/instance-call-credential-xd/build-instance-call-credential-xd.py` iki kökü de yazar (sürüm
-**1.0.2**); ardından `labs/cross-domain/encode-scripts.py` aynı blob'ları üretir (değişiklik yok). Kaydedici
+**1.0.3**); ardından `labs/cross-domain/encode-scripts.py` aynı blob'ları üretir (değişiklik yok). Kaydedici
 (`IccXdRecordMapping`) aynı domain'dekinin aynısı, ek olarak `userid`'yi kaydeder.
 
 | Test (`InstanceCallCredentialCrossDomainTests`) | XC | Beklenen |
@@ -304,10 +304,10 @@ iki kontrol GET'i yapar (o `sub` ile görür, `sub`suz görmez). Böylece okuma 
 taşıdıysa döndürür.
 
 **Fixture notları:** cross-domain Start (11) yalnız task config'inin `version`'ıyla partner'dan 404 aldı;
-mapping sürümü kendisi verir (`SetVersion("1.0.2")`, cross-domain-lab'ın mapping'leri gibi). Cross-domain Start
-ayrıca mapping'in `key`'ini taşımaz — `TaskBindingMapper.MapStartTask` uzak binding'e `Key` koymuyor (master'da da
-aynı; SubProcess koyuyor) — bu yüzden Start'ın hedefi çağrının cevabındaki id ile (`call.targetInstanceId`) okunur,
-SubProcess'inki `{parentId}-proc` anahtarıyla.
+mapping sürümü kendisi verir (`SetVersion("1.0.3")`, cross-domain-lab'ın mapping'leri gibi; üreticinin `VERSION`'ıyla
+aynı tutulur). XC-03 hedefi **anahtarla** okur (`{parentId}-proc` / `{parentId}-start`) ve anahtarın partner'a ulaştığını
+assert eder: cross-domain Start mapping'in `key`'ini vnext `bc127eda`'ya kadar düşürüyordu
+(`TaskBindingMapper.MapStartTask` uzak binding'e `Key` koymuyordu; SubProcess koyuyordu) — bu assert o düzeltmenin pin'i.
 
 ```bash
 cd tests/Core.IntegrationTests
@@ -317,12 +317,22 @@ dotnet test --settings test.runsettings --filter "FullyQualifiedName~InstanceCal
 ### 2026-11-14 koşusu
 
 Lab imajları vnext `claude/subflow-subprocess-credentials-704267` @ `be83eb7f` (etiket `cred-rule`), provider `dapr`,
-caller-role provider `default`. **17/17 yeşil** (iki fixture düzeltmesinden sonra; ilk koşu 15/2: Start 404 + key).
+caller-role provider `default`. **17/17 yeşil** (iki fixture düzeltmesinden sonra; ilk koşu 15/2: Start 404 + düşen key —
+key, Start hedefi o gün cevap id'siyle okunarak geçildi; runtime düzeltmesinden sonra bkz. aşağıdaki koşu).
 Partner child'ının core'a geri okuması core logunda `dapr-caller-app-id: vnext-execution-app-partner` ile, header'larda
 `act_sub` var, `sub` yok, baggage yalnız `vnext.root.instance.id` — uzak invoker kimlik eklemiyor. Aynı runtime'da tüm
 `CrossDomainLab` 43/4/2 (4 kırmızı `FileOffloadCrossDomainTests`: partner sidecar'ında `vnext-blob-local` binding'i yok —
 § 2026-10-27'deki bilinen lab şablonu açığı), `InstanceCallCredentialLab` lab core'unda 18/18, `HumanTaskChain` 23/0/4
 (skip'ler morph-idm). OpenObserve/postgres/elasticsearch MCP kapalı: trace'e karşı doğrulanmadı.
+
+### 2026-11-14 koşusu (Start key düzeltmesi)
+
+Lab imajları vnext `bc127eda` (`fix(tasks): carry the instance key on a cross-domain Start task`, etiket `cred-rule`).
+XC-03 Start hedefini artık anahtarla okur ve `key`'in mapping'in yazdığı değer olduğunu assert eder; çağrı cevabındaki id
+ile okuma geçişi kaldırıldı (bileşenler 1.0.3). Sonuç: `InstanceCallCredentialCrossDomain` **17/17 yeşil** — ör. Start
+hedefi partner'da id `1e240b25-3df8-4e72-b44e-8c10b493934e`, `key` = `13be31c1-6bc7-45ef-9227-8a96c958850a-start`; tüm
+`CrossDomainLab` 43/4/2 (aynı 4 FileOffload kırmızısı — `couldn't find output binding vnext-blob-local`; 2 warm-up skip);
+`InstanceCallCredentialLab` 18/18.
 
 ## Başarı kriteri / bilinen kısıtlar
 

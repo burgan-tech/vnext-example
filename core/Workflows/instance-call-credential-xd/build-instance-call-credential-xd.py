@@ -40,7 +40,7 @@ from pathlib import Path
 CORE = Path(__file__).resolve().parent
 REPO = CORE.parent.parent.parent
 PARTNER = REPO / "partner" / "Workflows" / "instance-call-credential-xd"
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 TAG = "instance-call-credential-xd"
 
 

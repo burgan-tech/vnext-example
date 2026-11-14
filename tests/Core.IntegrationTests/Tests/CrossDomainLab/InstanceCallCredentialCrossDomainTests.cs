@@ -91,7 +91,7 @@ public class InstanceCallCredentialCrossDomainTests : CrossDomainLabTestBase, IC
         var parent = await DriveAsync(new { variant = "none" }, transition, caller);
 
         var call = await WaitCallAsync(parent);
-        var target = await GetPartnerAsync(PartnerTarget, StartedIdentifier(call, parent, suffix));
+        var target = await GetStartedAsync(call, parent, suffix);
         AssertSaw(Seen(target), "sub", caller.Sub);
         AssertSaw(Seen(target), "act_sub", caller.ActSub);
         AssertCreated(target, by: caller.ActSub, behalfOf: caller.Sub);
@@ -107,7 +107,7 @@ public class InstanceCallCredentialCrossDomainTests : CrossDomainLabTestBase, IC
         var parent = await DriveAsync(new { variant = "blank" }, transition, caller);
 
         var call = await WaitCallAsync(parent);
-        var target = await GetPartnerAsync(PartnerTarget, StartedIdentifier(call, parent, suffix));
+        var target = await GetStartedAsync(call, parent, suffix);
         AssertDidNotSee(Seen(target), "sub");
         AssertSaw(Seen(target), "act_sub", caller.ActSub);
         AssertCreated(target, by: caller.ActSub, behalfOf: null);
@@ -367,19 +367,17 @@ public class InstanceCallCredentialCrossDomainTests : CrossDomainLabTestBase, IC
     }
 
     /// <summary>
-    /// The partner instance a SubProcess / Start call created. SubProcess carries the mapping's key
-    /// (<c>{parentId}-proc</c>); the cross-domain Start does not — <c>TaskBindingMapper.MapStartTask</c> sets no
-    /// <c>Key</c> on the remote binding (same on master), so the partner row has none — and is read by the id the
-    /// call answered with (<c>call.targetInstanceId</c>), as cross-domain-lab's <c>RemoteIdentifier</c> does.
+    /// The partner instance a SubProcess / Start call created, read BY KEY: the mapping sets <c>{parentId}-proc</c> /
+    /// <c>{parentId}-start</c>. Also pins that the key arrived in partner — the cross-domain Start dropped it until
+    /// vnext bc127eda (<c>TaskBindingMapper.MapStartTask</c> did not copy <c>Key</c> onto the remote binding).
     /// </summary>
-    private string StartedIdentifier(JsonElement call, string parentId, string suffix)
+    private async Task<JsonElement> GetStartedAsync(JsonElement call, string parentId, string suffix)
     {
         Assert.True(call.GetProperty("isSuccess").GetBoolean(), $"the {suffix} call failed: {call.GetRawText()}");
-        if (suffix == "proc") return $"{parentId}-proc";
-        var id = Str(call, "targetInstanceId");
-        Assert.False(string.IsNullOrWhiteSpace(id), $"the start call answered no id: {call.GetRawText()}");
-        _output.WriteLine($"partner start target id={id}");
-        return id!;
+        var key = $"{parentId}-{suffix}";
+        var target = await GetPartnerAsync(PartnerTarget, key);
+        Assert.Equal(key, Text(target, "key"));
+        return target;
     }
 
     private static void AssertBackCallsSucceeded(JsonElement parentData)
@@ -425,7 +423,7 @@ public class InstanceCallCredentialCrossDomainTests : CrossDomainLabTestBase, IC
     private void Log(string domain, string workflow, string identifier, JsonElement element)
     {
         var metadata = element.GetProperty("metadata");
-        _output.WriteLine($"{domain} {workflow}/{identifier}: id={Text(element, "id")} createdBy={Text(metadata, "createdBy")} " +
+        _output.WriteLine($"{domain} {workflow}/{identifier}: id={Text(element, "id")} key={Text(element, "key")} createdBy={Text(metadata, "createdBy")} " +
                           $"createdByBehalfOf={Text(metadata, "createdByBehalfOf")} attributes={element.GetProperty("attributes").GetRawText()}");
     }
 
