@@ -1,0 +1,128 @@
+{
+  "key": "icc-xd-sub-nest",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "partner",
+  "version": "1.0.3",
+  "tags": [
+    "integration-test",
+    "cross-domain-lab",
+    "instance-call-credential-xd",
+    "child",
+    "nested"
+  ],
+  "attributes": {
+    "type": "S",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Instance Call Credential XD nested child (calls back into core)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "icc-xd-n-entry",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "icc-xd-n-entry",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Record, then DirectTrigger + GetInstance into core"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "icc-xd-script",
+              "domain": "partner",
+              "flow": "sys-tasks",
+              "version": "1.0.3"
+            },
+            "mapping": {
+              "location": "./src/IccXdRecordMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGluc3RhbmNlLWNhbGwtY3JlZGVudGlhbC14ZCAoY3Jvc3MtZG9tYWluIGxhYik6IHRoZSBSRUNPUkRFUiBldmVyeSB0YXJnZXQgcnVucyBvbiB0aGUgaG9wIHVuZGVyIHRlc3Qg4oCUIHRoZQovLy8gc2FtZSBsb2dpYyBhcyBpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwtbGFiJ3MgSWNjUmVjb3JkTWFwcGluZywgcGx1cyA8Yz51c2VyaWQ8L2M+IChYQy0wNzogYSBjcm9zcy1kb21haW4KLy8vIFN1YkZsb3cgY2hpbGQgc3RpbGwgcmVjZWl2ZXMgdGhlIGFtYmllbnQgY2FsbGVyJ3MgPGM+dXNlcklkPC9jPikuIEl0IHdyaXRlcyB3aGljaAovLy8gY3JlZGVudGlhbCBoZWFkZXJzICg8Yz5zdWI8L2M+LCA8Yz5hY3Rfc3ViPC9jPiwgPGM+cG9zaXRpb248L2M+LCA8Yz5jbGllbnRfaWQ8L2M+LCA8Yz5yb2xlPC9jPikgd2VyZQovLy8gcHJlc2VudCBpbiA8Yz5jb250ZXh0LkhlYWRlcnM8L2M+IGFuZCB0aGVpciB2YWx1ZXMsIHBsdXMgdGhlIGluc3RhbmNlJ3Mgb3duIGlkLgovLy8gPHBhcmE+Ci8vLyBPbmUgbWFwcGluZyBzZXJ2ZXMgdHdvIGhvcHM6IHRoZSBzdGFydCBob3AgKG9uRW50cnkgb2YgdGhlIHN0YXJ0IHRhcmdldCkgd3JpdGVzIDxjPnNlZW48L2M+OyB0aGUKLy8vIDxjPnRvdWNoPC9jPiB0cmFuc2l0aW9uIG9mIGEgdGFyZ2V0IChkcml2ZW4gYnkgdGhlIHBhcmVudCdzIERpcmVjdFRyaWdnZXIgdGFzaywgaXRzIG9uRXhlY3V0aW9uVGFza3MKLy8vIHJ1biB3aGlsZSB0aGUgaW5zdGFuY2UgaXMgc3RpbGwgaW4gPGM+aWNjLXQtd2FpdDwvYz4pIHdyaXRlcyA8Yz50b3VjaFNlZW48L2M+LgovLy8gPC9wYXJhPgovLy8gPHBhcmE+Ci8vLyA8Yz5jb250ZXh0LkhlYWRlcnM8L2M+IGlzIHJlYWQgYXMgYSBkaWN0aW9uYXJ5LCBuZXZlciBhcyBhIGR5bmFtaWMgbWVtYmVyOiByZWFkaW5nIGEgaGVhZGVyIHRoYXQgaXMKLy8vIG5vdCB0aGVyZSBvZmYgdGhlIGR5bmFtaWMgb2JqZWN0IHRocm93cy4gS2V5cyBhcmUgbG93ZXItY2FzZWQgYnkgdGhlIHJ1bnRpbWU7IHRoZSBsb29rdXAgaXMKLy8vIGNhc2UtaW5zZW5zaXRpdmUgYW55d2F5LgovLy8gPC9wYXJhPgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSWNjWGRSZWNvcmRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHJpdmF0ZSBzdGF0aWMgcmVhZG9ubHkgc3RyaW5nW10gQ3JlZGVudGlhbHMgPSB7ICJzdWIiLCAiYWN0X3N1YiIsICJwb3NpdGlvbiIsICJjbGllbnRfaWQiLCAicm9sZSIsICJ1c2VyaWQiIH07CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KSA9PgogICAgICAgIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBoZWFkZXJzID0gUmVhZCgob2JqZWN0KWNvbnRleHQuSGVhZGVycyk7CgogICAgICAgIHZhciBzZWVuID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KCk7CiAgICAgICAgZm9yZWFjaCAodmFyIG5hbWUgaW4gQ3JlZGVudGlhbHMpCiAgICAgICAgewogICAgICAgICAgICB2YXIgcHJlc2VudCA9IGhlYWRlcnMuVHJ5R2V0VmFsdWUobmFtZSwgb3V0IHZhciB2YWx1ZSk7CiAgICAgICAgICAgIHNlZW5bbmFtZV0gPSBwcmVzZW50ID8gdmFsdWUgOiBudWxsOwogICAgICAgICAgICBzZWVuWyJoYXNfIiArIG5hbWVdID0gcHJlc2VudDsKICAgICAgICB9CgogICAgICAgIHZhciBrZXlzID0gbmV3IExpc3Q8c3RyaW5nPihoZWFkZXJzLktleXMpOwogICAgICAgIGtleXMuU29ydChTdHJpbmdDb21wYXJlci5PcmRpbmFsKTsKICAgICAgICBzZWVuWyJrZXlzIl0gPSBzdHJpbmcuSm9pbigiLCIsIGtleXMpOwoKICAgICAgICB2YXIgZmllbGQgPSAoY29udGV4dC5JbnN0YW5jZT8uQ3VycmVudFN0YXRlID8/ICIiKSA9PSAiaWNjLXQtd2FpdCIgPyAidG91Y2hTZWVuIiA6ICJzZWVuIjsKICAgICAgICB2YXIgcmVzdWx0ID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgewogICAgICAgICAgICBbZmllbGRdID0gc2VlbiwKICAgICAgICAgICAgWyJzZWxmSWQiXSA9IGNvbnRleHQuSW5zdGFuY2U/LklkLlRvU3RyaW5nKCkKICAgICAgICB9OwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlIHsgRGF0YSA9IHJlc3VsdCB9KTsKICAgIH0KCiAgICBwcml2YXRlIHN0YXRpYyBEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPiBSZWFkKG9iamVjdCBoZWFkZXJzKQogICAgewogICAgICAgIHZhciByZXN1bHQgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIHN0cmluZz4oU3RyaW5nQ29tcGFyZXIuT3JkaW5hbElnbm9yZUNhc2UpOwogICAgICAgIGlmIChoZWFkZXJzIGlzIElEaWN0aW9uYXJ5PHN0cmluZywgc3RyaW5nPiB0eXBlZCkKICAgICAgICB7CiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBwYWlyIGluIHR5cGVkKSByZXN1bHRbcGFpci5LZXldID0gcGFpci5WYWx1ZTsKICAgICAgICB9CiAgICAgICAgZWxzZSBpZiAoaGVhZGVycyBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gbG9vc2UpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIgcGFpciBpbiBsb29zZSkgcmVzdWx0W3BhaXIuS2V5XSA9IHBhaXIuVmFsdWU/LlRvU3RyaW5nKCk7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gcmVzdWx0OwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 2,
+            "task": {
+              "key": "icc-xd-back-trigger",
+              "domain": "partner",
+              "flow": "sys-tasks",
+              "version": "1.0.3"
+            },
+            "mapping": {
+              "location": "./src/IccXdBackTriggerMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gaW5zdGFuY2UtY2FsbC1jcmVkZW50aWFsLXhkIGljYy14ZC1zdWItbmVzdCAocGFydG5lciksIFhDLTA2OiBhIERpcmVjdFRyaWdnZXIgKDEyKSBmcm9tIHRoZSBwYXJ0bmVyIGNoaWxkIEJBQ0sgaW50bwovLy8gY29yZSAodGFzayBjb25maWcgPGM+ZG9tYWluOiBjb3JlPC9jPiwgPGM+dXNlRGFwcjogdHJ1ZTwvYz4pLCBmaXJpbmcgPGM+dG91Y2g8L2M+IG9uIHRoZSBjb3JlIHRhcmdldAovLy8gPGM+Y29yZVRhcmdldElkPC9jPiB0aGUgcGFyZW50IGhhbmRlZCBkb3duLiBUaGUgbWFwcGluZyB3cml0ZXMgTk8gaGVhZGVyczogdGhlIGNhbGwgY2FycmllcyBvbmx5IHdoYXQgdGhlIGNoaWxkJ3MKLy8vIG93biBob3AgY2FycmllZC4gSWYgdGhlIHBhcmVudCB3aXRoaGVsZCA8Yz5zdWI8L2M+LCB0aGUgY29yZSB0YXJnZXQncyA8Yz50b3VjaFNlZW48L2M+IG11c3Qgbm90IGhhdmUgb25lIOKAlCBub3QgZnJvbQovLy8gYSBoZWFkZXIsIG5vdCBmcm9tIHRyYWNlIGJhZ2dhZ2UsIG5vdCBhZGRlZCBieSB0aGUgRXhlY3V0aW9uIGhvc3QuCi8vLyBPdXRwdXRIYW5kbGVyIHJlY29yZHMgdGhlIGNhbGwgYXMgPGM+YmFja1RyaWdnZXI8L2M+LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSWNjWGRCYWNrVHJpZ2dlck1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHRyaWdnZXIgPSB0YXNrIGFzIERpcmVjdFRyaWdnZXJUYXNrID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBEaXJlY3RUcmlnZ2VyVGFzayIpOwogICAgICAgIHRyaWdnZXIuU2V0SW5zdGFuY2UoQ29yZVRhcmdldElkKGNvbnRleHQpKTsKICAgICAgICB0cmlnZ2VyLlNldEJvZHkobmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IHsgWyJ0b3VjaGVkQnkiXSA9IGNvbnRleHQuSW5zdGFuY2UuSWQuVG9TdHJpbmcoKSB9KTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgb2JqZWN0IGJvZHkgPSBjb250ZXh0LkJvZHk7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIERhdGEgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJiYWNrVHJpZ2dlciJdID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgWyJkb25lIl0gPSB0cnVlLAogICAgICAgICAgICAgICAgICAgIFsiaXNTdWNjZXNzIl0gPSBHZXQoYm9keSwgImlzU3VjY2VzcyIpLAogICAgICAgICAgICAgICAgICAgIFsic3RhdHVzQ29kZSJdID0gR2V0KGJvZHksICJzdGF0dXNDb2RlIiksCiAgICAgICAgICAgICAgICAgICAgWyJlcnJvciJdID0gR2V0KGJvZHksICJlcnJvck1lc3NhZ2UiKT8uVG9TdHJpbmcoKQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgfSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgc3RyaW5nIENvcmVUYXJnZXRJZChTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgR2V0KGNvbnRleHQuSW5zdGFuY2U/LkRhdGEsICJjb3JlVGFyZ2V0SWQiKT8uVG9TdHJpbmcoKQogICAgICAgID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwteGQ6IHRoZSBuZXN0ZWQgY2hpbGQgaGFzIG5vICdjb3JlVGFyZ2V0SWQnIik7CgogICAgcHJpdmF0ZSBzdGF0aWMgb2JqZWN0IEdldChvYmplY3Qgbm9kZSwgc3RyaW5nIG5hbWUpCiAgICB7CiAgICAgICAgaWYgKG5vZGUgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGRpY3QpCiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KQogICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoa3YuS2V5LCBuYW1lLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSkgcmV0dXJuIGt2LlZhbHVlOwogICAgICAgIHJldHVybiBudWxsOwogICAgfQp9Cg=="
+            }
+          },
+          {
+            "order": 3,
+            "task": {
+              "key": "icc-xd-back-get",
+              "domain": "partner",
+              "flow": "sys-tasks",
+              "version": "1.0.3"
+            },
+            "mapping": {
+              "location": "./src/IccXdBackGetMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnM7CnVzaW5nIFN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwteGQgaWNjLXhkLXN1Yi1uZXN0IChwYXJ0bmVyKSwgWEMtMDY6IGEgR2V0SW5zdGFuY2UgKDE5KSBmcm9tIHRoZSBwYXJ0bmVyIGNoaWxkIEJBQ0sgaW50bwovLy8gY29yZSAodGFzayBjb25maWcgPGM+ZG9tYWluOiBjb3JlPC9jPiwgPGM+dXNlRGFwcjogdHJ1ZTwvYz4pIG9uIHRoZSBjb3JlIHRhcmdldCA8Yz5jb3JlVGFyZ2V0SWQ8L2M+LiBUaGUgbWFwcGluZwovLy8gd3JpdGVzIE5PIGhlYWRlcnMuCi8vLyA8cGFyYT4KLy8vIEEgcmVhZCByZWNvcmRzIG5vdGhpbmcgb24gaXRzIHRhcmdldCwgc28gdGhlIHByb2JlIGlzIHRoZSB0YXJnZXQncyBzY2hlbWE6IDxjPnN0YXJ0ZXJOb3RlPC9jPiBjYXJyaWVzCi8vLyA8Yz54LXJvbGVzPC9jPiBhbGxvdyA8Yz4kSW5zdGFuY2VCZWhhbGZPZlN0YXJ0ZXI8L2M+IOKAlCB2aXNpYmxlIG9ubHkgdG8gYSBjYWxsZXIgd2hvc2UgPGM+c3ViPC9jPiBlcXVhbHMgdGhlCi8vLyB0YXJnZXQncyA8Yz5DcmVhdGVkQnlCZWhhbGZPZjwvYz4gKHRoZSB0ZXN0IHN0YXJ0cyB0aGUgdGFyZ2V0IHdpdGggdGhlIGNhbGxlcidzIG93biA8Yz5zdWI8L2M+KS4gVGhlIHJlYWQgcmV0dXJucwovLy8gPGM+c3RhcnRlck5vdGU8L2M+IGV4YWN0bHkgd2hlbiB0aGUgY2FsbCBjYXJyaWVkIHRoYXQgPGM+c3ViPC9jPi4KLy8vIDwvcGFyYT4KLy8vIE91dHB1dEhhbmRsZXIgcmVjb3JkcyA8Yz5iYWNrUmVhZDwvYz4gKDxjPmlzU3VjY2VzczwvYz4sIDxjPnN0YXR1c0NvZGU8L2M+LCA8Yz5oYXNTdGFydGVyTm90ZTwvYz4pLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgSWNjWGRCYWNrR2V0TWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZ2V0ID0gdGFzayBhcyBHZXRJbnN0YW5jZVRhc2sgPz8gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oIlRhc2sgbXVzdCBiZSBhIEdldEluc3RhbmNlVGFzayIpOwogICAgICAgIGdldC5TZXRJbnN0YW5jZShHZXQoY29udGV4dC5JbnN0YW5jZT8uRGF0YSwgImNvcmVUYXJnZXRJZCIpPy5Ub1N0cmluZygpCiAgICAgICAgICAgID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJpbnN0YW5jZS1jYWxsLWNyZWRlbnRpYWwteGQ6IHRoZSBuZXN0ZWQgY2hpbGQgaGFzIG5vICdjb3JlVGFyZ2V0SWQnIikpOwogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBvYmplY3QgYm9keSA9IGNvbnRleHQuQm9keTsKICAgICAgICB2YXIgbm90ZSA9IEZpbmQoR2V0KGJvZHksICJkYXRhIikgPz8gYm9keSwgInN0YXJ0ZXJOb3RlIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIERhdGEgPSBuZXcgRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgWyJiYWNrUmVhZCJdID0gbmV3IERpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgWyJkb25lIl0gPSB0cnVlLAogICAgICAgICAgICAgICAgICAgIFsiaXNTdWNjZXNzIl0gPSBHZXQoYm9keSwgImlzU3VjY2VzcyIpLAogICAgICAgICAgICAgICAgICAgIFsic3RhdHVzQ29kZSJdID0gR2V0KGJvZHksICJzdGF0dXNDb2RlIiksCiAgICAgICAgICAgICAgICAgICAgWyJlcnJvciJdID0gR2V0KGJvZHksICJlcnJvck1lc3NhZ2UiKT8uVG9TdHJpbmcoKSwKICAgICAgICAgICAgICAgICAgICBbImhhc1N0YXJ0ZXJOb3RlIl0gPSBub3RlICE9IG51bGwsCiAgICAgICAgICAgICAgICAgICAgWyJzdGFydGVyTm90ZSJdID0gbm90ZT8uVG9TdHJpbmcoKQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgfSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgb2JqZWN0IEdldChvYmplY3Qgbm9kZSwgc3RyaW5nIG5hbWUpCiAgICB7CiAgICAgICAgaWYgKG5vZGUgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGRpY3QpCiAgICAgICAgICAgIGZvcmVhY2ggKHZhciBrdiBpbiBkaWN0KQogICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoa3YuS2V5LCBuYW1lLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSkgcmV0dXJuIGt2LlZhbHVlOwogICAgICAgIHJldHVybiBudWxsOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdCBGaW5kKG9iamVjdCBub2RlLCBzdHJpbmcgbmFtZSkKICAgIHsKICAgICAgICB2YXIgcXVldWUgPSBuZXcgUXVldWU8b2JqZWN0PigpOwogICAgICAgIHF1ZXVlLkVucXVldWUobm9kZSk7CiAgICAgICAgdmFyIHZpc2l0ZWQgPSAwOwogICAgICAgIHdoaWxlIChxdWV1ZS5Db3VudCA+IDAgJiYgdmlzaXRlZCsrIDwgMjAwMCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBjdXJyZW50ID0gcXVldWUuRGVxdWV1ZSgpOwogICAgICAgICAgICBpZiAoY3VycmVudCBpcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4gZGljdCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGt2IGluIGRpY3QpCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgaWYgKHN0cmluZy5FcXVhbHMoa3YuS2V5LCBuYW1lLCBTdHJpbmdDb21wYXJpc29uLk9yZGluYWxJZ25vcmVDYXNlKSAmJiBrdi5WYWx1ZSAhPSBudWxsKSByZXR1cm4ga3YuVmFsdWU7CiAgICAgICAgICAgICAgICAgICAgcXVldWUuRW5xdWV1ZShrdi5WYWx1ZSk7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxzZSBpZiAoY3VycmVudCBpcyBJRW51bWVyYWJsZSBsaXN0ICYmIGN1cnJlbnQgaXMgbm90IHN0cmluZykKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgZm9yZWFjaCAodmFyIGl0ZW0gaW4gbGlzdCkgcXVldWUuRW5xdWV1ZShpdGVtKTsKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIG51bGw7CiAgICB9Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "to-done",
+            "target": "icc-xd-n-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "triggerKind": 10
+          }
+        ]
+      },
+      {
+        "key": "icc-xd-n-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

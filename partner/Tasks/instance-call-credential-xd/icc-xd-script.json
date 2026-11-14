@@ -1,0 +1,17 @@
+{
+  "key": "icc-xd-script",
+  "version": "1.0.3",
+  "domain": "partner",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "cross-domain-lab",
+    "instance-call-credential-xd",
+    "script-task"
+  ],
+  "attributes": {
+    "type": "7",
+    "config": {}
+  }
+}

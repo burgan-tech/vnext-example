@@ -1,0 +1,24 @@
+{
+  "key": "icc-xd-list",
+  "version": "1.0.3",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "cross-domain-lab",
+    "instance-call-credential-xd",
+    "get-instances"
+  ],
+  "attributes": {
+    "type": "15",
+    "config": {
+      "domain": "partner",
+      "flow": "icc-xd-target",
+      "useDapr": true,
+      "page": 1,
+      "pageSize": 10,
+      "timeoutSeconds": 30
+    }
+  }
+}

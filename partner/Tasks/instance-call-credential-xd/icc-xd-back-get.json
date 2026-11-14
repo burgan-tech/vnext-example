@@ -1,0 +1,22 @@
+{
+  "key": "icc-xd-back-get",
+  "version": "1.0.3",
+  "domain": "partner",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "cross-domain-lab",
+    "instance-call-credential-xd",
+    "get-instance"
+  ],
+  "attributes": {
+    "type": "19",
+    "config": {
+      "domain": "core",
+      "flow": "icc-xd-core-target",
+      "useDapr": true,
+      "timeoutSeconds": 30
+    }
+  }
+}

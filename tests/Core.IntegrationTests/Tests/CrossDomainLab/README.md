@@ -44,6 +44,7 @@ bekler, status'u değil. Her task ayrı transition'da: kırmızı bir test tek b
 | `TriggerTaskTests` | 07–11 | 14 fire-and-forget worker, 11 sync start (+`remoteInstanceId`/`remoteKey`), 12 `remote-advance`, 19+13 okuma (`remoteState`, `remoteData.testId`), 15 `attributes.testId` filtresiyle liste |
 | `DiscoveryWarmUpTests` | 12–14 | registry'nin `domain-list` sözleşmesi (düz `items[]`, dört alan, sayfalama zarfı **yok**), `POST utilities/discovery/refresh` → `Refreshed` (runtime function'ı okuyup cache'i yazdı), yeni bir kayıttan sonra listenin büyümesi ve warm-up'ın hâlâ başarılı olması |
 | `FileOffloadCrossDomainTests` | XS-01–05 | `x-storage` domain sınırında: partner yaprağa proxy'lenen sync/async yükleme, leaf-owned handle (partner binding'i + owner), partner `functions/file` 200 / core parent 404, core'dan `GetFileAsync("partner", …)` — bkz. § x-storage |
+| `InstanceCallCredentialCrossDomainTests` | XC-01–08 | instance çağrısında çağıranın kimlik kuralı domain sınırında: SubFlow start + 14/11/12/19/15/13 task'ları core → partner, iç içe partner → core geri çağrısı, `userId` farkı — bkz. § Instance-call credential |
 
 `CrossDomainLabFixture` partner bileşenlerini (`partner/`, `vnext.partner.config.json`) bir kez yayınlar —
 harici-stack modunda SDK'nın `OnAfterEnvironmentReadyAsync` hook'u çağrılmadığı için fixture'da.
@@ -148,7 +149,7 @@ gövdesi yalnız handle (≤ 348 bayt). Core'un uzak okuması log'da
 
 ## Flow default version cross-domain (`flow-default-version-xd`, vnext#1106)
 
-Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-flow-default-version-xd.md` (XV-01..XV-07).
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-flow-default-version-xd.md` (XV-01..XV-08).
 Çocuğun versiyonu **çağrılanın** (partner) `sys-version-registry` kaydından gelir; çağıranın referansı
 floating (`"1"`) ise default'u izler, tam (`"1.2.0"`) ise yok sayar.
 
@@ -157,6 +158,7 @@ core/fdv-xd-onboarding        (F 1.0.0)  onb-start ─auto→ onb-contract (4: S
 core/fdv-xd-onboarding  1.1.0 (fixture)  aynısı, referans tam "1.3.0" (XV-03 pilotu)
 core/fdv-xd-onboarding-exact  (F 1.0.0)  aynısı, referans tam "1.2.0"
 core/fdv-xd-onboarding-sp     (F 1.0.0)  sp-initial [onEntry: task 14 fdv-xd-start-contract, SetVersion("1"), SetUseDapr(true)] ─auto→ sp-waiting ─complete→ sp-done
+core/fdv-xd-onboarding-st     (F 1.0.0)  st-initial [onEntry: task 11 fdv-xd-start-contract-cfg, config version "1.2.0" + useDapr; mapping yalnız SetKey] ─auto→ st-waiting ─complete→ st-done
 partner/fdv-xd-contract       (S 1.2.0 paketten = 1.2.0-pkg.1.0.0+partner; 1.3.0 fixture'dan)  contract-waiting ─sign→ contract-done
 ```
 
@@ -174,11 +176,14 @@ düşer; bu yüzden XV-03 dışındaki testler onboarding'i `?version=1.0.0` ile
 | `CalleeDefaultChange_NewChildrenFollow_RunningChildStays` | XV-04 | partner `1.3` → ≤10 sn yeni çocuk `1.3.0`; eski çocuk ve korelasyonu `1.2.0-pkg.…` |
 | `SubProcess_FollowsCalleeDefault_RunningChildStays` | XV-05 | aynısı SubProcess (task 14, `useDapr`) yolundan |
 | `Latest_ReturnsCalleeToAutomatic` | XV-06 | partner `"latest"` → yeni çocuk `1.3.0` |
+| `StartTask_ConfigVersion_ReachesTheCallee` | XV-08 | Start task (type 11) config'i `"version": "1.2.0"` (mapping `SetVersion` çağırmaz), partner default `1.3` iken partner instance'ı (mapping'in key'iyle okunur) `1.2.0-pkg.…`'da başlar |
 
 XV-07 (`Cache.Get/sys-flows:partner:fdv-xd-contract:res:…` span'inde `vnext.flow.version.source` = `default` /
 `ceiling`) elle, OpenObserve `vnext` stream'inde doğrulanır. Her test kendi pointer'ını açık bir değerle kurar,
 `finally`'de `"latest"` ile temizler (`null` mevcut anahtarda etkisiz). Pointer değişimi pod başına ~5 sn'de
 yayılır; testler 10 sn yoklar (her yoklama gerçek bir parent + çocuk açar).
+
+**XV-08 koşusu (2026-11-14, lab imajları vnext `claude/subflow-subprocess-credentials-704267` @ `fa762e9b`, etiket `cred-rule`, provider `dapr`):** `FlowDefaultVersionCrossDomain` 7/7; CrossDomainLab + VersionPinLab 55 geçti / 4 kırmızı / 2 skip (kırmızılar `FileOffloadCrossDomainTests` — partner sidecar'ında `vnext-blob-local` binding'i yok, bilinen lab açığı; skip'ler `dapr` provider'da warm-up). Partner Postgres: `fdv-xd-st-<parentId>` `FlowVersion = 1.2.0-pkg.1.0.0+partner`; ondan 44 ms önce pointer yoklaması `1.3.0`'da başladı; tanımın satırları `1.2.0-pkg.1.0.0+partner` ve `1.3.0` (latest). Eski kodda config okuyucusu `version` yerine `flow`'u okuduğundan uzak binding sürüm olarak akış adını taşırdı.
 
 ### 2026-10-22 koşusu
 
@@ -253,6 +258,85 @@ dotnet test --filter "FullyQualifiedName~CrossDomainLab.RowSecurityCrossDomain" 
 
 `test.runsettings` partner'ı `:4211`'e sabitler, ortam değişkenini ezer; komut satırı argümanı gerekir. Co-host'ta partner'ın
 `sys-version-registry`'si yayınlı olmalı (yoksa partner'daki her start 503 `Instance:100053`; init paketi bu akışı taşımıyor).
+
+## Instance-call credential cross-domain (`instance-call-credential-xd`)
+
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-instance-call-credential.md` (XC-01..XC-08). Kural
+(vnext `docs/domain/role-grant-authorization.md` § *Caller credential on instance calls*), credential başına (`sub`,
+`act_sub`, `position`, `client_id`, `role`): mapping boş olmayan değer yazdıysa hedef onu görür; **boş** (`""`) yazdıysa
+credential hedefe gitmez ve çağıranınki eklenmez; hiç yazmadıysa çağıranınki (parent hop'unu süren istek) gider. Domain
+sınırındaki iki çıkış: SubFlow start'ın header birleştirmesi (`CurrentUserForwardHeadersHelper.MergeIntoRequest` — boş
+değer ambient kullanıcının header'ını siler) ve Execution host'un remote invoker'ları
+(`InvokerHelpers.DropBlankCredentialHeaders` — boş işaret istek çıkmadan silinir, host kendinden kimlik eklemez).
+Aynı domain karşılığı: `Tests/InstanceCallCredentialLab/README.md` (aynı kaydedici, aynı varyantlar — XC-08 eşlik).
+
+```
+core/icc-xd-parent (F): start → icc-xd-p-ready [Active] — test TEK bir manual transition'ı kendi sub/act_sub(/role/userId)
+                         header'larıyla sürer; varyant (none | blank | role-blank) start verisinden
+  do-subflow    → icc-xd-p-subflow    (S: partner icc-xd-sub, key {parentId}-sub)
+  do-nest       → icc-xd-p-nest       (S: partner icc-xd-sub-nest, key {parentId}-sub; coreTargetId aşağı iner)
+  do-subprocess / do-start / do-trigger / do-get / do-list / do-data
+                → onEntry task 14 / 11 / 12 / 19 / 15 / 13 → partner icc-xd-target (useDapr), IccXdCallMapping
+partner/icc-xd-target (F, şema icc-xd-target-master: secretNote x-roles allow icc.reader):
+                start → icc-t-entry [kaydedici → seen] ─(mode=wait)→ icc-t-wait ──touch [kaydedici → touchSeen]──▶ icc-t-touched
+partner/icc-xd-sub (S): start → kaydedici → done
+partner/icc-xd-sub-nest (S): start → kaydedici → DirectTrigger (12) + GetInstance (19) → core icc-xd-core-target
+                (task config domain: core, useDapr; mapping header YAZMAZ) → done
+core/icc-xd-core-target (F, şema icc-xd-core-target-master: starterNote x-roles allow $InstanceBehalfOfStarter):
+                icc-xd-target ile aynı şekil; test onu çağıranın kendi sub'ıyla başlatır
+```
+
+Üretici `core/Workflows/instance-call-credential-xd/build-instance-call-credential-xd.py` iki kökü de yazar (sürüm
+**1.0.3**); ardından `labs/cross-domain/encode-scripts.py` aynı blob'ları üretir (değişiklik yok). Kaydedici
+(`IccXdRecordMapping`) aynı domain'dekinin aynısı, ek olarak `userid`'yi kaydeder.
+
+| Test (`InstanceCallCredentialCrossDomainTests`) | XC | Beklenen |
+|---|---|---|
+| `XC01_SubFlow_NoMappingHeaders_…` | 01 | partner child `sub`/`act_sub` = çağıranın; satır `createdBy` = `act_sub`, `createdByBehalfOf` = `sub` |
+| `XC02_SubFlow_BlankSub_…` | 02 | child `sub` görmez, `act_sub` görür; `createdByBehalfOf` boş |
+| `XC03_NewInstance_NoMappingHeaders_…` (×2: SubProcess, Start) | 03 | XC-01 ile aynı, partner'da yeni `icc-xd-target` |
+| `XC03_NewInstance_BlankSub_…` (×2) | 03 | XC-02 ile aynı |
+| `XC04_DirectTrigger_NoMappingHeaders_…` / `XC04_DirectTrigger_BlankSub_…` | 04 | `touch`'ın kaydı (`touchSeen`): `sub`+`act_sub` / yalnız `act_sub` |
+| `XC05_Read_NoMappingHeaders_…` (×3) / `XC05_Read_BlankRoleHeader_…` (×3) | 05 | çağıran `role: icc.reader`: task header yoksa `secretNote` döner; task `role = ""` ise dönmez (okuma 200) |
+| `XC06_Nested_BlankSubOnPartnerSubFlow_…` | 06 | partner child `sub` görmez; geri çağrılarda core hedefi `touchSeen`'de `sub` görmez (`act_sub` görür), okuma `starterNote`'u döndürmez |
+| `XC06_Control_NoMappingHeaders_…` | 06 kontrolü | aynı yol mapping'siz: core hedefi çağıranın `sub`'ını görür, okuma `starterNote`'u döndürür — XC-06'nın yeşili "geri çağrı hiçbir şey taşımıyor" demek olmasın diye |
+| `XC07_SubFlow_CrossDomainChildStillReceivesAmbientUserId` | 07 | çağıranın `userId` header'ı partner child'ında `userid` olarak görünür (bilinen, korunan fark) |
+
+**XC-06'nın okuma probu:** okuma hedefte iz bırakmaz; `starterNote` `x-roles` allow `$InstanceBehalfOfStarter` taşır —
+yalnız `sub`'ı satırın `CreatedByBehalfOf`'una eşit çağıran görür. Test hedefi çağıranın kendi `sub`'ıyla başlatır ve
+iki kontrol GET'i yapar (o `sub` ile görür, `sub`suz görmez). Böylece okuma `starterNote`'u ancak çağrı o `sub`'ı
+taşıdıysa döndürür.
+
+**Fixture notları:** cross-domain Start (11) yalnız task config'inin `version`'ıyla partner'dan 404 aldı;
+mapping sürümü kendisi verir (`SetVersion("1.0.3")`, cross-domain-lab'ın mapping'leri gibi; üreticinin `VERSION`'ıyla
+aynı tutulur). XC-03 hedefi **anahtarla** okur (`{parentId}-proc` / `{parentId}-start`) ve anahtarın partner'a ulaştığını
+assert eder: cross-domain Start mapping'in `key`'ini vnext `bc127eda`'ya kadar düşürüyordu
+(`TaskBindingMapper.MapStartTask` uzak binding'e `Key` koymuyordu; SubProcess koyuyordu) — bu assert o düzeltmenin pin'i.
+
+```bash
+cd tests/Core.IntegrationTests
+dotnet test --settings test.runsettings --filter "FullyQualifiedName~InstanceCallCredentialCrossDomain" -v minimal
+```
+
+### 2026-11-14 koşusu
+
+Lab imajları vnext `claude/subflow-subprocess-credentials-704267` @ `be83eb7f` (etiket `cred-rule`), provider `dapr`,
+caller-role provider `default`. **17/17 yeşil** (iki fixture düzeltmesinden sonra; ilk koşu 15/2: Start 404 + düşen key —
+key, Start hedefi o gün cevap id'siyle okunarak geçildi; runtime düzeltmesinden sonra bkz. aşağıdaki koşu).
+Partner child'ının core'a geri okuması core logunda `dapr-caller-app-id: vnext-execution-app-partner` ile, header'larda
+`act_sub` var, `sub` yok, baggage yalnız `vnext.root.instance.id` — uzak invoker kimlik eklemiyor. Aynı runtime'da tüm
+`CrossDomainLab` 43/4/2 (4 kırmızı `FileOffloadCrossDomainTests`: partner sidecar'ında `vnext-blob-local` binding'i yok —
+§ 2026-10-27'deki bilinen lab şablonu açığı), `InstanceCallCredentialLab` lab core'unda 18/18, `HumanTaskChain` 23/0/4
+(skip'ler morph-idm). OpenObserve/postgres/elasticsearch MCP kapalı: trace'e karşı doğrulanmadı.
+
+### 2026-11-14 koşusu (Start key düzeltmesi)
+
+Lab imajları vnext `bc127eda` (`fix(tasks): carry the instance key on a cross-domain Start task`, etiket `cred-rule`).
+XC-03 Start hedefini artık anahtarla okur ve `key`'in mapping'in yazdığı değer olduğunu assert eder; çağrı cevabındaki id
+ile okuma geçişi kaldırıldı (bileşenler 1.0.3). Sonuç: `InstanceCallCredentialCrossDomain` **17/17 yeşil** — ör. Start
+hedefi partner'da id `1e240b25-3df8-4e72-b44e-8c10b493934e`, `key` = `13be31c1-6bc7-45ef-9227-8a96c958850a-start`; tüm
+`CrossDomainLab` 43/4/2 (aynı 4 FileOffload kırmızısı — `couldn't find output binding vnext-blob-local`; 2 warm-up skip);
+`InstanceCallCredentialLab` 18/18.
 
 ## Başarı kriteri / bilinen kısıtlar
 

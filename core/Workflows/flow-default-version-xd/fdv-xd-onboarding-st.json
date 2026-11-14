@@ -1,0 +1,138 @@
+{
+  "key": "fdv-xd-onboarding-st",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "flow-default-version-xd",
+    "parent",
+    "start",
+    "cross-domain"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Flow Default Version XD Onboarding (Start task, config version \"1.2.0\")"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-fdv-xd-onboarding-st",
+      "target": "st-initial",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "st-initial",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Start Task Onboarding Initial"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "fdv-xd-start-contract-cfg",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/FdvXdStartTaskConfigMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBvbkVudHJ5IG9mIHN0LWluaXRpYWw6IHN0YXJ0IHBhcnRuZXIvZmR2LXhkLWNvbnRyYWN0IHRocm91Z2ggYSBTdGFydCB0YXNrICh0eXBlIDExKSBvdmVyIERhcHIuIERvbWFpbiwKLy8vIGZsb3csIHZlcnNpb24gKCIxLjIuMCIpLCB1c2VEYXByIGFuZCBzeW5jIGNvbWUgT05MWSBmcm9tIHRoZSB0YXNrJ3MgY29uZmlnIOKAlCB0aGlzIG1hcHBpbmcgbXVzdCBub3QgY2FsbAovLy8gU2V0VmVyc2lvbiwgb3RoZXJ3aXNlIGl0IHdvdWxkIGhpZGUgd2hldGhlciB0aGUgY29uZmlnIHZlcnNpb24gcmVhY2hlcyB0aGUgcGFydG5lci4gT25seSB0aGUga2V5IGlzIHNldCwKLy8vIHNvIHRoZSB0ZXN0IGNhbiByZWFkIHRoZSBwYXJ0bmVyIGluc3RhbmNlLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmR2WGRTdGFydFRhc2tDb25maWdNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBzdGFydCA9IHRhc2sgYXMgU3RhcnRUYXNrID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJUYXNrIG11c3QgYmUgYSBTdGFydFRhc2siKTsKCiAgICAgICAgc3RhcnQuU2V0S2V5KCQiZmR2LXhkLXN0LXtjb250ZXh0Lkluc3RhbmNlPy5JZH0iKTsKICAgICAgICBzdGFydC5TZXRCb2R5KG5ldyB7IHBhcmVudEluc3RhbmNlSWQgPSBjb250ZXh0Lkluc3RhbmNlPy5JZCwgcGFyZW50RG9tYWluID0gImNvcmUiIH0pOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjb250ZXh0Lkluc3RhbmNlPy5EYXRhIH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KfQo="
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-to-waiting",
+            "target": "st-waiting",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Waiting"
+              }
+            ],
+            "rule": {
+              "location": "./src/FdvXdAlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT5BbHdheXMtdHJ1ZSBhdXRvIHJ1bGU6IHN0YXJ0IOKGkiBjb250cmFjdCwgYW5kIGNvbnRyYWN0IOKGkiBkb25lIG9uY2UgdGhlIHBhcnRuZXIgY2hpbGQgZmluaXNoZXMuPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRmR2WGRBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQodHJ1ZSk7CiAgICB9Cn0K"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "st-waiting",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Start Task Onboarding Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "complete",
+            "target": "st-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Complete"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "st-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Start Task Onboarding Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

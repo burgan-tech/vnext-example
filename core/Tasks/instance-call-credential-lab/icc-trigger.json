@@ -1,0 +1,22 @@
+{
+  "key": "icc-trigger",
+  "version": "1.0.2",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "instance-call-credential-lab",
+    "direct-trigger"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "icc-target",
+      "transitionName": "touch",
+      "sync": true,
+      "timeoutSeconds": 30
+    }
+  }
+}

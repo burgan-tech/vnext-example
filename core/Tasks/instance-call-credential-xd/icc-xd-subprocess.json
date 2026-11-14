@@ -1,0 +1,23 @@
+{
+  "key": "icc-xd-subprocess",
+  "version": "1.0.3",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "cross-domain-lab",
+    "instance-call-credential-xd",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "partner",
+      "flow": "icc-xd-target",
+      "useDapr": true,
+      "version": "1.0.3",
+      "timeoutSeconds": 30
+    }
+  }
+}
