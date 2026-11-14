@@ -1,0 +1,24 @@
+{
+  "key": "icc-xd-back-trigger",
+  "version": "1.0.2",
+  "domain": "partner",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "cross-domain-lab",
+    "instance-call-credential-xd",
+    "direct-trigger"
+  ],
+  "attributes": {
+    "type": "12",
+    "config": {
+      "domain": "core",
+      "flow": "icc-xd-core-target",
+      "useDapr": true,
+      "transitionName": "touch",
+      "sync": true,
+      "timeoutSeconds": 30
+    }
+  }
+}
