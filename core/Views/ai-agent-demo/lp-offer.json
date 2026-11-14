@@ -1,0 +1,202 @@
+{
+  "key": "lp-offer",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Ön Teklif"
+      },
+      {
+        "language": "en-US",
+        "label": "Preliminary Offer"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "calculate"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Ön değerlendirme olumlu",
+                      "en": "Pre-check passed"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Tutar (TL)",
+                          "en": "Amount (TRY)"
+                        },
+                        "subtitle": "$instance.intake.amount"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Vade (ay)",
+                          "en": "Term (months)"
+                        },
+                        "subtitle": "$instance.intake.termMonths"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Aylık net gelir (TL)",
+                          "en": "Net monthly income (TRY)"
+                        },
+                        "subtitle": "$instance.intake.monthlyIncome"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Amaç",
+                          "en": "Purpose"
+                        },
+                        "subtitle": "$instance.intake.purpose",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "intake.purpose",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Örnek aylık taksit (TL)",
+                          "en": "Example monthly installment (TRY)"
+                        },
+                        "subtitle": "$instance.installment"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Açıklama",
+                          "en": "Explanation"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "Text",
+                        "content": "$instance.explain.text",
+                        "variant": "bodyMedium",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "explain.text",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Bu açıklamayı yapay zekâ yazdı; karar bankanın kurallarından gelir.",
+                          "en": "An AI wrote this explanation; the decision comes from the bank's rules."
+                        },
+                        "variant": "bodySmall",
+                        "tone": "muted",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "explain.source",
+                            "operator": "equals",
+                            "value": "llm"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Vazgeç",
+                      "en": "Decline"
+                    },
+                    "variant": "outlined",
+                    "action": {
+                      "action": "submit",
+                      "validate": false
+                    },
+                    "command": "urn:vnext:flow:transition:core:loan-precheck-agent:decline"
+                  },
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Kabul et",
+                      "en": "Accept"
+                    },
+                    "variant": "filled",
+                    "action": {
+                      "action": "submit",
+                      "validate": false
+                    },
+                    "command": "urn:vnext:flow:transition:core:loan-precheck-agent:accept"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -28,6 +28,7 @@ public class AiAgentLabTests : WorkflowTestBase
     private const string ModelFlow = "ai-agent-lab";
     private const string ScriptFlow = "ai-agent-lab-script";
     private const string RulesFlow = "ai-agent-lab-rules";
+    private const string ApprovalFlow = "ai-agent-lab-approval";
 
     private static readonly SemaphoreSlim PublishGate = new(1, 1);
     private static bool _published;
@@ -190,6 +191,117 @@ public class AiAgentLabTests : WorkflowTestBase
         Assert.Equal("rules", run.GetProperty("decisionSource").GetString());
     }
 
+    /// <summary>
+    /// Tool approval: the model calls <c>pay</c> (requiresApproval) and <c>lookup</c> in one turn; the run
+    /// stops before either runs, journals <c>pay</c> as ApprovalPending and leaves through
+    /// <c>onApprovalRequest</c> to <c>review</c> — a plain intermediate state. Answering approved resumes the
+    /// conversation from its session: both calls run and the model decides. The run kept a full transcript
+    /// holding the seed messages and the labelled data context.
+    /// </summary>
+    [Fact]
+    public async Task Approval_HoldsTheCall_ThenResumesOnApproval()
+    {
+        await EnsurePublishedAsync();
+        var instanceId = await StartAsync(ApprovalFlow, new { message = "pay my bill", customer = new { segment = "retail" } });
+
+        await WaitForInstanceStateAsync(ApprovalFlow, instanceId, "review", timeout: TimeSpan.FromSeconds(60));
+        await WaitUntilSettledAsync(ApprovalFlow, instanceId);
+
+        var held = (await GetAttributesAsync(ApprovalFlow, instanceId)).GetProperty("assessment").GetProperty("$agent");
+        Assert.Equal("ApprovalRequested", held.GetProperty("status").GetString());
+        Assert.Equal("needs-approval", held.GetProperty("decision").GetString());
+        Assert.Equal("ApprovalRequest", held.GetProperty("decisionSource").GetString());
+        var pending = held.GetProperty("pendingApprovals").EnumerateArray().ToList();
+        Assert.Contains(pending, p => p.GetProperty("tool").GetString() == "pay" && p.GetProperty("requiresConfirmation").GetBoolean());
+        Assert.Empty(held.GetProperty("toolCalls").EnumerateArray().Where(c => c.GetProperty("ok").GetBoolean()));
+
+        var heldRun = Assert.Single(await GetRunsAsync(ApprovalFlow, instanceId));
+        Assert.Equal("approvalRequested", heldRun.GetProperty("status").GetString());
+        var (detailStatus, detail) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/workflows/{ApprovalFlow}/instances/{instanceId}/functions/agent-runs?runId={heldRun.GetProperty("id").GetString()}&include=transcript",
+            headers: Headers());
+        Assert.True(detailStatus == HttpStatusCode.OK, $"agent-runs detail answered {(int)detailStatus}: {detail}");
+        Assert.Contains("approvalPending", detail);
+        Assert.Contains("Example request: what is my limit?", detail);
+        Assert.Contains("retail", detail); // prompt.context: data.customer rendered into a labelled <data> block
+
+        await RunAcceptedAsync(ApprovalFlow, instanceId, "decide", new { approval = new { approved = true } });
+        await WaitForInstanceStateAsync(ApprovalFlow, instanceId, "answered", timeout: TimeSpan.FromSeconds(60));
+        await WaitUntilSettledAsync(ApprovalFlow, instanceId);
+
+        var resumed = (await GetAttributesAsync(ApprovalFlow, instanceId)).GetProperty("assessment").GetProperty("$agent");
+        Assert.Equal("Completed", resumed.GetProperty("status").GetString());
+        Assert.Equal("is-question", resumed.GetProperty("decision").GetString());
+        Assert.Empty(resumed.GetProperty("pendingApprovals").EnumerateArray());
+        var ran = resumed.GetProperty("toolCalls").EnumerateArray().Where(c => c.GetProperty("ok").GetBoolean()).Select(c => c.GetProperty("name").GetString()).OrderBy(n => n);
+        Assert.Equal(new[] { "lookup", "pay" }, ran);
+    }
+
+    /// <summary>A denial resumes the conversation too: <c>pay</c> never runs and is journaled Denied.</summary>
+    [Fact]
+    public async Task Approval_Denied_ResumesWithoutRunningTheCall()
+    {
+        await EnsurePublishedAsync();
+        var instanceId = await StartAsync(ApprovalFlow, new { message = "pay my bill", customer = new { segment = "retail" } });
+        await WaitForInstanceStateAsync(ApprovalFlow, instanceId, "review", timeout: TimeSpan.FromSeconds(60));
+        await WaitUntilSettledAsync(ApprovalFlow, instanceId);
+
+        await RunAcceptedAsync(ApprovalFlow, instanceId, "decide", new { approval = new { approved = false, reason = "over the limit" } });
+        await WaitForInstanceStateAsync(ApprovalFlow, instanceId, "answered", timeout: TimeSpan.FromSeconds(60));
+        await WaitUntilSettledAsync(ApprovalFlow, instanceId);
+
+        var agent = (await GetAttributesAsync(ApprovalFlow, instanceId)).GetProperty("assessment").GetProperty("$agent");
+        Assert.Equal("Completed", agent.GetProperty("status").GetString());
+        Assert.DoesNotContain(agent.GetProperty("toolCalls").EnumerateArray(), c => c.GetProperty("name").GetString() == "pay" && c.GetProperty("ok").GetBoolean());
+
+        var runs = await GetRunsAsync(ApprovalFlow, instanceId);
+        var (_, detail) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/workflows/{ApprovalFlow}/instances/{instanceId}/functions/agent-runs?runId={runs[0].GetProperty("id").GetString()}",
+            headers: Headers());
+        Assert.Contains("denied", detail);
+        Assert.Contains("over the limit", detail);
+    }
+
+    /// <summary>
+    /// Teams. Sequential and concurrent: both participants run before the lead (one run row each, named),
+    /// the lead decides. Handoff: the lead runs as <c>$router</c> and names the first participant
+    /// (<c>cards</c>), which produces the output and the decision.
+    /// </summary>
+    [Theory]
+    [InlineData("ai-agent-lab-sequential")]
+    [InlineData("ai-agent-lab-concurrent")]
+    [InlineData("ai-agent-lab-handoff")]
+    public async Task Team_RunsParticipantsAndDecides(string workflow)
+    {
+        await EnsurePublishedAsync();
+        var instanceId = await StartAsync(workflow, new { message = "my card is blocked" });
+
+        await WaitForInstanceStateAsync(workflow, instanceId, "answered", timeout: TimeSpan.FromSeconds(60));
+        await WaitUntilSettledAsync(workflow, instanceId);
+
+        var triage = (await GetAttributesAsync(workflow, instanceId)).GetProperty("triage");
+        var agent = triage.GetProperty("$agent");
+        Assert.Equal("is-question", agent.GetProperty("decision").GetString());
+        var participants = agent.GetProperty("participants").EnumerateArray().Select(p => p.GetProperty("name").GetString()).ToList();
+        var runs = await GetRunsAsync(workflow, instanceId);
+        var runParticipants = runs.Select(r => r.TryGetProperty("participant", out var p) ? p.GetString() : null).ToList();
+
+        if (workflow.EndsWith("handoff", StringComparison.Ordinal))
+        {
+            Assert.Equal("cards", agent.GetProperty("handoffTo").GetString());
+            Assert.Equal(new[] { "$router" }, participants);
+            Assert.Equal("cards handled it", triage.GetProperty("note").GetString());
+            Assert.Contains(runs, r => r.GetProperty("agentKey").GetString() == "ai-cards-agent" && runParticipants[runs.IndexOf(r)] is null);
+        }
+        else
+        {
+            Assert.Equal(new[] { "cards", "loans" }, participants.OrderBy(n => n));
+            Assert.Equal("question", triage.GetProperty("category").GetString());
+            Assert.Equal(3, runs.Count);
+            Assert.Single(runParticipants, p => p is null);
+        }
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────────
 
     private async Task<List<JsonElement>> GetRunsAsync(string workflow, string instanceId)
@@ -210,7 +322,8 @@ public class AiAgentLabTests : WorkflowTestBase
 
             var root = RepoRoot();
             await PublishAsync(Path.Combine(root, "tests", "Core.IntegrationTests", "Tests", "AiAgentLab", "fixtures", "sys-agents.json"));
-            await PublishAsync(Path.Combine(root, "core", "Agents", "ai-agent-lab", "ai-triage-agent.json"));
+            foreach (var agentFile in Directory.GetFiles(Path.Combine(root, "core", "Agents", "ai-agent-lab"), "*.json").OrderBy(f => f, StringComparer.Ordinal))
+                await PublishAsync(agentFile);
             _published = true;
         }
         finally

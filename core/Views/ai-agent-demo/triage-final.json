@@ -1,0 +1,125 @@
+{
+  "key": "triage-final",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "triage"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Sonuç"
+      },
+      {
+        "language": "en-US",
+        "label": "Result"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:triage-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "flag"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Talebiniz sonuçlandı",
+                      "en": "Your request is closed"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Mesaj",
+                          "en": "Message"
+                        },
+                        "subtitle": "$instance.message"
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Kategori",
+                          "en": "Category"
+                        },
+                        "subtitle": "$instance.triage.category",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "triage.category",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Özet",
+                          "en": "Summary"
+                        },
+                        "subtitle": "$instance.triage.summary",
+                        "x-conditional": {
+                          "showIf": {
+                            "field": "triage.summary",
+                            "operator": "isNotEmpty"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Yeni soru",
+                  "en": "New question"
+                },
+                "variant": "outlined",
+                "action": {
+                  "action": "submit",
+                  "validate": false
+                },
+                "command": "urn:vnext:flow:start:core:triage-flow"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

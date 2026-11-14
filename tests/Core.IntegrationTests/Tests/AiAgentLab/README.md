@@ -73,6 +73,20 @@ python3 core/Workflows/ai-agent-lab/build-ai-agent-lab.py
 | `ScriptDecision_NotACandidate_TakesTheFallback` | `pick = no-such-transition` → `failed`; `decision = classify-failed`, `decisionSource = Fallback`, `reason` aday dışı değeri söyler |
 | `RulesMode_TheTransitionsRulesDecideFromTheAgentsOutput` | `answered`; `decisionSource = Rules`; kazanan (`to-question`) koşunun karar satırına geri yazılır (`agent-runs`) |
 
+## Faz 2 senaryoları (vnext#1105, stacked PR)
+
+| Akış | Neyi denetler |
+|---|---|
+| `ai-agent-lab-approval` | `pay` tool'u `requiresApproval: true`. Model `pay` ve `lookup`'ı aynı turda çağırır; koşu ikisini de çalıştırmadan durur, `pay` `ApprovalPending` olarak kaydedilir ve state `onApprovalRequest` ile `review`'a geçer. Bu sıradan bir intermediate state; Human state şartı yok. `decide` transition'ı `{ "approval": { "approved": true } }` gövdesiyle agent state'ine geri döner; konuşma oturumdan devam eder, iki çağrı da koşar ve model karar verir. Ret durumunda `pay` hiç koşmaz ve `Denied` olarak kaydedilir. Ayrıca `prompt.messages` (tohum mesajları), `prompt.context` (`<data name="customer">`) ve `audit.transcript: full` + `agent-runs?include=transcript` |
+| `ai-agent-lab-sequential` / `-concurrent` | `cards` ve `loans` katılımcıları lider (`ai-triage-agent`) öncesinde koşar; her biri kendi run satırını `participant` adıyla alır. Lider çıktıları `<data name="participant:…">` olarak görür ve karar verir |
+| `ai-agent-lab-handoff` | Lider `$router` olarak koşar ve `handoff` alanında ilk katılımcıyı (`cards`) seçer. Çıktıyı (`note`) ve kararı `cards` üretir |
+
+| Test | İddia |
+|---|---|
+| `Approval_HoldsTheCall_ThenResumesOnApproval` | `review`'da `$agent.status = ApprovalRequested`, `decisionSource = ApprovalRequest`, `pendingApprovals` içinde `pay`; transcript tohum mesajını ve context değerini içerir. Onaydan sonra `answered`, `pay` ile `lookup` koşmuş, `pendingApprovals = []` |
+| `Approval_Denied_ResumesWithoutRunningTheCall` | Retten sonra `answered`, `pay` koşmamış; tool çağrısı `denied` ve ret gerekçesiyle kayıtlı |
+| `Team_RunsParticipantsAndDecides` (×3) | sequential/concurrent: 3 run (2 katılımcı + nihai), karar `is-question`; handoff: `handoffTo = cards`, nihai run `ai-cards-agent`, `note = cards handled it` |
+
 ## v0.0.107 yayınından önce yapılacak — atlanmamalı
 
 Bu lab, AI Agent'ın henüz yayınlanmamış parçalarını geçici yollarla kullanıyor (aşağıda

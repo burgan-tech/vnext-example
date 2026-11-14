@@ -12,7 +12,8 @@
     "extensions": "Extensions",
     "workflows": "Workflows",
     "schemas": "Schemas",
-    "mappings": "Mappings"
+    "mappings": "Mappings",
+    "agents": "Agents"
   },
   "exports": {
     "functions": [],

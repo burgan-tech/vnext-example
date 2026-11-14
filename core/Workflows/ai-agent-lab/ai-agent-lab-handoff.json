@@ -1,0 +1,194 @@
+{
+  "key": "ai-agent-lab-handoff",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "ai-agent-lab",
+    "ai-agent"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "AI Agent Lab (handoff team)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-ai-agent-lab-handoff",
+      "target": "classifying",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start ai-agent-lab-handoff"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "classifying",
+        "stateType": 6,
+        "subType": 5,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Classifying (AiAgent, handoff team)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "is-question",
+            "target": "answered",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is a question"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "is-fraud",
+            "target": "escalated",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is fraud"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "classify-failed",
+            "target": "failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Classification failed"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ],
+        "agent": {
+          "agent": {
+            "key": "ai-triage-agent",
+            "domain": "core",
+            "flow": "sys-agents",
+            "version": "1.0.0"
+          },
+          "mode": "handoff",
+          "agents": [
+            {
+              "name": "cards",
+              "agent": {
+                "key": "ai-cards-agent",
+                "domain": "core",
+                "flow": "sys-agents",
+                "version": "1.0.0"
+              },
+              "description": "Card issues."
+            },
+            {
+              "name": "loans",
+              "agent": {
+                "key": "ai-loans-agent",
+                "domain": "core",
+                "flow": "sys-agents",
+                "version": "1.0.0"
+              },
+              "description": "Loan questions."
+            }
+          ],
+          "prompt": {
+            "template": "<message>{{ data.message }}</message>"
+          },
+          "output": {
+            "path": "$.triage"
+          },
+          "tools": {
+            "exclude": [
+              "lab_script"
+            ]
+          },
+          "decision": {
+            "mode": "model",
+            "fallback": "classify-failed"
+          }
+        }
+      },
+      {
+        "key": "answered",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Answered"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "escalated",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Escalated"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "failed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Failed"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

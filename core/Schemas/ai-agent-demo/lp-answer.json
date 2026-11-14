@@ -1,0 +1,36 @@
+{
+  "key": "lp-answer",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck",
+    "transition"
+  ],
+  "attributes": {
+    "type": "transition",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/lp-answer.json",
+      "title": "Loan pre-check — answer",
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "x-labels": {
+            "tr": "Yanıtınız",
+            "en": "Your answer"
+          }
+        }
+      },
+      "required": [
+        "answer"
+      ]
+    }
+  }
+}

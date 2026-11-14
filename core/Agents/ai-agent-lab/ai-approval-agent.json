@@ -1,0 +1,98 @@
+{
+  "key": "ai-approval-agent",
+  "flow": "sys-agents",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "ai-agent-lab"
+  ],
+  "attributes": {
+    "provider": "local",
+    "instructions": {
+      "text": "You classify payment requests; moving money needs approval."
+    },
+    "tools": [
+      {
+        "kind": 2,
+        "name": "pay",
+        "description": "Moves money. Needs approval.",
+        "requiresApproval": true,
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "default": 250
+            }
+          },
+          "required": [
+            "amount"
+          ]
+        },
+        "binding": {
+          "code": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "args.amount * 2"
+          }
+        }
+      },
+      {
+        "kind": 2,
+        "name": "lookup",
+        "description": "Reads a balance.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "account": {
+              "type": "string",
+              "default": "acc-1"
+            }
+          },
+          "required": [
+            "account"
+          ]
+        },
+        "binding": {
+          "code": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "\"balance-ok\""
+          }
+        }
+      }
+    ],
+    "memory": {
+      "mode": "none"
+    },
+    "output": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "question",
+              "fraud",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "category"
+        ]
+      }
+    },
+    "policy": {
+      "maxIterations": 4,
+      "maxToolCalls": 4,
+      "timeoutSeconds": 30
+    },
+    "audit": {
+      "transcript": "full",
+      "persistToolResults": true
+    }
+  }
+}

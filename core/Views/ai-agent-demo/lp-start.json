@@ -1,0 +1,115 @@
+{
+  "key": "lp-start",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Kredi Talebi"
+      },
+      {
+        "language": "en-US",
+        "label": "Loan Request"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-start",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "request_quote"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Kredi talebinizi yazın",
+                      "en": "Describe your loan request"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Kendi cümlelerinizle yazın — ör. “50 bin TL kredi istiyorum, 24 ay vade, maaşım 40 bin.” Eksik bilgi olursa size sorulur.",
+                  "en": "Use your own words — e.g. “I need 50,000 TRY over 24 months, my salary is 40,000.” You will be asked if something is missing."
+                },
+                "variant": "bodyMedium"
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Yazdığınız metin bir yapay zekâ servisine gönderilir. Ad, T.C. kimlik no, IBAN, telefon gibi kişisel bilgi yazmayın.",
+                  "en": "Your text is sent to an AI service. Do not enter a name, national ID, IBAN, phone number or any other personal detail."
+                },
+                "variant": "bodySmall",
+                "tone": "warning"
+              },
+              {
+                "type": "TextArea",
+                "bind": "message"
+              },
+              {
+                "type": "Row",
+                "gap": "sm",
+                "mainAxisAlignment": "spaceBetween",
+                "children": [
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Vazgeç",
+                      "en": "Cancel"
+                    },
+                    "variant": "text",
+                    "action": {
+                      "action": "submit",
+                      "validate": false
+                    },
+                    "command": "urn:vnext:flow:transition:core:loan-precheck-agent:cancel"
+                  },
+                  {
+                    "type": "Button",
+                    "label": {
+                      "tr": "Gönder",
+                      "en": "Submit"
+                    },
+                    "variant": "filled",
+                    "action": "submit",
+                    "command": "urn:vnext:flow:transition:core:loan-precheck-agent:submit"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

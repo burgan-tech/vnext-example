@@ -1,0 +1,44 @@
+{
+  "key": "ai-loans-agent",
+  "flow": "sys-agents",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "ai-agent-lab"
+  ],
+  "attributes": {
+    "provider": "local",
+    "instructions": {
+      "text": "You handle loan questions."
+    },
+    "tools": [],
+    "memory": {
+      "mode": "none"
+    },
+    "output": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "default": "loans handled it"
+          }
+        },
+        "required": [
+          "note"
+        ]
+      }
+    },
+    "policy": {
+      "maxIterations": 4,
+      "maxToolCalls": 4,
+      "timeoutSeconds": 30
+    },
+    "audit": {
+      "transcript": "none",
+      "persistToolResults": true
+    }
+  }
+}

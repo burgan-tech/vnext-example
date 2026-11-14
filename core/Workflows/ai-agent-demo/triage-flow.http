@@ -1,0 +1,43 @@
+### triage-flow — AiAgent state example (stateType 6, experimental)
+### "classifying" runs triage-agent on entry; the model picks one of the state's rule-less automatic
+### transitions (is-question / is-fraud). classify-failed is the required fallback, too-many is taken
+### once the state was entered more than policy.maxEntries (2) times.
+### With the "local" provider the decision resolves to the first candidate (is-question -> answered).
+### Publish Agents/ and Workflows/ first (wf sync publishes agents before workflows).
+
+@baseUrl = http://localhost:4201
+@apiVersion = 1
+@domain = core
+@workflow = triage-flow
+@instanceId = 00000000-0000-0000-0000-000000000000
+
+### Start an instance; the agent runs when the instance enters "classifying"
+POST {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/start?sync=true
+Content-Type: application/json
+
+{
+  "message": "Where is my card?"
+}
+
+### State (expected: answered)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/state
+
+### Instance data: the agent output lands at $.triage, with the $agent run summary
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/data
+
+### Agent runs, newest first, with their decision (?state=, ?skip=, ?take= up to 100)
+GET {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/functions/agent-runs
+
+### Ask again: re-enters "classifying" (the third entry exceeds maxEntries and goes to "exhausted")
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/ask-again?sync=true
+Content-Type: application/json
+
+{
+  "message": "And when will the new one arrive?"
+}
+
+### Close
+PATCH {{baseUrl}}/api/v{{apiVersion}}/{{domain}}/workflows/{{workflow}}/instances/{{instanceId}}/transitions/close?sync=true
+Content-Type: application/json
+
+{}

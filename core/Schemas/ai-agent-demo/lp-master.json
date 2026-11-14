@@ -1,0 +1,97 @@
+{
+  "key": "lp-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck",
+    "master"
+  ],
+  "attributes": {
+    "type": "master",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/lp-master.json",
+      "title": "Loan pre-check (AI agent) — full record",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "maxLength": 2000,
+          "x-labels": {
+            "tr": "Kredi talebi",
+            "en": "Loan request"
+          }
+        },
+        "conversation": {
+          "type": "string",
+          "maxLength": 4000,
+          "x-labels": {
+            "tr": "Görüşme",
+            "en": "Conversation"
+          }
+        },
+        "answer": {
+          "type": "string",
+          "maxLength": 500,
+          "x-labels": {
+            "tr": "Yanıtınız",
+            "en": "Your answer"
+          }
+        },
+        "askCount": {
+          "type": "integer",
+          "minimum": 0,
+          "x-labels": {
+            "tr": "Soru turu",
+            "en": "Question rounds"
+          }
+        },
+        "intake": {
+          "type": "object",
+          "x-labels": {
+            "tr": "Çıkarılan bilgiler",
+            "en": "Extracted details"
+          },
+          "description": "loan-intake-agent output (output.path $.intake) plus its $agent summary."
+        },
+        "installment": {
+          "type": "number",
+          "x-labels": {
+            "tr": "Örnek taksit",
+            "en": "Example installment"
+          }
+        },
+        "eligibility": {
+          "type": "string",
+          "enum": [
+            "eligible",
+            "ineligible"
+          ],
+          "x-labels": {
+            "tr": "Ön değerlendirme",
+            "en": "Pre-check"
+          }
+        },
+        "policyReason": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Gerekçe kodu",
+            "en": "Reason code"
+          }
+        },
+        "explain": {
+          "type": "object",
+          "x-labels": {
+            "tr": "Açıklama",
+            "en": "Explanation"
+          },
+          "description": "Template text written by lp-policy-task, replaced by loan-explainer-agent output when the run succeeds."
+        }
+      }
+    }
+  }
+}

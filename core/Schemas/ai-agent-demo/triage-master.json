@@ -1,0 +1,39 @@
+{
+  "key": "triage-master",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "triage",
+    "master"
+  ],
+  "attributes": {
+    "type": "master",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/triage-master.json",
+      "title": "Triage — full record",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-labels": {
+            "tr": "Mesaj",
+            "en": "Message"
+          }
+        },
+        "triage": {
+          "type": "object",
+          "x-labels": {
+            "tr": "Sınıflandırma",
+            "en": "Classification"
+          },
+          "description": "triage-agent output (category, summary) plus its $agent summary."
+        }
+      }
+    }
+  }
+}

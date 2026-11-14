@@ -1,0 +1,131 @@
+{
+  "key": "lp-handed-off",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "loan-precheck"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": {
+      "sdi": "full-page",
+      "mdi": "full-page"
+    },
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Uzmana Devredildi"
+      },
+      {
+        "language": "en-US",
+        "label": "Handed Off"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "dataSchema": "urn:vnext:res:schema:core:lp-master",
+      "view": {
+        "type": "ScrollView",
+        "children": [
+          {
+            "type": "Column",
+            "gap": "md",
+            "children": [
+              {
+                "type": "Row",
+                "gap": "sm",
+                "crossAxisAlignment": "center",
+                "children": [
+                  {
+                    "type": "Icon",
+                    "name": "support_agent"
+                  },
+                  {
+                    "type": "Text",
+                    "content": {
+                      "tr": "Bir uzmana devredildi",
+                      "en": "Handed off to a specialist"
+                    },
+                    "variant": "headlineMedium"
+                  }
+                ]
+              },
+              {
+                "type": "Text",
+                "content": {
+                  "tr": "Üç soru turundan sonra da tutar, vade ya da gelir bilgisi tamamlanamadı. Başvurunuz bir uzmana iletildi.",
+                  "en": "Amount, term or income was still missing after three rounds of questions. A specialist will take it from here."
+                },
+                "variant": "bodyMedium",
+                "tone": "info"
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "ListTile",
+                        "title": {
+                          "tr": "Son soru",
+                          "en": "Last question"
+                        },
+                        "subtitle": "$instance.intake.question"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Card",
+                "variant": "outlined",
+                "children": [
+                  {
+                    "type": "Column",
+                    "gap": "sm",
+                    "children": [
+                      {
+                        "type": "Text",
+                        "content": {
+                          "tr": "Görüşme",
+                          "en": "Conversation"
+                        },
+                        "variant": "titleSmall"
+                      },
+                      {
+                        "type": "Text",
+                        "content": "$instance.conversation",
+                        "variant": "bodyMedium"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Button",
+                "label": {
+                  "tr": "Yeni başvuru",
+                  "en": "New application"
+                },
+                "variant": "outlined",
+                "action": {
+                  "action": "submit",
+                  "validate": false
+                },
+                "command": "urn:vnext:flow:start:core:loan-precheck-agent"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

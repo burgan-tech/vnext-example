@@ -1,0 +1,22 @@
+{
+  "key": "ai-no-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "example",
+    "ai-agent",
+    "transition"
+  ],
+  "attributes": {
+    "type": "transition",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://vnext.io/schemas/core/ai-no-input.json",
+      "title": "AI demo — no input",
+      "type": "object",
+      "properties": {}
+    }
+  }
+}

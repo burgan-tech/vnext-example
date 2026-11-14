@@ -1,0 +1,383 @@
+{
+  "key": "triage-flow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.1.0",
+  "tags": [
+    "example",
+    "ai-agent"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Triage (AI agent example)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "create",
+      "target": "compose",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "tr-TR",
+          "label": "Yeni Soru"
+        },
+        {
+          "language": "en-US",
+          "label": "New Question"
+        }
+      ],
+      "onExecutionTasks": [],
+      "schema": {
+        "key": "ai-no-input",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-schemas"
+      },
+      "mapping": {
+        "location": "./src/AiNoInputMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+TW92ZXMgdGhhdCBjYXJyeSBubyBpbnB1dCB3cml0ZSBub3RoaW5nLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEFpTm9JbnB1dE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0PGR5bmFtaWM+KG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0Pz4oKSk7Cn0K"
+      }
+    },
+    "states": [
+      {
+        "key": "compose",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Soru"
+          },
+          {
+            "language": "en-US",
+            "label": "Question"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-start",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "submit",
+            "target": "classifying",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Gönder"
+              },
+              {
+                "language": "en-US",
+                "label": "Send"
+              }
+            ],
+            "onExecutionTasks": [],
+            "schema": {
+              "key": "triage-message",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            }
+          }
+        ]
+      },
+      {
+        "key": "classifying",
+        "stateType": 6,
+        "subType": 5,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Classifying"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-working",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "is-question",
+            "target": "answered",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is a question"
+              }
+            ],
+            "onExecutionTasks": [],
+            "description": "The customer asks for information."
+          },
+          {
+            "key": "is-fraud",
+            "target": "escalated",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is fraud"
+              }
+            ],
+            "onExecutionTasks": [],
+            "description": "The customer reports fraud."
+          },
+          {
+            "key": "classify-failed",
+            "target": "failed",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Classification failed"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "too-many",
+            "target": "exhausted",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Entered too often"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ],
+        "agent": {
+          "agent": {
+            "key": "triage-agent",
+            "domain": "core",
+            "flow": "sys-agents",
+            "version": "1.0.0"
+          },
+          "prompt": {
+            "template": "<message>{{ data.message }}</message>"
+          },
+          "output": {
+            "path": "$.triage"
+          },
+          "decision": {
+            "mode": "model",
+            "fallback": "classify-failed",
+            "onExhausted": "too-many"
+          },
+          "policy": {
+            "maxEntries": 2
+          }
+        }
+      },
+      {
+        "key": "answered",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Answered"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-answered",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "ask-again",
+            "target": "classifying",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Ask again"
+              }
+            ],
+            "onExecutionTasks": [],
+            "schema": {
+              "key": "triage-message",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            }
+          },
+          {
+            "key": "close",
+            "target": "closed",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Close"
+              }
+            ],
+            "onExecutionTasks": [],
+            "schema": {
+              "key": "ai-no-input",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-schemas"
+            },
+            "mapping": {
+              "location": "./src/AiNoInputMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+TW92ZXMgdGhhdCBjYXJyeSBubyBpbnB1dCB3cml0ZSBub3RoaW5nLjwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEFpTm9JbnB1dE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0PGR5bmFtaWM+KG5ldyBEaWN0aW9uYXJ5PHN0cmluZywgb2JqZWN0Pz4oKSk7Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "escalated",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Escalated"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-final",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "failed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Failed"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-final",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "exhausted",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Exhausted"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-final",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "closed",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Closed"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "triage-final",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true,
+          "extensions": []
+        },
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
