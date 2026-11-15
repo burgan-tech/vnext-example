@@ -1,0 +1,26 @@
+{
+  "collection": {
+    "name": "client-disconnect-lab",
+    "description": "Slow backend for the client-disconnect-lab integration scenario (vnext#1258: a client that disconnects must not cancel a committed transition)",
+    "color": "#f59e0b"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "api/client-disconnect-lab/slow",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"ok\": true,\n  \"source\": \"client-disconnect-lab\",\n  \"slow\": true\n}",
+      "contentType": "application/json",
+      "description": "Answers after 8 s (mock-level delayMs; rules carry no delay, so a delayed response must be its own mock). The client-disconnect tests abort their HTTP call after 1 s, so the task is guaranteed to be in flight when the client goes away. MockLab matches by PREFIX: keep no other route under 'api/client-disconnect-lab/slow'. MockLab skips a collection whose name already exists, so a change here needs the container recreated (docker compose up -d --force-recreate mocklab, or down -v).",
+      "delayMs": 8000,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}

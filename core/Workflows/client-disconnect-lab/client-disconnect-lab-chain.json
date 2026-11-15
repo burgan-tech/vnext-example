@@ -1,0 +1,136 @@
+{
+  "key": "client-disconnect-lab-chain",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "client-disconnect-lab",
+    "vnext-1258",
+    "auto-chain"
+  ],
+  "attributes": {
+    "_comment": "vnext#1258. A sync START whose inline automatic chain runs the 8 s task. The client aborts after 1 s; the start has already committed the instance, so the chain must still reach the rest state cdl-chain-rest (Active).",
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Client Disconnect Lab Chain"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-client-disconnect-lab-chain",
+      "target": "cdl-chain-entry",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Client Disconnect Lab Chain"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "cdl-chain-entry",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Entry (moves on automatically)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "cdl-chain-slow-hop",
+            "target": "cdl-chain-rest",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Automatic hop running the slow task"
+              }
+            ],
+            "triggerKind": 10,
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "cdl-slow-http",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/CdlSlowTaskMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5EZWZpbml0aW9uczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIE1hcHBpbmcgZm9yIHRoZSBvbmUgc2xvdyBIVFRQIHRhc2sgb2YgdGhlIGNsaWVudC1kaXNjb25uZWN0IGxhYiAodm5leHQjMTI1OCkuCi8vLyA8cGFyYT4KLy8vIDxiPklucHV0SGFuZGxlcjwvYj4gcmVzb2x2ZXMgdGhlIDxjPkFQSV9CQVNFVVJMPC9jPiBwbGFjZWhvbGRlciBmcm9tIGNvbmZpZ3VyYXRpb24sIGV4YWN0bHkgbGlrZQovLy8gPGM+VGlsUmVzdWx0UHJvamVjdGlvbjwvYz4gaW4gdGFzay1pbnZvY2F0aW9uLWxhYiwgc28gdGhlIHRhc2sgcmVhY2hlcyBNb2NrTGFiIHdoZXRoZXIgdGhlIHJ1bnRpbWUKLy8vIHJ1bnMgb24gdGhlIGhvc3Qgb3IgaW4gYSBjb250YWluZXIuCi8vLyA8L3BhcmE+Ci8vLyA8cGFyYT4KLy8vIDxiPk91dHB1dEhhbmRsZXI8L2I+IHdyaXRlcyBhIHNtYWxsIG1hcmtlciBpbnRvIGluc3RhbmNlIGRhdGE6IHdoaWNoIHRyYW5zaXRpb24gcmFuIHRoZSB0YXNrLCB0aGUKLy8vIEhUVFAgc3RhdHVzIE1vY2tMYWIgYW5zd2VyZWQgd2l0aCBhbmQgd2hlbiB0aGUgaGFuZGxlciByYW4uIFRoZSB0ZXN0IHJlYWRzIGl0IHRvIHByb3ZlIHRoZSB0YXNrCi8vLyBGSU5JU0hFRCBhZnRlciB0aGUgY2xpZW50IGhhZCBhbHJlYWR5IGdvbmUg4oCUIHRoZSBtYXJrZXIgY2FuIG9ubHkgZXhpc3QgaWYgdGhlIHJ1biB3YXMgbm90Ci8vLyBjYW5jZWxsZWQgd2l0aCB0aGUgcmVxdWVzdC4KLy8vIDwvcGFyYT4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIENkbFNsb3dUYXNrTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYXBpQmFzZVVybCA9IEdldENvbmZpZ1ZhbHVlKCJFeGFtcGxlOkFwaUJhc2VVcmwiLCAiaHR0cDovL2xvY2FsaG9zdDozMDAxIik7CgogICAgICAgIGlmICh0YXNrIGlzIEh0dHBUYXNrIGh0dHBUYXNrKQogICAgICAgIHsKICAgICAgICAgICAgaHR0cFRhc2suU2V0VXJsKGh0dHBUYXNrLlVybC5SZXBsYWNlKCJBUElfQkFTRVVSTCIsIGFwaUJhc2VVcmwpKTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgYm9keSA9IGNvbnRleHQuQm9keSBhcyBJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD47CgogICAgICAgIG9iamVjdD8gc3RhdHVzQ29kZSA9IG51bGw7CiAgICAgICAgaWYgKGJvZHkgIT0gbnVsbCAmJiBib2R5LlRyeUdldFZhbHVlKCJzdGF0dXNDb2RlIiwgb3V0IHZhciByYXcpKQogICAgICAgIHsKICAgICAgICAgICAgc3RhdHVzQ29kZSA9IHJhdzsKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgbWFya2VyID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBtYXJrZXIudHJhbnNpdGlvbiA9IGNvbnRleHQuVHJhbnNpdGlvbj8uS2V5ID8/ICJ1bmtub3duIjsKICAgICAgICBtYXJrZXIuc3RhdHVzQ29kZSA9IHN0YXR1c0NvZGU7CiAgICAgICAgbWFya2VyLmZpbmlzaGVkQXRVdGMgPSBEYXRlVGltZS5VdGNOb3cuVG9TdHJpbmcoIm8iKTsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHJlc3VsdC5jZGxTbG93VGFzayA9IG1hcmtlcjsKCiAgICAgICAgTG9nSW5mb3JtYXRpb24oJCJDZGxTbG93VGFza01hcHBpbmc6IHNsb3cgdGFzayBmaW5pc2hlZCBvbiB7Y29udGV4dC5UcmFuc2l0aW9uPy5LZXl9IHN0YXR1cz17c3RhdHVzQ29kZX0iKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "cdl-chain-rest",
+        "stateType": 2,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Rest point (waits for a manual transition)"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "cdl-chain-finish",
+            "target": "cdl-chain-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "cdl-chain-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
