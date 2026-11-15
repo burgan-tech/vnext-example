@@ -4,29 +4,26 @@ namespace Core.IntegrationTests.Tests.ErrorBoundaryLab;
 
 /// <summary>
 /// The actions that let the pipeline carry on after a task failed — <c>ignore</c> (3) and
-/// <c>log</c> (5) — and the control case with no boundary declared anywhere.
+/// <c>log</c> (5) — and the case with no boundary declared anywhere, which does NOT carry on.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Everything in this class is MEASURED, not designed.</b> The documented intent for
-/// ignore/log is an informational, already-resolved incident; the runtime records none, because the
-/// engine reports a continue-style outcome as a result with no boundary action attached and the
-/// pipeline step falls through to "continue" without ever reaching the incident-recording branch.
-/// A second measured consequence: the coordinator stops the hook at the failed task, so the tasks
-/// declared AFTER it never run. Each case therefore pairs the failing task with a marker task that
-/// stamps instance data, and the absence of that stamp is the evidence.
+/// Each case pairs the failing task (order 1) with a marker task (order 2) that stamps
+/// <c>markerAfterFailure</c> into instance data, so whether the rest of the hook ran is read from
+/// the data, not inferred.
 /// </para>
 /// <para>
-/// If a future runtime records the informational incident or finishes the hook, these tests go red —
-/// deliberately. They are the record of what the engine does today, and the trigger to update the
-/// documentation when it changes.
+/// <b>ignore / log</b> (vnext#1257): the transition finishes and the hook's remaining tasks run. No
+/// incident is recorded — the documented informational, already-resolved incident is still not
+/// written, because the engine reports a continue-style outcome with no boundary action attached.
+/// Up to v0.0.106 the coordinator stopped the hook at the failed task, so the marker never ran.
 /// </para>
 /// <para>
-/// The third case is the control that separates "no boundary" from "boundary that did not match":
-/// with nothing declared at any level the failure is not acted on at all — no fault, no incident —
-/// while a declared-but-unmatched boundary faults the instance (see
-/// <see cref="BoundaryLevelTests.WhenBoundariesExistButNoneMatch_TheInstanceFaultsWithAnUnattributedIncident"/>).
-/// Absence of a boundary means "the failure is not acted on", not "the failure faults the instance".
+/// <b>No boundary at any level</b> (vnext#1257): the failure is unhandled. The hook stops at the
+/// failed task, the task step records one incident attributed to that task with no boundary verdict,
+/// and the instance faults. Up to v0.0.106 the transition completed into <c>landed</c> with no
+/// incident and the rest of the hook was silently skipped — the defect reported in
+/// vnext-client-sdk-core#95.
 /// </para>
 /// </remarks>
 public class ContinueActionsTests : ErrorBoundaryLabTestBase
@@ -36,7 +33,6 @@ public class ContinueActionsTests : ErrorBoundaryLabTestBase
     [Theory]
     [InlineData("case-ignore", "ignore (3)")]
     [InlineData("case-log", "log (5)")]
-    [InlineData("case-unhandled", "no boundary at any level")]
     public async Task AContinueStyleOutcome_LetsTheTransitionFinishWithoutAnIncident(
         string caseKey, string description)
     {
@@ -65,20 +61,46 @@ public class ContinueActionsTests : ErrorBoundaryLabTestBase
     [Theory]
     [InlineData("case-ignore", "ignore (3)")]
     [InlineData("case-log", "log (5)")]
-    [InlineData("case-unhandled", "no boundary at any level")]
-    public async Task AFailedTask_StopsTheRestOfItsHookFromRunning(string caseKey, string description)
+    public async Task AContinueStyleOutcome_RunsTheRestOfItsHook(string caseKey, string description)
     {
         var instanceId = await RunCaseAsync(Workflow, caseKey);
 
         var attributes = await GetAttributesAsync(Workflow, instanceId);
 
-        Assert.False(attributes.TryGetProperty("markerAfterFailure", out _),
-            $"MEASURED behaviour changed: after {description} the hook's remaining tasks now run. " +
-            "That is arguably the better semantics — update this test, the README and the " +
-            "TEST-SCENARIOS gap list together.");
+        Assert.True(attributes.TryGetProperty("markerAfterFailure", out _),
+            $"after {description} the hook's remaining tasks did not run");
 
         // The failing task itself did run, so the case is not vacuously passing.
         Assert.True(attributes.TryGetProperty("httpAttempts", out var attempts) && attempts.GetInt32() >= 1,
             "the failing task never ran — this case proves nothing");
+    }
+
+    [Fact]
+    public async Task WithNoBoundaryAnywhere_TheFailureFaultsTheInstanceWithAnIncident()
+    {
+        var instanceId = await RunCaseAsync(Workflow, "case-unhandled");
+        await WaitUntilFaultedAsync(Workflow, instanceId);
+
+        // The transition did not complete: the instance stays on the hub it started from.
+        var (state, status) = await GetInstanceStateAsync(Workflow, instanceId);
+        Assert.Equal("F", status);
+        Assert.NotEqual("landed", state);
+
+        // One unhandled failure, one row, attributed to the task that failed and carrying no
+        // boundary verdict — nothing declared, so nothing decided.
+        var incident = Assert.Single(await GetIncidentItemsAsync(Workflow, instanceId));
+        Assert.Equal("eb-http-500-task-h", Text(incident, "task"));
+        Assert.Equal("Task:Http:eb-http-500-task-h:500", Text(incident, "errorCode"));
+        Assert.Equal(500, Number(incident, "statusCode"));
+        AssertAbsent(incident, "boundaryAction", "no boundary is declared, so no action was taken");
+        AssertAbsent(incident, "boundaryLevel", "no boundary is declared, so no level resolved");
+
+        var (activeStatus, _) = await GetActiveIncidentAsync(Workflow, instanceId);
+        Assert.Equal(System.Net.HttpStatusCode.OK, activeStatus);
+
+        // The hook stopped at the failed task: the marker after it never ran.
+        var attributes = await GetAttributesAsync(Workflow, instanceId);
+        Assert.False(attributes.TryGetProperty("markerAfterFailure", out _),
+            "the hook ran on past an unhandled failure");
     }
 }

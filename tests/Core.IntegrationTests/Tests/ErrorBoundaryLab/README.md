@@ -49,7 +49,7 @@ error-boundary-lab                         error-boundary-lab-global
     case-retry-exhaust ──────► F  (retry tükendi → abort)
     case-retry-recover ──────► landed (3. denemede 200)
     case-ignore / case-log ──► landed
-    case-unhandled ──────────► landed (boundary yok → hata işlenmez)
+    case-unhandled ──────────► F  (boundary yok → işlenmemiş hata, vnext#1257)
     case-retry-endpoint ─────► F  (retry endpoint testleri)
     case-state-notify ───► zone-state-notify  ─► notified (State)
     case-precedence-… ───► zone-precedence    ─► F        (Task, State'i yener)
@@ -109,7 +109,7 @@ runtime eski gömülü script'i sunmaya devam eder.
 | `BoundaryLevelTests` | Task/State/Global verdict'leri; Task'ın daha spesifik State kuralını yenmesi; State'in Global'i gölgelemesi; "boundary var ama eşleşmiyor" kontrolü. |
 | `WithinLevelOrderingTests` | Spesifik kuralın default wildcard'ı yenmesi, düşük priority sayısının kazanması, boundary transition'ı biten incident'ın **resolve** edilmesi. |
 | `RetryPolicyTests` | `1 + maxRetries` çağrı (`httpAttempts` instance verisinden), tükenince fallback kuralın uygulanması, 3. denemede kurtarma (incident **yok**). MockLab gerekir. |
-| `ContinueActionsTests` | `ignore`/`log`/boundary-yok: pipeline devam eder, incident **yok**, ve hook'un kalan task'ları **koşmaz**. |
+| `ContinueActionsTests` | `ignore`/`log`: transition `landed`'e biter, incident **yok**, hook'un kalan task'ları **koşar** (marker damgası var). Hiçbir seviyede boundary yok: hook hatalı task'ta durur (marker **yok**), task'a atfedilmiş, verdict'siz **tek** incident yazılır ve instance **Faulted** olur (vnext#1257). |
 | `SecuredIncidentsTests` | `zone-secured`'ın `queryRoles`'u: `authorize?queryRoles=true` rolsüz çağırana **403** `{"allowed":false}`, `eb-lab.viewer`'a 200 der; state function, `/incidents` ve `/incidents/active` üçü de aynı çağırana **aynı** cevabı (200) verir — runtime okuma kapısı 2026-09-23'te kaldırıldı, karar gateway'in `authorize`'a sorusudur. 2026-10-05'e kadar test üç 403 bekliyordu (paketin tek kırmızısı). Rollü çağıran 200. |
 | `SubFlowFaultChainTests` | 3 seviyeli SubFlow zinciri (`eb-sf-root` → `eb-sf-mid` → `eb-sf-leaf`): leaf'in HTTP task'ı **400** alır ve global abort ile fault'lar, mid global abort ile fault'lar, root'un global `notify` kuralı `r-has-error` ile `r-error-end`'e götürür ve root **Completed** olur. Root'ta tek incident **vardır** (`errorLayer=SubFlow`, `task`/`statusCode` leaf'ten, `boundaryAction=Notify`/`Global`) ve **resolve edilmiştir**; `hasActiveIncident=false`, `active` linki yok, `/incidents/active` 404. Fault'lanan mid ve leaf'te incident açık kalır. MockLab gerekir (`api/eb-lab/fail-400`). |
 
@@ -121,11 +121,15 @@ kırmızıya döner — o zaman README, `TEST-SCENARIOS.md` ve testler birlikte 
 1. **`retryCount` her zaman 0.** Alan, boundary aksiyonunun retry policy'sinden doldurulur; engine
    bu policy'yi aksiyon sonucuna hiç iliştirmez. Deneme sayısı yalnız instance verisinden
    (`httpAttempts`) okunabilir — testler oradan okur.
-2. **`ignore`/`log` incident yazmaz ve hook'un kalanını atlar.** Bu **doğru davranış** olarak
-   onaylandı (2026-09-07), ölçülüp pinlenmesinin sebebi dokümante edilen niyetin ("informational,
-   zaten resolved bir incident") kodla çelişmesi: engine devam-tipi sonucu boundary aksiyonu
-   iliştirmeden döndürdüğü için pipeline step'i incident yazan dala hiç girmez. Ayrıca koordinatör
-   hatalı task'ta durur, sonraki task'lar koşmaz (marker damgası yok).
+2. **`ignore`/`log` incident yazmaz.** Dokümante edilen niyet ("informational, zaten resolved bir
+   incident") kodla çelişir: engine devam-tipi sonucu boundary aksiyonu iliştirmeden döndürdüğü için
+   pipeline step'i incident yazan dala hiç girmez. Hook'un kalan task'ları ise **koşar** (vnext#1257,
+   2026-11-15); v0.0.106'ya kadar koordinatör hatalı task'ta duruyor, marker hiç koşmuyordu
+   (2026-09-07'de o hali doğru diye pinlenmişti).
+2a. **Hiçbir seviyede boundary yoksa hata işlenmemiştir** (vnext#1257, 2026-11-15): hook durur,
+   instance Faulted olur, incident task'a atfedilir ve `boundaryAction`/`boundaryLevel` taşımaz.
+   v0.0.106'ya kadar transition hedefe tamamlanıyor, incident yazılmıyor ve hook'un kalanı sessizce
+   atlanıyordu (vnext-client-sdk-core#95: hedef kayda hiç yazılmadan `applied` kapanan geçiş).
 
 3. **SubFlow fault'unu `notify`/transition ile karşılayan parent'ın incident'ı resolve edilir.**
    `SubflowFaultService` incident'ı parent'a boundary verdict'iyle yazar, sonra boundary
