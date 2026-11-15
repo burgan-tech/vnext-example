@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using BBT.Workflow.Definitions;
+using BBT.Workflow.Instances;
 using BBT.Workflow.Scripting;
 using BBT.Workflow.Scripting.Functions;
 
@@ -41,6 +42,9 @@ public class ContractGetDocumentsMapping : ScriptBase, IMapping
         target["iterIndex"] = 0;
         target["finIndex"] = 0;
         target["onlineInstanceIds"] = new List<object>();
+        // vnext#1267: the chain root the runtime resolves for this SubProcess child. Without the
+        // root.instance.id key it falls back to the child's own id, so a missing key never reads as the root.
+        target["rootInstanceId"] = context.Instance.GetRootInstanceId().ToString();
         LogInformation($"ContractGetDocumentsMapping: resolved {count} documents");
         return Task.FromResult(new ScriptResponse { Data = merged });
     }
