@@ -109,8 +109,10 @@ DirectTrigger'ın key→id çözümü `LocalInstanceIdResolver`, `LocalRelatedIn
 `RequiresNew` non-transactional unit of work'ünü açar.
 
 **Akıştaki kasıtlı tercihler:**
-- Error boundary YOK — sahadaki akış gibi. Başarısız task instance'ı fault ETMEZ; hata yalnız order-3
-  kaydında (`family.failed`, `family.slots.<slot>`) görünür. Test bu yüzden state'e değil kayda bakar.
+- Error boundary YOK — sahadaki akış gibi. vnext#1257'den (2026-11-15) beri başarısız bir task
+  instance'ı **fault eder** ve hook durur (önce fault etmiyor, hata yalnız order-3 kaydında
+  `family.failed`, `family.slots.<slot>` görünüyordu). Yeşil durumda fark yok; kırmızıda test artık
+  `AssertNotFaultedAsync`'te düşer ve incident'ı gösterir.
 - Order 1 tam sahadaki şekil (4× GetInstances). Order 2 altı tipi yan yana koyar: okumalar aynı
   instance'ı aynı anda okur; DirectTrigger KEY ile adreslenir ki key→id çözümü de paralel grupta koşsun;
   iki DirectTrigger ayrı seed'lere gider (bir instance aynı anda iki transition alamaz).
@@ -129,7 +131,8 @@ slot'ları `context.TaskResponse`'tan okur.
 | `TriggerFamilyParallelTests.AllSixSameDomainTriggerTypesAtOneOrder_EveryTaskSucceeds` | `pvk-trigger-mix`: altı tipli grup tek başına order 1'de (family'de order-1 listeleri düşünce order 2 hiç koşmaz; her tipin kendi sonucu ancak böyle görünür); 10 slot'un hepsi `isSuccess`, hedefler aynı şekilde |
 
 Recorder koşmadıysa (bir paralel grup düşüp hook'u durdurduysa) test, `functions/tasks` journal'ını
-`taskKey@order=businessStatus` olarak hata mesajına yazar — instance o durumda bile `checked`'a ilerler.
+`taskKey@order=businessStatus` olarak hata mesajına yazar. vnext#1257'den beri instance o durumda
+`checked`'a ilerlemez, Faulted olur.
 
 Runtime'ın düzeltme öncesi beklenen hata metni (host logu, EventId 10078 `TaskLocalExecutionFailed`):
 `A second operation was started on this context instance before a previous operation completed.`
