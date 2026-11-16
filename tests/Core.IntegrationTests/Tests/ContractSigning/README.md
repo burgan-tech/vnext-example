@@ -18,6 +18,10 @@ döngüsüyle doküman başına bir `online-flow` spawn eder; onaylar trigger ta
 - **updateData ile fan-in**: çocuklar `contract-progress`'i (updateData) çağırır; her çocuk kendi
   anahtarını (`rr_{doc}` / `ap_{doc}`) damgalar, kapı kuralları (`AllRenderedRule`, `AllApprovedRule`)
   taze veriye karşı yeniden değerlendirilir.
+- **SubProcess çocuğunda zincir kökü (vnext#1267)**: `contract-flow` (kökün P çocuğu) ve `online-flow`
+  (P'nin P çocuğu) `root.instance.id` taşır ve değer `login-flow`'dur; kök P çocuğunda yeniden başlamaz.
+  Metadata hiçbir okuma ucunda yok, bu yüzden `ContractGetDocumentsMapping` / `OnlineRenderDocumentMapping`
+  `context.Instance.GetRootInstanceId()`'yi `rootInstanceId` olarak data'ya yazar.
 - **Start mapping'in guard'sızlığı**: `sub` / `act_sub` olmadan start, ilk task'ta instance'ı fault'lar.
 
 ## Akış
@@ -53,6 +57,7 @@ Her akışta `cancel-*` → `*-cancelled`. `login-flow` ve `contract-flow` trigg
 | `EachOnlineFlow_CarriesItsOwnDocument` | `$self` döngüsü her turda ilerler: `documentId`'ler boş değil ve ayrık | |
 | `ApprovingEveryDocument_MovesLoginFlowToAllDocumentsApproved` | Onaylar updateData + trigger zinciriyle köke ulaşır | 90 sn bütçe |
 | `FinalisingLoginFlow_CompletesEveryInstanceInTheChain` | `login-finalize` sonrası üç akışın tüm instance'ları `C`, beklenen terminal state'lerde | 120 sn bütçe |
+| `EverySubProcessChild_CarriesLoginFlowAsTheChainRoot` | contract-flow ve her online-flow'un `rootInstanceId`'si = `login-flow` id'si (vnext#1267) | Anahtar yoksa `GetRootInstanceId()` çocuğun kendi id'sine düşer → assert kırmızı |
 | `StartingWithoutIdentityClaims_FaultsTheInstance` | `sub`/`act_sub`'sız start `login-initial`'da `F` | Keskin kenarın belgelenmesi |
 
 ## Bağımlılıklar ve ön koşullar
@@ -89,6 +94,9 @@ Python scripti yok; elle sürmek için `core/Workflows/contract-signing/contract
   sonraki bekleme adımında zaman aşımı olarak görünür — önce reddi arayın.
 - **Paylaşılan sayaç kullanmayın.** Eşzamanlı çocuk geri çağrıları aynı snapshot'tan okur;
   `count + 1` artışları kaybeder. Mapping'ler bu yüzden yalnız kendi anahtarının delta'sını döner.
-- Mapping'ler hedef sürümü sabitler (`contract-flow` / `online-flow` `1.1.1`); fixture değişikliği
+- Mapping'ler hedef sürümü sabitler (`contract-flow` / `online-flow` `1.1.3`); fixture değişikliği
   patch bump ister ve mapping'lerdeki `SetVersion` da güncellenmelidir.
+- **Script sandbox'ı Aether'i referans etmez.** `context.Instance.ExtraProperties` (`ExtraPropertyDictionary`)
+  CS0012 ile derlenmez ve instance `contract-initial`'da fault'lar; metadata'yı domain extension'larıyla
+  (`using BBT.Workflow.Instances;` → `GetRootInstanceId()`) okuyun.
 - `TEST-SCENARIOS.md` satırındaki gerekçe git geçmişinde kayıtlı değil (dipnot 1).

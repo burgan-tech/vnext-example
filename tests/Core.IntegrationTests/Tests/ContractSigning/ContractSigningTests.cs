@@ -132,6 +132,25 @@ public class ContractSigningTests : WorkflowTestBase
         Assert.Equal(documentIds.Count, documentIds.Distinct().Count());
     }
 
+    /// <summary>
+    /// vnext#1267: a SubProcess child must carry the chain root (<c>root.instance.id</c>), the same as
+    /// a SubFlow child. contract-flow is a SubProcess of the root; online-flow is a SubProcess of a
+    /// SubProcess, so it proves the root is inherited and does not restart at contract-flow. The
+    /// mappings copy <c>GetRootInstanceId()</c> into <c>rootInstanceId</c>; without the key that is the
+    /// child's own id, so the assertion fails on a runtime that does not write it.
+    /// </summary>
+    [Fact]
+    public async Task EverySubProcessChild_CarriesLoginFlowAsTheChainRoot()
+    {
+        var (loginId, contractId, onlineIds) = await StartAndSpawnAsync();
+
+        Assert.Equal(loginId, await ReadStringAsync(ContractFlow, contractId, "rootInstanceId"));
+        foreach (var onlineId in onlineIds)
+        {
+            Assert.Equal(loginId, await ReadStringAsync(OnlineFlow, onlineId, "rootInstanceId"));
+        }
+    }
+
     [Fact]
     public async Task ApprovingEveryDocument_MovesLoginFlowToAllDocumentsApproved()
     {
