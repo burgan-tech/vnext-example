@@ -32,12 +32,16 @@ No existing scenario aborted a client mid-request, so this is a new lab rather t
 
 | Runtime | (a) | (b) | (c) | (d) | (e) |
 |---|---|---|---|---|---|
-| Without the fix (master before vnext#1258) — expected | red | red | red at the settle wait (the 409 itself holds — the instance is stuck Busy) | red | green |
-| With the fix | green | green | green | green | green |
+| Without the fix (master before vnext#1258) — observed | red (stuck `cdl-ready`/`B`) | red (chain stuck Busy) | red at the settle wait (stuck `cdl-ready`/`B`) | not run (core-only) | green |
+| With the fix — observed | green | green | green | not run (core-only) | green |
 
-Status: **authored, not yet run** (2026-11-16). The distinguishing master-vs-branch run and the MCP
-verification below are pending; the infrastructure on the authoring machine was owned by another
-session.
+Status: **run 2026-11-16 on side domains** (another session owned `core`), both runtimes built locally:
+the fix branch as domain `cdl` gave 4 passed + (d) skipped; master `4a844fc8` as domain `cdlbase` gave
+3 red + (e) green + (d) skipped. Evidence: on master postgres left 3 instances in `B` with
+`InstanceTransitions.FinishedAt` empty and no `InstanceTasks` row; on the fix all reached rest, one
+completed `InstanceTasks` row per transition, no incident, slow transitions finished in 8.1–8.7 s.
+OpenObserve showed 3 request spans tagged `vnext.client.aborted=true` (1 start, 2 PATCH) lasting
+8.2–9.0 s although the client left after 1 s. (d) still needs a run on `core`.
 
 ## The fixture
 
