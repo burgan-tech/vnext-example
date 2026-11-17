@@ -1,6 +1,6 @@
 # VersionPinLab — integration test
 
-İki sınıf, **on bir test**; `version-pin-lab-child`, `version-pin-lab-pkg-child`, `version-pin-lab-subflow-parent`, `version-pin-lab-subprocess-parent`, `version-pin-lab-start-parent` (domain `core`).
+İki sınıf, **on dört test**; `version-pin-lab-child`, `version-pin-lab-pkg-child`, `version-pin-lab-subflow-parent`, `version-pin-lab-subprocess-parent`, `version-pin-lab-start-parent` (domain `core`).
 
 | Class | Test | What it checks |
 |---|---|---|
@@ -11,6 +11,9 @@
 | `PackageVersionResolutionTests` | `FloatingRequest_ResolvesTheHighestPackage` (4 vaka) | `1.0.0` ve `1.0` → `1.0.0-pkg.1.0.123+core` (1.0.9 / 1.0.99 / 1.0.123 arasından, sayısal); `1` ve `latest` → `1.1.0-pkg.1.0.1+core` |
 | `PackageVersionResolutionTests` | `FullVersion_ResolvesThatPackage_WithOrWithoutBuildMetadata` (2 vaka) | `1.0.0-pkg.1.0.99` ve `1.0.0-pkg.1.0.99+core` → saklı `1.0.0-pkg.1.0.99+core` |
 | `PackageVersionResolutionTests` | `FullVersionNotPublished_IsRefused` | `1.0.0-pkg.1.0.124` yayında değil → start reddedilir |
+| `PackageVersionResolutionTests` | `VersionsView_ListsEveryBuild_AndTheBuildNewInstancesStartOn` | `GET components/workflows/{key}/versions` (vnext#1192): dört build'in hepsi, gövdesiz, en son yayın önce; pointer yok; `latest` = `1.1.0-pkg.1.0.1+core` (`resolved`/`automatic`) — sürümsüz start'ın ve önbellekteki cevabın (`GET components/workflows/{key}`) verdiği build'in ta kendisi |
+| `PackageVersionResolutionTests` | `AfterTheCachedAnswersAreDropped_NewInstancesStillStartOnTheHighestBuild` | `utilities/invalidate` akışın cache generation'ını artırır, önbellekteki tüm cevaplar erişilemez olur (bir cache girdisinin süresi dolunca olan); re-cast yaygın yazımları (`latest`, `1.0.0`, `1.0`, `1`) saklı sürümlerden yeniden ısıtır, `1.1` ise ısıtılmaz → gerçek soğuk çözüm. `1.0.0` → `…123+core`, `latest` ve `1.1` → `1.1.0-pkg.1.0.1+core` değişmez |
+| `PackageVersionResolutionTests` | `VersionsView_ForAnUnpublishedFlow_IsNotFound` | Hiç yayınlanmamış akışın sürüm görünümü 404 |
 
 ## Why this exists
 
@@ -34,6 +37,12 @@ seçiliyordu. Artık sürüm adlarından karar verilip tek gövde yükleniyor; c
 Sürümler ayrı bir anahtar (`version-pin-lab-pkg-child`) altında yayınlanır ki `VersionPinLabTests`'in
 çıplak `1.0.0`/`1.0.3` satırları karışmasın.
 
+**Sürüm görünümü (vnext#1192).** Bir domain ekibi "yeni instance hangi build'de başlıyor, neden" sorusunu
+veritabanı erişimi olmadan `GET api/v1/{domain}/components/workflows/{key}/versions` ile cevaplar: yayınlanan
+build'ler (en son yayın önce, gövdesiz), default-version pointer'ı ve sürümsüz bir isteğin veritabanından
+çözüldüğü build (`latest`). Testler bu `latest`'in, sürümsüz start'ın ve önbellekteki cevabın aynı build
+olduğunu; `utilities/invalidate` ile önbellek düşürülüp cevaplar yeniden çözüldüğünde de değişmediğini pinler.
+
 **Koşum (2026-11-13, vnext `claude/runtime-version-loading-32c214` çalışma ağacı, lokal core,
 `VNEXT_BASE_URL=http://localhost:4201`):** 10/10 yeşil, iki kez. Postgres: başlatılan instance'lar
 `1.0.0-pkg.1.0.123+core` ×2, `1.0.0-pkg.1.0.99+core` ×2, `1.1.0-pkg.1.0.1+core` ×2; Redis anahtarları
@@ -52,6 +61,19 @@ start `404 Cache:300001` (`core/version-pin-lab-child@version-pin-lab-child`) al
 **Koşum (2026-11-14, vnext `claude/subflow-subprocess-credentials-704267` @ `fa762e9b`, lokal core,
 `VNEXT_BASE_URL=http://localhost:4201`):** VersionPinLab 11/11 yeşil. Postgres: child
 `<parentId>-start` `FlowVersion = 1.0.0-pkg.1.0.0+core`; tanımın satırları `1.0.0-pkg.1.0.0+core` ve `1.0.3` (latest).
+
+**Koşum (2026-11-17, vnext `1192-bug-new-instances-resolve-a-stale-package-version-after-a-publish` @ `72012b4a`
+(koşulan ağaç `c0de75a2` = bu commit eksi tek bir doküman satırı), `run-docker.sh up core`,
+`VNEXT_BASE_URL=http://localhost:4201`):** VersionPinLab 14/14 yeşil (sürüm görünümü testleri dahil); tam suite
+698 geçti / 9 kırmızı / 124 skip — 9 kırmızının hepsi aynı runtime'ın yalnız-master build'inde de aynı imzayla
+kırmızı, bu değişiklikle ilgisiz: AccountOpening ×6 — init container'ın yüklediği sistem paketinde `set-or-get-cache`
+task'ı yok (`WorkflowTask not found in runtime backend`, ortam); AuthorizationChainLab
+`AuthorizeAckAgreesWithTheAcknowledgeEndpoint` ×2 — `authorize?ack=true` ile acknowledge endpoint'i ayrışıyor
+(beklenen false, gelen true; long-poll ack alanı); InstanceIdFilterLab `Task_SetFilterIdNotAGuid_FailsAsClientError`
+×1 — okuyucu task doğru 400'ü alıyor ama instance fault ediyor; muhtemel neden vnext master `9f1ec52a` (boundary'siz
+task hatası artık transition'ı fault ediyor) ile vnext-example #69'un beklentisinin ayrışması. Postgres: koşuda başlatılan `version-pin-lab-pkg-child` instance'ları
+`1.1.0-pkg.1.0.1+core` ×9, `1.0.0-pkg.1.0.123+core` ×6, `1.0.0-pkg.1.0.99+core` ×4. OpenObserve: sürüm sayfası
+sorgusu `GROUP BY "Version"`, `"Data"` kolonu okunmuyor.
 
 ## The fixture
 
