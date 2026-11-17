@@ -1,0 +1,30 @@
+{
+  "key": "cdl-slow-http",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "client-disconnect-lab",
+    "http",
+    "mocklab",
+    "slow"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/client-disconnect-lab/slow",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "client-disconnect-lab"
+      },
+      "contentType": "application/json",
+      "timeoutSeconds": 30,
+      "validateSsl": true
+    }
+  }
+}
