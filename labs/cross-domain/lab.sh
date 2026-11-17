@@ -65,7 +65,15 @@ docker_dir() { echo "$RUNTIME_DIR/vnext/docker"; }
 # Explicit Dapr Configuration (appconfig: mdns name resolution pinned + OTel tracing) layered over the
 # template via a compose override — the template itself ships no --config (implicit mDNS, no tracing).
 export LAB_DAPR_CONFIG="$LAB_DIR/dapr/appconfig.yaml"
-compose()    { local d=$1; shift; (cd "$(docker_dir)" && docker compose -f docker-compose.yml -f "$LAB_DIR/compose.dapr-appconfig.yml" --env-file "domains/$d/.env" -p "vnext-$d" --profile vnext "$@"); }
+# Opt-in sub-endpoint gate (vnext#1265): VNEXT_LAB_SUB_ENDPOINT_GATE=Off|Observe|Enforce plus
+# VNEXT_LAB_RUNTIME_CALLER_RING=<absolute path to a key-ring file> mount the ring and turn the gate on in
+# every lab domain (compose.sub-endpoint-gate.yml). Unset: the lab runs exactly as before.
+compose()    { local d=$1; shift; local extra=()
+  if [ -n "${VNEXT_LAB_SUB_ENDPOINT_GATE:-}" ]; then
+    [ -f "${VNEXT_LAB_RUNTIME_CALLER_RING:-}" ] || die "VNEXT_LAB_SUB_ENDPOINT_GATE needs VNEXT_LAB_RUNTIME_CALLER_RING (an existing key-ring file)"
+    extra=(-f "$LAB_DIR/compose.sub-endpoint-gate.yml")
+  fi
+  (cd "$(docker_dir)" && docker compose -f docker-compose.yml -f "$LAB_DIR/compose.dapr-appconfig.yml" ${extra[@]+"${extra[@]}"} --env-file "domains/$d/.env" -p "vnext-$d" --profile vnext "$@"); }
 
 require() { command -v "$1" >/dev/null 2>&1 || die "missing tool: $1"; }
 

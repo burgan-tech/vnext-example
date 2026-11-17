@@ -67,7 +67,11 @@ atlar. Runtime kodunu değiştirdiysen sıra: `images` → `down` → `up`.
 Ortam değişkenleri: `VNEXT_RUNTIME_DIR`, `VNEXT_RUNTIME_REPO`, `VNEXT_RUNTIME_REF`, `VNEXT_SRC_DIR`,
 `VNEXT_LAB_IMAGE_TAG` (`dapr-nr`), `VNEXT_DISCOVERY_IMAGE_TAG` (varsayılan = `VNEXT_LAB_IMAGE_TAG`),
 `VNEXT_LAB_DAPR_VERSION` (`1.18.0`), `VNEXT_LAB_DISCOVERY_PROVIDER` (`dapr` | `http`, varsayılan
-`dapr`), `VNEXT_DISCOVERY_PACKAGE[_VERSION]`.
+`dapr`), `VNEXT_DISCOVERY_PACKAGE[_VERSION]`, `VNEXT_LAB_SUB_ENDPOINT_GATE` (`Off` | `Observe` | `Enforce`) +
+`VNEXT_LAB_RUNTIME_CALLER_RING` (key-ring dosyasının mutlak yolu, commit'lenmez; konteynerin okuyabilmesi için `644`):
+ikisi birlikte verildiğinde `compose.sub-endpoint-gate.yml` her lab domain'inin Orchestration, Execution ve Inbox
+konteynerine ring'i mount eder ve Orchestration kapısını o modda, yalnız-runtime grant'iyle açar (vnext#1265,
+`tests/Core.IntegrationTests/Tests/SubEndpointGateLab/README.md`). Verilmezse lab eskisi gibi koşar.
 
 **Rollback tatbikatı:** `VNEXT_LAB_DISCOVERY_PROVIDER=http lab.sh up` core/partner'ı eski yola
 (registry `baseUrl` + düz HttpClient) alır; aynı 11 test yeşil kalmalı. Not: `useDapr:true` task'ları
