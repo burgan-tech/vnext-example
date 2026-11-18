@@ -80,7 +80,80 @@ public class PackageVersionResolutionTests : WorkflowTestBase
         Assert.True((int)status >= 400, $"an unpublished full version was started: {body}");
     }
 
+    /// <summary>
+    /// The read a domain team uses instead of the database (vnext#1192): every published build, newest publish
+    /// first, without bodies, and what a versionless start resolves to — which must be the build new instances
+    /// actually start on, and the one the cached answer gives.
+    /// </summary>
+    [Fact]
+    public async Task VersionsView_ListsEveryBuild_AndTheBuildNewInstancesStartOn()
+    {
+        await EnsurePublishedAsync();
+
+        var (status, body) = await SendRawAsync(HttpMethod.Get,
+            $"api/v1/core/components/workflows/{Child}/versions?pageSize=100", headers: Headers());
+        Assert.True(status == HttpStatusCode.OK, $"versions answered {(int)status}: {body}");
+        var view = JsonDocument.Parse(body).RootElement;
+
+        var items = view.GetProperty("items").EnumerateArray().ToList();
+        Assert.Equal(PublishOrder.Length, view.GetProperty("totalVersions").GetInt32());
+        Assert.Equal(PublishOrder.OrderBy(v => v, StringComparer.Ordinal),
+            items.Select(i => i.GetProperty("version").GetString()).OrderBy(v => v, StringComparer.Ordinal));
+        var publishedAt = items.Select(i => i.GetProperty("publishedAt").GetDateTimeOffset()).ToList();
+        Assert.Equal(publishedAt.OrderByDescending(t => t), publishedAt);
+        Assert.False(view.TryGetProperty("defaultVersion", out _), "this flow has no default-version pointer");
+
+        var latest = view.GetProperty("latest");
+        Assert.Equal("resolved", latest.GetProperty("outcome").GetString());
+        Assert.Equal("automatic", latest.GetProperty("source").GetString());
+        Assert.Equal("1.1.0-pkg.1.0.1+core", latest.GetProperty("version").GetString());
+
+        Assert.Equal("1.1.0-pkg.1.0.1+core", await StartedVersionAsync("latest"));
+        Assert.Equal("1.1.0-pkg.1.0.1+core", await CachedVersionAsync(null));
+    }
+
+    /// <summary>
+    /// <c>utilities/invalidate</c> bumps the flow's cache generation, so every cached answer becomes unreachable
+    /// at once — what a cache entry's expiry does, which is when vnext#1192 started old builds. Its re-cast
+    /// re-warms the common spellings (<c>latest</c>, <c>1.0.0</c>, <c>1.0</c>, <c>1</c> of the re-cast version) from
+    /// the stored versions; <c>1.1</c> is not among them, so it is a true cold miss resolved from the database.
+    /// None of the answers may move.
+    /// </summary>
+    [Fact]
+    public async Task AfterTheCachedAnswersAreDropped_NewInstancesStillStartOnTheHighestBuild()
+    {
+        await EnsurePublishedAsync();
+
+        var (status, body) = await SendRawAsync(HttpMethod.Post, "api/v1/utilities/invalidate",
+            new { domain = "core", flow = "sys-flows", key = Child, version = "1.0.0-pkg.1.0.9+core" }, Headers());
+        Assert.True((int)status < 300, $"invalidate answered {(int)status}: {body}");
+        await Task.Delay(TimeSpan.FromSeconds(6)); // the per-pod generation memo, ComponentCache:GenerationMemoSeconds = 5
+
+        Assert.Equal("1.0.0-pkg.1.0.123+core", await StartedVersionAsync("1.0.0"));
+        Assert.Equal("1.1.0-pkg.1.0.1+core", await StartedVersionAsync("latest"));
+        Assert.Equal("1.0.0-pkg.1.0.123+core", await CachedVersionAsync("1.0.0"));
+        Assert.Equal("1.1.0-pkg.1.0.1+core", await StartedVersionAsync("1.1")); // not warmed: a cold resolution
+    }
+
+    [Fact]
+    public async Task VersionsView_ForAnUnpublishedFlow_IsNotFound()
+    {
+        var (status, body) = await SendRawAsync(HttpMethod.Get,
+            "api/v1/core/components/workflows/version-pin-lab-never-published/versions", headers: Headers());
+
+        Assert.True(status == HttpStatusCode.NotFound, $"expected 404, got {(int)status}: {body}");
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────────
+
+    /// <summary>The version the component cache answers for a request, through the discovery read.</summary>
+    private async Task<string?> CachedVersionAsync(string? requested)
+    {
+        var url = $"api/v1/core/components/workflows/{Child}" + (requested is null ? "" : "/" + Uri.EscapeDataString(requested));
+        var (status, body) = await SendRawAsync(HttpMethod.Get, url, headers: Headers());
+        Assert.True(status == HttpStatusCode.OK, $"GET {url} answered {(int)status}: {body}");
+        return JsonDocument.Parse(body).RootElement.GetProperty("version").GetString();
+    }
 
     private async Task<string?> StartedVersionAsync(string requested)
     {
