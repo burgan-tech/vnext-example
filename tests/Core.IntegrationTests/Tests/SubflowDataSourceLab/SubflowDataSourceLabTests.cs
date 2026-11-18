@@ -73,7 +73,8 @@ public sealed class SubflowDataSourceLabTests : WorkflowTestBase
     /// <summary>
     /// <c>touch</c> is a <c>$self</c> transition on the child: the child's data changes, its state
     /// does not, and the parent's own data is untouched. This is the moment 474774 / vnext#1084
-    /// describe — the parent's data function keeps answering 304. Whether the parent's STATE ETag
+    /// describe: before the fix the parent's data function kept answering 304. Its ETag now carries the
+    /// child's data ETag, so the old ETag answers 200 with a new ETag. Whether the parent's STATE ETag
     /// moves on a child <c>$self</c> is not documented; it is read and reported, not asserted.
     /// </summary>
     [Fact]
@@ -92,8 +93,9 @@ public sealed class SubflowDataSourceLabTests : WorkflowTestBase
         Assert.Equal(HttpStatusCode.OK, childAfter);
         Assert.NotEqual(childEtag, childEtagAfter);
 
-        var (parentAfter, _, _) = await GetAsync(parentHref, parentEtag);
-        Assert.Equal(HttpStatusCode.NotModified, parentAfter);
+        var (parentAfter, parentEtagAfter, _) = await GetAsync(parentHref, parentEtag);
+        Assert.Equal(HttpStatusCode.OK, parentAfter);
+        Assert.NotEqual(parentEtag, parentEtagAfter);
 
         var (stateAfter, stateEtagAfter, _) = await StateAsync(parentId, stateEtag);
         Console.WriteLine($"[sds] parent state after a child $self touch: {(int)stateAfter} (ETag {stateEtag} -> {stateEtagAfter})");

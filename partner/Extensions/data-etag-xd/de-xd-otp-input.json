@@ -1,0 +1,29 @@
+{
+  "key": "de-xd-otp-input",
+  "version": "1.0.0",
+  "domain": "partner",
+  "flow": "sys-extensions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "cross-domain-lab",
+    "data-etag-xd",
+    "partner"
+  ],
+  "attributes": {
+    "type": 3,
+    "scope": 1,
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "xd-script-task",
+        "domain": "partner",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/DeXdOtpInputMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBkZS14ZC1vdHAtaW5wdXQg4oCUIHRoZSBwYXJ0bmVyIGNoaWxkJ3Mgc2NyZWVuIGlucHV0LCB0aGUgc2hhcGUgbW9ycGgtaWRtJ3MgM0ZBIGNoaWxkIGV4cG9zZXMKLy8gYXMgZXh0ZW5zaW9ucy5vdHBJbnB1dCAodm5leHQjMTA4NCkuIEl0IGlzIGRlcml2ZWQgT05MWSBmcm9tIHRoZSBjaGlsZCdzIG93biBpbnN0YW5jZSBkYXRhLCBzbyBhCi8vIHdyaXRlIGluIHRoZSBjaGlsZCB0aGF0IGxlYXZlcyBpdHMgc3RhdGUgYWxvbmUgaXMgdGhlIG9uZSB0aGluZyB0aGF0IGNoYW5nZXMgaXQuCi8vIHR5cGU9MyBEZWZpbmVkRmxvd3MgKyBzY29wZT0xIEdldEluc3RhbmNlOiBydW5zIG9uIHRoZSBjaGlsZCdzIGluc3RhbmNlIHJlYWRzLCBhbmQgb24gdGhlIHBhcmVudCdzCi8vIGRhdGEgZnVuY3Rpb24gd2hpbGUgdGhlIGNoaWxkIGlzIHRoZSBwYXJlbnQncyBhY3RpdmUgU3ViRmxvdy4KcHVibGljIGNsYXNzIERlWGRPdHBJbnB1dE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICAgICAgPT4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHdyb25nT3RwID0gZmFsc2U7CiAgICAgICAgdmFyIGF0dGVtcHQgPSAwOwogICAgICAgIHRyeSB7IHdyb25nT3RwID0gQ29udmVydC5Ub0Jvb2xlYW4oY29udGV4dC5JbnN0YW5jZT8uRGF0YT8ud3JvbmdPdHAgPz8gZmFsc2UpOyB9IGNhdGNoIHsgfQogICAgICAgIHRyeSB7IGF0dGVtcHQgPSBDb252ZXJ0LlRvSW50MzIoY29udGV4dC5JbnN0YW5jZT8uRGF0YT8uYXR0ZW1wdCA/PyAwKTsgfSBjYXRjaCB7IH0KCiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UKICAgICAgICB7CiAgICAgICAgICAgIERhdGEgPSBuZXcgeyBtYXNrZWRQaG9uZSA9ICIqKioqKioqNDMyMSIsIHdyb25nT3RwLCBhdHRlbXB0IH0KICAgICAgICB9KTsKICAgIH0KfQo="
+      }
+    }
+  }
+}

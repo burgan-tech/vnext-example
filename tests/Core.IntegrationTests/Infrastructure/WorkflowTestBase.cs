@@ -257,6 +257,24 @@ public abstract class WorkflowTestBase : IntegrationTestBase
         return (response.StatusCode, etag, await response.Content.ReadAsStringAsync());
     }
 
+    /// <summary>
+    /// <see cref="PollStateAsync"/> for the <c>data</c> function: the conditional GET a client makes for
+    /// an instance's data and <c>extensions</c>, with the raw status, the <c>ETag</c> and the body.
+    /// </summary>
+    protected async Task<(HttpStatusCode Status, string? ETag, string Body)> PollDataAsync(
+        string workflow, string instanceId, string? ifNoneMatch = null, string? roles = null)
+    {
+        using var request = new HttpRequestMessage(
+            HttpMethod.Get, $"api/v1/{TestDomain.Name}/workflows/{workflow}/instances/{instanceId}/functions/data");
+        foreach (var (key, value) in Headers(roles)) request.Headers.TryAddWithoutValidation(key, value);
+        if (!string.IsNullOrEmpty(ifNoneMatch)) request.Headers.TryAddWithoutValidation("If-None-Match", ifNoneMatch);
+
+        using var response = await _raw.SendAsync(request);
+        var etag = response.Headers.ETag?.ToString()
+                   ?? (response.Headers.TryGetValues("ETag", out var values) ? values.FirstOrDefault() : null);
+        return (response.StatusCode, etag, await response.Content.ReadAsStringAsync());
+    }
+
     /// <summary>Instance data (attributes) — where task output lands.</summary>
     protected async Task<JsonElement> GetAttributesAsync(string workflow, string instanceId, string? roles = null)
     {

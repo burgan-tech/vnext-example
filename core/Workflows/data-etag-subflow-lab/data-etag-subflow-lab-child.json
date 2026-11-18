@@ -1,0 +1,108 @@
+{
+  "key": "data-etag-subflow-lab-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "data-etag-subflow-lab",
+    "child"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Data ETag SubFlow Lab — child (OTP screen)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [
+      {
+        "key": "data-etag-subflow-lab-otp-input",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-extensions"
+      }
+    ],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-data-etag-subflow-lab-child",
+      "target": "otp",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "otp",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "OTP entry"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "wrong-otp",
+            "target": "otp",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Wrong OTP (writes data, same state)"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "approve-otp",
+            "target": "otp-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve OTP"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "otp-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "OTP done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

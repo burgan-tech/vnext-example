@@ -1,0 +1,28 @@
+{
+  "key": "data-etag-subflow-lab-otp-input",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-extensions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "data-etag-subflow-lab"
+  ],
+  "attributes": {
+    "type": 3,
+    "scope": 1,
+    "task": {
+      "order": 1,
+      "task": {
+        "key": "script-task",
+        "domain": "core",
+        "version": "1.0.0",
+        "flow": "sys-tasks"
+      },
+      "mapping": {
+        "location": "./src/OtpInputExtensionMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CgovLyBkYXRhLWV0YWctc3ViZmxvdy1sYWItb3RwLWlucHV0IOKAlCB0aGUgY2hpbGQncyBzY3JlZW4gaW5wdXQsIHRoZSBzaGFwZSBtb3JwaC1pZG0ncyAzRkEgY2hpbGQgZXhwb3NlcwovLyBhcyBleHRlbnNpb25zLm90cElucHV0ICh2bmV4dCMxMDg0KS4gSXQgaXMgZGVyaXZlZCBPTkxZIGZyb20gdGhlIGNoaWxkJ3Mgb3duIGluc3RhbmNlIGRhdGEsIHNvIGEKLy8gd3JpdGUgaW4gdGhlIGNoaWxkIHRoYXQgbGVhdmVzIGl0cyBzdGF0ZSBhbG9uZSBpcyB0aGUgb25lIHRoaW5nIHRoYXQgY2hhbmdlcyBpdC4KLy8gdHlwZT0zIERlZmluZWRGbG93cyArIHNjb3BlPTEgR2V0SW5zdGFuY2U6IHJ1bnMgb24gdGhlIGNoaWxkJ3MgaW5zdGFuY2UgcmVhZHMsIGFuZCBvbiB0aGUgcGFyZW50J3MKLy8gZGF0YSBmdW5jdGlvbiB3aGlsZSB0aGUgY2hpbGQgaXMgdGhlIHBhcmVudCdzIGFjdGl2ZSBTdWJGbG93LgpwdWJsaWMgY2xhc3MgT3RwSW5wdXRFeHRlbnNpb25NYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgICAgID0+IFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CgogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IE91dHB1dEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciB3cm9uZ090cCA9IGZhbHNlOwogICAgICAgIHZhciBhdHRlbXB0ID0gMDsKICAgICAgICB0cnkgeyB3cm9uZ090cCA9IENvbnZlcnQuVG9Cb29sZWFuKGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/Lndyb25nT3RwID8/IGZhbHNlKTsgfSBjYXRjaCB7IH0KICAgICAgICB0cnkgeyBhdHRlbXB0ID0gQ29udmVydC5Ub0ludDMyKGNvbnRleHQuSW5zdGFuY2U/LkRhdGE/LmF0dGVtcHQgPz8gMCk7IH0gY2F0Y2ggeyB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlCiAgICAgICAgewogICAgICAgICAgICBEYXRhID0gbmV3IHsgbWFza2VkUGhvbmUgPSAiKioqKioqKjQzMjEiLCB3cm9uZ090cCwgYXR0ZW1wdCB9CiAgICAgICAgfSk7CiAgICB9Cn0K"
+      }
+    }
+  }
+}
