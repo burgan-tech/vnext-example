@@ -1,5 +1,7 @@
 # ViewLoadDataLab — geçiş view bağlamasının `loadData`'sı
 
+Son doğrulama: 2026-11-19 — vnext#1266 PR başı üzerinde yeşil; düzeltmesiz runtime'da iki test de kırmızı.
+
 State function'ın her `transitions[]` girdisindeki `view.loadData`, geçişin view bağlamasında beyan
 edilen `loadData`'yı taşır. İstemci (`vnext-client-sdk-core` `transitionForm.ts` →
 `loadData: !!t.view?.loadData`) formu yalnız akış yazarı istediğinde kayıt verisiyle doldurur.
