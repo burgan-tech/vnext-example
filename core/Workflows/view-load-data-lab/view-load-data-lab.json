@@ -1,0 +1,302 @@
+{
+  "key": "view-load-data-lab",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-load-data-lab",
+    "views"
+  ],
+  "attributes": {
+    "_comment": "Every transition of vld-review binds the same form view with a different loadData declaration: false, true, undeclared, no view at all, and two entries whose first says false. vld-shared-note (shared, loadData true) is available both in vld-review and in the subFlow state vld-sub, so it is listed as a parent-added entry while the child runs.",
+    "type": "F",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "loadData Lab"
+      },
+      {
+        "language": "en-US",
+        "label": "loadData Lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-vld",
+      "target": "vld-review",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "tr-TR",
+          "label": "Başlat"
+        },
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ]
+    },
+    "sharedTransitions": [
+      {
+        "key": "vld-shared-note",
+        "target": "$self",
+        "triggerType": 0,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Not ekle"
+          },
+          {
+            "language": "en-US",
+            "label": "Add note"
+          }
+        ],
+        "view": {
+          "view": {
+            "key": "view-load-data-lab-form-view",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-views"
+          },
+          "loadData": true
+        },
+        "availableIn": [
+          "vld-review",
+          "vld-sub"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "key": "vld-review",
+        "stateType": 1,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "İnceleme"
+          },
+          {
+            "language": "en-US",
+            "label": "Review"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "vld-load-false",
+            "target": "vld-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Bilgi iste"
+              },
+              {
+                "language": "en-US",
+                "label": "Request info"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "view-load-data-lab-form-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": false
+            }
+          },
+          {
+            "key": "vld-load-true",
+            "target": "vld-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Belge ekle"
+              },
+              {
+                "language": "en-US",
+                "label": "Add document"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "view-load-data-lab-form-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": true
+            }
+          },
+          {
+            "key": "vld-load-undeclared",
+            "target": "vld-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Beyansız"
+              },
+              {
+                "language": "en-US",
+                "label": "Undeclared"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "view-load-data-lab-form-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              }
+            }
+          },
+          {
+            "key": "vld-no-view",
+            "target": "vld-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Alan güncelle"
+              },
+              {
+                "language": "en-US",
+                "label": "Update fields"
+              }
+            ]
+          },
+          {
+            "key": "vld-multi",
+            "target": "vld-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Çoklu"
+              },
+              {
+                "language": "en-US",
+                "label": "Multi"
+              }
+            ],
+            "view": {
+              "views": [
+                {
+                  "rule": {
+                    "location": "./src/ViewLoadDataLabFirstEntryRule.csx",
+                    "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIFJ1bGUgb2YgdmxkLW11bHRpJ3MgZmlyc3QgdmlldyBlbnRyeS4gSXQgYWx3YXlzIG1hdGNoZXMsIHNvIHRoZSB2aWV3IGZ1bmN0aW9uIHNlcnZlcyB0aGUgZmlyc3QKLy8vIGVudHJ5OyB0aGUgc3RhdGUgZnVuY3Rpb24gbmV2ZXIgZXZhbHVhdGVzIGl0IGFuZCB0YWtlcyB0aGUgZmlyc3QgZW50cnkncyBsb2FkRGF0YSByZWdhcmRsZXNzLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgVmlld0xvYWREYXRhTGFiRmlyc3RFbnRyeVJ1bGUgOiBTY3JpcHRCYXNlLCBJQ29uZGl0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxib29sPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwp9Cg=="
+                  },
+                  "view": {
+                    "key": "view-load-data-lab-form-view",
+                    "domain": "core",
+                    "version": "1.0.0",
+                    "flow": "sys-views"
+                  },
+                  "loadData": false
+                },
+                {
+                  "view": {
+                    "key": "view-load-data-lab-form-view",
+                    "domain": "core",
+                    "version": "1.0.0",
+                    "flow": "sys-views"
+                  },
+                  "loadData": true
+                }
+              ]
+            }
+          },
+          {
+            "key": "vld-ask-sub",
+            "target": "vld-sub",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Alt akışa gönder"
+              },
+              {
+                "language": "en-US",
+                "label": "Send to child flow"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "vld-sub",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Alt Akışta"
+          },
+          {
+            "language": "en-US",
+            "label": "In Child Flow"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "view-load-data-lab-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/ViewLoadDataLabSubFlowMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5EeW5hbWljOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gTWluaW1hbCBTdWJGbG93IG1hcHBpbmcgZm9yIHRoZSB2aWV3LWxvYWQtZGF0YSBsYWI6IHRoZSBzY2VuYXJpbyBpcyBhYm91dCB3aGF0IHRoZSBzdGF0ZQovLy8gc3VyZmFjZXMgREVTQ1JJQkUsIG5vdCBhYm91dCBkYXRhLCBzbyBub3RoaW5nIGlzIG1hcHBlZCBiZXlvbmQgYSBtYXJrZXIuCi8vLyA8L3N1bW1hcnk+Ci8vLyA8cmVtYXJrcz4KLy8vIEl0IGV4aXN0cyBiZWNhdXNlIDxjPnN1YkZsb3cubWFwcGluZzwvYz4gaXMgcmVxdWlyZWQgYnkgdGhlIHNjaGVtYS4gS2VlcGluZyBpdCBlbXB0eSBpcwovLy8gZGVsaWJlcmF0ZSDigJQgYSBtYXBwaW5nIHRoYXQgbW92ZWQgcmVhbCBkYXRhIHdvdWxkIGdpdmUgYSBmYWlsaW5nIHRlc3QgYSBzZWNvbmQgcG9zc2libGUgY2F1c2UuCi8vLyA8L3JlbWFya3M+CnB1YmxpYyBjbGFzcyBWaWV3TG9hZERhdGFMYWJTdWJGbG93TWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIGNoaWxkSW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGNoaWxkSW5wdXQuc3RhcnRlZEJ5Vmlld0xvYWREYXRhTGFiID0gdHJ1ZTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjaGlsZElucHV0IH0pOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICBkeW5hbWljIG1lcmdlZCA9IG5ldyBFeHBhbmRvT2JqZWN0KCk7CiAgICAgICAgdmFyIHRhcmdldCA9IChJRGljdGlvbmFyeTxzdHJpbmcsIG9iamVjdD4pbWVyZ2VkOwogICAgICAgIGlmIChjb250ZXh0Lkluc3RhbmNlLkRhdGEgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+IGluc3QpCiAgICAgICAgewogICAgICAgICAgICBmb3JlYWNoICh2YXIga3YgaW4gaW5zdCkgdGFyZ2V0W2t2LktleV0gPSBrdi5WYWx1ZTsKICAgICAgICB9CiAgICAgICAgdGFyZ2V0WyJjaGlsZFNldHRsZWQiXSA9IHRydWU7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UgeyBEYXRhID0gbWVyZ2VkIH0pOwogICAgfQp9Cg=="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "vld-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Bitti"
+          },
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
