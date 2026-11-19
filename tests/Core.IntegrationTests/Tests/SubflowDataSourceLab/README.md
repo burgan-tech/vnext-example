@@ -10,7 +10,7 @@ verisini** okuması gerektiğini ve runtime'ın bunun için ne verdiğini:
 | Parent'ın state function'ı çocuğa iner | `state` / `view.hasView` / `transitions` çocuğun; `status` çocuk beklerken `A` |
 | `data.href` parent'ı gösterir | Gövde parent'ın verisi (`parentMarker` var, `childMarker` yok) |
 | `activeCorrelations[]` kaydının `href`'i | **Çocuğun data function'ı** (`/core/workflows/sds-child/instances/{childId}/functions/data`), `subFlowType "S"`, `isCompleted false` |
-| Çocukta `$self` geçişi (`touch`) | Çocuğun verisi ve ETag'i değişir; parent'ın data function'ı eski ETag'e **304** döner (474774 / vnext#1084'ün koşulu); parent **state** ETag'inin davranışı **okunur ve raporlanır**, assert edilmez (dokümante değil) |
+| Çocukta `$self` geçişi (`touch`) | Çocuğun verisi ve ETag'i değişir; parent'ın data function'ı eski ETag'e **200** + yeni ETag döner (vnext#1084 düzeltmesi; öncesinde 304'te kalıyordu); parent **state** ETag'inin davranışı **okunur ve raporlanır**, assert edilmez (dokümante değil) |
 | Çocuğun state ilerlemesi (`next`) | Parent state ETag'i hareket eder (v0.0.79 notu: korelasyon mutasyonu) |
 | Çocuk biter (`finish`) | Parent `parent-after`'a geçer, aktif `S` korelasyon kalmaz, parent verisi çocuğun çıktısını (`childResult`, `childCounter`) taşır ve eski ETag'e **200** döner |
 
@@ -56,7 +56,7 @@ View'lar pseudo-ui `Column` + `Text("$instance.<alan>")`: ekran hangi instance'�
 
 - `TheParentStateDescendsToTheChild_AndTheCorrelationHrefIsTheChildsData`
 - `TheParentsDataIsTheParents_TheHrefsDataIsTheChilds`
-- `ATouchChangesOnlyTheChildsData` — parent data 304; parent state ETag davranışı konsola yazılır (`[sds] …`)
+- `ATouchChangesOnlyTheChildsData` — parent data 200 (vnext#1084 sonrası; öncesinde 304); parent state ETag davranışı konsola yazılır (`[sds] …`)
 - `ANextMovesTheParentStateEtag`
 - `AfterFinishTheParentResumes_WithTheChildsOutputMerged`
 
@@ -74,8 +74,8 @@ dotnet test tests/Core.IntegrationTests --settings tests/Core.IntegrationTests/t
 
 - Parent **state** ETag'inin çocuğun `$self` geçişinde hareket edip etmediği runtime dokümanında yok; test
   okur ve raporlar. 0.0.103.0'da **hareket ediyor** (koşu kaydı); dokümana yazılması istenir.
-- vnext#1084'ün sunucu düzeltmesi (parent data ETag'ine çocuk extension çıktısının katılması) yayına girince
-  `ATouchChangesOnlyTheChildsData`'daki **304 → 200** olur; test o gün güncellenir, bu beklenen değişimdir.
+- vnext#1084'ün sunucu düzeltmesi (aktif SubFlow'da parent data ETag'i `{parent}.{child}` — çocuğun data ETag'i)
+  ile `ATouchChangesOnlyTheChildsData`'daki **304 → 200** oldu (2026-11-18); test buna göre güncellendi.
 - `activeCorrelations[].href` runtime dokümanındaki alan tablosunda yazmıyor (`built-in.md`); kodda var
   (`InstanceQueryAppService.BuildInstanceStateOutputAsync`, Şubat 2026'dan beri). Dokümante edilmesi istenir.
 

@@ -43,6 +43,7 @@ bekler, status'u değil. Her task ayrı transition'da: kırmızı bir test tek b
 | `SubflowDescentTests` | 01–06 | child start (partner'da), `state`/`view`/`schema`/`authorize` descent'i, `data?extensions=` descent'i (gövde parent'ta kalır — runtime kararı), parent üzerinden `child-approve` forward + parent resume |
 | `TriggerTaskTests` | 07–11 | 14 fire-and-forget worker, 11 sync start (+`remoteInstanceId`/`remoteKey`), 12 `remote-advance`, 19+13 okuma (`remoteState`, `remoteData.testId`), 15 `attributes.testId` filtresiyle liste |
 | `DiscoveryWarmUpTests` | 12–14 | registry'nin `domain-list` sözleşmesi (düz `items[]`, dört alan, sayfalama zarfı **yok**), `POST utilities/discovery/refresh` → `Refreshed` (runtime function'ı okuyup cache'i yazdı), yeni bir kayıttan sonra listenin büyümesi ve warm-up'ın hâlâ başarılı olması |
+| `DataEtagCrossDomainTests` | DX-01–03 | vnext#1084 domain sınırında: partner child aynı state'te veri yazınca core parent'ın `functions/data`'sı eski ETag'e 200 + yeni `extensions`, değişmeyince 304; bileşik ETag `{parent}.{child}` partner child'ın kendi data ETag'iyle biter — bkz. § Data function ETag |
 | `FileOffloadCrossDomainTests` | XS-01–05 | `x-storage` domain sınırında: partner yaprağa proxy'lenen sync/async yükleme, leaf-owned handle (partner binding'i + owner), partner `functions/file` 200 / core parent 404, core'dan `GetFileAsync("partner", …)` — bkz. § x-storage |
 | `InstanceCallCredentialCrossDomainTests` | XC-01–08 | instance çağrısında çağıranın kimlik kuralı domain sınırında: SubFlow start + 14/11/12/19/15/13 task'ları core → partner, iç içe partner → core geri çağrısı, `userId` farkı — bkz. § Instance-call credential |
 
@@ -337,6 +338,52 @@ ile okuma geçişi kaldırıldı (bileşenler 1.0.3). Sonuç: `InstanceCallCrede
 hedefi partner'da id `1e240b25-3df8-4e72-b44e-8c10b493934e`, `key` = `13be31c1-6bc7-45ef-9227-8a96c958850a-start`; tüm
 `CrossDomainLab` 43/4/2 (aynı 4 FileOffload kırmızısı — `couldn't find output binding vnext-blob-local`; 2 warm-up skip);
 `InstanceCallCredentialLab` 18/18.
+
+## Data function ETag cross-domain (`data-etag-xd`, vnext#1084)
+
+Plan ve kabul kriterleri: `labs/cross-domain/VNEXT-BUILD-PLAN-data-etag-xd.md` (DX-01..DX-05). Bileşenler
+`core/Workflows/data-etag-xd/build-data-etag-xd.py` ile `.csx`'ten üretilir (core parent + partner child/extension).
+
+```
+core/de-xd-parent  begin ──auto──▶ wait-otp (SubFlow, process.domain: partner)
+partner/de-xd-child  otp ──wrong-otp──▶ otp (veri yazar, state aynı) · approve-otp ──▶ otp-done
+partner/de-xd-otp-input (type 3, scope 1) → { maskedPhone, wrongOtp, attempt }  ← child verisi
+```
+
+**Koşu 2026-11-18/19** (lab imajları vnext dal `claude/issue-1084-analysis-2a54ea`, commit yok):
+
+| | dapr | http | master `5420efc1` imajları |
+|---|---|---|---|
+| `DataEtagCrossDomainTests` | 2/2 | 2/2 | **2/2 kırmızı** ("parent answered 304 to the old ETag", bileşik biçim yok) |
+| Tüm `CrossDomainLab` | 46 / 4 / 2 skip | 47 / 5 | 44 / 6 / 2 skip |
+
+Ortak kırmızılar dalla master'da aynı: `FileOffloadCrossDomainTests` 4 (partner'da `vnext-blob-local` binding'i
+lab'da yok → 503), `http`'de ayrıca bilinen `NewRegistration_IsVisibleToTheNextWarmUp` (discovery paketi).
+OpenObserve: `Subflow.Descend/de-xd-child` `vnext_descent_function=data`, `vnext_descent_transport=remote`;
+dapr'da `CallLocal/vnext-app-partner/…/functions/data`, http'de düz `GET` istemci span'i.
+
+**Ölçümün bulduğu kusur (düzeltildi):** ilk koşuda partner child **hiç 304 dönmüyordu** (4.205 istekte 0) —
+uzak istemci girdi başlıklarını isteğin üstüne birleştirdiği için çağıranın kendi `If-None-Match: "p.c"`'si child
+kısmını eziyordu. Sonuç doğru kalıyordu (tam yolda bileşik ETag eşleşiyor), bu yüzden testler yeşildi; bedel her
+poll'da partner'da extension koşusu ve core'da aggregate yüklemesiydi. Runtime artık çağıranın koşullu başlıklarını
+child'a aktarmıyor; sonrasında partner 1.402 kez 304 döndü (sunucu p50 1.3 ms).
+
+**Ölçüm (dönüşümlü A/B aynı runtime'da: core-içi child `data-etag-subflow-lab` vs partner child `de-xd-parent`,
+dapr, 500 istek × 2 koşu; p50 ms):**
+
+| Senaryo | master: yerel / xd | dal (ilk, kusurlu) xd | dal (düzeltilmiş): yerel / xd |
+|---|---|---|---|
+| 304, değişmedi | 1.07 / 1.06 (hatalı 304) | 8.7 | 2.26–2.44 / 3.88–4.25 |
+| 200, child değişti | 5.2 / 7.8 | 8.9–9.3 | 5.8–6.0 / 8.85–8.94 |
+| 200, koşulsuz | 5.2 / 7.7 | 9.2–9.6 | 5.8–5.9 / 8.6–8.9 |
+
+Düzeltme sonrası `http` sağlayıcısında da aynı: xd 304 p50 3.64 ms (yerel 2.27), 200 9.1 ms (yerel 6.0–6.3); partner 702 × 304 (p50 1.3 ms); tüm CrossDomainLab 47/5 (düzeltme öncesiyle aynı 5 ortam kırmızısı).
+
+Cross-domain 304: core'da 2 indeksli okuma + bir Dapr çağrısı (p50 ~2.1 ms) ve partner'ın fingerprint 304'ü. Master'ın
+1 ms'lik 304'ü child değiştiğinde de 304 döndüğü için hatalıdır. Master ↔ dal sütunları imaj değişimi gerektirdiğinden
+zaman-ayrıktır (yük benzer, ~3–5).
+
+**Lab tuzağı (2026-11-19):** `lab.sh up` tekrarlandığında compose, çıkmış `vnext-db-migrator-<d>`'yi yeniden başlatır; sidecar'ı (`network_mode: container:…`) eski ağ isim alanında kalır, migrator Dapr kilidinde `Connection refused` alır ve `compose up failed for core` görülür. Çare: `docker rm -f vnext-db-migrator-core vnext-db-migrator-dapr-core` ile çifti silip yeniden `up`; inatçıysa domain'leri `lab.sh`'ın compose çağrısıyla (`LAB_DAPR_CONFIG` dahil) tek tek kaldırıp `lab.sh status`.
 
 ## Başarı kriteri / bilinen kısıtlar
 
