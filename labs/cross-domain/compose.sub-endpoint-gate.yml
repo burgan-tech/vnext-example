@@ -1,0 +1,29 @@
+# Compose OVERRIDE layered by lab.sh when VNEXT_LAB_SUB_ENDPOINT_GATE is set (vnext#1265,
+# vnext docs/runtime/sub-endpoint-gate.md). Every lab domain gets the same runtime-caller key ring,
+# mounted read-only into the three hosts that sign or verify (Orchestration, Execution, Inbox), and the
+# Orchestration gate in the requested mode with a runtime-only grant set. The ring is a local file
+# (VNEXT_LAB_RUNTIME_CALLER_RING, absolute path, never committed):
+#   { "activeKeyId": "lab-k1", "keys": { "lab-k1": "<base64, >= 32 bytes>" } }
+# `$$Everyone` is compose's escape for a literal `$Everyone`.
+services:
+  vnext-app:
+    volumes:
+      - "${VNEXT_LAB_RUNTIME_CALLER_RING}:/run/secrets/vnext-runtime-caller-ring.json:ro"
+    environment:
+      Workflow__RuntimeCaller__KeyFile: /run/secrets/vnext-runtime-caller-ring.json
+      Workflow__RuntimeCaller__Required: "true"
+      Workflow__SubEndpointGate__Mode: "${VNEXT_LAB_SUB_ENDPOINT_GATE}"
+      Workflow__SubEndpointGate__Grants__0__Role: "$$Everyone"
+      Workflow__SubEndpointGate__Grants__0__Grant: deny
+  vnext-execution-app:
+    volumes:
+      - "${VNEXT_LAB_RUNTIME_CALLER_RING}:/run/secrets/vnext-runtime-caller-ring.json:ro"
+    environment:
+      Workflow__RuntimeCaller__KeyFile: /run/secrets/vnext-runtime-caller-ring.json
+      Workflow__RuntimeCaller__Required: "true"
+  vnext-worker-inbox:
+    volumes:
+      - "${VNEXT_LAB_RUNTIME_CALLER_RING}:/run/secrets/vnext-runtime-caller-ring.json:ro"
+    environment:
+      Workflow__RuntimeCaller__KeyFile: /run/secrets/vnext-runtime-caller-ring.json
+      Workflow__RuntimeCaller__Required: "true"
