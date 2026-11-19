@@ -1,0 +1,140 @@
+{
+  "key": "view-load-data-lab-child",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-load-data-lab",
+    "views"
+  ],
+  "attributes": {
+    "_comment": "Child of view-load-data-lab. Its own transitions declare loadData false and true; the parent polled during the subflow window passes these entries through, so they must arrive with the child's declarations.",
+    "type": "S",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "loadData Lab — alt akış"
+      },
+      {
+        "language": "en-US",
+        "label": "loadData Lab — child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-vld-child",
+      "target": "child-review",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "tr-TR",
+          "label": "Alt akışı başlat"
+        },
+        {
+          "language": "en-US",
+          "label": "Start child"
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "child-review",
+        "stateType": 1,
+        "subType": 6,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Alt İnceleme"
+          },
+          {
+            "language": "en-US",
+            "label": "Child Review"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "child-load-false",
+            "target": "child-finished",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Boş form"
+              },
+              {
+                "language": "en-US",
+                "label": "Empty form"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "view-load-data-lab-form-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": false
+            }
+          },
+          {
+            "key": "child-load-true",
+            "target": "child-finished",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "tr-TR",
+                "label": "Dolu form"
+              },
+              {
+                "language": "en-US",
+                "label": "Filled form"
+              }
+            ],
+            "view": {
+              "view": {
+                "key": "view-load-data-lab-form-view",
+                "domain": "core",
+                "version": "1.0.0",
+                "flow": "sys-views"
+              },
+              "loadData": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "child-finished",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "tr-TR",
+            "label": "Alt Akış Tamamlandı"
+          },
+          {
+            "language": "en-US",
+            "label": "Child Finished"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

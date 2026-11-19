@@ -1,0 +1,38 @@
+{
+  "key": "view-load-data-lab-form-view",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-views",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "view-load-data-lab",
+    "views"
+  ],
+  "attributes": {
+    "type": 1,
+    "display": "full-page",
+    "renderer": "pseudo-ui",
+    "labels": [
+      {
+        "language": "tr-TR",
+        "label": "Form"
+      },
+      {
+        "language": "en-US",
+        "label": "Form"
+      }
+    ],
+    "content": {
+      "$schema": "https://amorphie.io/meta/view-vocabulary/1.0",
+      "view": {
+        "type": "Text",
+        "content": {
+          "en": "form",
+          "tr": "form"
+        },
+        "variant": "headlineMedium"
+      }
+    }
+  }
+}
