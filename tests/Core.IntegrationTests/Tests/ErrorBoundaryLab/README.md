@@ -2,7 +2,7 @@
 
 ## Neyi denetliyor
 
-Üç iddia:
+Dört iddia:
 
 1. **Error boundary çözümlemesi.** Bir task hatası hangi boundary tarafından karşılanır
    (Task → State → Global), aynı seviyede hangi kural kazanır (`EffectivePriority` ASC →
@@ -19,6 +19,13 @@
    bırakan retry yeniden fault eder, `{"attributes":{"shouldFail":false}}` ile yapılan retry aynı
    task'ı başarıya çevirir; ETag retry sonrası değişir (304 → 200).
 
+4. **Script hatası incident'ı (vnext#1268).** `eb-scripts` akışında bir script'in hata atabildiği her
+   yer için bir case: task input handler (iç exception'lı), aynı hata task-level abort ile, script
+   task output handler (boundary yok / eşleşmeyen boundary), transition mapping, resource-lock key
+   script'i, timer script'i ve otomatik transition kuralı. Client'ın gördüğü her şey — fault, tek
+   incident, `errorCode`/`errorLayer`/`task`/`boundaryAction`/`message` — master'daki değerine
+   sabitlenmiştir; stack trace API'de yoktur, veritabanından okunur (aşağıda).
+
 ## Neden var
 
 `feature/incident-table` incident'ları `Instances.Incidents` jsonb kolonundan `InstanceIncidents`
@@ -27,6 +34,11 @@ tablosuna taşıdı, `HasActiveIncident`'ı denormalize kolon yaptı, state func
 doğrulandı; **kontratı yalnız çalışan bir instance doğrular**. Ayrıca vnext-example'da error boundary
 hiç senaryo olarak yoktu (`TEST-SCENARIOS.md` girişinde kapsamda sayılıyordu ama satırı yoktu) ve
 `POST .../retry` hiçbir testte çağrılmıyordu.
+
+`eb-scripts` (vnext#1268, 2026-11-19): bir script hata attığında yazılan incident'ın `StackTrace` kolonu
+boştu — master `ee768e14`'te bu akışın 14 incident'ının 14'ü boş ölçüldü; iç exception da, script'in
+satırı da kayboluyordu. Düzeltme incident'ın görünen hiçbir alanını değiştirmemeli; bu paket o alanları
+master'daki değerlerine sabitler.
 
 Bu paket koşulurken **beş gerçek kusur** ortaya çıktı ve hepsi düzeltildi (aşağıdaki tabloya
 bakın). İkisi çökme seviyesindeydi (migration FK şeması, incident'ın başka bir context tarafından
@@ -111,6 +123,7 @@ runtime eski gömülü script'i sunmaya devam eder.
 | `RetryPolicyTests` | `1 + maxRetries` çağrı (`httpAttempts` instance verisinden), tükenince fallback kuralın uygulanması, 3. denemede kurtarma (incident **yok**). MockLab gerekir. |
 | `ContinueActionsTests` | `ignore`/`log`: transition `landed`'e biter, incident **yok**, hook'un kalan task'ları **koşar** (marker damgası var). Hiçbir seviyede boundary yok: hook hatalı task'ta durur (marker **yok**), task'a atfedilmiş, verdict'siz **tek** incident yazılır ve instance **Faulted** olur (vnext#1257). |
 | `SecuredIncidentsTests` | `zone-secured`'ın `queryRoles`'u: `authorize?queryRoles=true` rolsüz çağırana **403** `{"allowed":false}`, `eb-lab.viewer`'a 200 der; state function, `/incidents` ve `/incidents/active` üçü de aynı çağırana **aynı** cevabı (200) verir — runtime okuma kapısı 2026-09-23'te kaldırıldı, karar gateway'in `authorize`'a sorusudur. 2026-10-05'e kadar test üç 403 bekliyordu (paketin tek kırmızısı). Rollü çağıran 200. |
+| `ScriptFailureIncidentTests` | `eb-scripts`: yedi script hatası case'i instance'ı fault'lar, **tek** incident yazar ve incident'ın görünen alanları master'daki (`ee768e14`) değerlerle **birebir** aynıdır (kod/katman/task/verdict/mesaj); `stackTrace` API'de yoktur. Hata atan otomatik kural "sağlanmadı" sayılır: instance `rule-zone`'da kalır, incident **yok**. Stack trace'in kendisi `psql` ile doğrulanır (§ Script stack trace). MockLab gerekmez. |
 | `SubFlowFaultChainTests` | 3 seviyeli SubFlow zinciri (`eb-sf-root` → `eb-sf-mid` → `eb-sf-leaf`): leaf'in HTTP task'ı **400** alır ve global abort ile fault'lar, mid global abort ile fault'lar, root'un global `notify` kuralı `r-has-error` ile `r-error-end`'e götürür ve root **Completed** olur. Root'ta tek incident **vardır** (`errorLayer=SubFlow`, `task`/`statusCode` leaf'ten, `boundaryAction=Notify`/`Global`) ve **resolve edilmiştir**; `hasActiveIncident=false`, `active` linki yok, `/incidents/active` 404. Fault'lanan mid ve leaf'te incident açık kalır. MockLab gerekir (`api/eb-lab/fail-400`). |
 
 ## Ölçülen davranış (tasarlanan değil)
@@ -152,6 +165,35 @@ kırmızıya döner — o zaman README, `TEST-SCENARIOS.md` ve testler birlikte 
 | Blok incident içeriğini gömüyordu | State function en sıcak okuma yolunda incident tablosunu okuyordu, geçmiş endpoint'inin döndürdüğü veri kopyalanıyordu ve bir bayatlık deliği vardı: bir state'te A resolve edilip B açıldığında hiçbir fingerprint üyesi kımıldamadığı için `If-None-Match` ile doğrulayan client 304'te kalıp A'yı göstermeye devam ediyordu | Blok artık `{ hasActiveIncident, active: { href }, history: { href } }`; `ResponseShapeVersion` v9. State function ve instance GET'i hiç incident sorgusu atmıyor, liste görünümündeki sayfa başına batch sorgu tamamen kalktı, delik de kapandı |
 | Script'te `context.Incident.ActiveIncident` hep `null`'dı | Root'un boundary transition'ındaki ve error-end OnEntry'sindeki mapping `hasActiveIncident: true`, `incidentsLoaded: true` görüyor ama `ActiveIncident = null`, `totalIncidentCount = 0` alıyordu; geliştirici alt akışın hatasına göre dallanamıyordu (preprod onboarding, 2026-10-02). Script context her zaman `Instance.CreateSnapshot()` tutuyor; snapshot incident'ları **detached** listeye koyuyor, `ScriptIncidentInfo` ise boş kalan EF navigation'ını okuyordu (#972'den, 0.0.93'ten beri) | `ScriptIncidentInfo.From(instance)` artık `GetLoadedIncidents()` okuyor (builder, `RefreshInstance`, paralel branch). `SubFlowFaultChainTests.AMappingInsideTheBoundaryHandling_SeesTheSubFlowIncident` (`eb-incident-probe-task` / `-2`) pinliyor |
 | Kurtulan instance hâlâ aktif incident bildiriyordu | Başarılı retry'dan sonra instance `landed`/`C` olmasına rağmen `hasActiveIncident` true kalıyordu; `HasActiveIncident` fingerprint materyali olduğu için long-poll eden client'a da yansıyordu | `Instance.ResolveActiveIncident` → `ResolveOpenIncidents`: yüklü kümedeki **tüm** açık satırları kapatır ve bayrağı yeniden hesaplar. Detached retry yolunda karşılığı `ResolveAllAsync` |
+
+## Script stack trace (vnext#1268)
+
+Incident'ın `StackTrace` kolonu hiçbir API'de yoktur; doğrulama veritabanından:
+
+```bash
+docker exec vnext-postgres psql -U postgres -d Aether_WorkflowDb -At -c \
+  "select \"Transition\", length(\"StackTrace\"), split_part(\"StackTrace\", E'\n', 1)
+     from eb_scripts.\"InstanceIncidents\" order by \"CreatedAt\" desc limit 7;"
+```
+
+Beklenen: yedi case'in her biri dolu bir trace taşır; ilk satır exception tipi ve mesajı, iç
+exception (`case-task-input*`'ta `FormatException`) önce gelir, script frame'leri yazarın kendi
+satırını gösterir (`EbThrowInputMapping.ReadAmount(String raw) in :line 29` — script'in dosya adı yoktur, sınıf ve metot adı script'i söyler). Aynı ayrıntı
+host logunda: `Task script failed` (10268), `InstanceFaultedDueToPipelineError` (10130, exception'lı),
+kural için `Condition script failed` (10270).
+
+**Koşu kaydı — 2026-11-19, lokal core runtime (`run-docker.sh up core`):**
+
+| Runtime | Sonuç | `StackTrace` (psql) |
+|---|---|---|
+| vnext `master` @ `ee768e14` | `ScriptFailureIncidentTests` 8/8 (görünen alanlar bu koşudan sabitlendi) | 14 incident'ın **14'ü boş** — hata yeniden üretildi |
+| vnext `1268-bug-record-the-stack-trace-on-script-incidents` @ `659046a4` | ErrorBoundaryLab **45/45**, alanlar değişmedi | 7/7 dolu, 501–972 karakter, iç exception önce, satırlar doğru (`:line 29`, `:line 17`) |
+| aynı dal @ `659046a4` — **tüm suite** | 711 geçti / 9 kırmızı / 124 skip. 9 kırmızı master build'de (`ee768e14`, aynı vnext-example) birebir aynı: AccountOpening ×6, AuthorizationChainLab ack ×2, InstanceIdFilterLab `NotAGuid` ×1 — yeni kırmızı 0 | — |
+
+Log: `Task script failed. TaskKey=…, TaskType=Script, InstanceId=…` (10268) ve fault logu (10130)
+exception'ı taşır; kural için `Condition script failed. InstanceId=…, TransitionKey=…` (10270).
+Trace/span doğrulaması yapılamadı (OpenObserve/postgres/redis MCP sunucuları bağlanmadı); kanıt psql ve
+host logu.
 
 ## Doğrulama durumu
 
