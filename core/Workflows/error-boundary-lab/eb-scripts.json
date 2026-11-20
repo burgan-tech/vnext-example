@@ -1,0 +1,316 @@
+{
+  "key": "eb-scripts",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "error-boundary-lab",
+    "incident",
+    "script-failure"
+  ],
+  "attributes": {
+    "type": "F",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Error Boundary Lab - Script Failures"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-eb-scripts",
+      "target": "ready",
+      "triggerType": 0,
+      "versionStrategy": "Patch",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ready",
+        "stateType": 1,
+        "versionStrategy": "Patch",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Ready"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "case-task-input",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Task input handler throws"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "eb-script-fail-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/EbThrowInputMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBlYi1zY3JpcHRzICh2bmV4dCMxMjY4KTogYSB0YXNrIGlucHV0IGhhbmRsZXIgdGhhdCBmYWlscyBpbiBhIGhlbHBlciBtZXRob2QsIHdpdGggdGhlIHJlYWwgY2F1c2UKLy8vIGtlcHQgYXMgdGhlIElOTkVSIGV4Y2VwdGlvbi4gVGhlIGluY2lkZW50J3Mgc3RhY2sgdHJhY2UgbXVzdCBjYXJyeSBib3RoIGV4Y2VwdGlvbiB0eXBlcywgdGhlCi8vLyBpbm5lciBvbmUgZmlyc3QsIGFuZCB0aGlzIGZpbGUncyBsaW5lIG51bWJlcnMuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBFYlRocm93SW5wdXRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgUmVhZEFtb3VudCgibm90LWEtbnVtYmVyIik7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChGb3JtYXRFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiZWItc2NyaXB0czogdGhlIGlucHV0IGhhbmRsZXIgY291bGQgbm90IHJlYWQgdGhlIGFtb3VudCIsIGV4KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwcml2YXRlIHN0YXRpYyBpbnQgUmVhZEFtb3VudChzdHJpbmcgcmF3KSA9PiBpbnQuUGFyc2UocmF3KTsKfQo="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-task-input-abort",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Task input handler throws, task abort"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "eb-script-fail-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/EbThrowInputMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBlYi1zY3JpcHRzICh2bmV4dCMxMjY4KTogYSB0YXNrIGlucHV0IGhhbmRsZXIgdGhhdCBmYWlscyBpbiBhIGhlbHBlciBtZXRob2QsIHdpdGggdGhlIHJlYWwgY2F1c2UKLy8vIGtlcHQgYXMgdGhlIElOTkVSIGV4Y2VwdGlvbi4gVGhlIGluY2lkZW50J3Mgc3RhY2sgdHJhY2UgbXVzdCBjYXJyeSBib3RoIGV4Y2VwdGlvbiB0eXBlcywgdGhlCi8vLyBpbm5lciBvbmUgZmlyc3QsIGFuZCB0aGlzIGZpbGUncyBsaW5lIG51bWJlcnMuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBFYlRocm93SW5wdXRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSU1hcHBpbmcKewogICAgcHVibGljIFRhc2s8U2NyaXB0UmVzcG9uc2U+IElucHV0SGFuZGxlcihXb3JrZmxvd1Rhc2sgdGFzaywgU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgUmVhZEFtb3VudCgibm90LWEtbnVtYmVyIik7CiAgICAgICAgfQogICAgICAgIGNhdGNoIChGb3JtYXRFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiZWItc2NyaXB0czogdGhlIGlucHV0IGhhbmRsZXIgY291bGQgbm90IHJlYWQgdGhlIGFtb3VudCIsIGV4KTsKICAgICAgICB9CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQobmV3IFNjcmlwdFJlc3BvbnNlKCkpOwogICAgfQoKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwcml2YXRlIHN0YXRpYyBpbnQgUmVhZEFtb3VudChzdHJpbmcgcmF3KSA9PiBpbnQuUGFyc2UocmF3KTsKfQo="
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 0,
+                      "priority": 999
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-task-output",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Script task output handler throws"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "eb-script-fail-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/EbThrowOutputMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBlYi1zY3JpcHRzICh2bmV4dCMxMjY4KTogYSBzY3JpcHQgdGFzayB3aG9zZSBvdXRwdXQgaGFuZGxlciBmYWlscyBpbiBhIGhlbHBlciBtZXRob2QuIEZvciBhIHNjcmlwdAovLy8gdGFzayB0aGUgb3V0cHV0IGhhbmRsZXIgaXMgdGhlIGludm9jYXRpb24gaXRzZWxmLCBzbyB0aGUgcnVudGltZSByZXBvcnRzIGEgYnVzaW5lc3MgZmFpbHVyZQovLy8gKHN0YXR1cyA1MDApOyB0aGUgaW5jaWRlbnQncyBzdGFjayB0cmFjZSBtdXN0IHN0aWxsIG5hbWUgdGhpcyBmaWxlIGFuZCBsaW5lLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRWJUaHJvd091dHB1dE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgUmVqZWN0KCJlYi1zY3JpcHRzOiB0aGUgb3V0cHV0IGhhbmRsZXIgcmVqZWN0ZWQgdGhlIHJlc3BvbnNlIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgdm9pZCBSZWplY3Qoc3RyaW5nIHJlYXNvbikgPT4gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24ocmVhc29uKTsKfQo="
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-task-output-nomatch",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Output handler throws, boundary does not match"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "eb-script-fail-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/EbThrowOutputMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBlYi1zY3JpcHRzICh2bmV4dCMxMjY4KTogYSBzY3JpcHQgdGFzayB3aG9zZSBvdXRwdXQgaGFuZGxlciBmYWlscyBpbiBhIGhlbHBlciBtZXRob2QuIEZvciBhIHNjcmlwdAovLy8gdGFzayB0aGUgb3V0cHV0IGhhbmRsZXIgaXMgdGhlIGludm9jYXRpb24gaXRzZWxmLCBzbyB0aGUgcnVudGltZSByZXBvcnRzIGEgYnVzaW5lc3MgZmFpbHVyZQovLy8gKHN0YXR1cyA1MDApOyB0aGUgaW5jaWRlbnQncyBzdGFjayB0cmFjZSBtdXN0IHN0aWxsIG5hbWUgdGhpcyBmaWxlIGFuZCBsaW5lLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRWJUaHJvd091dHB1dE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgUmVqZWN0KCJlYi1zY3JpcHRzOiB0aGUgb3V0cHV0IGhhbmRsZXIgcmVqZWN0ZWQgdGhlIHJlc3BvbnNlIik7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgdm9pZCBSZWplY3Qoc3RyaW5nIHJlYXNvbikgPT4gdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24ocmVhc29uKTsKfQo="
+                },
+                "errorBoundary": {
+                  "onError": [
+                    {
+                      "action": 0,
+                      "errorCodes": [
+                        "404"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "key": "case-transition-mapping",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Transition mapping throws"
+              }
+            ],
+            "onExecutionTasks": [],
+            "mapping": {
+              "location": "./src/EbThrowTransitionMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gZWItc2NyaXB0cyAodm5leHQjMTI2OCk6IGEgdHJhbnNpdGlvbiBtYXBwaW5nIHRoYXQgZmFpbHMgaW4gYSBoZWxwZXIgbWV0aG9kLiBUaGUgaW5zdGFuY2UgZmF1bHRzIGluCi8vLyB0aGUgcGlwZWxpbmUsIG5vdCBpbiBhIHRhc2ssIHNvIHRoZSBpbmNpZGVudCBpcyB0aGUgcGlwZWxpbmUncyBvd24gZmFsbGJhY2sgcm93LgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRWJUaHJvd1RyYW5zaXRpb25NYXBwaW5nIDogU2NyaXB0QmFzZSwgSVRyYW5zaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGR5bmFtaWM+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQ8ZHluYW1pYz4oU2hhcGUoY29udGV4dCkpOwogICAgfQoKICAgIHByaXZhdGUgc3RhdGljIG9iamVjdCBTaGFwZShTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgdGhyb3cgbmV3IEFyZ3VtZW50RXhjZXB0aW9uKCJlYi1zY3JpcHRzOiB0aGUgdHJhbnNpdGlvbiBtYXBwaW5nIGZvdW5kIG5vIGN1c3RvbWVyIik7Cn0K"
+            }
+          },
+          {
+            "key": "case-lock-key",
+            "target": "landed",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Resource-lock key script throws"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "./src/EbThrowLockKey.csx",
+                "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gZWItc2NyaXB0cyAodm5leHQjMTI2OCk6IGEgcmVzb3VyY2UtbG9jayBrZXkgc2NyaXB0IHRoYXQgZmFpbHMuIFRoZSBydW50aW1lIGFuc3dlcnMKLy8vIFJlc291cmNlTG9ja0tleVJlc29sdXRpb25GYWlsZWQgYW5kIGZhdWx0cyB0aGUgaW5zdGFuY2U7IHRoZSBpbmNpZGVudCBtdXN0IGtlZXAgdGhlIHNjcmlwdCdzIHRyYWNlLgovLy8gPC9zdW1tYXJ5PgpwdWJsaWMgY2xhc3MgRWJUaHJvd0xvY2tLZXkgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdDxkeW5hbWljPihLZXlPZihjb250ZXh0KSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgc3RyaW5nIEtleU9mKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4KICAgICAgICB0aHJvdyBuZXcgSW52YWxpZE9wZXJhdGlvbkV4Y2VwdGlvbigiZWItc2NyaXB0czogdGhlIGxvY2sga2V5IHNjcmlwdCBoYXMgbm8ga2V5Iik7Cn0K"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 60,
+              "onConflict": "Abort"
+            }
+          },
+          {
+            "key": "case-timer",
+            "target": "timer-zone",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Target state's timer script throws"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "case-rule",
+            "target": "rule-zone",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Target state's automatic rule throws"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "timer-zone",
+        "stateType": 2,
+        "versionStrategy": "Patch",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timer zone"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "timer-fire",
+            "target": "landed",
+            "triggerType": 2,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Timer"
+              }
+            ],
+            "onExecutionTasks": [],
+            "timer": {
+              "location": "./src/EbThrowTimer.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnMuVGltZXI7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBlYi1zY3JpcHRzICh2bmV4dCMxMjY4KTogYSB0aW1lciBzY3JpcHQgdGhhdCBmYWlscyB3aGVuIHRoZSBzdGF0ZSBpcyBlbnRlcmVkLiBTY2hlZHVsaW5nIGZhaWxzIHRoZQovLy8gaG9wIGFuZCB0aGUgaW5zdGFuY2UgZmF1bHRzOyB0aGUgaW5jaWRlbnQgbXVzdCBrZWVwIHRoZSBzY3JpcHQncyB0cmFjZS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEViVGhyb3dUaW1lciA6IFNjcmlwdEJhc2UsIElUaW1lck1hcHBpbmcKewogICAgcHVibGljIFRhc2s8VGltZXJTY2hlZHVsZT4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdChXaW5kb3dPZihjb250ZXh0KSk7CiAgICB9CgogICAgcHJpdmF0ZSBzdGF0aWMgVGltZXJTY2hlZHVsZSBXaW5kb3dPZihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oImViLXNjcmlwdHM6IHRoZSB0aW1lciBzY3JpcHQgaGFzIG5vIHdpbmRvdyIpOwp9Cg=="
+            }
+          }
+        ]
+      },
+      {
+        "key": "rule-zone",
+        "stateType": 2,
+        "versionStrategy": "Patch",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Rule zone"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "rule-fire",
+            "target": "landed",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Rule"
+              }
+            ],
+            "onExecutionTasks": [],
+            "rule": {
+              "location": "./src/EbThrowRule.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gZWItc2NyaXB0cyAodm5leHQjMTI2OCk6IGFuIGF1dG9tYXRpYy10cmFuc2l0aW9uIHJ1bGUgdGhhdCBmYWlscy4gQnkgZGVzaWduIGEgZmFpbGluZyBydWxlIGNvdW50cwovLy8gYXMgIm5vdCBzYXRpc2ZpZWQiOiB0aGUgaW5zdGFuY2Ugc3RheXMgd2hlcmUgaXQgaXMgYW5kIG5vIGluY2lkZW50IGlzIHJlY29yZGVkLiBPbmx5IHRoZSBsb2cKLy8vIGNhcnJpZXMgdGhlIGV4Y2VwdGlvbi4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEViVGhyb3dSdWxlIDogU2NyaXB0QmFzZSwgSUNvbmRpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8Ym9vbD4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+CiAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oImViLXNjcmlwdHM6IHRoZSBydWxlIHNjcmlwdCBmYWlsZWQiKTsKfQo="
+            }
+          }
+        ]
+      },
+      {
+        "key": "landed",
+        "stateType": 3,
+        "versionStrategy": "Patch",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Landed"
+          }
+        ],
+        "transitions": []
+      }
+    ]
+  }
+}
