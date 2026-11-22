@@ -10,7 +10,8 @@ using BBT.Workflow.Scripting;
 /// body, so one fixture covers every id-filter case of vnext#1080:
 ///   targetDomain (required — the suite may run on a side domain) · targetFlow (default idf-target) · filter (required)
 /// Output: readerList { done, isSuccess, statusCode, error, count, ids }. A failed read is recorded, not thrown:
-/// the flow has no error boundary, so this record is where a rejected filter shows.
+/// the task declares an Ignore boundary (without one a failed task faults the instance, vnext#1257), so this
+/// record is where a rejected filter shows.
 /// </summary>
 public class IdfReaderListMapping : ScriptBase, IMapping
 {
