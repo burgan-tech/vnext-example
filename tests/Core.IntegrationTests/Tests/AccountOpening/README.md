@@ -66,7 +66,7 @@ cancel-account-opening / exit-account-opening (manual) ─▶ cancelled (Finish/
 | Runtime | `core`, `VNEXT_BASE_URL` (`test.runsettings`: `http://localhost:4201`), lokal build |
 | System package | **Gerekir** — start'ın ve `extension-user-session`'ın task'ı `sys-tasks/script-task`, `@burgan-tech/vnext-core-runtime`'tan gelir (domain'in init container'ı) |
 | MockLab | **Gerekir** — `account-opening-collection.json`: `POST api/banking/policies/validate-account-opening`, `POST api/banking/accounts/create` (`API_BASEURL` → `Example:ApiBaseUrl`, varsayılan `http://localhost:3001`) |
-| Dapr | Akışa özgü bileşen yok (pubsub/state store/scheduler runtime'ın standart sidecar'ı); `set-or-get-cache` sistem paketindeki StateStore task'ı; standart `vnext-state` state store'una yazar |
+| Dapr | Akışa özgü bileşen yok (pubsub/state store/scheduler runtime'ın standart sidecar'ı); `set-or-get-cache` StateStore task'ı domain'in kendi `core/Tasks/account-opening/set-or-get.json` dosyasındadır (sistem paketinde YOK); standart `vnext-state` state store'una yazar |
 | Caller rolleri / header'lar | `role` + `x-roles` = `morph-core.editor,morph-core.maker`; `x-device-id` (mapping'ler okur). Test tabanı `user_reference`, `x-device-id`, `x-token-id`, `x-request-id`'yi her istekte gönderir |
 | Cross-domain | Gerekmez |
 | morph-idm provider | Gerekmez (default provider; roller header'dan) |
@@ -92,11 +92,12 @@ Python scripti yok; elle sürmek için `api-tests/account-opening/account-openin
   (vnext `.claude/rules/vnext-workflow-developer.md`: "`transition.roles` is not enforced at execution, by
   design") — kusur değil, "düzeltilmemeli".
 - **onEntry task'ları bugün temiz koşuyor (ölçüldü 2026-10-05).** `account-type-selection`'ın iki
-  onEntry task'ı (`notify-state`, `set-or-get-cache`) artık sistem paketinden (`sys-tasks`) çözülüyor ve
+  onEntry task'ı (`notify-state`, `set-or-get-cache`) `sys-tasks` akışından çözülüyor; ikisi de domain'in `core/Tasks/account-opening/` dosyalarıdır, sistem paketinde yoktur, ve
   son koşudaki 18 çalıştırmanın hepsinde `isSuccess: true` döndü (`account_opening."InstanceTasks"`;
-  `set-or-get-cache` → StateStore `vnext-state`'e `custom:integration-test-device` yazdı). Eski
-  "tanımsız task / fault" kaydı sistem paketi yüklü olmayan ortama aittir — taze DB'de paketi init
-  container'dan yüklemeyi unutmayın. Error boundary tanımlı olmadığı ve `AssertNotFaultedAsync` yalnız
+  `set-or-get-cache` → StateStore `vnext-state`'e `custom:integration-test-device` yazdı). Taze
+  DB'de `set-or-get.json` yoksa instance `account-type-selection/F`'e düşer (`Cache:300001`, "WorkflowTask not found");
+  2026-08-17'de dosya yanlışlıkla silinmiş, eski DB'deki bayat satır nedeniyle lokalde fark edilmemiş, CI'ın
+  gecelik koşusu 2026-11-12'den beri kırmızıydı. Dosya geri konuldu. Error boundary tanımlı olmadığı ve `AssertNotFaultedAsync` yalnız
   Faulted'ı yakaladığı için, bir onEntry task'ının sessizce başarısız olduğundan şüphelenirseniz
   `InstanceTasks.Response.isSuccess`'e bakın.
 - **v1.0.2 öncesi kırmızıydı.** `UserSessionMapping` eksik header'da indexer ile patlıyor,
