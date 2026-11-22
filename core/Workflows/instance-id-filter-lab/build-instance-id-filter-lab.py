@@ -88,6 +88,9 @@ read_list = {
             "order": 1,
             "task": {"key": "idf-get-instances", "domain": "core", "version": "1.0.0", "flow": "sys-tasks"},
             "mapping": code("IdfReaderListMapping.csx"),
+            # Ignore (action 3): a task failure with no boundary faults the instance (vnext#1257, v0.0.107).
+            # This fixture WANTS the rejected read recorded in readerList and the instance to stay Active.
+            "errorBoundary": {"onError": [{"action": 3, "errorCodes": ["*"], "priority": 999}]},
         }
     ],
 }

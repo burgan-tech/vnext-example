@@ -22,8 +22,10 @@ Düzeltmeden önce kolon builder'ı operandı metin olarak bağlıyordu: her `id
 - `core/Workflows/instance-id-filter-lab/idf-target.json` — popülasyon; `idle`'da doğar ve kalır.
 - `core/Workflows/instance-id-filter-lab/idf-reader.json` — `ready` state'inde aynı-state `read-list` transition'ı;
   OnExecute'taki `idf-get-instances` task'ı filtreyi transition body'sinden alır (`IdfReaderListMapping.csx`) ve sonucu
-  `readerList { isSuccess, statusCode, error, count, ids }` olarak kaydeder. Error boundary bilinçli olarak yok:
-  reddedilen filtre fault etmez, kayda düşer.
+  `readerList { isSuccess, statusCode, error, count, ids }` olarak kaydeder. Task'ta `Ignore` error boundary'si
+  (action 3, `*`) vardır: boundary'siz bir task hatası instance'ı Faulted yapar (vnext#1257), oysa reddedilen filtrenin
+  fault etmeyip `readerList`'e düşmesi istenir. Yerel DB'de eski tanım kalmışsa SDK güncellemez; `idf-reader` satırını ve
+  `*sys-flows:core:idf-reader*` Redis anahtarlarını silip host'ları yeniden başlat.
 - `core/Tasks/instance-id-filter-lab/idf-get-instances.json` — GetInstances (type 15).
 - Mapping'i değiştirince `python3 core/Workflows/instance-id-filter-lab/build-instance-id-filter-lab.py` ile workflow
   JSON'larını yeniden üret; base64'ü elle düzenleme.

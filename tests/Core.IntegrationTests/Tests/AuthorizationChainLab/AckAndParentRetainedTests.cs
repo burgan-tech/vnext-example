@@ -26,20 +26,23 @@ public sealed class AckAndParentRetainedTests : AuthorizationChainLabTestBase
     // ── ack ──────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// The pre-flight and the call must give the same verdict. The leaf's
-    /// <c>interaction.longPoll.roles</c> names <c>chain.admin</c>; nothing else may acknowledge.
+    /// The acknowledge endpoint does not authorize: since the runtime's in-process gates were removed
+    /// (vnext#1027) the decision belongs to <c>authorize?ack=true</c>, asked by the gateway BEFORE the call.
+    /// The endpoint therefore admits every caller (2xx, idempotent), and the pre-flight is the only place a
+    /// caller outside the leaf's <c>interaction.longPoll.roles</c> is refused.
     /// </summary>
     /// <remarks>
-    /// The assertion is AGREEMENT, not a fixed verdict. Whether the leaf is actually awaiting an
-    /// acknowledgement at the moment of the call depends on the fallback timer, and a test that hard
-    /// -coded "denied" would fail for the wrong reason once the pause has been resumed. What must hold
-    /// in every case is that the pre-flight and the call answer the same thing.
+    /// Two things must hold in every case. The endpoint never answers 403 — a refusal there would mean a
+    /// gate came back inside the runtime and the gateway is no longer the single decision point. And the
+    /// pre-flight admits <c>chain.admin</c>, the role the leaf names. What the pre-flight answers for the
+    /// other roles depends on whether the leaf is still awaiting (the fallback timer may already have
+    /// resumed it, and then asking is allowed), so it is not pinned here.
     /// </remarks>
     [Theory]
     [InlineData(Admin)]
     [InlineData(LeafAdmin)]
     [InlineData(null)]
-    public async Task AuthorizeAckAgreesWithTheAcknowledgeEndpoint(string? roles)
+    public async Task AckEndpointAdmitsEveryCaller_TheDecisionIsTheGatewaysPreflight(string? roles)
     {
         var chain = await StartChainAsync();
 
@@ -50,18 +53,12 @@ public sealed class AckAndParentRetainedTests : AuthorizationChainLabTestBase
             $"api/v1/core/workflows/{Leaf}/instances/{chain.LeafId}/longpoll/ack",
             headers: Headers(roles));
 
-        // The endpoint answers 403 on refusal and 2xx on admission. Anything else (a 404 because
-        // nothing is awaiting, say) means the fixture is not in the state this test assumes.
-        var endpointAllowed = ackStatus switch
-        {
-            HttpStatusCode.Forbidden => false,
-            _ when (int)ackStatus is >= 200 and < 300 => true,
-            _ => throw new Xunit.Sdk.XunitException(
-                $"the acknowledge endpoint answered {(int)ackStatus}; the pre-flight said " +
-                $"{(preflight ? "allowed" : "denied")} and this test cannot compare the two")
-        };
+        Assert.True((int)ackStatus is >= 200 and < 300,
+            $"the acknowledge endpoint answered {(int)ackStatus}; it must admit every caller, the " +
+            $"decision belongs to authorize?ack=true (pre-flight said {(preflight ? "allowed" : "denied")})");
 
-        Assert.Equal(preflight, endpointAllowed);
+        if (roles == Admin)
+            Assert.True(preflight, "chain.admin is the role the leaf's interaction.longPoll names");
     }
 
     /// <summary>
