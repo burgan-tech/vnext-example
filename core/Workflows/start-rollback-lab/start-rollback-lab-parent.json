@@ -1,0 +1,140 @@
+{
+  "key": "start-rollback-lab-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "start-rollback-lab",
+    "parent",
+    "subflow"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Start Rollback Lab Parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-start-rollback-lab-parent",
+      "target": "parent-ready",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Start Rollback Lab Parent"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "parent-ready",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Parent Ready"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-parent-to-child",
+            "target": "parent-waits-child",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to SubFlow"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "parent-waits-child",
+        "stateType": 4,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Parent Waits Child"
+          }
+        ],
+        "view": null,
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "start-rollback-lab-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "mapping": {
+            "location": "./src/ParentToChildMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5UaHJlYWRpbmcuVGFza3M7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBzdGFydC1yb2xsYmFjay1sYWI6IHRoZSBwYXJlbnQncyBTdWJGbG93IGlucHV0LiBJdCBwYXNzZXMgPGM+Y3VzdG9tZXJJZDwvYz4gb24gb25seSB3aGVuIHRoZQovLy8gcGFyZW50J3Mgb3duIGRhdGEgaGFzIG9uZSwgc28gYSBwYXJlbnQgc3RhcnRlZCB3aXRob3V0IGl0IHN0YXJ0cyBhIGNoaWxkIHdob3NlIHN0YXJ0IG1hcHBpbmcKLy8vIHRocm93cyAoPGM+UmVxdWlyZUN1c3RvbWVyU3RhcnRNYXBwaW5nPC9jPikuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBQYXJlbnRUb0NoaWxkTWFwcGluZyA6IFNjcmlwdEJhc2UsIElTdWJGbG93TWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIGNoaWxkSW5wdXQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgSGFzUHJvcGVydHkoZGF0YSwgInJ1bklkIikpCiAgICAgICAgICAgIGNoaWxkSW5wdXQucnVuSWQgPSBkYXRhLnJ1bklkOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgSGFzUHJvcGVydHkoZGF0YSwgImN1c3RvbWVySWQiKSkKICAgICAgICAgICAgY2hpbGRJbnB1dC5jdXN0b21lcklkID0gZGF0YS5jdXN0b21lcklkOwoKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSBjaGlsZElucHV0IH0pOwogICAgfQoKICAgIC8vIFRoZSBjaGlsZCBuZXZlciBjb21wbGV0ZXMgaW4gdGhpcyBsYWI7IG5vdGhpbmcgY29tZXMgYmFjay4KICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBPdXRwdXRIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKfQo="
+          }
+        },
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "auto-parent-to-done",
+            "target": "parent-done",
+            "triggerType": 1,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Auto to Done"
+              }
+            ],
+            "rule": {
+              "location": "./src/AlwaysTrueRule.csx",
+              "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCnB1YmxpYyBjbGFzcyBBbHdheXNUcnVlUnVsZSA6IFNjcmlwdEJhc2UsIElDb25kaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGJvb2w+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIExvZ0luZm9ybWF0aW9uKCJBbHdheXNUcnVlUnVsZTogcmV0dXJuaW5nIHRydWUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KHRydWUpOwogICAgfQp9Cg=="
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "parent-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Parent Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}

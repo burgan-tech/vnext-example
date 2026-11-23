@@ -1,0 +1,20 @@
+{
+  "key": "start-rollback-lab-start-process",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "start-rollback-lab",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "14",
+    "config": {
+      "domain": "core",
+      "flow": "start-rollback-lab-process",
+      "version": "1.0.0"
+    }
+  }
+}

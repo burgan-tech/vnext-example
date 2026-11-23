@@ -1,0 +1,61 @@
+{
+  "key": "start-rollback-lab-root",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "start-rollback-lab",
+    "root"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Start Rollback Lab Root"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-start-rollback-lab-root",
+      "target": "root-waiting",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Start Rollback Lab Root"
+        }
+      ],
+      "onExecutionTasks": [],
+      "mapping": {
+        "location": "./src/RequireCustomerStartMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIHN0YXJ0LXJvbGxiYWNrLWxhYjogdGhlIHN0YXJ0IG1hcHBpbmcgb2YgdGhlIHJvb3QgYW5kIHRoZSBjaGlsZCBmbG93LiBJdCB0aHJvd3Mgd2hlbiB0aGUgc3RhcnQKLy8vIHBheWxvYWQgY2FycmllcyBubyA8Yz5jdXN0b21lcklkPC9jPi4gVGhlIHJ1bnRpbWUgaW5zZXJ0cyB0aGUgaW5zdGFuY2Ugcm93IGJlZm9yZSBpdCBydW5zIHRoaXMKLy8vIG1hcHBpbmcsIHNvIGEgdGhyb3cgaGVyZSBpcyBhIHN0YXJ0IHRoYXQgZmFpbHMgQUZURVIgdGhlIHJvdyBleGlzdHM7IHRoZSBzdGFydCBtdXN0IGxlYXZlIG5vCi8vLyBpbnN0YW5jZSBiZWhpbmQuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBSZXF1aXJlQ3VzdG9tZXJTdGFydE1hcHBpbmcgOiBTY3JpcHRCYXNlLCBJVHJhbnNpdGlvbk1hcHBpbmcKewogICAgcHVibGljIFRhc2s8ZHluYW1pYz4gSGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIGJvZHkgPSBjb250ZXh0LkJvZHk7CiAgICAgICAgaWYgKGJvZHkgPT0gbnVsbCB8fCAhSGFzUHJvcGVydHkoYm9keSwgImN1c3RvbWVySWQiKSkKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oInN0YXJ0LXJvbGxiYWNrLWxhYjogdGhlIHN0YXJ0IHBheWxvYWQgaGFzIG5vIGN1c3RvbWVySWQiKTsKCiAgICAgICAgZHluYW1pYyBkYXRhID0gbmV3IEV4cGFuZG9PYmplY3QoKTsKICAgICAgICBkYXRhLmN1c3RvbWVySWQgPSBib2R5LmN1c3RvbWVySWQ7CiAgICAgICAgZGF0YS5zdGFydE1hcHBlZCA9IHRydWU7CiAgICAgICAgcmV0dXJuIFRhc2suRnJvbVJlc3VsdDxkeW5hbWljPihkYXRhKTsKICAgIH0KfQo="
+      }
+    },
+    "states": [
+      {
+        "key": "root-waiting",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Root Waiting"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
