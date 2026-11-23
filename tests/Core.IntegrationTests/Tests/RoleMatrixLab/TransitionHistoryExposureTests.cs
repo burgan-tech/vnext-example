@@ -18,7 +18,7 @@ namespace Core.IntegrationTests.Tests.RoleMatrixLab;
 /// the history row, not the instance.
 /// </para>
 /// <para>
-/// Header filtering (<c>Workflow:TransitionHistory:Headers:Read</c>) is configuration: with both lists empty — the
+/// Header filtering (<c>Workflow:HeaderExposure:Deny</c>, deny only) is configuration: with the list empty — the
 /// default this suite runs with — every recorded header is returned as before, which is what the last test pins.
 /// </para>
 /// </summary>
@@ -132,7 +132,7 @@ public class TransitionHistoryExposureTests : RoleMatrixLabTestBase
     // ── headers ──────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// With no <c>Workflow:TransitionHistory:Headers:Read</c> configuration the recorded headers are returned as before —
+    /// With no <c>Workflow:HeaderExposure:Deny</c> configuration the recorded headers are returned as before —
     /// the change is opt-in per environment and does not move the response for a domain that sets nothing.
     /// </summary>
     [Fact]

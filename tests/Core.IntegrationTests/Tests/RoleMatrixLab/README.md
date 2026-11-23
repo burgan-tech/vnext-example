@@ -91,7 +91,7 @@ test yine (a) ve (b) üzerinden kırmızıya döner. **Koşuldu 2026-11-10:** ye
 `GET .../instances/{id}/transitions` her satırın request body'sini kaydedildiği gibi (düz metin) saklar; #1260'a kadar
 bunu her çağırana süzmeden dönüyordu. Artık body, instance GET / list / data function ile aynı master-şema planından
 geçer (`x-roles` → `x-masking` → `x-encryption`, istek başına bir kez kurulur); plan kurulamazsa (tanım ya da master
-şema okunamadı) body `null` döner, satır yine döner. Header'lar `Workflow:TransitionHistory:Headers:Read {Allow, Deny}`
+şema okunamadı) body `null` döner, satır yine döner. Header'lar ilk koşuda `Workflow:TransitionHistory:Headers:Read {Allow, Deny}`
 config'inden geçer; iki liste de boşsa (varsayılan) davranış eskisiyle aynıdır. Yalnız yanıt değişir: saklanan satır
 ve `context.CurrentTransition.Header` olduğu gibi kalır.
 
@@ -115,6 +115,12 @@ başlatıldığında son test kırmızıya döndü (`Actual: null`), diğer 4'ü
 `x-history-probe`'u hâlâ taşıyor (2/2). Body tarafı için ayrı bir master koşusu yapılmadı: master'da body hiç
 süzülmediği için ilk dört testin kırmızı olacağı vnext'in Faz 0 unit testleriyle (R1, R3 master'da kırmızı) gösterildi.
 Trace doğrulaması yapılmadı (openobserve / elasticsearch MCP bağlı değildi).
+
+**2026-11-23 güncellemesi (Chair kararı):** header ayarı **yalnız Deny** olarak yeniden adlandırıldı:
+`Workflow:HeaderExposure:Deny` (Allow kaldırıldı, varsayılan liste yok). Liste artık geçmiş yanıtının yanında kayda
+yazmayı ve script/mapping'lerdeki `context.Headers`'ı da kapsıyor. Yukarıdaki `Workflow__TransitionHistory__Headers__…`
+ortam değişkenleri artık geçersiz; bu davranışın e2e kanıtı ayrı senaryoda: [HeaderExposureLab](../HeaderExposureLab/README.md).
+`TransitionHistoryExposureTests` (varsayılan liste boş) 2026-11-23'te yeni ayarla da 5/5 yeşil.
 
 ## 2026-11-10 — start yetkisi: `authorize?type=instance` (vnext#1203)
 
