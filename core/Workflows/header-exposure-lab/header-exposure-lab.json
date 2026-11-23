@@ -1,0 +1,104 @@
+{
+  "key": "header-exposure-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "header-exposure-lab"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Header Exposure Lab (Workflow:HeaderExposure:Deny)"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start",
+      "target": "open",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "onExecutionTasks": [
+        {
+          "order": 1,
+          "task": {
+            "key": "role-matrix-exec-task",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-tasks"
+          },
+          "mapping": {
+            "location": "./src/EchoHeadersMapping.csx",
+            "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5MaW5xOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSZWNvcmRzIHdoYXQgYSBtYXBwaW5nIGNhbiBzZWUgb2YgdGhlIHJlcXVlc3QgaGVhZGVycyAodm5leHQjMTI2MCwgV29ya2Zsb3c6SGVhZGVyRXhwb3N1cmU6RGVueSk6IHRoZSBzb3J0ZWQgaGVhZGVyCi8vLyBuYW1lcyBhcyBvbmUgc3RyaW5nIGFuZCB3aGV0aGVyIHRoZSBwcm9iZSBoZWFkZXIgd2FzIHZpc2libGUuIFJ1bnMgb24gdGhlIHN0YXJ0IHRyYW5zaXRpb24gYW5kIG9uIGVjaG8taGVhZGVycywgZWFjaAovLy8gaW50byBpdHMgb3duIGZpZWxkcywgc28gb25lIGluc3RhbmNlIHNob3dzIGJvdGggaG9wcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEVjaG9IZWFkZXJzTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIG5hbWVzID0gbmV3IExpc3Q8c3RyaW5nPigpOwogICAgICAgIGlmIChjb250ZXh0LkhlYWRlcnMgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IGhlYWRlcnMpCiAgICAgICAgewogICAgICAgICAgICBuYW1lcy5BZGRSYW5nZShoZWFkZXJzLktleXMuU2VsZWN0KGsgPT4gay5Ub0xvd2VySW52YXJpYW50KCkpKTsKICAgICAgICB9CgogICAgICAgIG5hbWVzLlNvcnQoU3RyaW5nQ29tcGFyZXIuT3JkaW5hbCk7CiAgICAgICAgdmFyIHByZWZpeCA9IGNvbnRleHQuVHJhbnNpdGlvbj8uS2V5ID09ICJlY2hvLWhlYWRlcnMiID8gImVjaG8iIDogInN0YXJ0IjsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbcHJlZml4ICsgIkhlYWRlck5hbWVzIl0gPSBzdHJpbmcuSm9pbigiLCIsIG5hbWVzKTsKICAgICAgICB0YXJnZXRbcHJlZml4ICsgIlNhd1Byb2JlIl0gPSBuYW1lcy5Db250YWlucygieC1leHBvc3VyZS1wcm9iZSIpOwogICAgICAgIHRhcmdldFtwcmVmaXggKyAiU2F3Um9sZSJdID0gbmFtZXMuQ29udGFpbnMoInJvbGUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+          }
+        }
+      ]
+    },
+    "states": [
+      {
+        "key": "open",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Open"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "echo-headers",
+            "target": "open",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Record the header names the mapping sees"
+              }
+            ],
+            "roles": [
+              {
+                "role": "morph-idm.maker",
+                "grant": "allow"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "role-matrix-exec-task",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "mapping": {
+                  "location": "./src/EchoHeadersMapping.csx",
+                  "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYzsKdXNpbmcgU3lzdGVtLkR5bmFtaWM7CnVzaW5nIFN5c3RlbS5MaW5xOwp1c2luZyBTeXN0ZW0uVGhyZWFkaW5nLlRhc2tzOwp1c2luZyBCQlQuV29ya2Zsb3cuRGVmaW5pdGlvbnM7CnVzaW5nIEJCVC5Xb3JrZmxvdy5TY3JpcHRpbmc7CgovLy8gPHN1bW1hcnk+Ci8vLyBSZWNvcmRzIHdoYXQgYSBtYXBwaW5nIGNhbiBzZWUgb2YgdGhlIHJlcXVlc3QgaGVhZGVycyAodm5leHQjMTI2MCwgV29ya2Zsb3c6SGVhZGVyRXhwb3N1cmU6RGVueSk6IHRoZSBzb3J0ZWQgaGVhZGVyCi8vLyBuYW1lcyBhcyBvbmUgc3RyaW5nIGFuZCB3aGV0aGVyIHRoZSBwcm9iZSBoZWFkZXIgd2FzIHZpc2libGUuIFJ1bnMgb24gdGhlIHN0YXJ0IHRyYW5zaXRpb24gYW5kIG9uIGVjaG8taGVhZGVycywgZWFjaAovLy8gaW50byBpdHMgb3duIGZpZWxkcywgc28gb25lIGluc3RhbmNlIHNob3dzIGJvdGggaG9wcy4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIEVjaG9IZWFkZXJzTWFwcGluZyA6IFNjcmlwdEJhc2UsIElNYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPFNjcmlwdFJlc3BvbnNlPiBJbnB1dEhhbmRsZXIoV29ya2Zsb3dUYXNrIHRhc2ssIFNjcmlwdENvbnRleHQgY29udGV4dCkKICAgIHsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIG5hbWVzID0gbmV3IExpc3Q8c3RyaW5nPigpOwogICAgICAgIGlmIChjb250ZXh0LkhlYWRlcnMgaXMgSURpY3Rpb25hcnk8c3RyaW5nLCBzdHJpbmc+IGhlYWRlcnMpCiAgICAgICAgewogICAgICAgICAgICBuYW1lcy5BZGRSYW5nZShoZWFkZXJzLktleXMuU2VsZWN0KGsgPT4gay5Ub0xvd2VySW52YXJpYW50KCkpKTsKICAgICAgICB9CgogICAgICAgIG5hbWVzLlNvcnQoU3RyaW5nQ29tcGFyZXIuT3JkaW5hbCk7CiAgICAgICAgdmFyIHByZWZpeCA9IGNvbnRleHQuVHJhbnNpdGlvbj8uS2V5ID09ICJlY2hvLWhlYWRlcnMiID8gImVjaG8iIDogInN0YXJ0IjsKCiAgICAgICAgZHluYW1pYyByZXN1bHQgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIHZhciB0YXJnZXQgPSAoSURpY3Rpb25hcnk8c3RyaW5nLCBvYmplY3Q+KXJlc3VsdDsKICAgICAgICB0YXJnZXRbcHJlZml4ICsgIkhlYWRlck5hbWVzIl0gPSBzdHJpbmcuSm9pbigiLCIsIG5hbWVzKTsKICAgICAgICB0YXJnZXRbcHJlZml4ICsgIlNhd1Byb2JlIl0gPSBuYW1lcy5Db250YWlucygieC1leHBvc3VyZS1wcm9iZSIpOwogICAgICAgIHRhcmdldFtwcmVmaXggKyAiU2F3Um9sZSJdID0gbmFtZXMuQ29udGFpbnMoInJvbGUiKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSB7IERhdGEgPSByZXN1bHQgfSk7CiAgICB9Cn0K"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

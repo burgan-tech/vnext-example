@@ -86,6 +86,42 @@ tanımayan runtime onu sıradan rol-bağlı yaprak sayar → deny-only set (c)'y
 test yine (a) ve (b) üzerinden kırmızıya döner. **Koşuldu 2026-11-10:** yeni sınıf 2/2, paket **106/106** (104 + 2; vnext#1196 @ `3042f401` lokal build, yalnız core, provider `default`); koşudaki 101 `role_matrix_lab` + 8 combinator instance'ının hepsi `A`. Postgres'te iki test instance'ının son `InstancesData` satırı iki değeri de açık taşıyor (`FlowVersion 1.0.2-pkg.1.0.0+core`, `CreatedBy u-role-matrix-starter`). Trace doğrulaması yapılmadı (openobserve/elasticsearch MCP erişilemezdi). Saklama psql ile:
 `SELECT "Data"->>'hiddenFromAll', "Data"->>'hiddenByWorkaround' FROM role_matrix_lab_combinators."InstancesData" WHERE "IsLatest" AND "Data" ? 'hiddenFromAll';`
 
+## 2026-11-20 — transition geçmişi: body filtresi ve header listeleri (vnext#1260)
+
+`GET .../instances/{id}/transitions` her satırın request body'sini kaydedildiği gibi (düz metin) saklar; #1260'a kadar
+bunu her çağırana süzmeden dönüyordu. Artık body, instance GET / list / data function ile aynı master-şema planından
+geçer (`x-roles` → `x-masking` → `x-encryption`, istek başına bir kez kurulur); plan kurulamazsa (tanım ya da master
+şema okunamadı) body `null` döner, satır yine döner. Header'lar ilk koşuda `Workflow:TransitionHistory:Headers:Read {Allow, Deny}`
+config'inden geçer; iki liste de boşsa (varsayılan) davranış eskisiyle aynıdır. Yalnız yanıt değişir: saklanan satır
+ve `context.CurrentTransition.Header` olduğu gibi kalır.
+
+`TransitionHistoryExposureTests` (5 test) korumalı alanları **start body'sinde** gönderir; start satırının
+kaydedilmiş body'si onları açık taşır:
+
+| Test | Pinlenen |
+|---|---|
+| `XRoles_PruneTheRecordedBody_PerCaller` | maker `auditTrail` + `decisionNote` görmez, approver yalnız `decisionNote`'u, auditor ikisini; `caseRef` herkeste |
+| `XMasking_AppliesToTheRecordedBody_WithTheAllowListExemption` | `maskedForAll` / `replacedNote` herkese maskeli; `maskedExceptAuditor` auditor'a açık |
+| `XEncryption_NeverEchoesThePlaintextToANonExemptCaller` | `hash` alanının ham değeri ve muaf olmayan çağırana `encrypt` (`vault.email`) yanıtta yok; auditor `vault.email`'i açık görür |
+| `ALaterTransitionRow_IsFilteredWithTheSamePlan` | `record-note` satırının body'si de aynı planla süzülür |
+| `WithoutHeaderConfiguration_RecordedHeadersAreReturnedAsBefore` | config yokken gönderilen `x-history-probe` header'ı geçmişte döner |
+
+**Koşuldu 2026-11-20:** paket **122/122** yeşil (117 + 5; vnext `claude/issue-112-analysis-55b8ce` @ `e415741d` lokal
+build, yalnız core, provider `default`). Postgres'te `role_matrix_lab."InstanceTransitions"` start satırlarının `Body`'si
+korumalı değerleri düz metin taşıyor (`auditTrail`, `maskedForAll` IBAN'ı, `vault.email`; 3 satırda `98765432109` /
+`history-vault@example.com`) — testler süzmeyi yanıtta görüyor, saklamada değil. **Ayırt edici koşu (header):**
+host'lar `Workflow__TransitionHistory__Headers__Read__Deny__0=x-history-probe` (+ `__1=Authorization`) ile yeniden
+başlatıldığında son test kırmızıya döndü (`Actual: null`), diğer 4'ü yeşil kaldı; aynı satırların saklanan `Header`'ı
+`x-history-probe`'u hâlâ taşıyor (2/2). Body tarafı için ayrı bir master koşusu yapılmadı: master'da body hiç
+süzülmediği için ilk dört testin kırmızı olacağı vnext'in Faz 0 unit testleriyle (R1, R3 master'da kırmızı) gösterildi.
+Trace doğrulaması yapılmadı (openobserve / elasticsearch MCP bağlı değildi).
+
+**2026-11-23 güncellemesi (Chair kararı):** header ayarı **yalnız Deny** olarak yeniden adlandırıldı:
+`Workflow:HeaderExposure:Deny` (Allow kaldırıldı, varsayılan liste yok). Liste artık geçmiş yanıtının yanında kayda
+yazmayı ve script/mapping'lerdeki `context.Headers`'ı da kapsıyor. Yukarıdaki `Workflow__TransitionHistory__Headers__…`
+ortam değişkenleri artık geçersiz; bu davranışın e2e kanıtı ayrı senaryoda: [HeaderExposureLab](../HeaderExposureLab/README.md).
+`TransitionHistoryExposureTests` (varsayılan liste boş) 2026-11-23'te yeni ayarla da 5/5 yeşil.
+
 ## 2026-11-10 — start yetkisi: `authorize?type=instance` (vnext#1203)
 
 `GET /api/v1/{domain}/workflows/{flow}/functions/authorize?type=instance` — instance henüz yokken "bu caller bu
