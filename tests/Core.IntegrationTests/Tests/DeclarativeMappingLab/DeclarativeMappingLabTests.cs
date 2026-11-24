@@ -50,6 +50,11 @@ public class DeclarativeMappingLabTests : WorkflowTestBase
         Assert.Equal("Ada", echo.GetProperty("customerName").GetString());    // input select + into
         Assert.Equal("static", echo.GetProperty("source").GetString());       // the task's static body kept
         Assert.Equal("web", echo.GetProperty("channel").GetString());         // input set on $.headers
+        // input set on $.url: API_BASEURL from host config (Example:ApiBaseUrl) + a urlEncode'd query value;
+        // the output phase's `task` is the config the input phase left
+        var calledUrl = dml.GetProperty("calledUrl").GetString();
+        Assert.DoesNotContain("API_BASEURL", calledUrl);
+        Assert.EndsWith("/api/dml/echo?customer=c-42", calledUrl);
 
         Assert.Equal(97, dml.GetProperty("score").GetInt32());                // result.body.score.AsInt32() + 10
         Assert.Equal(200, dml.GetProperty("status").GetInt32());              // result.statusCode

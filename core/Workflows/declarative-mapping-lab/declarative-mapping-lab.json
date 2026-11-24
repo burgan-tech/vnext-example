@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "tags": [
     "integration-test",
     "declarative-mapping-lab",
@@ -65,13 +65,14 @@
                 "task": {
                   "key": "dml-http-echo",
                   "domain": "core",
-                  "version": "1.0.0",
+                  "version": "1.0.1",
                   "flow": "sys-tasks"
                 },
                 "input": {
                   "select": "$.data.customer",
                   "into": "$.body.customer",
                   "set": {
+                    "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\")) + \"?customer=\" + urlEncode(data.customer.id)",
                     "$.body.customerId": "data.customer.id",
                     "$.headers.x-channel": "\"web\""
                   }
@@ -87,7 +88,8 @@
                     "$.dml.checkedAt": "now",
                     "$.dml.callerKnown": "user.available",
                     "$.dml.inputAmount": "input.amount",
-                    "$.dml.missing": "data.nope.deeper"
+                    "$.dml.missing": "data.nope.deeper",
+                    "$.dml.calledUrl": "task.url"
                   }
                 }
               }
@@ -122,11 +124,12 @@
                 "task": {
                   "key": "dml-http-echo",
                   "domain": "core",
-                  "version": "1.0.0",
+                  "version": "1.0.1",
                   "flow": "sys-tasks"
                 },
                 "input": {
                   "set": {
+                    "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\"))",
                     "$.body.customerId": "data.customer.id"
                   }
                 },
@@ -167,11 +170,12 @@
             "task": {
               "key": "dml-http-echo",
               "domain": "core",
-              "version": "1.0.0",
+              "version": "1.0.1",
               "flow": "sys-tasks"
             },
             "input": {
               "set": {
+                "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\"))",
                 "$.body.customerId": "data.customer.id"
               }
             },
