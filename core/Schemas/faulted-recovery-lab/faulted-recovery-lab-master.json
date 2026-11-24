@@ -1,0 +1,43 @@
+{
+  "key": "faulted-recovery-lab-master",
+  "version": "1.0.1",
+  "domain": "core",
+  "flow": "sys-schemas",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "faulted-recovery-lab"
+  ],
+  "attributes": {
+    "type": "master",
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Faulted Recovery Lab Data"
+      }
+    ],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:vnext:res:schema:core:faulted-recovery-lab-master",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "mappedBy": {
+          "type": "string"
+        },
+        "childNote": {
+          "type": "string"
+        },
+        "failTask": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

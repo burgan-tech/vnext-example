@@ -1,0 +1,104 @@
+{
+  "key": "faulted-recovery-lab-nocancel",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "faulted-recovery-lab"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Faulted Recovery Lab Without Cancel"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-faulted-recovery-lab-nocancel",
+      "target": "nc-draft",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Faulted Recovery Lab Without Cancel"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "updateData": {
+      "key": "nc-update",
+      "target": "$self",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Assign Key"
+        }
+      ],
+      "onExecutionTasks": [],
+      "mapping": {
+        "location": "./src/KeyOnlyMapping.csx",
+        "code": "dXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGZhdWx0ZWQtcmVjb3ZlcnktbGFiOiB0aGUgdXBkYXRlRGF0YSBtYXBwaW5nIG9mIGZhdWx0ZWQtcmVjb3ZlcnktbGFiLW5vY2FuY2VsLCB0aGUgc2FtZSBhcyBtb3JwaC10b3VjaCdzCi8vLyBVcGRhdGVEYXRhS2V5T25seU1hcHBpbmcgb24gcmV6ZXJ2YXRpb246IGl0IHdyaXRlcyBub3RoaW5nLCBzbyB0aGUgdHJhbnNpdGlvbiBjYW4gb25seSBhc3NpZ24gdGhlIGluc3RhbmNlIGtleQovLy8gKHRoZSBydW50aW1lIHRha2VzIGl0IGZyb20gdGhlIHJlcXVlc3QncyBkYXRhLmtleSkuCi8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBLZXlPbmx5TWFwcGluZyA6IFNjcmlwdEJhc2UsIElUcmFuc2l0aW9uTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxkeW5hbWljPiBIYW5kbGVyKFNjcmlwdENvbnRleHQgY29udGV4dCkgPT4gVGFzay5Gcm9tUmVzdWx0PGR5bmFtaWM+KG51bGwpOwp9Cg=="
+      }
+    },
+    "states": [
+      {
+        "key": "nc-draft",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Draft"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "nc-finish",
+            "target": "nc-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "nc-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
