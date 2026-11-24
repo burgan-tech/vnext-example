@@ -1,0 +1,189 @@
+{
+  "key": "declarative-mapping-lab",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "http",
+    "mocklab",
+    "issue-1229"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Declarative Mapping Lab"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-declarative-mapping-lab",
+      "target": "ready",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "ready",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Ready"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "run-transition-mapping",
+            "target": "transition-mapped",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Transition task with declarative input + output"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "dml-http-echo",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "input": {
+                  "select": "$.data.customer",
+                  "into": "$.body.customer",
+                  "set": {
+                    "$.body.customerId": "data.customer.id",
+                    "$.headers.x-channel": "\"web\""
+                  }
+                },
+                "output": {
+                  "select": "$.body.echo",
+                  "into": "$.dml.echo",
+                  "set": {
+                    "$.dml.score": "result.body.score.AsInt32() + 10",
+                    "$.dml.status": "result.statusCode",
+                    "$.dml.state": "instance.currentState",
+                    "$.dml.instanceKey": "instance.key",
+                    "$.dml.checkedAt": "now",
+                    "$.dml.callerKnown": "user.available",
+                    "$.dml.inputAmount": "input.amount",
+                    "$.dml.missing": "data.nope.deeper"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "key": "run-entry-mapping",
+            "target": "entry-mapped",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter a state whose onEntries task merges its result at the root"
+              }
+            ]
+          },
+          {
+            "key": "run-bad-cast",
+            "target": "transition-mapped",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Output expression fails at run time (no boundary)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "dml-http-echo",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "input": {
+                  "set": {
+                    "$.body.customerId": "data.customer.id"
+                  }
+                },
+                "output": {
+                  "set": {
+                    "$.dml.bad": "result.body.level.AsInt32()"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "transition-mapped",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Transition mapped"
+          }
+        ]
+      },
+      {
+        "key": "entry-mapped",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Entry mapped"
+          }
+        ],
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "dml-http-echo",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "input": {
+              "set": {
+                "$.body.customerId": "data.customer.id"
+              }
+            },
+            "output": {
+              "select": "$.body",
+              "set": {
+                "$.entryState": "instance.currentState"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

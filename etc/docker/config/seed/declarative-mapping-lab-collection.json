@@ -1,0 +1,26 @@
+{
+  "collection": {
+    "name": "declarative-mapping-lab",
+    "description": "Echo backend for the declarative-mapping-lab integration scenario (vnext #1229: declarative input/output task mappings)",
+    "color": "#10b981"
+  },
+  "folders": [],
+  "mocks": [
+    {
+      "httpMethod": "POST",
+      "route": "api/dml/echo",
+      "queryString": null,
+      "requestBody": "",
+      "statusCode": 200,
+      "responseBody": "{\n  \"score\": 87,\n  \"level\": \"gold\",\n  \"echo\": {\n    \"customerId\": \"{{ request.body.customerId }}\",\n    \"customerName\": \"{{ if request.body.customer }}{{ request.body.customer.name }}{{ end }}\",\n    \"source\": \"{{ request.body.source }}\",\n    \"channel\": \"{{ request.headers[\"x-channel\"] }}\"\n  }\n}",
+      "contentType": "application/json",
+      "description": "Echoes the request body/header fields the declarative input mapping wrote, plus a fixed score/level for the output mapping. customerName is guarded: a template that reads a member of a missing object renders nothing (X-Mocklab-Template-Error) and the task gets raw text",
+      "delayMs": null,
+      "isActive": true,
+      "isSequential": false,
+      "folderIndex": null,
+      "rules": [],
+      "sequenceItems": []
+    }
+  ]
+}
