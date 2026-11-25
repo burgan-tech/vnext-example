@@ -16,7 +16,7 @@ start-declarative-mapping-lab → ready (Initial)
    ├─ run-transition-mapping  onExecutionTasks: dml-http-echo  input + output  → transition-mapped (Finish)
    ├─ run-entry-mapping       (task'sız)                                       → entry-mapped (Finish)
    │                          entry-mapped.onEntries: dml-http-echo  output select $.body, into YOK
-   └─ run-bad-cast            onExecutionTasks: dml-http-echo  output "gold".AsInt32()  → transition-mapped
+   └─ run-bad-cast            onExecutionTasks: dml-http-echo  output result.body.level.AsInt32()  → transition-mapped
 ```
 
 `dml-http-echo` (Http, tip 6) MockLab `POST /api/dml/echo`'yu çağırır. URL'i `API_BASEURL/api/dml/echo`'dur; her binding'in input bloğu `$.url`'i `task.url.ToString().Replace("API_BASEURL", config.get("Example:ApiBaseUrl", "http://localhost:3001"))` ile çözer. Route istek gövdesindeki
@@ -30,7 +30,7 @@ yazdığını**, instance verisi de output bloğunun ne yazdığını kanıtlar.
 | --- | --- |
 | `TransitionTask_InputAndOutputBlocks_WriteTheExpectedData` | Input: `$.url` = `API_BASEURL` config'ten + `?customer=` + `urlEncode(data.customer.id)` (output `task.url` ile `$.dml.calledUrl`'e yazar; test `…/api/dml/echo?customer=c-42` ile bittiğini ve yer tutucunun kalmadığını doğrular), `select $.data.customer into $.body.customer`, `set` ile `$.body.customerId` ve `$.headers.x-channel`; task'ın statik gövdesi (`source: static`) korunur. Output: `echo` alt ağacı `into $.dml.echo`, ardından `set`: `result.body.score.AsInt32() + 10` = 97, `result.statusCode` = 200, `instance.currentState` = `ready` (ChangeState'ten önce), `instance.key`, `now`, `user.available` = true (kullanıcı hop'u), `input.amount` = 5 (transition gövdesi). Eksik ara üye (`data.nope.deeper`) hiçbir şey yazmaz, hata da vermez. Instance `transition-mapped`'te `C` |
 | `EntryTask_SelectWithoutInto_MergesAtTheDataRoot` | `onEntries` binding'i: `select $.body` + `into` yok → seçilen nesne verinin köküne merge olur (`score`, `level`, `echo` kökte); `instance.currentState` girişte `entry-mapped`; başlangıç verisi korunur |
-| `OutputExpressionError_FaultsTheInstance_AndWritesNothing` | `"gold".AsInt32()` eksik değer değil hatadır: mapping başarısız olur, boundary olmadığı için instance `F` (vnext#1257); delta'nın hiçbir parçası yazılmaz |
+| `OutputExpressionError_FaultsTheInstance_AndWritesNothing` | `result.body.level.AsInt32()` (`level` = `"gold"`) eksik değer değil hatadır: mapping başarısız olur, boundary olmadığı için instance `F` (vnext#1257); delta'nın hiçbir parçası yazılmaz |
 | `Publish_RejectsInvalidBindings` (×2) | `mapping` + `output` birlikte → 400, mesaj `cannot carry both a 'mapping' script`; derlenmeyen ifade → 400, konum `output.set['$.dml.x']`. İkisinde de konum `states[ready].transitions[run-transition-mapping].onExecutionTasks[0]` |
 
 ## Dikkat noktaları
@@ -164,7 +164,7 @@ dml-transition-subflow (1.0.0, F)
 dml-sf-child (1.0.0, S)
   child-entered (Initial) ─ to-done (auto, mode == "complete") → child-done
                           └ to-wait (auto, mode == "wait")     → child-wait ─ finish → child-done
-                                                                            └ fail   dml-http-echo output "gold".AsInt32() (boundary yok) → child F
+                                                                            └ fail   dml-http-echo output result.body.level.AsInt32() (boundary yok) → child F
 ```
 
 | Test | İddia |
