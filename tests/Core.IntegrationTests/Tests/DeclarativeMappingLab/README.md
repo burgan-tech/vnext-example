@@ -47,6 +47,75 @@ yazdığını**, instance verisi de output bloğunun ne yazdığını kanıtlar.
 - Input hedefleri task `config`'inin alanlarıdır (`$.url`, `$.body.x`, `$.headers.x`); task tipinin
   okumadığı bir alan yok sayılır. Http task'ında ayrı bir query alanı yok — query URL'e eklenir.
 
+## Task mapping'leri dışında Dynamic Expresso (`ValueSlotExpressionTests`)
+
+**İddia:** `location: "dynamicExpresso"` (`encoding: "NAT"`) taşıyan bir `ScriptCode`, `.csx` olmadan satır içi
+ifade olarak şu yuvalarda çalışır: transition `timer`, `resourceLock.keyExpression`, automatic transition `rule`,
+AiAgent `prompt` ve `decision.mapping`. CacheAside task'ı kaynağını C# `sourceMapping` yerine bildirimsel
+`sourceInput` / `sourceOutput` bloklarıyla şekillendirir. Sözleşme: vnext `docs/runtime/declarative-task-mappings.md`
+§ "Dynamic Expresso outside task mappings" ve § "Declarative blocks of a nested task".
+
+```
+dml-value-slots (1.0.1)
+  idle (Initial)                    errorBoundary: Execution:200010 → seat-busy (shared) → seat-waiting
+    ├─ book-seat     resourceLock Acquire, key "dml-vs:seat:" + context.Body["seat"]  → seat-held
+    │                seat-held ─ release-seat  resourceLock Release (aynı ifade)       → seat-released
+    ├─ cache-read    ($self) dml-cacheaside-echo, output select $.body into $.cache.latest
+    ├─ route         → routing: to-large  rule context.Instance.Data["amount"].AsDouble() > 1000  → routed-large
+    │                           to-small  rule … <= 1000                                          → routed-small
+    ├─ book-seat-std resourceLock Acquire, key "dml-vs:seat:" + data.seat (standart değişken) → seat-held
+    │                seat-held ─ release-seat-std  Release (aynı ifade)                  → seat-released
+    ├─ cache-read-std ($self) dml-cacheaside-data-key, output select $.body into $.cacheStd.latest
+    ├─ route-std     → routing-std: to-large-std  data.amount.AsDouble() > 1000 && instance.currentState == "routing-std"
+    │                               to-small-std  data.amount.AsDouble() <= 1000 && user.available
+    └─ wait-{timespan|iso|datetime|null} → timer-{…} ─ fire-{…} (triggerType 2, timer ifadesi) → timer-fired
+         timespan  TimeSpan.FromSeconds(data.waitSeconds.AsDouble())   iso  data.waitIso ("PT3S")
+         datetime  now.AddSeconds(3.0)                                  null null (anında)
+
+dml-agent-slots (1.0.0)  — ai-triage-agent, provider local, tools.exclude lab_script
+  classifying (AiAgent)  prompt   "<message>" + data.message.ToString() + "</message>"
+                         decision script: pick == "by-output" ? (outcome.output.category == "question" ? is-question : is-fraud)
+                                          : candidates.has(pick) ? pick : null (→ fallback classify-failed)
+```
+
+`dml-cacheaside-echo` (tip 18): anahtar `"dml-vs:ca:" + context.Instance.Key`, kaynak `dml-http-echo`;
+`sourceInput` `$.url`'i `config`'ten çözer, `$.body.customerId` ve `x-channel: cache` yazar; `sourceOutput`
+`select $.body.echo into $.echo` + `cachedAt` (`now`), `scorePlus` (`result.body.score + 1`), `calledUrl` (`task.url`).
+Cache'e yazılan bu nesnedir, ham yanıt değil. `dml-cacheaside-data-key` aynı şekildedir; tek fark anahtar: `"dml-vs:ca-data:" + data.customer.id`.
+
+**Tek değişken standardı (vnext, 2026-11-25):** condition rule'ları ve string anahtarlar (CacheAside `key`, function
+cache anahtarları, `resourceLock.keyExpression`) artık değer yuvalarıyla aynı değişkenleri görür — `data`, `input`,
+`instance` (camelCase), `now`, `user` — ve legacy `context` değişmeden durur. `*-std` geçişleri yeni değişkenleri,
+eski geçişler (`book-seat`, `cache-read`, `route`) geriye uyumluluğu kanıtlar. Lock anahtarında `input` `null`'dır
+(lock adımı hop'un script context'ini task adımlarından önce kurar), o yüzden anahtar `data`'dan okunur.
+
+| Test | İddia |
+| --- | --- |
+| `TransitionTimer_ExpressionResult_ArmsAndFiresTheTimer` (×4) | State function'daki `executeAtUtc` hop'tan ~3 sn sonra (TimeSpan, ISO string, DateTime); `null` = anında, runtime `TimerSchedule.Immediate` ile now + 2 sn kurar. Dördü de `timer-fired`'a `C` ile ulaşır, süresinden önce değil |
+| `ResourceLockKeyExpression_SameKeyConflicts_DifferentKeyDoesNot_ReleaseFreesIt` | Aynı `seat`: ikinci instance `Execution:200010` → boundary → `seat-waiting`; farklı seat aynı anda `seat-held`; `release-seat` (aynı ifadeyle Release) sonrası yeni instance aynı seat'i alır |
+| `CacheAside_DeclarativeSourceBlocks_ShapeTheCallAndTheCachedValue_SecondReadHits` | Echo: `customerId`, `channel = cache`, statik `source`; cache'lenen nesne `scorePlus = 88`, `calledUrl` yer tutucusuz, `score`/`level` YOK. İkinci okuma aynı `cachedAt`'i döndürür ve MockLab bu customer için tam **1** çağrı görür |
+| `AutoTransitionRule_DynamicExpresso_RoutesOnInstanceData` (×2) | `amount` 5000 → `routed-large`, 20 → `routed-small` (transition gövdesi veriye merge olur, Auto adımı ifadeyi okur) |
+| `ResourceLockKeyExpression_StandardDataVariable_SameKeyConflicts_ReleaseFreesIt` | Aynı senaryo, anahtar `data.seat` (başlangıç verisi; hop'lar gövde taşımaz): aynı seat → `seat-waiting`, farklı seat → `seat-held`, `release-seat-std` sonrası yeni instance alır |
+| `CacheAside_KeyFromDataVariable_IsSharedAcrossInstancesOfTheSameCustomer` | Aynı `customer.id`'li **iki farklı instance** tek cache girdisini paylaşır: ikincinin okuması hit (aynı `cachedAt`), MockLab bu customer için tam **1** çağrı — `context.Instance.Key` anahtarıyla imkânsız |
+| `AutoTransitionRule_StandardVariables_RoutesOnData` (×2) | `data.amount … && instance.currentState == "routing-std"` → `routed-large`; `… <= 1000 && user.available` → `routed-small` (kullanıcı hop'unun ardındaki auto hop'ta caller var) |
+| `AgentDecisionExpression_ChoosesTheTransition` (×3) | `is-fraud` → `escalated` (`Script`); `by-output` → `outcome.output.category` üzerinden `is-question` → `answered`; aday dışı → `null` → `failed` (`Fallback`) |
+| `AgentPromptExpression_BuildsThePromptFromData` | `local` sağlayıcı token'ı karakter/4 sayar: 4000 karakterlik mesaj kısa olandan ≥ 900 token fazla — ifade `data.message`'ı prompt'a taşıdı |
+
+Dikkat noktaları:
+
+- `TimeSpan.FromSeconds(2)` derlenmez (int literal `long`/`double` overload'ları arasında belirsiz): `2.0` ya da
+  `data.x.AsDouble()` yaz.
+- Bütün Dynamic Expresso yuvaları (rule, anahtar, timer, prompt, decision) aynı değişkenleri görür: `data`, `input`,
+  `instance`, `now`, `user`, `context` (legacy, PascalCase, `context.Body` = transition gövdesi). İstisna: agent tool
+  `binding.code` (`args`, `data` ExpandoObject, `now`). JSON değeri karşılaştırmak için dönüştür:
+  `data.amount.AsDouble()`, `data.x.ToString() == "…"`.
+- Agent koşusunun `Request` satırı `promptHash` / `promptLength` taşır ama okuma API'sinde yok; prompt'un birebir
+  kanıtı Postgres'tedir (`dml_agent_slots."InstanceAgentRuns"."Request"`, `transcript: none` iken `prompt` null).
+  Test bu yüzden token farkına bakar.
+- Agent ve `sys-agents` flow'u SDK tarafından yayınlanmaz; test sınıfı `AiAgentLabTests` gibi kendisi yayınlar.
+- CacheAside sonucu `metadata.CacheHit`'i bildirimsel `result`'ta görünmez (`result` = `body`/`headers`/`statusCode`);
+  hit, kaynak zamanında damgalanan `cachedAt` ve MockLab çağrı sayısıyla kanıtlanır.
+
 ## Nasıl çalıştırılır
 
 Lokalde derlenen runtime'a karşı (container image eski kodu taşır), MockLab ayakta:
@@ -58,7 +127,7 @@ dotnet test tests/Core.IntegrationTests \
   --filter "FullyQualifiedName~DeclarativeMappingLab" -v minimal
 ```
 
-MockLab yoksa MockLab'e bağlı 3 test **skip** eder; publish testleri yine koşar. Bileşenleri SDK
+MockLab yoksa MockLab'e bağlı 5 test (3 + iki CacheAside) **skip** eder; publish, timer, lock, auto ve agent testleri yine koşar. Bileşenleri SDK
 `LocalDomainPublisher` publish eder. Şema: yayımlanmış vnext-schema bu blokları henüz tanımıyor;
 `npm run validate` için lokal vnext-schema dalını bağla.
 
@@ -67,3 +136,19 @@ MockLab yoksa MockLab'e bağlı 3 test **skip** eder; publish testleri yine koş
 ✅ **5/5 yeşil** (2026-11-24, vnext `claude/issue-1227-analysis-50e96f` + config-alanı input modeli, lokal
 binary). MockLab `_admin/logs`: `POST /api/dml/echo?customer=c-42`, `Host: localhost:3001`, flow
 `1.0.1`, `x-channel: web`, gövdede statik `source` korunmuş. Komşu `AutoPriority` ile birlikte 7/7.
+
+✅ **`ValueSlotExpressionTests` 12/12 yeşil, lab toplam 17/17** (2026-11-25, aynı vnext worktree'si + değer yuvaları,
+lokal binary; komşu `AutoPriority` 2/2). Kanıt: orchestration log'u `Resource lock acquired: Key=dml-vs:seat:s-…` →
+ikinci instance `Resource lock conflict` (`Execution:200010`) → farklı seat `…-b` acquired → `released` → yeni sahip
+acquired; script'e düşme uyarısı (`10270`/`10271`) yok. MockLab: CacheAside kaynağı `POST /api/dml/echo` gövde
+`{"source":"static","customerId":"c-…"}`, `x-channel: cache`, iki okumada tek çağrı. Timer `executeAtUtc` hop'tan
++3,02–3,03 sn (TimeSpan/ISO/DateTime), `null` +2,0 sn. Agent `Request.promptHash` = SHA-256(`<message>hello nope</message>`),
+`promptLength` 29 — ifadenin ürettiği metin birebir.
+
+✅ **Standart değişkenler: `ValueSlotExpressionTests` 16/16, lab 21/21, `AutoPriority` 2/2 — toplam 23/23** (2026-11-25,
+vnext `claude/issue-1227-analysis-50e96f` commit'lenmemiş "tek değişken standardı", lokal Debug binary; `dml-value-slots`
+1.0.1, yeni task `dml-cacheaside-data-key` 1.0.0). Eski `context` testleri aynı koşuda yeşil (geriye uyumluluk).
+Kanıt: orchestration log'u `data.seat` anahtarıyla `Resource lock acquired: Key=dml-vs:seat:s-1ddf…` → ikinci instance
+`Resource lock conflict` → `…-b` acquired → `released` → yeni sahip acquired; 10159 / 10270 / 10271 / 10272 (ifade
+hatası, script'e düşme) yok. MockLab: `data.customer.id` anahtarlı CacheAside iki ayrı instance için tek
+`POST /api/dml/echo` çağrısı.

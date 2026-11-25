@@ -1,0 +1,47 @@
+{
+  "key": "dml-cacheaside-echo",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "dynamic-expresso",
+    "issue-1229",
+    "cacheaside"
+  ],
+  "attributes": {
+    "type": "18",
+    "config": {
+      "key": {
+        "location": "dynamicExpresso",
+        "encoding": "NAT",
+        "code": "\"dml-vs:ca:\" + context.Instance.Key"
+      },
+      "ttlInSeconds": 120,
+      "sourceTask": {
+        "key": "dml-http-echo",
+        "domain": "core",
+        "version": "1.0.1",
+        "flow": "sys-tasks"
+      },
+      "sourceInput": {
+        "set": {
+          "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\"))",
+          "$.body.customerId": "data.customer.id",
+          "$.headers.x-channel": "\"cache\""
+        }
+      },
+      "sourceOutput": {
+        "select": "$.body.echo",
+        "into": "$.echo",
+        "set": {
+          "$.cachedAt": "now",
+          "$.scorePlus": "result.body.score.AsInt32() + 1",
+          "$.calledUrl": "task.url"
+        }
+      }
+    }
+  }
+}
