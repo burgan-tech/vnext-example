@@ -15,7 +15,8 @@ namespace Core.IntegrationTests.Tests.DeclarativeMappingLab;
 /// <c>rule</c>, an AiAgent <c>prompt</c> and <c>decision.mapping</c>; and a CacheAside task shapes its source
 /// task with the declarative <c>sourceInput</c> / <c>sourceOutput</c> blocks instead of a C# <c>sourceMapping</c>.
 /// <para>
-/// Flows: <c>core/Workflows/declarative-mapping-lab/dml-value-slots.json</c> (timer, lock, CacheAside, auto rule)
+/// Flows: <c>core/Workflows/declarative-mapping-lab/dml-value-slots.json</c> (timer, lock, CacheAside, auto rule,
+/// the <c>headers</c> variable)
 /// and <c>dml-agent-slots.json</c> (agent on the runtime's deterministic <c>local</c> provider — no network, no key).
 /// </para>
 /// </summary>
@@ -330,6 +331,68 @@ public class ValueSlotExpressionTests : WorkflowTestBase
         await AssertNotFaultedAsync(Flow, next);
     }
 
+    // ── 4c. `headers` = the incoming request's headers ───────────────────────
+
+    /// <summary>
+    /// The <c>headers</c> variable (a read-only view over <c>context.Headers</c>) in an automatic rule: the manual
+    /// <c>route-channel</c> request carries <c>x-channel</c>, and the rules of <c>routing-channel</c> read it in the
+    /// same hop — <c>headers["x-channel"] == "web"</c> → <c>channel-web</c>; <c>!headers.has("X-Channel") ||
+    /// headers["X-Channel"] != "web"</c> (case-insensitive name) → <c>channel-other</c>, both with another value and
+    /// with no header at all.
+    /// </summary>
+    [Theory]
+    [InlineData("web", "channel-web")]
+    [InlineData("mobile", "channel-other")]
+    [InlineData(null, "channel-other")]
+    public async Task AutoTransitionRule_HeadersVariable_RoutesOnTheRequestHeader(string? channel, string expected)
+    {
+        var instanceId = await StartIdleAsync($"dvs-channel-{channel ?? "none"}");
+
+        await RunWithHeadersAsync(instanceId, "route-channel", channel is null ? [] : [("x-channel", channel)]);
+        await WaitForInstanceStateAsync(Flow, instanceId, expected);
+        await WaitUntilSettledAsync(Flow, instanceId);
+
+        var (state, status) = await GetInstanceStateAsync(Flow, instanceId);
+        Assert.Equal(expected, state);
+        Assert.Equal("C", status);
+    }
+
+    /// <summary>
+    /// <c>resourceLock.keyExpression</c> = <c>"dml-vs:seat:" + headers["x-seat"]</c>: the key comes from a request
+    /// header, not the body (the hops carry none). Same header value conflicts (<c>Execution:200010</c> →
+    /// <c>seat-waiting</c>) — and it is the SAME key as the body-based <c>book-seat-input</c> expression; a different
+    /// value is acquired; Release with the header expression frees the key.
+    /// </summary>
+    [Fact]
+    public async Task ResourceLockKeyExpression_HeadersVariable_KeysOnTheRequestHeader()
+    {
+        var seat = $"s-{Guid.NewGuid():N}";
+        var holder = await StartIdleAsync("dvs-lockhdr-holder");
+        var loser = await StartIdleAsync("dvs-lockhdr-loser");
+        var bodyLoser = await StartIdleAsync("dvs-lockhdr-body");
+        var other = await StartIdleAsync("dvs-lockhdr-other");
+
+        await RunWithHeadersAsync(holder, "book-seat-header", [("x-seat", seat)]);
+        await WaitForInstanceStateAsync(Flow, holder, "seat-held");
+
+        await RunWithHeadersAsync(loser, "book-seat-header", [("x-seat", seat)]);
+        await WaitForInstanceStateAsync(Flow, loser, "seat-waiting");
+
+        await RunAcceptedAsync(Flow, bodyLoser, "book-seat-input", body: new { seat });
+        await WaitForInstanceStateAsync(Flow, bodyLoser, "seat-waiting");
+
+        await RunWithHeadersAsync(other, "book-seat-header", [("x-seat", seat + "-b")]);
+        await WaitForInstanceStateAsync(Flow, other, "seat-held");
+
+        await RunWithHeadersAsync(holder, "release-seat-header", [("x-seat", seat)]);
+        await WaitForInstanceStateAsync(Flow, holder, "seat-released");
+
+        var next = await StartIdleAsync("dvs-lockhdr-next");
+        await RunWithHeadersAsync(next, "book-seat-header", [("x-seat", seat)]);
+        await WaitForInstanceStateAsync(Flow, next, "seat-held");
+        await AssertNotFaultedAsync(Flow, next);
+    }
+
     // ── 5. agent prompt / decision ───────────────────────────────────────────
 
     /// <summary>
@@ -382,6 +445,19 @@ public class ValueSlotExpressionTests : WorkflowTestBase
         var instanceId = await StartAsync(Flow, new { key = NewKey(prefix), attributes = new { } });
         await WaitUntilSettledAsync(Flow, instanceId);
         return instanceId;
+    }
+
+    /// <summary><see cref="WorkflowTestBase.RunAcceptedAsync"/> with extra request headers beside the caller headers.</summary>
+    private async Task RunWithHeadersAsync(string instanceId, string transitionKey, (string Name, string Value)[] extra)
+    {
+        var headers = Headers();
+        foreach (var (name, value) in extra) headers[name] = value;
+        var url = $"api/v1/{TestDomain.Name}/workflows/{Flow}/instances/{instanceId}/transitions/{transitionKey}?sync=false";
+
+        var (status, body) = await SendRawAsync(HttpMethod.Patch, url, new { }, headers);
+
+        Assert.True((int)status < 400, $"'{transitionKey}' was refused with {(int)status}: {body}");
+        await WaitUntilSettledAsync(Flow, instanceId);
     }
 
     private async Task<string> StartWithSeatAsync(string prefix, string seat)

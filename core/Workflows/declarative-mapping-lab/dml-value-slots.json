@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "tags": [
     "integration-test",
     "declarative-mapping-lab",
@@ -14,7 +14,8 @@
     "cacheaside",
     "auto-transition",
     "standard-variables",
-    "hop-input"
+    "hop-input",
+    "headers-variable"
   ],
   "attributes": {
     "type": "F",
@@ -296,6 +297,42 @@
               }
             ],
             "onExecutionTasks": []
+          },
+          {
+            "key": "route-channel",
+            "target": "routing-channel",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the header-routing state (the x-channel request header decides)"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "book-seat-header",
+            "target": "seat-held",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Acquire the seat lock (key over the x-seat request header)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + headers[\"x-seat\"]"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
           }
         ]
       },
@@ -369,6 +406,27 @@
                 "location": "dynamicExpresso",
                 "encoding": "NAT",
                 "code": "\"dml-vs:seat:\" + input.seat"
+              },
+              "action": "Release"
+            }
+          },
+          {
+            "key": "release-seat-header",
+            "target": "seat-released",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Release the seat lock (same header expression)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + headers[\"x-seat\"]"
               },
               "action": "Release"
             }
@@ -780,6 +838,77 @@
           {
             "language": "en-US",
             "label": "Continuation saw a request payload (defect)"
+          }
+        ]
+      },
+      {
+        "key": "routing-channel",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routing on the x-channel request header"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-channel-web",
+            "target": "channel-web",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "headers[x-channel] == web"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "headers[\"x-channel\"] == \"web\""
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-channel-other",
+            "target": "channel-other",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "no x-channel header, or not web"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "!headers.has(\"X-Channel\") || headers[\"X-Channel\"] != \"web\""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "channel-web",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Web channel"
+          }
+        ]
+      },
+      {
+        "key": "channel-other",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Other or no channel"
           }
         ]
       }

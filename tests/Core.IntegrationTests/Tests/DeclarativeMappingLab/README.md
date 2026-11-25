@@ -56,7 +56,7 @@ AiAgent `prompt` ve `decision.mapping`. CacheAside task'ı kaynağını C# `sour
 § "Dynamic Expresso outside task mappings" ve § "Declarative blocks of a nested task".
 
 ```
-dml-value-slots (1.0.2)
+dml-value-slots (1.0.3)
   idle (Initial)                    errorBoundary: Execution:200010 → seat-busy (shared) → seat-waiting
     ├─ book-seat     resourceLock Acquire, key "dml-vs:seat:" + context.Body["seat"]  → seat-held
     │                seat-held ─ release-seat  resourceLock Release (aynı ifade)       → seat-released
@@ -72,6 +72,10 @@ dml-value-slots (1.0.2)
     │                                            to-input-slow  input.lane == "slow" → input-slow
     │                input-fast (devam hop'u): to-continuation-null    input == null → input-continuation-null
     │                                          to-continuation-leaked  input != null → input-continuation-leaked
+    ├─ book-seat-header resourceLock Acquire, key "dml-vs:seat:" + headers["x-seat"] (istek header'ı) → seat-held
+    │                seat-held ─ release-seat-header  Release (aynı ifade)               → seat-released
+    ├─ route-channel (task'sız) → routing-channel: to-channel-web    headers["x-channel"] == "web"  → channel-web
+    │                                              to-channel-other  !headers.has("X-Channel") || headers["X-Channel"] != "web" → channel-other
     ├─ route-std     → routing-std: to-large-std  data.amount.AsDouble() > 1000 && instance.currentState == "routing-std"
     │                               to-small-std  data.amount.AsDouble() <= 1000 && user.available
     └─ wait-{timespan|iso|datetime|null} → timer-{…} ─ fire-{…} (triggerType 2, timer ifadesi) → timer-fired
@@ -99,6 +103,14 @@ adım okursa okusun (lock 25, task'lar, agent, auto 80, timer 90). Önceden lock
 hop'ta task adımı yoksa `null`'dı. Gövde taşımayan hop'lar (auto devam, ateşlenen timer, SubFlow resume) ve okuma
 yolları `null` görür. `*-input` geçişleri bunu kanıtlar.
 
+**`headers` değişkeni (vnext, 2026-11-25):** her yuva gelen isteğin header'larını salt-okunur görür —
+`headers["x-channel"]` (değer ya da yoksa `null`, ad büyük/küçük harf duyarsız) ve `headers.has("x-channel")`.
+`context.Headers`'ın arkasındaki sözlüğün kendisi üzerine ince bir görünümdür (kopya yok, yalnız kullanılırsa
+bağlanır), bu yüzden `Workflow:HeaderExposure:Deny` listesinin çıkardığı ad ikisinden de eksiktir. Lokal host'larda
+deny listesi tanımlı olmadığından bu davranış yalnız runtime unit testleriyle kanıtlanır (`ExpressionHeadersTests`),
+burada değil. Tireli ad indexer ister (`headers.x-channel` çıkarma işlemidir). `*-header` / `route-channel` geçişleri
+bunu kanıtlar; header testin kendi caller header'larının yanına eklenir (`RunWithHeadersAsync`).
+
 | Test | İddia |
 | --- | --- |
 | `TransitionTimer_ExpressionResult_ArmsAndFiresTheTimer` (×4) | State function'daki `executeAtUtc` hop'tan ~3 sn sonra (TimeSpan, ISO string, DateTime); `null` = anında, runtime `TimerSchedule.Immediate` ile now + 2 sn kurar. Dördü de `timer-fired`'a `C` ile ulaşır, süresinden önce değil |
@@ -110,6 +122,8 @@ yolları `null` görür. `*-input` geçişleri bunu kanıtlar.
 | `AutoTransitionRule_StandardVariables_RoutesOnData` (×2) | `data.amount … && instance.currentState == "routing-std"` → `routed-large`; `… <= 1000 && user.available` → `routed-small` (kullanıcı hop'unun ardındaki auto hop'ta caller var) |
 | `AutoTransitionRule_ReadsTheHopInput_WithoutTasks_AndNullOnTheContinuation` (×2) | Task'sız `route-input` hop'unda `routing-input` rule'ları `input.lane`'i okur: `fast` → `input-fast`, `slow` → `input-slow`. `fast`'ın ardındaki auto devam hop'unda `input == null` → `input-continuation-null` (`input != null` dalı `input-continuation-leaked` hiç seçilmez) — gövdenin `lane`'i veriye merge olduğu hâlde |
 | `ResourceLockKeyExpression_InputVariable_IsTheTransitionBody` | Anahtar `"dml-vs:seat:" + input.seat` (lock adımı task'lardan önce koşar): aynı seat → `seat-waiting`; legacy `book-seat` (`context.Body["seat"]`) aynı seat'te de çakışır — **aynı anahtar**; farklı seat → `seat-held`; `release-seat-input` sonrası yeni instance alır |
+| `AutoTransitionRule_HeadersVariable_RoutesOnTheRequestHeader` (×3) | Manuel `route-channel` isteği `x-channel` header'ı taşır; aynı hop'taki `routing-channel` rule'ları `headers` değişkeniyle okur: `web` → `channel-web`; `mobile` ve header'sız istek → `channel-other` (`has` ve indexer büyük/küçük harf duyarsız) |
+| `ResourceLockKeyExpression_HeadersVariable_KeysOnTheRequestHeader` | Anahtar `"dml-vs:seat:" + headers["x-seat"]` (gövde yok): aynı header değeri → `seat-waiting`; gövdeli `book-seat-input` aynı seat'te de çakışır — **aynı anahtar**; farklı değer → `seat-held`; `release-seat-header` sonrası yeni instance alır |
 | `AgentDecisionExpression_ChoosesTheTransition` (×3) | `is-fraud` → `escalated` (`Script`); `by-output` → `outcome.output.category` üzerinden `is-question` → `answered`; aday dışı → `null` → `failed` (`Fallback`) |
 | `AgentPromptExpression_BuildsThePromptFromData` | `local` sağlayıcı token'ı karakter/4 sayar: 4000 karakterlik mesaj kısa olandan ≥ 900 token fazla — ifade `data.message`'ı prompt'a taşıdı |
 
@@ -118,7 +132,7 @@ Dikkat noktaları:
 - `TimeSpan.FromSeconds(2)` derlenmez (int literal `long`/`double` overload'ları arasında belirsiz): `2.0` ya da
   `data.x.AsDouble()` yaz.
 - Bütün Dynamic Expresso yuvaları (rule, anahtar, timer, prompt, decision) aynı değişkenleri görür: `data`, `input`,
-  `instance`, `now`, `user`, `context` (legacy, PascalCase, `context.Body` = transition gövdesi). İstisna: agent tool
+  `instance`, `now`, `user`, `headers`, `context` (legacy, PascalCase, `context.Body` = transition gövdesi). İstisna: agent tool
   `binding.code` (`args`, `data` ExpandoObject, `now`). JSON değeri karşılaştırmak için dönüştür:
   `data.amount.AsDouble()`, `data.x.ToString() == "…"`.
 - Agent koşusunun `Request` satırı `promptHash` / `promptLength` taşır ama okuma API'sinde yok; prompt'un birebir
@@ -170,3 +184,11 @@ hatası, script'e düşme) yok. MockLab: `data.customer.id` anahtarlı CacheAsid
 `input.seat` anahtarıyla `Resource lock acquired: Key=dml-vs:seat:s-4125…` → **iki** `Resource lock conflict` (input
 anahtarlı ve legacy `context.Body` anahtarlı ikinci/üçüncü instance, aynı anahtar) → `…-b` acquired → `released` → yeni
 sahip acquired; 10270 / 10271 yok. `route-input` `fast` → `input-continuation-null` (`C`), `slow` → `input-slow` (`C`).
+
+✅ **`headers` değişkeni: lab + `AutoPriority` 30/30** (2026-11-25, vnext `claude/issue-1227-analysis-50e96f` commit'lenmemiş
+`headers` değişkeni, lokal Debug binary; `dml-value-slots` 1.0.3; 4 yeni test). Kanıt: orchestration log'u
+`headers["x-seat"]` anahtarıyla `Resource lock acquired: Key=dml-vs:seat:s-28ce…` → `Resource lock conflict` (header
+anahtarlı ve gövdeli `book-seat-input` instance'ı, aynı anahtar) → `…-b` acquired → `released` → yeni sahip acquired;
+ifade hatası / script'e düşme log'u yok. `route-channel`: `web` → `channel-web`, `mobile` ve header'sız → `channel-other`
+(hepsi `C`). Deny listesi lokal host'larda tanımlı değil: `Workflow:HeaderExposure:Deny`'ın `headers`'tan da düştüğü
+yalnız runtime unit testleriyle kanıtlı.
