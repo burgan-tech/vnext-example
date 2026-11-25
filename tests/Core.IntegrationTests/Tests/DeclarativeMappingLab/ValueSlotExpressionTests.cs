@@ -265,6 +265,71 @@ public class ValueSlotExpressionTests : WorkflowTestBase
         Assert.Equal("C", status);
     }
 
+    // ── 4b. `input` = the hop's request payload (uniform hop input) ──────────
+
+    /// <summary>
+    /// <c>input</c> is the raw request payload of THIS hop, whichever step reads it. <c>route-input</c> carries no
+    /// task, so no task step builds the hop's script context before the automatic rules of <c>routing-input</c>
+    /// (step 80): <c>input.lane.ToString() == "fast"</c> / <c>"slow"</c> still see the manual body and route. On
+    /// <c>fast</c>, the automatic continuation hop that follows evaluates <c>input-fast</c>'s rules: <c>input == null</c>
+    /// → <c>input-continuation-null</c>, <c>input != null</c> → <c>input-continuation-leaked</c> (a continuation carries no
+    /// request payload — even though the body's <c>lane</c> was merged into the instance data).
+    /// </summary>
+    [Theory]
+    [InlineData("fast", "input-continuation-null")]
+    [InlineData("slow", "input-slow")]
+    public async Task AutoTransitionRule_ReadsTheHopInput_WithoutTasks_AndNullOnTheContinuation(string lane, string expected)
+    {
+        var instanceId = await StartIdleAsync($"dvs-input-{lane}");
+
+        await RunAcceptedAsync(Flow, instanceId, "route-input", body: new { lane });
+        await WaitForInstanceStateAsync(Flow, instanceId, expected);
+        await WaitUntilSettledAsync(Flow, instanceId);
+
+        var (state, status) = await GetInstanceStateAsync(Flow, instanceId);
+        Assert.Equal(expected, state);
+        Assert.Equal("C", status);
+        // The body went into the data too, so `data.lane` would not tell the hops apart — `input` does.
+        Assert.Equal(lane, (await GetAttributesAsync(Flow, instanceId)).GetProperty("lane").GetString());
+    }
+
+    /// <summary>
+    /// <c>resourceLock.keyExpression</c> = <c>"dml-vs:seat:" + input.seat</c>: the lock step (order 25) runs before
+    /// any task step, yet <c>input</c> is the transition body. Same seat conflicts (<c>Execution:200010</c> →
+    /// <c>seat-waiting</c>), and it is the SAME key as the legacy <c>context.Body["seat"]</c> expression: a
+    /// <c>book-seat</c> holder blocks a <c>book-seat-input</c> request for that seat. A different seat is acquired;
+    /// Release with the input expression frees the key.
+    /// </summary>
+    [Fact]
+    public async Task ResourceLockKeyExpression_InputVariable_IsTheTransitionBody()
+    {
+        var seat = $"s-{Guid.NewGuid():N}";
+        var holder = await StartIdleAsync("dvs-lockin-holder");
+        var loser = await StartIdleAsync("dvs-lockin-loser");
+        var legacyLoser = await StartIdleAsync("dvs-lockin-legacy");
+        var other = await StartIdleAsync("dvs-lockin-other");
+
+        await RunAcceptedAsync(Flow, holder, "book-seat-input", body: new { seat });
+        await WaitForInstanceStateAsync(Flow, holder, "seat-held");
+
+        await RunAcceptedAsync(Flow, loser, "book-seat-input", body: new { seat });
+        await WaitForInstanceStateAsync(Flow, loser, "seat-waiting");
+
+        await RunAcceptedAsync(Flow, legacyLoser, "book-seat", body: new { seat });
+        await WaitForInstanceStateAsync(Flow, legacyLoser, "seat-waiting");
+
+        await RunAcceptedAsync(Flow, other, "book-seat-input", body: new { seat = seat + "-b" });
+        await WaitForInstanceStateAsync(Flow, other, "seat-held");
+
+        await RunAcceptedAsync(Flow, holder, "release-seat-input", body: new { seat });
+        await WaitForInstanceStateAsync(Flow, holder, "seat-released");
+
+        var next = await StartIdleAsync("dvs-lockin-next");
+        await RunAcceptedAsync(Flow, next, "book-seat-input", body: new { seat });
+        await WaitForInstanceStateAsync(Flow, next, "seat-held");
+        await AssertNotFaultedAsync(Flow, next);
+    }
+
     // ── 5. agent prompt / decision ───────────────────────────────────────────
 
     /// <summary>

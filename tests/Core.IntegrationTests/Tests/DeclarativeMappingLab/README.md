@@ -56,7 +56,7 @@ AiAgent `prompt` ve `decision.mapping`. CacheAside task'ı kaynağını C# `sour
 § "Dynamic Expresso outside task mappings" ve § "Declarative blocks of a nested task".
 
 ```
-dml-value-slots (1.0.1)
+dml-value-slots (1.0.2)
   idle (Initial)                    errorBoundary: Execution:200010 → seat-busy (shared) → seat-waiting
     ├─ book-seat     resourceLock Acquire, key "dml-vs:seat:" + context.Body["seat"]  → seat-held
     │                seat-held ─ release-seat  resourceLock Release (aynı ifade)       → seat-released
@@ -66,6 +66,12 @@ dml-value-slots (1.0.1)
     ├─ book-seat-std resourceLock Acquire, key "dml-vs:seat:" + data.seat (standart değişken) → seat-held
     │                seat-held ─ release-seat-std  Release (aynı ifade)                  → seat-released
     ├─ cache-read-std ($self) dml-cacheaside-data-key, output select $.body into $.cacheStd.latest
+    ├─ book-seat-input resourceLock Acquire, key "dml-vs:seat:" + input.seat (hop gövdesi)  → seat-held
+    │                seat-held ─ release-seat-input  Release (aynı ifade)                → seat-released
+    ├─ route-input   (task'sız) → routing-input: to-input-fast  input.lane == "fast" → input-fast
+    │                                            to-input-slow  input.lane == "slow" → input-slow
+    │                input-fast (devam hop'u): to-continuation-null    input == null → input-continuation-null
+    │                                          to-continuation-leaked  input != null → input-continuation-leaked
     ├─ route-std     → routing-std: to-large-std  data.amount.AsDouble() > 1000 && instance.currentState == "routing-std"
     │                               to-small-std  data.amount.AsDouble() <= 1000 && user.available
     └─ wait-{timespan|iso|datetime|null} → timer-{…} ─ fire-{…} (triggerType 2, timer ifadesi) → timer-fired
@@ -86,8 +92,12 @@ Cache'e yazılan bu nesnedir, ham yanıt değil. `dml-cacheaside-data-key` aynı
 **Tek değişken standardı (vnext, 2026-11-25):** condition rule'ları ve string anahtarlar (CacheAside `key`, function
 cache anahtarları, `resourceLock.keyExpression`) artık değer yuvalarıyla aynı değişkenleri görür — `data`, `input`,
 `instance` (camelCase), `now`, `user` — ve legacy `context` değişmeden durur. `*-std` geçişleri yeni değişkenleri,
-eski geçişler (`book-seat`, `cache-read`, `route`) geriye uyumluluğu kanıtlar. Lock anahtarında `input` `null`'dır
-(lock adımı hop'un script context'ini task adımlarından önce kurar), o yüzden anahtar `data`'dan okunur.
+eski geçişler (`book-seat`, `cache-read`, `route`) geriye uyumluluğu kanıtlar.
+
+**Tek hop girdisi (vnext, 2026-11-25):** `input` = bu hop'u tetikleyen ham istek gövdesi, hop boyunca sabit — hangi
+adım okursa okusun (lock 25, task'lar, agent, auto 80, timer 90). Önceden lock anahtarında hep, auto rule'da ise
+hop'ta task adımı yoksa `null`'dı. Gövde taşımayan hop'lar (auto devam, ateşlenen timer, SubFlow resume) ve okuma
+yolları `null` görür. `*-input` geçişleri bunu kanıtlar.
 
 | Test | İddia |
 | --- | --- |
@@ -98,6 +108,8 @@ eski geçişler (`book-seat`, `cache-read`, `route`) geriye uyumluluğu kanıtla
 | `ResourceLockKeyExpression_StandardDataVariable_SameKeyConflicts_ReleaseFreesIt` | Aynı senaryo, anahtar `data.seat` (başlangıç verisi; hop'lar gövde taşımaz): aynı seat → `seat-waiting`, farklı seat → `seat-held`, `release-seat-std` sonrası yeni instance alır |
 | `CacheAside_KeyFromDataVariable_IsSharedAcrossInstancesOfTheSameCustomer` | Aynı `customer.id`'li **iki farklı instance** tek cache girdisini paylaşır: ikincinin okuması hit (aynı `cachedAt`), MockLab bu customer için tam **1** çağrı — `context.Instance.Key` anahtarıyla imkânsız |
 | `AutoTransitionRule_StandardVariables_RoutesOnData` (×2) | `data.amount … && instance.currentState == "routing-std"` → `routed-large`; `… <= 1000 && user.available` → `routed-small` (kullanıcı hop'unun ardındaki auto hop'ta caller var) |
+| `AutoTransitionRule_ReadsTheHopInput_WithoutTasks_AndNullOnTheContinuation` (×2) | Task'sız `route-input` hop'unda `routing-input` rule'ları `input.lane`'i okur: `fast` → `input-fast`, `slow` → `input-slow`. `fast`'ın ardındaki auto devam hop'unda `input == null` → `input-continuation-null` (`input != null` dalı `input-continuation-leaked` hiç seçilmez) — gövdenin `lane`'i veriye merge olduğu hâlde |
+| `ResourceLockKeyExpression_InputVariable_IsTheTransitionBody` | Anahtar `"dml-vs:seat:" + input.seat` (lock adımı task'lardan önce koşar): aynı seat → `seat-waiting`; legacy `book-seat` (`context.Body["seat"]`) aynı seat'te de çakışır — **aynı anahtar**; farklı seat → `seat-held`; `release-seat-input` sonrası yeni instance alır |
 | `AgentDecisionExpression_ChoosesTheTransition` (×3) | `is-fraud` → `escalated` (`Script`); `by-output` → `outcome.output.category` üzerinden `is-question` → `answered`; aday dışı → `null` → `failed` (`Fallback`) |
 | `AgentPromptExpression_BuildsThePromptFromData` | `local` sağlayıcı token'ı karakter/4 sayar: 4000 karakterlik mesaj kısa olandan ≥ 900 token fazla — ifade `data.message`'ı prompt'a taşıdı |
 
@@ -152,3 +164,9 @@ Kanıt: orchestration log'u `data.seat` anahtarıyla `Resource lock acquired: Ke
 `Resource lock conflict` → `…-b` acquired → `released` → yeni sahip acquired; 10159 / 10270 / 10271 / 10272 (ifade
 hatası, script'e düşme) yok. MockLab: `data.customer.id` anahtarlı CacheAside iki ayrı instance için tek
 `POST /api/dml/echo` çağrısı.
+
+✅ **Tek hop girdisi: lab + `AutoPriority` 26/26** (2026-11-25, vnext `claude/issue-1227-analysis-50e96f` commit'lenmemiş
+"uniform hop input", lokal Debug binary; `dml-value-slots` 1.0.2; 3 yeni test). Kanıt: orchestration log'u
+`input.seat` anahtarıyla `Resource lock acquired: Key=dml-vs:seat:s-4125…` → **iki** `Resource lock conflict` (input
+anahtarlı ve legacy `context.Body` anahtarlı ikinci/üçüncü instance, aynı anahtar) → `…-b` acquired → `released` → yeni
+sahip acquired; 10270 / 10271 yok. `route-input` `fast` → `input-continuation-null` (`C`), `slow` → `input-slow` (`C`).

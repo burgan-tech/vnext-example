@@ -3,7 +3,7 @@
   "flow": "sys-flows",
   "flowVersion": "1.0.0",
   "domain": "core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "tags": [
     "integration-test",
     "declarative-mapping-lab",
@@ -13,7 +13,8 @@
     "resource-lock",
     "cacheaside",
     "auto-transition",
-    "standard-variables"
+    "standard-variables",
+    "hop-input"
   ],
   "attributes": {
     "type": "F",
@@ -259,6 +260,42 @@
               }
             ],
             "onExecutionTasks": []
+          },
+          {
+            "key": "book-seat-input",
+            "target": "seat-held",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Acquire the seat lock (key over input, the hop's request body)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + input.seat"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
+          },
+          {
+            "key": "route-input",
+            "target": "routing-input",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the input-routing state (no tasks on the hop)"
+              }
+            ],
+            "onExecutionTasks": []
           }
         ]
       },
@@ -311,6 +348,27 @@
                 "location": "dynamicExpresso",
                 "encoding": "NAT",
                 "code": "\"dml-vs:seat:\" + data.seat"
+              },
+              "action": "Release"
+            }
+          },
+          {
+            "key": "release-seat-input",
+            "target": "seat-released",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Release the seat lock (same input expression)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + input.seat"
               },
               "action": "Release"
             }
@@ -591,6 +649,137 @@
           {
             "language": "en-US",
             "label": "Timer fired"
+          }
+        ]
+      },
+      {
+        "key": "routing-input",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routing on input (the manual hop's request body)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-input-fast",
+            "target": "input-fast",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input.lane == fast"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input.lane.ToString() == \"fast\""
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-input-slow",
+            "target": "input-slow",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input.lane == slow"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input.lane.ToString() == \"slow\""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "input-fast",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Fast lane: the continuation hop's rules read input"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-continuation-null",
+            "target": "input-continuation-null",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input == null on the continuation hop"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input == null"
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-continuation-leaked",
+            "target": "input-continuation-leaked",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input != null on the continuation hop (must not happen)"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input != null"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "input-slow",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Slow lane"
+          }
+        ]
+      },
+      {
+        "key": "input-continuation-null",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Continuation saw input == null"
+          }
+        ]
+      },
+      {
+        "key": "input-continuation-leaked",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Continuation saw a request payload (defect)"
           }
         ]
       }
