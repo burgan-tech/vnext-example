@@ -1,0 +1,164 @@
+{
+  "key": "dml-sf-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "subflow",
+    "child",
+    "issue-1229"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Declarative blocks: SubFlow child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-dml-sf-child",
+      "target": "child-entered",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start child"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "child-entered",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child entered"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-done",
+            "target": "child-done",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "mode == complete: finish at once"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "data.mode.ToString() == \"complete\""
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-wait",
+            "target": "child-wait",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "mode == wait: rest for a manual step"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "data.mode.ToString() == \"wait\""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-wait",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child waiting"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "finish",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Finish"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "fail",
+            "target": "child-done",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Task output fails at run time (no boundary): the child faults"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "dml-http-echo",
+                  "domain": "core",
+                  "version": "1.0.1",
+                  "flow": "sys-tasks"
+                },
+                "input": {
+                  "set": {
+                    "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\"))",
+                    "$.body.customerId": "data.customerId"
+                  }
+                },
+                "output": {
+                  "set": {
+                    "$.bad": "result.body.level.AsInt32()"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "child-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child done"
+          }
+        ]
+      }
+    ]
+  }
+}

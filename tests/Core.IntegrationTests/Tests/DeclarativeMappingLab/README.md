@@ -142,6 +142,47 @@ Dikkat noktaları:
 - CacheAside sonucu `metadata.CacheHit`'i bildirimsel `result`'ta görünmez (`result` = `body`/`headers`/`statusCode`);
   hit, kaynak zamanında damgalanan `cachedAt` ve MockLab çağrı sayısıyla kanıtlanır.
 
+## Task binding'i dışındaki bloklar: transition ve SubFlow (`DeclarativeTransitionSubFlowTests`)
+
+**İddia:** Aynı `select` / `into` / `set` grameri C# `mapping` script'i yerine üç yerde daha çalışır: transition
+`output` (`startTransition` dahil), SubFlow state `input` (çocuğun başlatma belgesi `{ attributes, headers, key, tags }`)
+ve SubFlow `output` (`result = { data, status }`, varsayılan `select` `$.data`, tamamlanma **ve** fault yolunda).
+Sözleşme: vnext `docs/runtime/declarative-task-mappings.md` § "Blocks outside task bindings".
+
+```
+dml-transition-subflow (1.0.0, F)
+  start  output: select $.input.customer into $.customer, set $.startedVia = "start-output"  → ready
+  ready (Initial)
+    ├─ submit     output: select $.input.order into $.order, set previousState = instance.currentState, submittedAt = now → submitted (Finish)
+    └─ run-child  → child-run (SubFlow S → dml-sf-child 1.0.0)
+                    input:  attributes.customerId = data.customer.id, .mode = input.mode, .amount = input.amount,
+                            headers.x-channel = "web", key = input.childKey.ToString(),
+                            tags = new string[] { "dml-child", "declarative-input" }
+                    output: into $.child (select yok → $.data), set childOutcome = result.status, childAmount = result.data.amount
+                  child-run ─ after-child (auto, rule true) → child-settled (Finish)
+
+dml-sf-child (1.0.0, S)
+  child-entered (Initial) ─ to-done (auto, mode == "complete") → child-done
+                          └ to-wait (auto, mode == "wait")     → child-wait ─ finish → child-done
+                                                                            └ fail   dml-http-echo output "gold".AsInt32() (boundary yok) → child F
+```
+
+| Test | İddia |
+| --- | --- |
+| `StartOutput_SetsInitialData` | Start'ın `output`'u boş delta'dan başlar: ilk veri yalnız `customer` (select + into) ve `startedVia`; start gövdesindeki `noise` yazılmaz. Instance `ready`/`A` |
+| `TransitionOutput_WritesOnlyTheDelta` | `submit` gövdesinin `order`'ı `$.order`'a, `previousState = ready` (ChangeState'ten önce), `submittedAt` zaman damgası; gövdedeki `noise` yazılmaz, önceki veri (`customer`, `startedVia`) derin merge ile kalır. `submitted`/`C` |
+| `SubFlowInput_ChildGetsAttributesKeyTags` | Çocuk instance'ın `key`'i testin `childKey`'i; `tags` yazılan iki etiketi içerir (runtime kendi `parent.key/domain/flow`, `root.instance` etiketlerini öne ekler); `attributes` = `customerId` (parent verisi), `mode`, `amount` (hop gövdesi) ve başka hiçbir şey (`customer` yok) |
+| `SubFlowOutput_Completed_WritesResultData` | `mode=complete`: çocuk start'ta biter; parent'ta `child` = çocuğun verisi (varsayılan `$.data`), `childOutcome = "completed"`, `childAmount = 40`; parent `child-settled`/`C` |
+| `SubFlowOutput_Faulted_WritesStatus` | `mode=wait` → çocukta `fail` → çocuk `F`; parent (boundary yok) `F`, yine de blok delta'sı yazılır: `childOutcome = "faulted"`, `childAmount = 60`, `child.mode = wait` |
+
+Dikkat noktaları:
+
+- **Çocuğun `tags`'i yalnız yazılanlar değildir:** runtime soy etiketlerini (`parent.key:…`, `parent.domain:…`,
+  `parent.flow:…`, `root.instance:…`) başa ekler; test bu yüzden `Contains` ile bakar.
+- `run-child` geçişinin kendi `output` bloğu yok, gövdesi (`mode`, `amount`, `childKey`) parent verisine eskisi gibi merge olur.
+- Fault testi MockLab ister (çocuğun `fail` task'ı `dml-http-echo`); yoksa **skip**. Diğer dördü MockLab'siz koşar.
+- `run-child` parent'ı Busy'de bırakır (SubFlow sahipliği); test `RunAcceptedAsync` yerine 202'yi kabul edip çocuğu bekler.
+
 ## Nasıl çalıştırılır
 
 Lokalde derlenen runtime'a karşı (container image eski kodu taşır), MockLab ayakta:
@@ -192,3 +233,10 @@ anahtarlı ve gövdeli `book-seat-input` instance'ı, aynı anahtar) → `…-b`
 ifade hatası / script'e düşme log'u yok. `route-channel`: `web` → `channel-web`, `mobile` ve header'sız → `channel-other`
 (hepsi `C`). Deny listesi lokal host'larda tanımlı değil: `Workflow:HeaderExposure:Deny`'ın `headers`'tan da düştüğü
 yalnız runtime unit testleriyle kanıtlı.
+
+✅ **Transition + SubFlow blokları: `DeclarativeTransitionSubFlowTests` 5/5, lab toplam 33/33** (2026-11-26, vnext
+`claude/phase-c1-core` @ 3d1043ae, lokal Debug binary; yeni akışlar `dml-transition-subflow` 1.0.0, `dml-sf-child` 1.0.0).
+İlk koşuda 1 kırmızı test kusuruydu (runtime soy etiketlerini çocuğun `tags`'ine ekler; birebir eşitlik yerine `Contains`).
+Postgres (`dml_transition_subflow."InstancesData"`): `submit` instance'ı 2 sürüm (1.0.0 start delta'sı `customer`+`startedVia`,
+1.0.1 + `order`; `noise` hiçbirinde yok); fault'lanan parent 3 sürüm, son (1.1.0) `childOutcome: "faulted"`, `child`,
+`childAmount: 60` — çıktı bloğu tek append. OpenObserve / Elasticsearch MCP bu oturumda kapalıydı: span ölçümü yok.
