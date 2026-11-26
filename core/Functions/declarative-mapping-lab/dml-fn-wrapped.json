@@ -1,0 +1,70 @@
+{
+  "key": "dml-fn-wrapped",
+  "version": "1.0.0",
+  "domain": "core",
+  "flow": "sys-functions",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "function",
+    "function-output",
+    "issue-1229"
+  ],
+  "attributes": {
+    "scope": "D",
+    "rawResponse": false,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Declarative function output block (wrapped)"
+      }
+    ],
+    "onExecutionTasks": [
+      {
+        "order": 1,
+        "task": {
+          "key": "dml-http-echo",
+          "domain": "core",
+          "version": "1.0.1",
+          "flow": "sys-tasks"
+        },
+        "variableKey": "first",
+        "input": {
+          "set": {
+            "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\"))",
+            "$.body.customerId": "input.customerId",
+            "$.headers.x-channel": "\"fn-first\""
+          }
+        }
+      },
+      {
+        "order": 2,
+        "task": {
+          "key": "dml-http-echo",
+          "domain": "core",
+          "version": "1.0.1",
+          "flow": "sys-tasks"
+        },
+        "variableKey": "second",
+        "input": {
+          "set": {
+            "$.url": "task.url.ToString().Replace(\"API_BASEURL\", config.get(\"Example:ApiBaseUrl\", \"http://localhost:3001\"))",
+            "$.body.customerId": "\"second-\" + input.customerId",
+            "$.headers.x-channel": "\"fn-second\""
+          }
+        }
+      }
+    ],
+    "output": {
+      "select": "$.first.body.echo",
+      "into": "$.data.first",
+      "set": {
+        "$.data.secondCustomer": "result.second.body.echo.customerId",
+        "$.data.scoreSum": "result.first.body.score.AsInt32() + result.second.body.score.AsInt32()",
+        "$.data.firstStatus": "result.first.statusCode",
+        "$.data.requested": "input.customerId"
+      }
+    }
+  }
+}

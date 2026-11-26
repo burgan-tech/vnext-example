@@ -183,6 +183,49 @@ Dikkat noktaları:
 - Fault testi MockLab ister (çocuğun `fail` task'ı `dml-http-echo`); yoksa **skip**. Diğer dördü MockLab'siz koşar.
 - `run-child` parent'ı Busy'de bırakır (SubFlow sahipliği); test `RunAcceptedAsync` yerine 202'yi kabul edip çocuğu bekler.
 
+## Event ve output blokları (`DeclarativeEventOutputTests`)
+
+**İddia:** Aynı gramer üç yerde daha script'in yerini alır (vnext#1229 faz C2): event `input` (`IEventMapping` yerine,
+belge `{ key, attributes }`), workflow `output` ve function `output` (çıktı script'i yerine, belge
+`{ data, statusCode, headers }`). Sözleşme: vnext `docs/runtime/declarative-task-mappings.md` § "Event input, workflow
+output and function output".
+
+```
+dml-event-output (1.0.0, F)
+  event.input: select $.input.order into $.attributes.order,
+               set $.key = input.orderId.ToString(), orderId, startedBy = "event", channel = headers["x-channel"]
+  output (yalnız sync yanıt): select $.data.order into $.data.order,
+               set via = "workflow-output", inputAmount = input.order.amount, state = instance.currentState,
+                   $.statusCode = 201, $.headers.x-dml-state = instance.currentState
+  start → awaiting (Initial) ─ approve-by-event (triggerType 3)
+                                 event.input: set $.key = input.orderId, decision, approvedBy, approvedVia = "event-input"
+                               → approved (Finish)
+
+dml-fn-wrapped (1.0.0, D, rawResponse false) / dml-fn-raw (1.0.0, D, rawResponse true)
+  onExecutionTasks: dml-http-echo ×2, variableKey first / second (input bloğu: URL config'ten, body.customerId, x-channel)
+  wrapped output: select $.first.body.echo into $.data.first, set secondCustomer, scoreSum, firstStatus, requested = input.customerId
+  raw output:     select $.second.body.echo into $.data.echo, set firstChannel, level, $.statusCode = 202,
+                  $.headers.x-dml-score = (result.first.body.score + 1)
+```
+
+| Test | İddia |
+| --- | --- |
+| `StartEvent_InputBlock_CreatesInstance` | `action=start` event'i: instance'ın `key`'i `input.orderId`; veri = yalnız bloğun yazdıkları (`order`, `orderId`, `startedBy`, event header'ından `channel`); payload'daki `noise` yok. `awaiting`/`A` |
+| `TransitionEvent_InputBlock_MovesInstance` | `action=transition&transitionKey=approve-by-event`: blok `$.key` ile AKTİF instance'ı bulur, `attributes` gövde olur; `approved`/`C`, `decision`/`approvedBy`/`approvedVia` yazılır, `noise` yok, start verisi kalır |
+| `SyncStart_WorkflowOutputBlock_ShapesResponse` | `start?sync=true` yanıtı standart zarf değil blok belgesi: 201, `x-dml-state: awaiting`, gövde `order` + `via` + `inputAmount` (`input` = start `attributes`'ı) + `state`; `id` yok. Instance verisi bloktan etkilenmez |
+| `Function_OutputBlock_Wrapped` | Yanıt `{ dmlFnWrapped: data }`; `result.first`/`result.second` iki task slotu (`body` = yanıt gövdesi, `statusCode` = 200), `scoreSum` 174, `input` istek gövdesi |
+| `Function_OutputBlock_Raw` | Yanıt sarılmaz: gövde = `data`, HTTP 202, `x-dml-score: 88` header'ı |
+
+Dikkat noktaları:
+
+- Event'ler `instances/events`'e doğrudan POST edilir (Dapr aboneliği `EventDrivenLab`'in konusu). Endpoint
+  `[DaprLocalDeliveryOnly]`: lokal host'larda mod `Enforce` olmadığı için kabul edilir; `Enforce` bir ortamda bu testler 403 alır.
+- Event yanıtı instance id taşımaz; test instance'ı `key` filtresiyle bulur.
+- Function testleri MockLab ister (`dml-http-echo`); yoksa **skip**. Event ve workflow output testleri MockLab'siz koşar.
+- İlk koşuda function testleri kırmızıydı ve runtime kusuruydu: `result.<slot>.body` görev yanıt zarfının tamamıydı
+  (`data`/`statusCode`/`isSuccess`…), `statusCode`/`headers` null — vnext `fefd8d2a` ile düzeltildi; testler belgelenmiş
+  yolla (`result.x.body.<alan>`) yazılı kaldı.
+
 ## Nasıl çalıştırılır
 
 Lokalde derlenen runtime'a karşı (container image eski kodu taşır), MockLab ayakta:
@@ -194,7 +237,7 @@ dotnet test tests/Core.IntegrationTests \
   --filter "FullyQualifiedName~DeclarativeMappingLab" -v minimal
 ```
 
-MockLab yoksa MockLab'e bağlı 5 test (3 + iki CacheAside) **skip** eder; publish, timer, lock, auto ve agent testleri yine koşar. Bileşenleri SDK
+MockLab yoksa MockLab'e bağlı testler (task binding'i 3, iki CacheAside, SubFlow fault, iki function output) **skip** eder; publish, timer, lock, auto ve agent testleri yine koşar. Bileşenleri SDK
 `LocalDomainPublisher` publish eder. Şema: yayımlanmış vnext-schema bu blokları henüz tanımıyor;
 `npm run validate` için lokal vnext-schema dalını bağla.
 
@@ -240,3 +283,11 @@ yalnız runtime unit testleriyle kanıtlı.
 Postgres (`dml_transition_subflow."InstancesData"`): `submit` instance'ı 2 sürüm (1.0.0 start delta'sı `customer`+`startedVia`,
 1.0.1 + `order`; `noise` hiçbirinde yok); fault'lanan parent 3 sürüm, son (1.1.0) `childOutcome: "faulted"`, `child`,
 `childAmount: 60` — çıktı bloğu tek append. OpenObserve / Elasticsearch MCP bu oturumda kapalıydı: span ölçümü yok.
+
+✅ **Event ve output blokları: `DeclarativeEventOutputTests` 5/5, lab toplam 38/38** (2026-11-26, vnext `claude/phase-c2`
+@ fefd8d2a, lokal Debug binary; yeni akış `dml-event-output` 1.0.0, function'lar `dml-fn-wrapped` / `dml-fn-raw` 1.0.0).
+İlk koşuda iki function testi kırmızıydı ve runtime kusuruydu (`result.<slot>.body` yanıt zarfının tamamı, `statusCode`/`headers`
+null); fefd8d2a'dan sonra testler değişmeden yeşil. Postgres (`dml_event_output`): event start 1.0.0 `order`/`orderId`/`startedBy`/
+`channel` (`noise` yok); event transition 1.0.1 + `decision`/`approvedBy`/`approvedVia: event-input`; sync start verisi yalnız
+`order` (blok veriye yazmaz). OpenObserve `Script.Execute`: `eventMapping` 3 (ort. 1,07 ms), `workflowOutput` 1 (4,08 ms),
+`functionOutput` 2 (ort. 5,47 ms), hepsi hatasız. JSON'lar lokal vnext-schema `feature/declarative-phase-c2` ile ajv'den geçti.
