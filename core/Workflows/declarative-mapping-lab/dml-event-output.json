@@ -1,0 +1,114 @@
+{
+  "key": "dml-event-output",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "event",
+    "workflow-output",
+    "issue-1229"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Declarative event input and workflow output blocks"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "event": {
+      "input": {
+        "select": "$.input.order",
+        "into": "$.attributes.order",
+        "set": {
+          "$.key": "input.orderId.ToString()",
+          "$.attributes.orderId": "input.orderId",
+          "$.attributes.startedBy": "\"event\"",
+          "$.attributes.channel": "headers[\"x-channel\"]"
+        }
+      }
+    },
+    "output": {
+      "select": "$.data.order",
+      "into": "$.data.order",
+      "set": {
+        "$.data.via": "\"workflow-output\"",
+        "$.data.inputAmount": "input.order.amount",
+        "$.data.state": "instance.currentState",
+        "$.statusCode": "201",
+        "$.headers.x-dml-state": "instance.currentState"
+      }
+    },
+    "startTransition": {
+      "key": "start-dml-event-output",
+      "target": "awaiting",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start (HTTP or event)"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "awaiting",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Awaiting approval"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "approve-by-event",
+            "target": "approved",
+            "triggerType": 3,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Approve by event (declarative input block)"
+              }
+            ],
+            "event": {
+              "input": {
+                "set": {
+                  "$.key": "input.orderId.ToString()",
+                  "$.attributes.decision": "input.decision",
+                  "$.attributes.approvedBy": "input.approvedBy",
+                  "$.attributes.approvedVia": "\"event-input\""
+                }
+              }
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "approved",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Approved"
+          }
+        ]
+      }
+    ]
+  }
+}
