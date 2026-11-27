@@ -1,0 +1,161 @@
+{
+  "key": "dml-agent-slots",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "dynamic-expresso",
+    "issue-1229",
+    "ai-agent"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Dynamic Expresso agent prompt and decision"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-dml-agent-slots",
+      "target": "classifying",
+      "triggerType": 0,
+      "versionStrategy": "Patch",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "classifying",
+        "stateType": 6,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Classifying (dynamicExpresso prompt + decision)"
+          }
+        ],
+        "subType": 5,
+        "agent": {
+          "agent": {
+            "key": "ai-triage-agent",
+            "domain": "core",
+            "flow": "sys-agents",
+            "version": "1.0.0"
+          },
+          "prompt": {
+            "location": "dynamicExpresso",
+            "encoding": "NAT",
+            "code": "\"<message>\" + data.message.ToString() + \"</message>\""
+          },
+          "output": {
+            "path": "$.triage"
+          },
+          "tools": {
+            "exclude": [
+              "lab_script"
+            ]
+          },
+          "decision": {
+            "mode": "script",
+            "fallback": "classify-failed",
+            "mapping": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "data.pick.ToString() == \"by-output\" ? (outcome.output.category.ToString() == \"question\" ? \"is-question\" : \"is-fraud\") : (candidates.has(data.pick.ToString()) ? data.pick.ToString() : null)"
+            }
+          }
+        },
+        "transitions": [
+          {
+            "key": "is-question",
+            "target": "answered",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is a question"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "is-fraud",
+            "target": "escalated",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Is fraud"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "classify-failed",
+            "target": "failed",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Classification failed"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "answered",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Answered"
+          }
+        ],
+        "subType": 1
+      },
+      {
+        "key": "escalated",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Escalated"
+          }
+        ],
+        "subType": 1
+      },
+      {
+        "key": "failed",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Failed"
+          }
+        ],
+        "subType": 1
+      }
+    ]
+  }
+}

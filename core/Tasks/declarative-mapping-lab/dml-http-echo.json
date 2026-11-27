@@ -1,0 +1,29 @@
+{
+  "key": "dml-http-echo",
+  "version": "1.0.1",
+  "domain": "core",
+  "flow": "sys-tasks",
+  "flowVersion": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "http",
+    "mocklab"
+  ],
+  "attributes": {
+    "type": "6",
+    "config": {
+      "url": "API_BASEURL/api/dml/echo",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "source": "static"
+      },
+      "contentType": "application/json",
+      "timeoutSeconds": 10,
+      "validateSsl": true
+    }
+  }
+}

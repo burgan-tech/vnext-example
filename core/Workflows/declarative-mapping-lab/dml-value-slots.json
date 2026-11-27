@@ -1,0 +1,917 @@
+{
+  "key": "dml-value-slots",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.3",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "dynamic-expresso",
+    "issue-1229",
+    "timer",
+    "resource-lock",
+    "cacheaside",
+    "auto-transition",
+    "standard-variables",
+    "hop-input",
+    "headers-variable"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Dynamic Expresso value slots"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-dml-value-slots",
+      "target": "idle",
+      "triggerType": 0,
+      "versionStrategy": "Patch",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "sharedTransitions": [
+      {
+        "key": "seat-busy",
+        "target": "seat-waiting",
+        "triggerType": 0,
+        "versionStrategy": "Patch",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Seat lock conflict (error boundary)"
+          }
+        ],
+        "onExecutionTasks": [],
+        "availableIn": [
+          "idle"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "key": "idle",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Idle"
+          }
+        ],
+        "errorBoundary": {
+          "onError": [
+            {
+              "errorCodes": [
+                "Execution:200010"
+              ],
+              "action": 2,
+              "transition": "seat-busy",
+              "priority": 10
+            }
+          ]
+        },
+        "transitions": [
+          {
+            "key": "book-seat",
+            "target": "seat-held",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Acquire the seat lock (dynamicExpresso key over context.Body)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + context.Body[\"seat\"]"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
+          },
+          {
+            "key": "book-seat-std",
+            "target": "seat-held",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Acquire the seat lock (key over data, standard variables)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + data.seat"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
+          },
+          {
+            "key": "cache-read",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "CacheAside with declarative sourceInput / sourceOutput"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "dml-cacheaside-echo",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "output": {
+                  "select": "$.body",
+                  "into": "$.cache.latest"
+                }
+              }
+            ]
+          },
+          {
+            "key": "cache-read-std",
+            "target": "$self",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "CacheAside keyed by data (standard variables)"
+              }
+            ],
+            "onExecutionTasks": [
+              {
+                "order": 1,
+                "task": {
+                  "key": "dml-cacheaside-data-key",
+                  "domain": "core",
+                  "version": "1.0.0",
+                  "flow": "sys-tasks"
+                },
+                "output": {
+                  "select": "$.body",
+                  "into": "$.cacheStd.latest"
+                }
+              }
+            ]
+          },
+          {
+            "key": "route",
+            "target": "routing",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the auto-routing state"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "route-std",
+            "target": "routing-std",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the auto-routing state (standard variables)"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "wait-timespan",
+            "target": "timer-timespan",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Arm a timer: TimeSpan from data"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "wait-iso",
+            "target": "timer-iso",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Arm a timer: ISO-8601 duration string from data"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "wait-datetime",
+            "target": "timer-datetime",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Arm a timer: Absolute instant"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "wait-null",
+            "target": "timer-null",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Arm a timer: null = immediate"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "book-seat-input",
+            "target": "seat-held",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Acquire the seat lock (key over input, the hop's request body)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + input.seat"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
+          },
+          {
+            "key": "route-input",
+            "target": "routing-input",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the input-routing state (no tasks on the hop)"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "route-channel",
+            "target": "routing-channel",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the header-routing state (the x-channel request header decides)"
+              }
+            ],
+            "onExecutionTasks": []
+          },
+          {
+            "key": "book-seat-header",
+            "target": "seat-held",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Acquire the seat lock (key over the x-seat request header)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + headers[\"x-seat\"]"
+              },
+              "action": "Acquire",
+              "ttlSeconds": 300,
+              "onConflict": "Abort"
+            }
+          }
+        ]
+      },
+      {
+        "key": "seat-held",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Seat held"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "release-seat",
+            "target": "seat-released",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Release the seat lock (same expression)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + context.Body[\"seat\"]"
+              },
+              "action": "Release"
+            }
+          },
+          {
+            "key": "release-seat-std",
+            "target": "seat-released",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Release the seat lock (same data expression)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + data.seat"
+              },
+              "action": "Release"
+            }
+          },
+          {
+            "key": "release-seat-input",
+            "target": "seat-released",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Release the seat lock (same input expression)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + input.seat"
+              },
+              "action": "Release"
+            }
+          },
+          {
+            "key": "release-seat-header",
+            "target": "seat-released",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Release the seat lock (same header expression)"
+              }
+            ],
+            "onExecutionTasks": [],
+            "resourceLock": {
+              "keyExpression": {
+                "location": "dynamicExpresso",
+                "encoding": "NAT",
+                "code": "\"dml-vs:seat:\" + headers[\"x-seat\"]"
+              },
+              "action": "Release"
+            }
+          }
+        ]
+      },
+      {
+        "key": "seat-waiting",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Seat was busy"
+          }
+        ]
+      },
+      {
+        "key": "seat-released",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Seat released"
+          }
+        ]
+      },
+      {
+        "key": "routing",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routing"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-large",
+            "target": "routed-large",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "amount > 1000"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "context.Instance.Data[\"amount\"].AsDouble() > 1000"
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-small",
+            "target": "routed-small",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "amount <= 1000"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "context.Instance.Data[\"amount\"].AsDouble() <= 1000"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "routing-std",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routing (standard variables)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-large-std",
+            "target": "routed-large",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "data.amount > 1000 and instance.currentState"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "data.amount.AsDouble() > 1000 && instance.currentState == \"routing-std\""
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-small-std",
+            "target": "routed-small",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "data.amount <= 1000 and user.available"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "data.amount.AsDouble() <= 1000 && user.available"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "routed-large",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routed large"
+          }
+        ]
+      },
+      {
+        "key": "routed-small",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routed small"
+          }
+        ]
+      },
+      {
+        "key": "timer-timespan",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timer armed (TimeSpan from data)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "fire-timespan",
+            "target": "timer-fired",
+            "triggerType": 2,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Fires on the timespan timer"
+              }
+            ],
+            "timer": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "TimeSpan.FromSeconds(data.waitSeconds.AsDouble())"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "timer-iso",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timer armed (ISO-8601 duration string from data)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "fire-iso",
+            "target": "timer-fired",
+            "triggerType": 2,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Fires on the iso timer"
+              }
+            ],
+            "timer": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "data.waitIso"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "timer-datetime",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timer armed (Absolute instant)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "fire-datetime",
+            "target": "timer-fired",
+            "triggerType": 2,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Fires on the datetime timer"
+              }
+            ],
+            "timer": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "now.AddSeconds(3.0)"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "timer-null",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timer armed (null = immediate)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "fire-null",
+            "target": "timer-fired",
+            "triggerType": 2,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Fires on the null timer"
+              }
+            ],
+            "timer": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "null"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "timer-fired",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Timer fired"
+          }
+        ]
+      },
+      {
+        "key": "routing-input",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routing on input (the manual hop's request body)"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-input-fast",
+            "target": "input-fast",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input.lane == fast"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input.lane.ToString() == \"fast\""
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-input-slow",
+            "target": "input-slow",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input.lane == slow"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input.lane.ToString() == \"slow\""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "input-fast",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Fast lane: the continuation hop's rules read input"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-continuation-null",
+            "target": "input-continuation-null",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input == null on the continuation hop"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input == null"
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-continuation-leaked",
+            "target": "input-continuation-leaked",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "input != null on the continuation hop (must not happen)"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "input != null"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "input-slow",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Slow lane"
+          }
+        ]
+      },
+      {
+        "key": "input-continuation-null",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Continuation saw input == null"
+          }
+        ]
+      },
+      {
+        "key": "input-continuation-leaked",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Continuation saw a request payload (defect)"
+          }
+        ]
+      },
+      {
+        "key": "routing-channel",
+        "stateType": 2,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Routing on the x-channel request header"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "to-channel-web",
+            "target": "channel-web",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "headers[x-channel] == web"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "headers[\"x-channel\"] == \"web\""
+            },
+            "onExecutionTasks": []
+          },
+          {
+            "key": "to-channel-other",
+            "target": "channel-other",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "no x-channel header, or not web"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "!headers.has(\"X-Channel\") || headers[\"X-Channel\"] != \"web\""
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "channel-web",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Web channel"
+          }
+        ]
+      },
+      {
+        "key": "channel-other",
+        "stateType": 3,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Other or no channel"
+          }
+        ]
+      }
+    ]
+  }
+}
