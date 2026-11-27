@@ -1,0 +1,121 @@
+{
+  "key": "faulted-recovery-lab-child",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "faulted-recovery-lab"
+  ],
+  "attributes": {
+    "type": "S",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Faulted Recovery Lab Child"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-faulted-recovery-lab-child",
+      "target": "fc-draft",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Faulted Recovery Lab Child"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "cancel": {
+      "key": "fc-cancel",
+      "target": "fc-cancelled",
+      "triggerType": 0,
+      "versionStrategy": "Minor",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Cancel"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "fc-draft",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Draft"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": [
+          {
+            "key": "fc-advance",
+            "target": "fc-done",
+            "triggerType": 0,
+            "versionStrategy": "Minor",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Advance"
+              }
+            ],
+            "onExecutionTasks": [],
+            "mapping": {
+              "location": "./src/FailOnDemandMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LlNjcmlwdGluZzsKCi8vLyA8c3VtbWFyeT4KLy8vIGZhdWx0ZWQtcmVjb3ZlcnktbGFiOiB0aGUgbWFwcGluZyBvZiB0aGUgbWFudWFsIHRyYW5zaXRpb24sIG9mIHVwZGF0ZURhdGEgYW5kIG9mIHRoZSByZXNlcnZlZCBjYW5jZWwuCi8vLyBUaGUgcmVxdWVzdCBkZWNpZGVzIGhvdyBpdCBlbmRzLCB0aHJvdWdoIDxjPmZhaWxXaXRoPC9jPjoKLy8vIDxsaXN0IHR5cGU9ImJ1bGxldCI+Ci8vLyA8aXRlbT48Yz4idGhyb3ciPC9jPiDigJQgdGhlIG1hcHBpbmcgdGhyb3dzLCBiZWZvcmUgYW55dGhpbmcgaXMgd3JpdHRlbi48L2l0ZW0+Ci8vLyA8aXRlbT48Yz4ic2NoZW1hIjwvYz4g4oCUIHRoZSBtYXBwaW5nIHJldHVybnMgYSBmaWVsZCB0aGUgY2xvc2VkIG1hc3RlciBzY2hlbWEgZG9lcyBub3QgZGVjbGFyZSwgc28gdGhlCi8vLyBkYXRhIHdyaXRlIHRoYXQgZm9sbG93cyBpdCBmYWlscyBzY2hlbWEgdmFsaWRhdGlvbi48L2l0ZW0+Ci8vLyA8aXRlbT5hYnNlbnQg4oCUIHRoZSBtYXBwaW5nIHJldHVybnMgPGM+bm90ZTwvYz4gKHdoZW4gc2VudCkgYW5kIDxjPm1hcHBlZEJ5PC9jPi48L2l0ZW0+Ci8vLyA8L2xpc3Q+Ci8vLyA8L3N1bW1hcnk+CnB1YmxpYyBjbGFzcyBGYWlsT25EZW1hbmRNYXBwaW5nIDogU2NyaXB0QmFzZSwgSVRyYW5zaXRpb25NYXBwaW5nCnsKICAgIHB1YmxpYyBUYXNrPGR5bmFtaWM+IEhhbmRsZXIoU2NyaXB0Q29udGV4dCBjb250ZXh0KQogICAgewogICAgICAgIHZhciBib2R5ID0gY29udGV4dC5Cb2R5OwogICAgICAgIHZhciBmYWlsV2l0aCA9IGJvZHkgIT0gbnVsbCAmJiBIYXNQcm9wZXJ0eShib2R5LCAiZmFpbFdpdGgiKSA/IGJvZHkuZmFpbFdpdGg/LlRvU3RyaW5nKCkgOiBudWxsOwoKICAgICAgICBpZiAoZmFpbFdpdGggPT0gInRocm93IikKICAgICAgICAgICAgdGhyb3cgbmV3IEludmFsaWRPcGVyYXRpb25FeGNlcHRpb24oImZhdWx0ZWQtcmVjb3ZlcnktbGFiOiB0aGUgcmVxdWVzdCBhc2tlZCB0aGUgbWFwcGluZyB0byB0aHJvdyIpOwoKICAgICAgICBkeW5hbWljIGRhdGEgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGRhdGEubWFwcGVkQnkgPSAiZmFpbC1vbi1kZW1hbmQiOwogICAgICAgIGlmIChib2R5ICE9IG51bGwgJiYgSGFzUHJvcGVydHkoYm9keSwgIm5vdGUiKSkKICAgICAgICAgICAgZGF0YS5ub3RlID0gYm9keS5ub3RlPy5Ub1N0cmluZygpOwogICAgICAgIGlmIChmYWlsV2l0aCA9PSAic2NoZW1hIikKICAgICAgICAgICAgZGF0YS5ub3RJblRoZU1hc3RlclNjaGVtYSA9IHRydWU7CgogICAgICAgIHJldHVybiBUYXNrLkZyb21SZXN1bHQ8ZHluYW1pYz4oZGF0YSk7CiAgICB9Cn0K"
+            }
+          }
+        ]
+      },
+      {
+        "key": "fc-done",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Done"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      },
+      {
+        "key": "fc-cancelled",
+        "stateType": 3,
+        "subType": 7,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child Cancelled"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
