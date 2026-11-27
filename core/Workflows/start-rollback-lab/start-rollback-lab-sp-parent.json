@@ -1,0 +1,72 @@
+{
+  "key": "start-rollback-lab-sp-parent",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "start-rollback-lab",
+    "parent",
+    "subprocess"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Start Rollback Lab SubProcess Parent"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "startTransition": {
+      "key": "start-start-rollback-lab-sp-parent",
+      "target": "sp-parent-ready",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start Start Rollback Lab SubProcess Parent"
+        }
+      ],
+      "onExecutionTasks": []
+    },
+    "states": [
+      {
+        "key": "sp-parent-ready",
+        "stateType": 1,
+        "subType": 0,
+        "versionStrategy": "Major",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "SubProcess Parent Ready"
+          }
+        ],
+        "view": null,
+        "subFlow": null,
+        "onEntries": [
+          {
+            "order": 1,
+            "task": {
+              "key": "start-rollback-lab-start-process",
+              "domain": "core",
+              "version": "1.0.0",
+              "flow": "sys-tasks"
+            },
+            "mapping": {
+              "location": "./src/ParentToProcessMapping.csx",
+              "code": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRHluYW1pYzsKdXNpbmcgU3lzdGVtLlRocmVhZGluZy5UYXNrczsKdXNpbmcgQkJULldvcmtmbG93LkRlZmluaXRpb25zOwp1c2luZyBCQlQuV29ya2Zsb3cuU2NyaXB0aW5nOwoKLy8vIDxzdW1tYXJ5PgovLy8gc3RhcnQtcm9sbGJhY2stbGFiOiB0aGUgU3ViUHJvY2VzcyBwYXJlbnQncyB0YXNrIGlucHV0LiBJdCBzdGFydHMgPGM+c3RhcnQtcm9sbGJhY2stbGFiLXByb2Nlc3M8L2M+Ci8vLyBhbmQgcGFzc2VzIDxjPmN1c3RvbWVySWQ8L2M+IG9uIG9ubHkgd2hlbiB0aGUgcGFyZW50J3Mgb3duIGRhdGEgaGFzIG9uZSwgc28gYSBwYXJlbnQgc3RhcnRlZAovLy8gd2l0aG91dCBpdCBzdGFydHMgYSBwcm9jZXNzIHdob3NlIHN0YXJ0IG1hcHBpbmcgdGhyb3dzICg8Yz5SZXF1aXJlQ3VzdG9tZXJTdGFydE1hcHBpbmc8L2M+KS4KLy8vIDwvc3VtbWFyeT4KcHVibGljIGNsYXNzIFBhcmVudFRvUHJvY2Vzc01hcHBpbmcgOiBTY3JpcHRCYXNlLCBJTWFwcGluZwp7CiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gSW5wdXRIYW5kbGVyKFdvcmtmbG93VGFzayB0YXNrLCBTY3JpcHRDb250ZXh0IGNvbnRleHQpCiAgICB7CiAgICAgICAgdmFyIHN1YlByb2Nlc3MgPSB0YXNrIGFzIFN1YlByb2Nlc3NUYXNrCiAgICAgICAgICAgID8/IHRocm93IG5ldyBJbnZhbGlkT3BlcmF0aW9uRXhjZXB0aW9uKCJzdGFydC1yb2xsYmFjay1sYWI6IHRoZSB0YXNrIG11c3QgYmUgYSBTdWJQcm9jZXNzVGFzayIpOwoKICAgICAgICB2YXIgZGF0YSA9IGNvbnRleHQuSW5zdGFuY2UuRGF0YTsKICAgICAgICBkeW5hbWljIGJvZHkgPSBuZXcgRXhwYW5kb09iamVjdCgpOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgSGFzUHJvcGVydHkoZGF0YSwgInJ1bklkIikpCiAgICAgICAgICAgIGJvZHkucnVuSWQgPSBkYXRhLnJ1bklkOwogICAgICAgIGlmIChkYXRhICE9IG51bGwgJiYgSGFzUHJvcGVydHkoZGF0YSwgImN1c3RvbWVySWQiKSkKICAgICAgICAgICAgYm9keS5jdXN0b21lcklkID0gZGF0YS5jdXN0b21lcklkOwoKICAgICAgICBzdWJQcm9jZXNzLlNldEJvZHkoYm9keSk7CiAgICAgICAgc3ViUHJvY2Vzcy5TZXRTeW5jKGZhbHNlKTsKICAgICAgICByZXR1cm4gVGFzay5Gcm9tUmVzdWx0KG5ldyBTY3JpcHRSZXNwb25zZSgpKTsKICAgIH0KCiAgICAvLyBGaXJlIGFuZCBmb3JnZXQ6IHRoZSBwcm9jZXNzIHJlcG9ydHMgbm90aGluZyBiYWNrIHRvIHRoZSBwYXJlbnQuCiAgICBwdWJsaWMgVGFzazxTY3JpcHRSZXNwb25zZT4gT3V0cHV0SGFuZGxlcihTY3JpcHRDb250ZXh0IGNvbnRleHQpID0+IFRhc2suRnJvbVJlc3VsdChuZXcgU2NyaXB0UmVzcG9uc2UoKSk7Cn0K"
+            }
+          }
+        ],
+        "onExits": [],
+        "transitions": []
+      }
+    ]
+  }
+}
