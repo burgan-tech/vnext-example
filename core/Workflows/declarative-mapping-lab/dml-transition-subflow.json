@@ -1,0 +1,178 @@
+{
+  "key": "dml-transition-subflow",
+  "flow": "sys-flows",
+  "flowVersion": "1.0.0",
+  "domain": "core",
+  "version": "1.0.0",
+  "tags": [
+    "integration-test",
+    "declarative-mapping-lab",
+    "transition-output",
+    "subflow",
+    "issue-1229"
+  ],
+  "attributes": {
+    "type": "F",
+    "timeout": null,
+    "labels": [
+      {
+        "language": "en-US",
+        "label": "Declarative blocks on transitions and SubFlow states"
+      }
+    ],
+    "functions": [],
+    "features": [],
+    "extensions": [],
+    "sharedTransitions": [],
+    "startTransition": {
+      "key": "start-dml-transition-subflow",
+      "target": "ready",
+      "triggerType": 0,
+      "versionStrategy": "Major",
+      "labels": [
+        {
+          "language": "en-US",
+          "label": "Start (output block shapes the initial data)"
+        }
+      ],
+      "onExecutionTasks": [],
+      "output": {
+        "select": "$.input.customer",
+        "into": "$.customer",
+        "set": {
+          "$.startedVia": "\"start-output\""
+        }
+      }
+    },
+    "states": [
+      {
+        "key": "ready",
+        "stateType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Ready"
+          }
+        ],
+        "transitions": [
+          {
+            "key": "submit",
+            "target": "submitted",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Transition output block: only the delta lands"
+              }
+            ],
+            "onExecutionTasks": [],
+            "output": {
+              "select": "$.input.order",
+              "into": "$.order",
+              "set": {
+                "$.order.previousState": "instance.currentState",
+                "$.order.submittedAt": "now"
+              }
+            }
+          },
+          {
+            "key": "run-child",
+            "target": "child-run",
+            "triggerType": 0,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Enter the SubFlow state"
+              }
+            ],
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "submitted",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Submitted"
+          }
+        ]
+      },
+      {
+        "key": "child-run",
+        "stateType": 4,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child running (SubFlow input + output blocks)"
+          }
+        ],
+        "subFlow": {
+          "type": "S",
+          "process": {
+            "key": "dml-sf-child",
+            "domain": "core",
+            "version": "1.0.0",
+            "flow": "sys-flows"
+          },
+          "input": {
+            "set": {
+              "$.attributes.customerId": "data.customer.id",
+              "$.attributes.mode": "input.mode",
+              "$.attributes.amount": "input.amount",
+              "$.headers.x-channel": "\"web\"",
+              "$.key": "input.childKey.ToString()",
+              "$.tags": "new string[] { \"dml-child\", \"declarative-input\" }"
+            }
+          },
+          "output": {
+            "into": "$.child",
+            "set": {
+              "$.childOutcome": "result.status",
+              "$.childAmount": "result.data.amount"
+            }
+          }
+        },
+        "transitions": [
+          {
+            "key": "after-child",
+            "target": "child-settled",
+            "triggerType": 1,
+            "versionStrategy": "Patch",
+            "labels": [
+              {
+                "language": "en-US",
+                "label": "Leave once the child completed"
+              }
+            ],
+            "rule": {
+              "location": "dynamicExpresso",
+              "encoding": "NAT",
+              "code": "true"
+            },
+            "onExecutionTasks": []
+          }
+        ]
+      },
+      {
+        "key": "child-settled",
+        "stateType": 3,
+        "subType": 1,
+        "versionStrategy": "Minor",
+        "labels": [
+          {
+            "language": "en-US",
+            "label": "Child settled"
+          }
+        ]
+      }
+    ]
+  }
+}
